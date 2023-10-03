@@ -14,3 +14,6 @@ dependencyResolutionManagement {
 }
 rootProject.name = "SocialApp"
 include ':app'
+include ':data:posts'
+include ':feature:posts'
+include ':core'

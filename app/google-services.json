@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "248788416128",
+    "project_id": "social-platform-3e56e",
+    "storage_bucket": "social-platform-3e56e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:248788416128:android:69f564e9898fece675d865",
+        "android_client_info": {
+          "package_name": "com.gp.socialapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBduATjyHNd7NqgXlXAbpQsWTjUpqG8glM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
