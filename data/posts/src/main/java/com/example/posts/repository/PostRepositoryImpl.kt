@@ -3,17 +3,20 @@ package com.example.posts.repository
 import com.example.posts.source.local.PostLocalDataSource
 import com.gp.socialapp.models.Post
 import com.gp.socialapp.models.Reply
+import com.gp.socialapp.models.relationship.PostWithReplies
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class PostRepositoryImpl @Inject constructor(
     private val postLocalDataSource: PostLocalDataSource
 ) : PostRepository {
-    override suspend fun insertPost(post: Post) = postLocalDataSource.insertPost(post)
+    override suspend fun insertPost(post: Post):Long = postLocalDataSource.insertPost(post)
 
     override suspend fun insertPosts(posts: List<Post>) = postLocalDataSource.insertPosts(posts)
 
-    override suspend fun insertReply(reply: Reply) = postLocalDataSource.insertReply(reply)
+    override suspend fun insertReply(reply: Reply): Long = postLocalDataSource.insertReply(reply)
 
     override suspend fun insertReplies(replies: List<Reply>) = postLocalDataSource.insertReplies(replies)
 
@@ -50,5 +53,8 @@ class PostRepositoryImpl @Inject constructor(
     override fun getRepliesByParentReplyId(parentReplyId: Long): Flow<List<Reply>> = postLocalDataSource.getRepliesByParentReplyId(parentReplyId)
 
     override fun getTopLevelRepliesByPostId(postId: Long): Flow<List<Reply>> = postLocalDataSource.getTopLevelRepliesByPostId(postId)
+    override fun getPostwithMappedReplies(postId: Long): Flow<PostWithReplies> = postLocalDataSource.getPostwithReplies(postId)
+    override fun getAllPostswithReplies(): Flow<List<PostWithReplies>> = postLocalDataSource.getAllPostswithReplies()
+
 
 }

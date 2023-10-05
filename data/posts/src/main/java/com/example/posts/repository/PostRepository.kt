@@ -2,13 +2,14 @@ package com.example.posts.repository
 
 import com.gp.socialapp.models.Post
 import com.gp.socialapp.models.Reply
+import com.gp.socialapp.models.relationship.PostWithReplies
 import kotlinx.coroutines.flow.Flow
 
 interface PostRepository {
 
-    suspend fun insertPost(post: Post)
+    suspend fun insertPost(post: Post): Long
     suspend fun insertPosts(posts: List<Post>)
-    suspend fun insertReply(reply: Reply)
+    suspend fun insertReply(reply: Reply): Long
     suspend fun insertReplies(replies: List<Reply>)
     suspend fun updatePost(post: Post)
     suspend fun updatePosts(posts: List<Post>)
@@ -27,4 +28,10 @@ interface PostRepository {
     fun getReplyById(id: Long): Flow<Reply>
     fun getRepliesByParentReplyId(parentReplyId: Long): Flow<List<Reply>>
     fun getTopLevelRepliesByPostId(postId: Long): Flow<List<Reply>>
+
+    fun getPostwithMappedReplies(postId: Long): Flow<PostWithReplies>
+
+    fun getAllPostswithReplies(): Flow<List<PostWithReplies>>
+
+
 }

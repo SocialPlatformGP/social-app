@@ -3,17 +3,18 @@ package com.example.posts.source.local
 import com.gp.socialapp.dao.PostDao
 import com.gp.socialapp.models.Post
 import com.gp.socialapp.models.Reply
+import com.gp.socialapp.models.relationship.PostWithReplies
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class PostLocalDataSourceImpl @Inject constructor(
     private val postDao: PostDao
 ) : PostLocalDataSource{
-    override suspend fun insertPost(post: Post) = postDao.insertPost(post)
+    override suspend fun insertPost(post: Post) :Long = postDao.insertPost(post)
 
     override suspend fun insertPosts(posts: List<Post>) = postDao.insertPosts(posts)
 
-    override suspend fun insertReply(reply: Reply) = postDao.insertReply(reply)
+    override suspend fun insertReply(reply: Reply): Long = postDao.insertReply(reply)
 
     override suspend fun insertReplies(replies: List<Reply>) = postDao.insertReplies(replies)
 
@@ -50,5 +51,7 @@ class PostLocalDataSourceImpl @Inject constructor(
     override fun getRepliesByParentReplyId(parentReplyId: Long): Flow<List<Reply>> = postDao.getRepliesByParentReplyId(parentReplyId)
 
     override fun getTopLevelRepliesByPostId(postId: Long): Flow<List<Reply>> = postDao.getTopLevelRepliesByPostId(postId)
+    override fun getPostwithReplies(postId: Long): Flow<PostWithReplies> = postDao.getPostwithReplies(postId)
+    override fun getAllPostswithReplies(): Flow<List<PostWithReplies>> = postDao.getAllPostswithReplies()
 
 }
