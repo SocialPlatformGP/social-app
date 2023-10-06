@@ -32,36 +32,31 @@ class TestViewModel @Inject constructor(
     )
 
     private fun buildNestedReplies(postWithReplies: List<PostWithReplies>): List<PostItem> {
-        val nestedReplies = mutableListOf<PostItem>()
-        postWithReplies.forEach { postWithReply ->
+        return postWithReplies.map { postWithReply ->
             val post = postWithReply.post
             val replies = postWithReply.replies
-            val topLevelReplies = replies.filter { it.parentReplyId == null }
-            val nestedRepliesList = mutableListOf<NestedReplyItem>()
-            topLevelReplies.forEach { topLevelReply ->
-                val reply = buildNestedReply(topLevelReply, replies)
-                nestedRepliesList.add(reply)
-            }
-            nestedReplies.add(PostItem(post = post, replies = nestedRepliesList))
+            val nestedRepliesList = buildNestedReplies(replies, null)
+            PostItem(post = post, replies = nestedRepliesList)
         }
-        Log.d("TestViewModel", "buildNestedReplies: $nestedReplies")
-        return nestedReplies
     }
 
-    private fun buildNestedReply(
-        reply: Reply,
-        allReplies: List<Reply>
-    ): NestedReplyItem {
-        val nestedReplies = allReplies
-            .filter { it.parentReplyId == reply.id }
-            .map { buildNestedReply(it, allReplies) }
-        return NestedReplyItem(
-            postId = reply.postId,
-            parentReply = reply.parentReplyId,
-            reply = reply,
-            replies = nestedReplies
-        )
+    private fun buildNestedReplies(
+        replies: List<Reply>,
+        parentReplyId: Long?
+    ): List<NestedReplyItem> {
+        return replies
+            .filter { it.parentReplyId == parentReplyId }
+            .map { reply ->
+                val nestedReplies = buildNestedReplies(replies, reply.id)
+                NestedReplyItem(
+                    postId = reply.postId,
+                    parentReply = reply.parentReplyId,
+                    reply = reply,
+                    replies = nestedReplies
+                )
+            }
     }
+
 
 
 
