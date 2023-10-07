@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.posts.repository.PostRepository
-import com.gp.socialapp.database.model.Post
+import com.gp.socialapp.database.model.PostEntity
 import com.gp.socialapp.database.model.Reply
 import com.gp.socialapp.database.model.relationship.PostWithReplies
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,7 +26,7 @@ class TestViewModel @Inject constructor(
     )
 
     data class PostItem(
-        val post: Post,
+        val post: PostEntity,
         val replies: List<NestedReplyItem>
     )
 
@@ -72,12 +72,12 @@ class TestViewModel @Inject constructor(
     }
 
     fun insertdummy(){
-        val post1 = Post( title = "Post 1", content = "Content of Post 1", upvotes = 10, downvotes = 2)
-        val post2 = Post( title = "Post 2", content = "Content of Post 2", upvotes = 15, downvotes = 3)
-        val post3 = Post( title = "Post 3", content = "Content of Post 3", upvotes = 15, downvotes = 3)
-        val post4 = Post( title = "Post 4", content = "Content of Post 4", upvotes = 15, downvotes = 3)
-        val post5 = Post( title = "Post 5", content = "Content of Post 5", upvotes = 15, downvotes = 3)
-        val post6 = Post( title = "Post 6", content = "Content of Post 6", upvotes = 15, downvotes = 3)
+        val post1 = PostEntity( title = "Post 1", content = "Content of Post 1", upvotes = 10, downvotes = 2)
+        val post2 = PostEntity( title = "Post 2", content = "Content of Post 2", upvotes = 15, downvotes = 3)
+        val post3 = PostEntity( title = "Post 3", content = "Content of Post 3", upvotes = 15, downvotes = 3)
+        val post4 = PostEntity( title = "Post 4", content = "Content of Post 4", upvotes = 15, downvotes = 3)
+        val post5 = PostEntity( title = "Post 5", content = "Content of Post 5", upvotes = 15, downvotes = 3)
+        val post6 = PostEntity( title = "Post 6", content = "Content of Post 6", upvotes = 15, downvotes = 3)
 
         viewModelScope.launch (Dispatchers.IO){
             val postId1 = repository.insertPost(post1)
