@@ -5,8 +5,6 @@ import com.gp.socialapp.model.NetworkPost
 import com.gp.socialapp.source.local.PostLocalDataSource
 import com.gp.socialapp.source.remote.PostRemoteDataSource
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.internal.NopCollector.emit
 import javax.inject.Inject
 
 class PostRepositoryImpl @Inject constructor (
