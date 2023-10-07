@@ -50,8 +50,7 @@ interface ReplyDao {
     @Query("SELECT * FROM replies WHERE parentReplyId IS NULL AND postId = :postId")
     fun getTopLevelRepliesByPostId(postId: Long): Flow<List<Reply>>
 
-    @Query("SELECT * FROM posts WHERE id = :postId")
-    fun getPostwithReplies(postId: Long): Flow<PostWithReplies>
+
 
     @Query("SELECT * FROM posts")
     fun getAllPostswithReplies(): Flow<List<PostWithReplies>>
