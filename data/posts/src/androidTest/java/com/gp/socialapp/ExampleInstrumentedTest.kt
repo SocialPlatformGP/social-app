@@ -1,4 +1,4 @@
-package com.gp.posts
+package com.gp.socialapp
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

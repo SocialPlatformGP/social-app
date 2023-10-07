@@ -1,4 +1,4 @@
-package com.gp.core
+package com.gp.socialapp
 
 import org.junit.Test
 
