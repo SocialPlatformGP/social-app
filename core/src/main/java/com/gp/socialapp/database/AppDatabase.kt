@@ -5,10 +5,10 @@ import androidx.room.RoomDatabase
 import com.gp.socialapp.database.dao.PostDao
 import com.gp.socialapp.database.dao.ReplyDao
 import com.gp.socialapp.database.model.PostEntity
-import com.gp.socialapp.database.model.Reply
+import com.gp.socialapp.database.model.ReplyEntity
 
 @Database(
-    entities=[PostEntity::class, Reply::class],
+    entities=[PostEntity::class, ReplyEntity::class],
     version = 1,
     exportSchema = false
 )

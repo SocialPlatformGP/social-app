@@ -7,11 +7,12 @@ import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import com.gp.socialapp.database.model.PostEntity
 import com.gp.socialapp.model.NetworkPost
+import com.gp.socialapp.util.PostMapper.toEntity
 import com.gp.socialapp.util.PostMapper.toNetworkModel
 import javax.inject.Inject
 
 class PostFirestoreClient@Inject constructor(private val firestore: FirebaseFirestore): PostRemoteDataSource {
-    override suspend fun createPost(post: NetworkPost) {
+    override suspend fun createPost(post: NetworkPost){
         firestore.collection("posts").add(post).addOnSuccessListener {
             Log.d("TAG", "Post Created Successfully")
         }.addOnFailureListener {

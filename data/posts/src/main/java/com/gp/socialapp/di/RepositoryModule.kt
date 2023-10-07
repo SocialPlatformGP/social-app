@@ -6,6 +6,7 @@ import com.gp.socialapp.repository.ReplyRepository
 import com.gp.socialapp.repository.ReplyRepositoryImpl
 import com.gp.socialapp.source.local.PostLocalDataSource
 import com.gp.socialapp.source.local.ReplyLocalDataSource
+import com.gp.socialapp.source.remote.PostRemoteDataSource
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,6 +21,6 @@ object RepositoryModule {
         return ReplyRepositoryImpl(replyLocalDataSource)
     }
     @Provides
-    fun providePostRepository(postLocalDataSource: PostLocalDataSource)
-    : PostRepository = PostRepositoryImpl(postLocalDataSource)
+    fun providePostRepository(postLocalDataSource: PostLocalDataSource, postRemoteDataSource: PostRemoteDataSource)
+    : PostRepository = PostRepositoryImpl(postLocalDataSource, postRemoteDataSource)
 }

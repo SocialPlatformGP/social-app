@@ -1,22 +1,22 @@
 package com.gp.socialapp.repository
 
-import com.gp.socialapp.database.model.Reply
+import com.gp.socialapp.database.model.ReplyEntity
 import com.gp.socialapp.database.model.relationship.PostWithReplies
 import kotlinx.coroutines.flow.Flow
 
 interface ReplyRepository {
-    suspend fun insertReply(reply: Reply): Long
-    suspend fun insertReplies(replies: List<Reply>)
-    suspend fun updateReply(reply: Reply)
-    suspend fun updateReplies(replies: List<Reply>)
-    suspend fun deleteReply(reply: Reply)
-    suspend fun deleteReplies(replies: List<Reply>)
+    suspend fun insertReply(replyEntity: ReplyEntity): Long
+    suspend fun insertReplies(replies: List<ReplyEntity>)
+    suspend fun updateReply(replyEntity: ReplyEntity)
+    suspend fun updateReplies(replies: List<ReplyEntity>)
+    suspend fun deleteReply(replyEntity: ReplyEntity)
+    suspend fun deleteReplies(replies: List<ReplyEntity>)
     suspend fun deleteAllReplies()
-    fun getAllReplies(): Flow<List<Reply>>
-    fun getRepliesByPostId(postId: Long): Flow<List<Reply>>
-    fun getReplyById(id: Long): Flow<Reply>
-    fun getRepliesByParentReplyId(parentReplyId: Long): Flow<List<Reply>>
-    fun getTopLevelRepliesByPostId(postId: Long): Flow<List<Reply>>
+    fun getAllReplies(): Flow<List<ReplyEntity>>
+    fun getRepliesByPostId(postId: String): Flow<List<ReplyEntity>>
+    fun getReplyById(id: Long): Flow<ReplyEntity>
+    fun getRepliesByParentReplyId(parentReplyId: Long): Flow<List<ReplyEntity>>
+    fun getTopLevelRepliesByPostId(postId: String): Flow<List<ReplyEntity>>
 
 
     fun getAllPostswithReplies(): Flow<List<PostWithReplies>>
