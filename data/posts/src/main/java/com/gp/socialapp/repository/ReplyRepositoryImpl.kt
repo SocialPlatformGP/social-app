@@ -36,7 +36,6 @@ class ReplyRepositoryImpl @Inject constructor(
     override fun getRepliesByParentReplyId(parentReplyId: Long): Flow<List<Reply>> = replyLocalDataSource.getRepliesByParentReplyId(parentReplyId)
 
     override fun getTopLevelRepliesByPostId(postId: Long): Flow<List<Reply>> = replyLocalDataSource.getTopLevelRepliesByPostId(postId)
-    override fun getPostwithMappedReplies(postId: Long): Flow<PostWithReplies> = replyLocalDataSource.getPostwithReplies(postId)
     override fun getAllPostswithReplies(): Flow<List<PostWithReplies>> = replyLocalDataSource.getAllPostswithReplies()
 
 

@@ -19,7 +19,6 @@ interface ReplyLocalDataSource {
     fun getRepliesByParentReplyId(parentReplyId: Long): Flow<List<Reply>>
     fun getTopLevelRepliesByPostId(postId: Long): Flow<List<Reply>>
 
-    fun getPostwithReplies(postId: Long): Flow<PostWithReplies>
 
     fun getAllPostswithReplies(): Flow<List<PostWithReplies>>
 
