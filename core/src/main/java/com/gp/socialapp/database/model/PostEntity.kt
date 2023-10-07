@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "posts")
 data class PostEntity(
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name="id") val id: Long = 0,
+    @ColumnInfo(name="id") val id: String,
     @ColumnInfo(name="author_id") val authorID: Long,
     @ColumnInfo(name = "published_at") val publishedAt: String,
     @ColumnInfo(name="title") val title: String,
