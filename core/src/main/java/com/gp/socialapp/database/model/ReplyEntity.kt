@@ -12,6 +12,7 @@ data class ReplyEntity(
     val content: String,
     val upvotes: Int,
     val downvotes: Int,
-    val depth: Int // Used to determine the indentation level of the reply in the UI
+    val depth: Int ,// Used to determine the indentation level of the reply in the UI
+    val path:String // Used to determine the path of the reply in the UI
 )
 
