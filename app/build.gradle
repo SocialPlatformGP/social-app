@@ -10,7 +10,7 @@ plugins {
 
 android {
     namespace 'com.gp.socialapp'
-    compileSdk 33
+    compileSdk 34
     dataBinding {
         enabled = true
     }
@@ -18,9 +18,8 @@ android {
     defaultConfig {
         applicationId "com.gp.socialapp"
         minSdk 24
-        targetSdk 33
+        targetSdk 34
         versionCode 1
-        versionName kotlin_version
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -63,8 +62,8 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
     // Dagger Hilt
-    implementation("com.google.dagger:hilt-android:2.44")
-    kapt("com.google.dagger:hilt-android-compiler:2.44")
+    implementation "com.google.dagger:hilt-android:2.48"
+    kapt "com.google.dagger:hilt-compiler:2.48"
 
     // Navigation
     implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")

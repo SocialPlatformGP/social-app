@@ -52,8 +52,6 @@ interface ReplyDao {
 
 
 
-    @Query("SELECT * FROM posts")
-    fun getAllPostswithReplies(): Flow<List<PostWithReplies>>
 
 
 }

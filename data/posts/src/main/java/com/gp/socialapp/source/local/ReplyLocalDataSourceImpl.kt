@@ -34,6 +34,5 @@ class ReplyLocalDataSourceImpl @Inject constructor(
     override fun getRepliesByParentReplyId(parentReplyId: Long): Flow<List<ReplyEntity>> = replyDao.getRepliesByParentReplyId(parentReplyId)
 
     override fun getTopLevelRepliesByPostId(postId: String): Flow<List<ReplyEntity>> = replyDao.getTopLevelRepliesByPostId(postId)
-    override fun getAllPostswithReplies(): Flow<List<PostWithReplies>> = replyDao.getAllPostswithReplies()
 
 }

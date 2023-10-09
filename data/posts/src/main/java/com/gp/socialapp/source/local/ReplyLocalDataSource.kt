@@ -20,7 +20,6 @@ interface ReplyLocalDataSource {
     fun getTopLevelRepliesByPostId(postId: String): Flow<List<ReplyEntity>>
 
 
-    fun getAllPostswithReplies(): Flow<List<PostWithReplies>>
 
 
 }
