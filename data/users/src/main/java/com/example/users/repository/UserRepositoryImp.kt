@@ -2,6 +2,7 @@ package com.example.users.repository
 
 import com.example.users.Source.local.UserLocalDataSource
 import com.example.users.Source.remote.UserRemoteDataSource
+import com.example.users.model.NetworkUser
 import com.gp.socialapp.database.model.UserEntity
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -17,7 +18,7 @@ class UserRepositoryImp @Inject constructor( private val userLocalSource: UserLo
     }
 
     override suspend fun deleteUser(userEntity: UserEntity) {
-        userLocalSource.DeleteUser(userEntity)
+        userLocalSource.deleteUser(userEntity)
     }
 
     override suspend fun getAllUsers(): Flow<List<UserEntity>> {
@@ -26,5 +27,21 @@ class UserRepositoryImp @Inject constructor( private val userLocalSource: UserLo
 
     override suspend fun getUserByID(userID: String) {
         userLocalSource.getUserByID(userID)
+    }
+
+    override suspend fun createPost(user: NetworkUser) {
+        userRemoteSource.createPost(user)
+    }
+
+    override suspend fun updatePost(user: UserEntity) {
+      userRemoteSource.updatePost(user)
+    }
+
+    override suspend fun fetchPosts(): Flow<List<NetworkUser>> {
+        return userRemoteSource.fetchPosts()
+    }
+
+    override suspend fun deletePost(user: UserEntity) {
+        userRemoteSource.deletePost(user)
     }
 }
