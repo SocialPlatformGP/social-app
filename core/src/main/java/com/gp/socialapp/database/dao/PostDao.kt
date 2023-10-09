@@ -15,7 +15,7 @@ interface PostDao {
     @Update
     suspend fun updatePost(post: PostEntity)
     @Query("select * from posts")
-    suspend fun getAllPosts(): Flow<List<PostEntity>>
+    suspend fun getAllPosts(): List<PostEntity>
     @Delete
     suspend fun deletePost(post: PostEntity)
 }
