@@ -2,13 +2,9 @@ package com.gp.socialapp.source.remote
 
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
-import com.gp.socialapp.database.model.PostEntity
-import com.gp.socialapp.model.NetworkPost
 import com.gp.socialapp.model.Reply
-import com.gp.socialapp.util.PostMapper.toNetworkModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
-import java.io.File.separator
 import javax.inject.Inject
 
 class ReplyFirestoreClient @Inject constructor(private val firestore: FirebaseFirestore) :
