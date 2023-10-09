@@ -2,6 +2,7 @@ package com.gp.socialapp.repository
 
 import com.gp.socialapp.database.model.ReplyEntity
 import com.gp.socialapp.database.model.relationship.PostWithReplies
+import com.gp.socialapp.model.Reply
 import kotlinx.coroutines.flow.Flow
 
 interface ReplyRepository {
@@ -20,6 +21,12 @@ interface ReplyRepository {
 
 
     fun getAllPostswithReplies(): Flow<List<PostWithReplies>>
+
+    ////////////remote////////////
+    suspend fun createReply(reply: Reply)
+    fun fetchReplies(postId: String): Flow<List<Reply>>
+    suspend fun updateReply(reply: Reply)
+    suspend fun deleteReply(reply: Reply)
 
 
 }

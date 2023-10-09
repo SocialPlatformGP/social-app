@@ -3,7 +3,6 @@ package com.gp.socialapp.source.remote
 import android.util.Log
 import com.google.android.gms.common.internal.safeparcel.SafeParcelable
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import com.gp.socialapp.database.model.PostEntity
 import com.gp.socialapp.model.NetworkPost
