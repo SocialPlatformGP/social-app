@@ -16,7 +16,6 @@ object RemoteSourceModule {
     @Provides
     fun provideUserRemoteDataSource(firestore: FirebaseFirestore): UserRemoteDataSource = UserfirestoreClient(firestore)
     @Provides
-    fun provideFirestoreObject():FirebaseFirestore{
-        return Firebase.firestore
-    }
+    fun provideFirestoreObject():FirebaseFirestore = Firebase.firestore
+
 }

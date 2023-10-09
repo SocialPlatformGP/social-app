@@ -11,11 +11,11 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface PostDao {
     @Insert
-    suspend fun insertPost(vararg post: PostEntity)
+    suspend fun insertPost( post: PostEntity)
     @Update
     suspend fun updatePost(post: PostEntity)
     @Query("select * from posts")
-    suspend fun getAllPosts(): Flow<List<PostEntity>>
+    fun getAllPosts(): Flow<List<PostEntity>>
     @Delete
     suspend fun deletePost(post: PostEntity)
 }

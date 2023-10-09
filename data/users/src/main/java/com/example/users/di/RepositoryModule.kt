@@ -10,7 +10,6 @@ import dagger.Module
 import dagger.Provides
 
 @InstallIn(SingletonComponent::class)
-
 @Module
 object RepositoryModule {
     @Provides
