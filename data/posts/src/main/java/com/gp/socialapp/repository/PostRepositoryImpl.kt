@@ -8,7 +8,11 @@ import com.gp.socialapp.source.local.PostLocalDataSource
 import com.gp.socialapp.source.remote.PostRemoteDataSource
 import com.gp.socialapp.util.PostMapper.toEntity
 import com.gp.socialapp.util.PostMapper.toNetworkModel
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.forEach
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class PostRepositoryImpl @Inject constructor (
@@ -37,7 +41,7 @@ class PostRepositoryImpl @Inject constructor (
         Log.d("PostRepositoryImpl", "createNetworkPost: ${post.title}")
     }
 
-    override suspend fun fetchNetworkPosts(): List<PostEntity> {
+    override suspend fun fetchNetworkPosts(): Flow<List<PostEntity>> {
 
         return postRemoteSource.fetchPosts()
 
@@ -52,9 +56,12 @@ class PostRepositoryImpl @Inject constructor (
     }
     override suspend fun createPost(post: Post){
         createNetworkPost(post.toNetworkModel(currentUserID))
-        fetchNetworkPosts().forEach {
-            Log.d("PostRepositoryImpl", "createPost: ${it.title}")
-            insertLocalPost(it)
+        GlobalScope.launch {
+            fetchNetworkPosts().collect{
+                it.forEach { post->
+                    insertLocalPost(post)
+                }
+            }
         }
     }
 }

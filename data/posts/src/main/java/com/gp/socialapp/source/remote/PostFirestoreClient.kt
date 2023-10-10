@@ -8,10 +8,16 @@ import com.gp.socialapp.database.model.PostEntity
 import com.gp.socialapp.model.NetworkPost
 import com.gp.socialapp.util.PostMapper.toEntity
 import com.gp.socialapp.util.PostMapper.toNetworkModel
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import kotlin.coroutines.suspendCoroutine
 
 class PostFirestoreClient@Inject constructor(private val firestore: FirebaseFirestore): PostRemoteDataSource {
+    private val ref = firestore.collection("posts")
     override suspend fun createPost(post: NetworkPost){
         firestore.collection("posts").add(post).addOnSuccessListener {
             Log.d("TAG", "Post Created Successfully")
@@ -20,22 +26,21 @@ class PostFirestoreClient@Inject constructor(private val firestore: FirebaseFire
         }
     }
 
-    override suspend fun fetchPosts(): List<PostEntity> {
-        return suspendCoroutine { continuation ->
-            Log.d("PostRepositoryImpl", "entered: ")
-            firestore.collection("posts").get()
-                .addOnSuccessListener { documents ->
-                    if(documents != null) {
-                        val result = mutableListOf<PostEntity>()
-                        for (document in documents) {
-                            result.add(document.toObject(NetworkPost::class.java).toEntity(document.id))
-                        }
-                        continuation.resumeWith(Result.success(result))
-                    }
-                }.addOnFailureListener {
-                    continuation.resumeWith(Result.failure(it))
+    override fun fetchPosts(): Flow<List<PostEntity>> = callbackFlow {
+        val listener=ref.addSnapshotListener { data, error ->
+            if (error!=null){
+                close(error)
+                return@addSnapshotListener
+            }
+            if (data!=null){
+                val result = mutableListOf<PostEntity>()
+                for (document in data.documents) {
+                    result.add(document.toObject(NetworkPost::class.java)!!.toEntity(document.id))
                 }
+                trySend(result)
+            }
         }
+        awaitClose { listener.remove() }
 
     }
 
