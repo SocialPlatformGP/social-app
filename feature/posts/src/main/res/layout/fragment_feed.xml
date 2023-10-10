@@ -1,19 +1,39 @@
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.gp.socialapp.presentation.postsfeed.FeedFragment">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:posts="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <data>
+
+    </data>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="انا الفييد يا جدعان "
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        tools:context=".presentation.postsfeed.FeedFragment">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/postsRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            posts:layout_behavior="@string/appbar_scrolling_view_behavior"
+            android:layout_marginStart="8dp"
+            android:clipToPadding="false"
+            android:layout_marginTop="8dp"
+            android:paddingBottom="16dp"
+            android:layout_marginEnd="8dp"
+            android:layout_above="@id/floatingActionButton"
+            android:layout_marginBottom="8dp"
+ />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/floatingActionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:layout_gravity="bottom|right"
+            android:layout_margin="16dp"
+            posts:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
+            posts:srcCompat="@android:drawable/ic_input_add" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

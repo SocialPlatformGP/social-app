@@ -6,4 +6,10 @@
   </style>
 
   <style name="Theme.SocialApp" parent="Base.Theme.SocialApp" />
+
+  <!-- res/values/styles.xml -->
+  <style name="ImageViewVoteStyle">
+    <item name="android:tint">@color/upvote_icon_light</item>
+  </style>
+
 </resources>

@@ -6,8 +6,10 @@ plugins {
 }
 
 android {
-    namespace 'com.gp.posts'
+    namespace 'com.gp.data.posts'
     compileSdk 34
+
+
 
     defaultConfig {
         minSdk 24

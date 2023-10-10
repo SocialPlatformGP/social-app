@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <variable
+            name="postitem"
+            type="com.gp.socialapp.database.model.PostEntity" />
+    </data>
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardViewPost"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp"
+        app:cardUseCompatPadding="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Title -->
+            <TextView
+                android:id="@+id/textViewTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:text="@{postitem.title}" />
+
+            <!-- Author and Published Date -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp">
+
+                <TextView
+                    android:id="@+id/textViewAuthor"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="14sp"
+                    android:text="  By Zarea" />
+
+                <TextView
+                    android:id="@+id/textViewPublishedDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:text="@{postitem.publishedAt}" />
+            </LinearLayout>
+
+            <!-- Body -->
+            <TextView
+                android:id="@+id/textViewBody"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textSize="16sp"
+                android:text="@{postitem.body}" />
+
+            <!-- Upvotes and Downvotes -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp">
+
+                <ImageView
+                    android:id="@+id/imageViewUpvote"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_upvote"
+                    android:theme="@style/ImageViewVoteStyle"
+
+                    />
+
+                     />
+
+                <TextView
+                    android:id="@+id/textViewUpvotes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:textSize="14sp"
+                    android:text="@{Integer.toString(postitem.upvotes)}" />
+
+                <ImageView
+                    android:id="@+id/imageViewDownvote"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_downvote"
+                    android:theme="@style/ImageViewVoteStyle"
+                    android:layout_marginStart="16dp" />
+
+                <TextView
+                    android:id="@+id/textViewDownvotes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:textSize="14sp"
+                    android:text="@{Integer.toString(postitem.downvotes)}" />
+            </LinearLayout>
+
+            <!-- Moderation Status -->
+            <TextView
+                android:id="@+id/textViewModerationStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textSize="14sp"
+                android:text="@{postitem.moderationStatus}" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+</layout>

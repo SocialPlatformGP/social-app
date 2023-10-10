@@ -6,10 +6,10 @@ import com.gp.socialapp.database.model.UserEntity
 
 object UserMapper {
     fun NetworkUser.toEntity(id: String): UserEntity {
-        return UserEntity(id,userName,userPassword, userProfilePictureURL, userEmail, userPhoneNumber, userBookmarks)
+        return UserEntity(id,userName,userPassword, userProfilePictureURL, userEmail, userPhoneNumber)
     }
     fun UserEntity.toNetworkModel(): NetworkUser{
         return NetworkUser(
-            userName,userPassword, userProfilePictureURL, userEmail, userPhoneNumber, userBookmarks)
+            userName,userPassword, userProfilePictureURL, userEmail, userPhoneNumber)
     }
 }

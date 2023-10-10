@@ -8,9 +8,10 @@ import com.google.firebase.ktx.Firebase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
-@InstallIn(Singleton::class)
+@InstallIn(SingletonComponent::class)
 @Module
 object RemoteSourceModule {
     @Provides

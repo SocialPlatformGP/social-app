@@ -10,4 +10,8 @@ object PostMapper {
     fun PostEntity.toNetworkModel(): NetworkPost{
         return NetworkPost(authorID, publishedAt, title, body, upvotes, downvotes, moderationStatus)
     }
+
+
+
+
 }

@@ -12,7 +12,7 @@ data class PostEntity(
     @ColumnInfo(name = "published_at") val publishedAt: String,
     @ColumnInfo(name="title") val title: String,
     @ColumnInfo(name="body") val body: String,
-    @ColumnInfo(name="upvotes") val upvotes: Int,
+    @ColumnInfo(name="upvotes") var upvotes: Int,
     @ColumnInfo(name="downvotes") val downvotes: Int,
     @ColumnInfo(name="moderation_status") val moderationStatus: String
 )

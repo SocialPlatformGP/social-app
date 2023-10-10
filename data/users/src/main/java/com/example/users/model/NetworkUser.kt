@@ -6,4 +6,4 @@ data class NetworkUser(
     val userProfilePictureURL: String,
     val userEmail: String,
     val userPhoneNumber: String,
-    val userBookmarks: List<String>)
+    )
