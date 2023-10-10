@@ -14,7 +14,7 @@ class PostLocalDataSourceImpl @Inject constructor(private val postDao: PostDao):
         postDao.updatePost(post)
     }
 
-    override suspend fun getAllPosts(): Flow<List<PostEntity>> {
+    override suspend fun getAllPosts(): List<PostEntity> {
         return postDao.getAllPosts()
     }
 

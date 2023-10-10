@@ -10,4 +10,8 @@
         android:name="com.gp.posts.presentation.postsfeed.FeedFragment"
         android:label="fragment_feed"
         tools:layout="@layout/fragment_feed" />
+    <fragment
+        android:id="@+id/createPostFragment"
+        android:name="com.gp.socialapp.presentation.createpost.CreatePostFragment"
+        android:label="CreatePostFragment" />
 </navigation>
