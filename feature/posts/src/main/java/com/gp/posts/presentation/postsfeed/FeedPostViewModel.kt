@@ -3,15 +3,12 @@ package com.gp.posts.presentation.postsfeed
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gp.socialapp.database.model.PostEntity
-import com.gp.socialapp.model.Post
 import com.gp.socialapp.repository.PostRepository
-import com.gp.socialapp.util.PostMapper.toNetworkModel
+import com.gp.socialapp.util.PostState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,7 +17,6 @@ class FeedPostViewModel @Inject constructor(
     val repository: PostRepository
 ) : ViewModel() {
     init {
-        //todo delete this dummy data
         getAllPosts()
     }
 
@@ -28,20 +24,24 @@ class FeedPostViewModel @Inject constructor(
     val posts
         get() = _posts.asStateFlow()
 
+    private val _dataStatus = MutableStateFlow<PostState>(PostState.Idle)
+    val dataStatus
+        get() = _dataStatus.asStateFlow()
+
     fun getAllPosts(){
+
         viewModelScope.launch(Dispatchers.IO) {
+                _dataStatus.value = PostState.Loading
+
             repository.getAllLocalPosts().collect{posts->
                 _posts.value=posts
+                _dataStatus.value = PostState.Success(true)
             }
+
         }
     }
-    fun insertDummy(data:List<PostEntity>){
-        viewModelScope.launch(Dispatchers.IO) {
-            data.forEach {
-                repository.insertLocalPost(it)
-            }
-        }
-    }
+    
+
     fun upVote(post: PostEntity){
         //update the ui
         val updatedPosts = _posts.value.map {
@@ -73,6 +73,11 @@ class FeedPostViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             repository.updateLocalPost(post.copy(downvotes = post.downvotes + 1))
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        repository.onCleared()
     }
 
 }

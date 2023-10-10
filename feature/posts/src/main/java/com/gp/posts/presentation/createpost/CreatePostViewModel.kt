@@ -12,7 +12,9 @@ import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import javax.inject.Inject
 @HiltViewModel
-class CreatePostViewModel @Inject constructor (private val postRepository: PostRepository) : ViewModel() {
+class CreatePostViewModel @Inject constructor (
+    private val postRepository: PostRepository
+) : ViewModel() {
     val uiState = MutableStateFlow(CreatePostUIState())
     val buttonPostClicked=MutableStateFlow(false)
     private val currentUserName = "User 1"

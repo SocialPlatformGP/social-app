@@ -8,10 +8,13 @@ import com.gp.socialapp.source.local.PostLocalDataSource
 import com.gp.socialapp.source.local.ReplyLocalDataSource
 import com.gp.socialapp.source.remote.PostRemoteDataSource
 import com.gp.socialapp.source.remote.ReplyRemoteDataSource
+import com.gp.socialapp.utils.NetworkStatus
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 
 @InstallIn(SingletonComponent::class)
 @Module
@@ -22,6 +25,11 @@ object RepositoryModule {
         return ReplyRepositoryImpl(replyLocalDataSource,replyRemoteDataSource)
     }
     @Provides
-    fun providePostRepository(postLocalDataSource: PostLocalDataSource, postRemoteDataSource: PostRemoteDataSource)
-    : PostRepository = PostRepositoryImpl(postLocalDataSource, postRemoteDataSource)
+    fun providePostRepository(
+        postLocalDataSource: PostLocalDataSource,
+        postRemoteDataSource: PostRemoteDataSource,
+        networkStatus: NetworkStatus,
+        coroutineScope: CoroutineScope
+        )
+    : PostRepository = PostRepositoryImpl(postLocalDataSource, postRemoteDataSource,networkStatus,coroutineScope)
 }
