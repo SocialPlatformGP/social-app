@@ -12,6 +12,7 @@ val feedDataList = mutableListOf(
         body = "Witnessed an incredible sunset today at the beach.",
         upvotes = 50,
         downvotes = 5,
+        editStatus = true,
         moderationStatus = "Approved"
     ),
     PostEntity(
@@ -22,12 +23,14 @@ val feedDataList = mutableListOf(
         body = "Had a fantastic dinner at a local restaurant.",
         upvotes = 30,
         downvotes = 2,
+        editStatus = true,
         moderationStatus = "Approved"
     ),
     PostEntity(
         id = "3",
         title = "Hiking Adventure",
         authorID = 6453653,
+        editStatus = true,
         publishedAt = "2023-09-25",
         body = "Went on an exciting hiking trip over the weekend.",
         upvotes = 75,
@@ -37,6 +40,7 @@ val feedDataList = mutableListOf(
     PostEntity(
         id = "4",
         title = "Movie Night",
+        editStatus = true,
         authorID = 6435645,
         publishedAt = "2023-09-20",
         body = "Enjoyed a great movie night with friends.",
@@ -48,6 +52,7 @@ val feedDataList = mutableListOf(
         id = "5",
         title = "New Recipe",
         authorID = 78634568,
+        editStatus = true,
         publishedAt = "2023-09-18",
         body = "Tried a new recipe for dinner tonight, and it was a hit!",
         upvotes = 68,
@@ -57,6 +62,7 @@ val feedDataList = mutableListOf(
     PostEntity(
         id = "6",
         title = "Sunny Day",
+        editStatus = true,
         authorID = 7486346,
         publishedAt = "2023-09-15",
         body = "Enjoyed the beautiful weather at the park today.",
@@ -67,6 +73,7 @@ val feedDataList = mutableListOf(
     PostEntity(
         id = "7",
         title = "Art Exhibition",
+        editStatus = true,
         authorID = 874637,
         publishedAt = "2023-09-12",
         body = "Visited an amazing art exhibition over the weekend.",
@@ -77,6 +84,7 @@ val feedDataList = mutableListOf(
     PostEntity(
         id = "8",
         title = "Travel Adventure",
+        editStatus = true,
         authorID = 485636,
         publishedAt = "2023-09-10",
         body = "Embarked on a thrilling travel adventure to a new country.",
@@ -87,6 +95,7 @@ val feedDataList = mutableListOf(
     PostEntity(
         id = "9",
         title = "Gardening Success",
+        editStatus = true,
         authorID = 78687686,
         publishedAt = "2023-09-07",
         body = "My garden is flourishing, and I couldn't be happier.",
@@ -98,6 +107,7 @@ val feedDataList = mutableListOf(
         id = "10",
         title = "Tech Review",
         authorID = 8756786,
+        editStatus = true,
         publishedAt = "2023-09-05",
         body = "Reviewed the latest gadgets and tech trends.",
         upvotes = 50,

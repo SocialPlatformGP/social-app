@@ -12,7 +12,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.gp.posts.R
 import com.gp.posts.adapter.FeedPostAdapter
@@ -53,11 +55,8 @@ class FeedFragment : Fragment() , VotesClickedListener {
             }
         }
 
-
-        binding.floatingActionButton.apply {
-            setOnClickListener {
-                Snackbar.make(binding.root,"TODO : Navigate to AddPostFragment",Snackbar.LENGTH_SHORT).show()
-            }
+        view.findViewById<FloatingActionButton?>(R.id.floatingActionButton).setOnClickListener {
+            findNavController().navigate(R.id.action_feedFragment_to_createPostFragment)
         }
     }
 
@@ -72,4 +71,6 @@ class FeedFragment : Fragment() , VotesClickedListener {
     override fun onDownVoteClicked(post: PostEntity) {
         viewModel.downVote(post)
     }
+
+
 }

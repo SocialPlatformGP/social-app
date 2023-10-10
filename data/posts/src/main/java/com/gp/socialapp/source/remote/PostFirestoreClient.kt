@@ -9,6 +9,7 @@ import com.gp.socialapp.model.NetworkPost
 import com.gp.socialapp.util.PostMapper.toEntity
 import com.gp.socialapp.util.PostMapper.toNetworkModel
 import javax.inject.Inject
+import kotlin.coroutines.suspendCoroutine
 
 class PostFirestoreClient@Inject constructor(private val firestore: FirebaseFirestore): PostRemoteDataSource {
     override suspend fun createPost(post: NetworkPost){
@@ -19,16 +20,23 @@ class PostFirestoreClient@Inject constructor(private val firestore: FirebaseFire
         }
     }
 
-    override suspend fun fetchPosts(): List<NetworkPost> {
-        val result = mutableListOf<NetworkPost>()
-        firestore.collection("posts").get().addOnSuccessListener { documents ->
-            if(documents != null) {
-                for (document in documents) {
-                    result.add(document.toObject(NetworkPost::class.java))
+    override suspend fun fetchPosts(): List<PostEntity> {
+        return suspendCoroutine { continuation ->
+            Log.d("PostRepositoryImpl", "entered: ")
+            firestore.collection("posts").get()
+                .addOnSuccessListener { documents ->
+                    if(documents != null) {
+                        val result = mutableListOf<PostEntity>()
+                        for (document in documents) {
+                            result.add(document.toObject(NetworkPost::class.java).toEntity(document.id))
+                        }
+                        continuation.resumeWith(Result.success(result))
+                    }
+                }.addOnFailureListener {
+                    continuation.resumeWith(Result.failure(it))
                 }
-            }
         }
-        return result
+
     }
 
     override suspend fun updatePost(post: PostEntity) {

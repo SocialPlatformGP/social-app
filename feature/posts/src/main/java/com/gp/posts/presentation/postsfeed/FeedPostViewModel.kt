@@ -21,7 +21,6 @@ class FeedPostViewModel @Inject constructor(
 ) : ViewModel() {
     init {
         //todo delete this dummy data
-        insertDummy(feedDataList)
         getAllPosts()
     }
 

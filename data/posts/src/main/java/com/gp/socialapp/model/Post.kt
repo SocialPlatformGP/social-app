@@ -1,16 +1,14 @@
 package com.gp.socialapp.model
 
-import androidx.room.ColumnInfo
-import androidx.room.PrimaryKey
+import com.google.type.DateTime
+import java.time.LocalDateTime
 
 data class Post(
-
-    val id: String,
-    val authorID: Long,
-    val publishedAt: String,
+    val authorName: String,
+    val publishedAt: LocalDateTime,
     val title: String,
     val body: String,
     val upvotes: Int,
     val downvotes: Int,
-    val moderationStatus: String
+    val editStatus: Boolean
 )

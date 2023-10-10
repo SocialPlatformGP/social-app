@@ -5,7 +5,7 @@ import com.gp.socialapp.model.NetworkPost
 
 interface PostRemoteDataSource {
     suspend fun createPost(post: NetworkPost)
-    suspend fun fetchPosts(): List<NetworkPost>
+    suspend fun fetchPosts(): List<PostEntity>
     suspend fun updatePost(post: PostEntity)
     suspend fun deletePost(post: PostEntity)
 }
