@@ -18,6 +18,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.gp.posts.R
 import com.gp.posts.adapter.FeedPostAdapter
+import com.gp.posts.adapter.StateWIthLifeCycle
 import com.gp.posts.databinding.FragmentFeedBinding
 import com.gp.posts.listeners.PostOnClickListener
 import com.gp.posts.listeners.VotesClickedListener
@@ -35,7 +36,7 @@ class FeedFragment : Fragment() , VotesClickedListener {
         savedInstanceState: Bundle?
     ): View? {
         binding = DataBindingUtil.inflate(inflater,R.layout.fragment_feed,container,false)
-        binding.lifecycleOwner=this
+        binding.stateWithLifecycle= StateWIthLifeCycle(viewModel.dataStatus, lifecycle = lifecycle)
         return binding.root
     }
 

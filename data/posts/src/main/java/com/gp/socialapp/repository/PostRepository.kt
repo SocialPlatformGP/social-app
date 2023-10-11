@@ -8,11 +8,12 @@ import kotlinx.coroutines.flow.Flow
 interface PostRepository {
     suspend fun insertLocalPost(vararg post: PostEntity)
     suspend fun updateLocalPost(post: PostEntity)
-    suspend fun getAllLocalPosts(): Flow<List<PostEntity>>
+     fun getAllLocalPosts(): Flow<List<PostEntity>>
     suspend fun deleteLocalPost(post: PostEntity)
     suspend fun createNetworkPost(post: NetworkPost)
-    suspend fun fetchNetworkPosts(): Flow<List<PostEntity>>
+     fun fetchNetworkPosts(): Flow<List<PostEntity>>
     suspend fun updatePost(post: PostEntity)
     suspend fun deletePost(post: PostEntity)
     suspend fun createPost(post: Post)
+    fun onCleared()
 }
