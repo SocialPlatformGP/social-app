@@ -68,13 +68,7 @@ class PostRepositoryImpl @Inject constructor(
 
     override suspend fun createPost(post: Post) {
         createNetworkPost(post.toNetworkModel(currentUserID))
-        repositoryScope.launch {
-            fetchNetworkPosts().collect {
-                it.forEach { post ->
-                    insertLocalPost(post)
-                }
-            }
-        }
+
     }
 
     override fun onCleared() {

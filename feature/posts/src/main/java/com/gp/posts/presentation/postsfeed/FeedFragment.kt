@@ -6,7 +6,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -20,11 +19,11 @@ import com.gp.posts.R
 import com.gp.posts.adapter.FeedPostAdapter
 import com.gp.posts.adapter.StateWIthLifeCycle
 import com.gp.posts.databinding.FragmentFeedBinding
-import com.gp.posts.listeners.PostOnClickListener
 import com.gp.posts.listeners.VotesClickedListener
 import com.gp.socialapp.database.model.PostEntity
+import com.gp.socialapp.utils.State
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -36,7 +35,7 @@ class FeedFragment : Fragment() , VotesClickedListener {
         savedInstanceState: Bundle?
     ): View? {
         binding = DataBindingUtil.inflate(inflater,R.layout.fragment_feed,container,false)
-        binding.stateWithLifecycle= StateWIthLifeCycle(viewModel.dataStatus, lifecycle = lifecycle)
+        binding.stateWithLifecycle= StateWIthLifeCycle(viewModel.uiState, lifecycle = lifecycle)
         return binding.root
     }
 
@@ -51,8 +50,10 @@ class FeedFragment : Fragment() , VotesClickedListener {
                 layoutManager=LinearLayoutManager(requireContext())
            }
         lifecycleScope.launch {
-            viewModel.posts.flowWithLifecycle(lifecycle).collect {
-                feedAdapter.submitList(it)
+            viewModel.uiState.flowWithLifecycle(lifecycle).collect{currentState->
+                if(currentState is State.Success){
+                    feedAdapter.submitList(currentState.data)
+                }
             }
         }
 

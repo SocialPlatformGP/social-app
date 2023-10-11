@@ -24,6 +24,7 @@ class CreatePostViewModel @Inject constructor (
             with(uiState.value) {
                 postRepository.createPost(Post(currentUserName, LocalDateTime.now(), title, body, 0, 0, false))
                 buttonPostClicked.value=true
+
             }
         }
     }

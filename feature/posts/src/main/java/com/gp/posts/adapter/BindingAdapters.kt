@@ -5,7 +5,8 @@ import android.view.View
 import androidx.databinding.BindingAdapter
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
-import com.gp.socialapp.util.PostState
+import com.gp.socialapp.database.model.PostEntity
+import com.gp.socialapp.utils.State
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.StateFlow
@@ -13,19 +14,19 @@ import kotlinx.coroutines.launch
 
 
 data class StateWIthLifeCycle(
-    var postState: StateFlow<PostState>,
+    var state: StateFlow<State<List<PostEntity>>>,
     var lifecycle: Lifecycle
 
 )
 
 @BindingAdapter("posts:visabilityStatusLoading")
 fun setVisability(view: View, params: StateWIthLifeCycle) {
-    val status = params.postState
+    val status = params.state
     val lifecycle = params.lifecycle
     GlobalScope.launch(Dispatchers.Main) {
         status.flowWithLifecycle(lifecycle).collect { currentState ->
             when (currentState) {
-                is PostState.Loading -> {
+                is State.Loading -> {
                     view.visibility = View.VISIBLE
                 }
 
@@ -42,13 +43,13 @@ fun setVisability(view: View, params: StateWIthLifeCycle) {
 
 @BindingAdapter("posts:visabilityStatusRecycler")
 fun setVisabilityRecycler(view: View, params: StateWIthLifeCycle) {
-    val status = params.postState
+    val status = params.state
     val lifecycle = params.lifecycle
     GlobalScope.launch(Dispatchers.Main) {
         status.flowWithLifecycle(lifecycle).collect { currentState ->
             Log.d("TAG", "setVisabilityRecycler: $currentState")
             when (currentState) {
-                is PostState.Loading -> {
+                is State.Loading -> {
                     view.visibility = View.GONE
                 }
 
