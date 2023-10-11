@@ -29,16 +29,4 @@ class CreatePostFragment : Fragment() {
         binding.viewmodel = viewModel
         return binding.root
     }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        lifecycleScope.launch {
-        viewModel.buttonPostClicked.flowWithLifecycle(lifecycle).collect{
-            if(it){
-                findNavController().navigate(R.id.action_createPostFragment_to_feedFragment)
-                viewModel.buttonPostClicked.value=false
-            }
-        }
-    }}
-
 }

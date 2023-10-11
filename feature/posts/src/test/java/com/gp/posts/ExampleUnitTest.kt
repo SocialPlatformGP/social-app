@@ -1,4 +1,4 @@
-package com.gp.socialapp
+package com.gp.posts
 
 import org.junit.Test
 
