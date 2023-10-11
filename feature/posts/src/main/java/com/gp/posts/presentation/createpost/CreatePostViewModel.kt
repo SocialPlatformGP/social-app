@@ -1,5 +1,6 @@
 package com.gp.posts.presentation.createpost
 
+import android.content.Context
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -7,8 +8,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.repository.PostRepository
+import com.gp.socialapp.utils.State
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import javax.inject.Inject
@@ -22,7 +26,15 @@ class CreatePostViewModel @Inject constructor (
     fun onCreatePost(){
         viewModelScope.launch {
             with(uiState.value) {
-                postRepository.createPost(Post(currentUserName, LocalDateTime.now(), title, body, 0, 0, false))
+                Log.d("EDREES", "OnCreate Called")
+                val state =
+                    postRepository.createPost(Post(currentUserName, LocalDateTime.now(), title, body, 0, 0, false))
+                state.collect{newState ->
+                    uiState.update {
+                        it.copy(createdState = newState)
+                    }
+                    Log.d("EDREES", "OnCreate Executed: ${newState}, UiState: ${uiState.value.createdState}")
+                }
             }
         }
     }
