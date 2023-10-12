@@ -1,118 +1,191 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
     <data>
+
         <variable
             name="postitem"
             type="com.gp.socialapp.database.model.PostEntity" />
+
+        <variable
+            name="isPostOwner"
+            type="boolean" />
     </data>
+
     <androidx.cardview.widget.CardView
         android:id="@+id/cardViewPost"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="4dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="6dp"
         app:cardUseCompatPadding="true">
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:layout_height="match_parent">
 
-            <!-- Title -->
-            <TextView
-                android:id="@+id/textViewTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:text="@{postitem.title}" />
+            <!-- Overflow Menu -->
+            <ImageView
+                android:id="@+id/imageViewOverflow"
+                android:layout_width="40dp"
+                android:theme="@style/ImageViewVoteStyle"
 
-            <!-- Author and Published Date -->
+                android:layout_height="40dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="16dp"
+                android:src="@drawable/baseline_more_vert_24"
+                android:layout_centerVertical="true"
+                tools:ignore="ContentDescription"
+                />
+
+            <!-- Author Info -->
             <LinearLayout
-                android:layout_width="match_parent"
+                android:id="@+id/linearLayoutAuthorInfo"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/imageViewOverflow"
                 android:orientation="horizontal"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="16dp">
+
+                <ImageView
+                    android:id="@+id/imageViewPicture"
+                    android:layout_width="40dp"
+                    android:theme="@style/ImageViewVoteStyle"
+                    android:layout_height="40dp"
+                    android:layout_gravity="start"
+                    android:src="@drawable/baseline_person_24"
+                    tools:ignore="ContentDescription"
+                    />
 
                 <TextView
                     android:id="@+id/textViewAuthor"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textSize="14sp"
-                    android:text="  By Zarea" />
+                    android:gravity="start"
+                    android:text="by Edrees"
+                    android:textSize="16sp"
+                    android:textColor="#333333" />
 
                 <TextView
                     android:id="@+id/textViewPublishedDate"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:text="@{postitem.publishedAt}"
                     android:textSize="14sp"
-                    android:text="@{postitem.publishedAt}" />
+                    android:textColor="#666666" />
             </LinearLayout>
 
-            <!-- Body -->
+            <!-- Title -->
+            <TextView
+                android:id="@+id/textViewTitle"
+                app:layout_constraintTop_toBottomOf="@id/linearLayoutAuthorInfo"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@{postitem.title}"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                android:textColor="#007ACC" />
+
+            <!-- Content -->
             <TextView
                 android:id="@+id/textViewBody"
-                android:layout_width="match_parent"
+                app:layout_constraintTop_toBottomOf="@id/textViewTitle"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:textSize="16sp"
-                android:text="@{postitem.body}" />
+                android:text="@{postitem.body}"
+                android:textSize="18sp"
+                android:layout_marginTop="16dp"
+                android:textColor="#333333" />
 
-            <!-- Upvotes and Downvotes -->
+            <!-- Actions (Upvote, Downvote, Comment, Share) -->
             <LinearLayout
-                android:layout_width="match_parent"
+                android:id="@+id/linearLayoutActions"
+                android:layout_width="0dp"
+                app:layout_constraintTop_toBottomOf="@id/textViewBody"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="16dp">
 
                 <ImageView
                     android:id="@+id/imageViewUpvote"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
                     android:src="@drawable/ic_upvote"
                     android:theme="@style/ImageViewVoteStyle"
-
+                    android:clickable="true"
+                    android:focusable="true"
                     />
 
-                     />
-
                 <TextView
-                    android:id="@+id/textViewUpvotes"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:textSize="14sp"
-                    android:text="@{Integer.toString(postitem.upvotes)}" />
+                    android:text="@{Integer.toString(postitem.upvotes)}"
+                    android:textSize="16sp"
+                    android:textColor="#007ACC" />
 
                 <ImageView
                     android:id="@+id/imageViewDownvote"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginStart="16dp"
                     android:src="@drawable/ic_downvote"
                     android:theme="@style/ImageViewVoteStyle"
-                    android:layout_marginStart="16dp" />
+                    android:clickable="true"
+                    android:focusable="true"
+                    />
 
-                <TextView
-                    android:id="@+id/textViewDownvotes"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:textSize="14sp"
-                    android:text="@{Integer.toString(postitem.downvotes)}" />
+                <ImageView
+                    android:id="@+id/imageViewComment"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginStart="16dp"
+                    android:src="@drawable/baseline_comment_24"
+                    android:theme="@style/ImageViewVoteStyle"
+                    android:clickable="true"
+                    android:focusable="true"
+                    />
+
+                <ImageView
+                    android:id="@+id/imageViewShare"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginStart="16dp"
+                    android:src="@drawable/baseline_ios_share_24"
+                    android:theme="@style/ImageViewVoteStyle"
+                    android:clickable="true"
+                    android:focusable="true"
+                    />
             </LinearLayout>
 
             <!-- Moderation Status -->
             <TextView
+                app:layout_constraintTop_toBottomOf="@id/linearLayoutActions"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 android:id="@+id/textViewModerationStatus"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="16dp"
+                android:text="@{postitem.moderationStatus}"
                 android:textSize="14sp"
-                android:text="@{postitem.moderationStatus}" />
-        </LinearLayout>
+                android:textColor="#666666" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
-
 </layout>

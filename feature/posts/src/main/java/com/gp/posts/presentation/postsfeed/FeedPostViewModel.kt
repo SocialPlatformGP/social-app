@@ -54,6 +54,7 @@ class FeedPostViewModel @Inject constructor(
             // Update the Room database
             viewModelScope.launch(Dispatchers.IO) {
                 repository.updateLocalPost(post.copy(upvotes = post.upvotes + 1))
+                repository.updatePost(post.copy(upvotes = post.upvotes + 1))
             }
         }
     }
@@ -62,7 +63,7 @@ class FeedPostViewModel @Inject constructor(
         if(uiState.value is State.Success) {
             val updatedPosts = (uiState.value as State.Success<List<PostEntity>>).data.map {
                 if (it.id == post.id) {
-                    it.copy(downvotes = it.upvotes + 1)
+                    it.copy(downvotes = it.downvotes + 1)
                 } else {
                     it
                 }
@@ -71,7 +72,8 @@ class FeedPostViewModel @Inject constructor(
 
             // Update the Room database
             viewModelScope.launch(Dispatchers.IO) {
-                repository.updateLocalPost(post.copy(downvotes = post.upvotes + 1))
+                repository.updateLocalPost(post.copy(downvotes = post.downvotes + 1))
+                repository.updatePost(post.copy(downvotes = post.downvotes + 1))
             }
         }
     }

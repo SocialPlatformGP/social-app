@@ -48,6 +48,7 @@ class FeedPostAdapter(
     inner class PostViewHolder(private val binding: ItemPostBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(post: PostEntity) {
             binding.postitem = post
+            binding.isPostOwner = true
             binding.executePendingBindings()
         }
     }
