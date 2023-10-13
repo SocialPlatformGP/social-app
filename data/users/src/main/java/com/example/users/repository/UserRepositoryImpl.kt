@@ -7,7 +7,7 @@ import com.gp.socialapp.database.model.UserEntity
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class UserRepositoryImp @Inject constructor( private val userLocalSource: UserLocalDataSource,
+class UserRepositoryImpl @Inject constructor(private val userLocalSource: UserLocalDataSource,
                                              private val userRemoteSource: UserRemoteDataSource) :UserRepository {
     override suspend fun insertUser(userEntity: UserEntity) {
         userLocalSource.insertUser(userEntity)

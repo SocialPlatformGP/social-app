@@ -8,6 +8,7 @@ import com.gp.socialapp.source.local.PostLocalDataSource
 import com.gp.socialapp.source.remote.PostRemoteDataSource
 import com.gp.socialapp.util.PostMapper.toNetworkModel
 import com.gp.socialapp.utils.NetworkStatus
+import com.gp.socialapp.utils.State
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -50,9 +51,6 @@ class PostRepositoryImpl @Inject constructor(
         postLocalSource.deletePost(post)
     }
 
-    override suspend fun createNetworkPost(post: NetworkPost) {
-        postRemoteSource.createPost(post)
-    }
 
     override fun fetchNetworkPosts(): Flow<List<PostEntity>> {
         return postRemoteSource.fetchPosts()
@@ -66,15 +64,11 @@ class PostRepositoryImpl @Inject constructor(
         postRemoteSource.deletePost(post)
     }
 
-    override suspend fun createPost(post: Post) {
-        createNetworkPost(post.toNetworkModel(currentUserID))
-        repositoryScope.launch {
-            fetchNetworkPosts().collect {
-                it.forEach { post ->
-                    insertLocalPost(post)
-                }
-            }
-        }
+    override fun createPost(post: Post): Flow<State<Nothing>> {
+        Log.d("EDREES", "Repository createPost Called")
+        val res = postRemoteSource.createPost(post.toNetworkModel(currentUserID))
+        Log.d("EDREES", "Repository createPost Executed")
+        return res
     }
 
     override fun onCleared() {
