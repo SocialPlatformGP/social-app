@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="create_post_button_title">Post</string>
-    <string name="title_label">Title</string>
-    <string name="body_label">Content</string>
-    <string name="post_created_successfully">Post Created Successfully!</string>
-</resources>
