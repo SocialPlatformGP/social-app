@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="upvote_icon_light">#000000</color> <!-- Black for light theme -->
+    <color name="upvote_icon_dark">#FFFFFF</color> <!-- White for dark theme -->
+
+</resources>
