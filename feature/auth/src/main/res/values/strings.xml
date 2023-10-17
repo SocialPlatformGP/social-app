@@ -1,1 +1,8 @@
-<resources></resources>
+<resources>
+    <string name="welcome_back">Welcome Back</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="forgot_password"><u>Forgot Password?</u></string>
+    <string name="sign_in">Sign in</string>
+    <string name="sign_up"><u>Sign up</u></string>
+</resources>
