@@ -19,6 +19,7 @@ import com.gp.auth.R
 import com.gp.auth.databinding.FragmentLoginBinding
 import com.gp.socialapp.utils.State
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -39,7 +40,10 @@ class LoginFragment : Fragment() {
     fun onSignInClick(){
         viewModel.onSignIn()
         lifecycleScope.launch {
-            viewModel.loginStateFlow.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect {
+            viewModel.loginStateFlow.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                .distinctUntilChanged { old, new ->
+                    old.isSignedIn == new.isSignedIn
+                }.collect {
                 when(it.isSignedIn){
                     is State.SuccessWithData<FirebaseUser> -> {
                         val intent = Intent()

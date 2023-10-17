@@ -18,9 +18,9 @@
     </fragment>
     <fragment
         android:id="@+id/registerationFragment"
-        android:name="com.gp.auth.ui.registeration.RegisterationFragment"
+        android:name="com.gp.auth.ui.registration.RegistrationFragment"
         android:label="fragment_registeration"
-        tools:layout="@layout/fragment_registeration" >
+        tools:layout="@layout/fragment_registration" >
         <action
             android:id="@+id/action_registerationFragment_to_loginFragment"
             app:destination="@id/loginFragment" />

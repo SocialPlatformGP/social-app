@@ -6,4 +6,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface AuthenticationRemoteDataSource {
     fun signInUser(email: String, password: String): Flow<State<FirebaseUser>>
+    fun signUpUser(email: String, password: String): Flow<State<FirebaseUser>>
 }

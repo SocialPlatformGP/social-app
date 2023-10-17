@@ -5,4 +5,7 @@
     <string name="forgot_password"><u>Forgot Password?</u></string>
     <string name="sign_in">Sign in</string>
     <string name="sign_up"><u>Sign up</u></string>
+    <string name="create_account">Create Account</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="already_have_an_account">Already have an account?</string>
 </resources>
