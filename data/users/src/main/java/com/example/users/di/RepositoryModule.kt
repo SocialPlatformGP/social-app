@@ -3,7 +3,7 @@ package com.example.users.di
 import com.example.users.Source.local.UserLocalDataSource
 import com.example.users.Source.remote.UserRemoteDataSource
 import com.example.users.repository.UserRepository
-import com.example.users.repository.UserRepositoryImp
+import com.example.users.repository.UserRepositoryImpl
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dagger.Module
@@ -14,5 +14,5 @@ import dagger.Provides
 object RepositoryModule {
     @Provides
     fun provideUserRepository(userLocalDataSource: UserLocalDataSource, userRemoteDataSource: UserRemoteDataSource)
-            : UserRepository = UserRepositoryImp(userLocalDataSource, userRemoteDataSource)
+            : UserRepository = UserRepositoryImpl(userLocalDataSource, userRemoteDataSource)
 }

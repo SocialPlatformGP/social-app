@@ -11,9 +11,9 @@ interface PostRepository {
     suspend fun updateLocalPost(post: PostEntity)
      fun getAllLocalPosts(): Flow<List<PostEntity>>
     suspend fun deleteLocalPost(post: PostEntity)
-     fun createNetworkPost(post: NetworkPost):Flow<State<Nothing>>
      fun fetchNetworkPosts(): Flow<List<PostEntity>>
     suspend fun updatePost(post: PostEntity)
     suspend fun deletePost(post: PostEntity)
+    fun createPost(post: Post): Flow<State<Nothing>>
     fun onCleared()
 }

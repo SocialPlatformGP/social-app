@@ -1,10 +1,18 @@
 package com.gp.posts.adapter
 
+import android.graphics.drawable.Drawable
 import android.util.Log
 import android.view.View
+import android.widget.ImageView
 import androidx.databinding.BindingAdapter
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.RequestOptions
+import com.gp.posts.R
+import com.gp.socialapp.util.PostState
 import com.gp.socialapp.database.model.PostEntity
 import com.gp.socialapp.utils.State
 import kotlinx.coroutines.Dispatchers
@@ -68,5 +76,17 @@ fun setVisabilityRecycler(view: View, params: StateWIthLifeCycle) {
             }
         }
 
+    }
+}
+@BindingAdapter("app:imageUrl")
+fun setProfilePicture(view: ImageView, picUrl: String?) {
+    if (picUrl != null) {
+        Glide.with(view.context)
+            .load(picUrl)
+            .placeholder(R.drawable.ic_person_24)
+            .apply(RequestOptions.circleCropTransform())
+            .into(view)
+    } else {
+        view.setImageResource(R.drawable.ic_person_24)
     }
 }

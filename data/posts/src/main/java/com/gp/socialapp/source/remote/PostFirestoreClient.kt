@@ -1,44 +1,39 @@
 package com.gp.socialapp.source.remote
 
 import android.util.Log
-import com.google.android.gms.common.internal.safeparcel.SafeParcelable
-import com.google.android.gms.tasks.OnFailureListener
-import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.ktx.Firebase
 import com.gp.socialapp.database.model.PostEntity
 import com.gp.socialapp.model.NetworkPost
 import com.gp.socialapp.util.PostMapper.toEntity
 import com.gp.socialapp.util.PostMapper.toNetworkModel
 import com.gp.socialapp.utils.State
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
-import kotlin.coroutines.suspendCoroutine
 
 class PostFirestoreClient@Inject constructor(private val firestore: FirebaseFirestore): PostRemoteDataSource {
     private val ref = firestore.collection("posts")
-    override fun createPost(post: NetworkPost) = callbackFlow  {
-        trySend(State.Loading)
-            val success = ref.add(post).await()
-        val listener=success.addSnapshotListener{data,error->
-            if (error!=null){
-                trySend(State.Error(error.message!!))
-                return@addSnapshotListener
-            }
-            if (data!=null){
-                trySend(State.Success)
-            }
+    override fun createPost(post: NetworkPost): Flow<State<Nothing>> = flow {
+        emit(State.Idle)
+        try {
+            val documentRef = firestore.collection("posts").add(post).await()
+            emit(State.Success)
+        } catch (exception: Exception) {
+            emit(State.Error("Post Creation Failed: ${exception.message}"))
         }
-        awaitClose { listener.remove() }
-
+        /*
+        * addOnSuccessListener {
+            Log.d("EDREES", "FireStore onSuccess Called")
+            trySend(State.Success)
+            Log.d("EDREES", "FireStore onSuccess Executed")
+        }.addOnFailureListener {
+            Log.d("EDREES", "FireStore onFailure Executed")
+            trySend(State.Error("Post Creation Failed: ${it.message}"))
+            Log.d("EDREES", "FireStore onFailure Executed")
+        }*/
     }
 
 
@@ -61,7 +56,6 @@ class PostFirestoreClient@Inject constructor(private val firestore: FirebaseFire
     }
 
     override suspend fun updatePost(post: PostEntity) {
-        Log.d("im in ", "updatePost: ${post.upvotes}")
         firestore.collection("posts").document(post.id)
             .set(post.toNetworkModel()).addOnSuccessListener {
                 Log.d("TAG", "Post Updated Successfully")
