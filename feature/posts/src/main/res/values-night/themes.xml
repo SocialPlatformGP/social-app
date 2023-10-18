@@ -7,6 +7,10 @@
   <!-- res/values-night/styles.xml -->
   <style name="ImageViewVoteStyle">
     <item name="android:tint">@color/upvote_icon_dark</item>
+    <item name="android:background">#000000</item>
+  </style>
+  <style name="ImageViewVoteStyle2">
+    <item name="android:textColor">#AFAAAC</item>
   </style>
 
 </resources>

@@ -10,6 +10,11 @@
   <!-- res/values/styles.xml -->
   <style name="ImageViewVoteStyle">
     <item name="android:tint">@color/upvote_icon_light</item>
+    <item name="android:background">#FFFFFF</item>
   </style>
+  <style name="ImageViewVoteStyle2">
+    <item name="android:textColor">#902E2D2D</item>
+  </style>
+
 
 </resources>

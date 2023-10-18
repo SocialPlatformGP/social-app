@@ -10,6 +10,8 @@ import com.gp.socialapp.utils.State
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 
@@ -46,18 +48,24 @@ fun setVisabilityRecycler(view: View, params: StateWIthLifeCycle) {
     val status = params.state
     val lifecycle = params.lifecycle
     GlobalScope.launch(Dispatchers.Main) {
+        val tag = State.Loading
         status.flowWithLifecycle(lifecycle).collect { currentState ->
             Log.d("TAG", "setVisabilityRecycler: $currentState")
-            when (currentState) {
-                is State.Loading -> {
-                    view.visibility = View.GONE
+            if (tag == currentState) {
+            } else {
+                when (currentState) {
+                    is State.Loading -> {
+                        view.visibility = View.GONE
+                        tag == currentState
+                    }
+
+                    else -> {
+                        view.visibility = View.VISIBLE
+                        tag == currentState
+                    }
                 }
 
-                else -> {
-                    view.visibility = View.VISIBLE
-                }
             }
-
         }
 
     }

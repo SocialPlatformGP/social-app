@@ -18,5 +18,5 @@ object DaoModule {
     fun providePostDao(db:AppDatabase): PostDao = db.postDao()
 
     @Provides
-    fun provideDatabase(db:AppDatabase): UserDao = db.userDao()
+    fun provideUserDao(db:AppDatabase): UserDao = db.userDao()
 }

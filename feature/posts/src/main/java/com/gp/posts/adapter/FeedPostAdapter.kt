@@ -6,16 +6,15 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.snackbar.Snackbar
 import com.gp.posts.R
 import com.gp.posts.databinding.ItemPostBinding
-import com.gp.posts.listeners.PostOnClickListener
+import com.gp.posts.listeners.OnMoreOptionClicked
 import com.gp.posts.listeners.VotesClickedListener
 import com.gp.socialapp.database.model.PostEntity
-import com.gp.socialapp.model.Post
 
 
 class FeedPostAdapter(
+    val onMoreOptionClicked: OnMoreOptionClicked,
     val onPostClicked:VotesClickedListener
 ) : ListAdapter<PostEntity,FeedPostAdapter.PostViewHolder>(PostDiffUtil()) {
 
@@ -29,11 +28,14 @@ class FeedPostAdapter(
         binding.cardViewPost.setOnClickListener {
             onPostClicked.onPostClicked(binding.postitem!!)
         }
-        binding.imageViewUpvote.setOnClickListener {
+        binding.imageViewUpvotePost.setOnClickListener {
             onPostClicked.onUpVoteClicked(binding.postitem!!)
         }
-        binding.imageViewDownvote.setOnClickListener {
+        binding.imageViewDownvotePost.setOnClickListener {
             onPostClicked.onDownVoteClicked(binding.postitem!!)
+        }
+        binding.imageView5.setOnClickListener {
+            onMoreOptionClicked.onMoreOptionClicked(binding.imageView5)
         }
         return PostViewHolder(binding)
     }
@@ -48,7 +50,6 @@ class FeedPostAdapter(
     inner class PostViewHolder(private val binding: ItemPostBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(post: PostEntity) {
             binding.postitem = post
-            binding.isPostOwner = true
             binding.executePendingBindings()
         }
     }

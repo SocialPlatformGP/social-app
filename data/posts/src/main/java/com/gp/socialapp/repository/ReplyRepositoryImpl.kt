@@ -1,8 +1,10 @@
 package com.gp.socialapp.repository
 
+import com.google.firebase.installations.R
 import com.gp.socialapp.source.local.ReplyLocalDataSource
 import com.gp.socialapp.database.model.ReplyEntity
 import com.gp.socialapp.database.model.relationship.PostWithReplies
+import com.gp.socialapp.model.NetworkReply
 import com.gp.socialapp.model.Reply
 import com.gp.socialapp.source.remote.ReplyRemoteDataSource
 import kotlinx.coroutines.flow.Flow
@@ -43,8 +45,8 @@ class ReplyRepositoryImpl @Inject constructor(
     override fun getTopLevelRepliesByPostId(postId: String): Flow<List<ReplyEntity>> = replyLocalDataSource.getTopLevelRepliesByPostId(postId)
 
     ////////////remote////////////
-    override suspend fun createReply(reply: Reply) = replyRemoteDataSource.createReply(reply)
-    override fun fetchReplies(postId: String): Flow<List<Reply>> = replyRemoteDataSource.fetchReplies(postId)
-    override suspend fun updateReply(reply: Reply) = replyRemoteDataSource.updateReply(reply)
+    override suspend fun createReply(reply: NetworkReply) = replyRemoteDataSource.createReply(reply)
+    override fun fetchReplies(postId: String): Flow<List<ReplyEntity>> = replyRemoteDataSource.fetchReplies(postId)
+    override suspend fun updateReplyRemote(reply: ReplyEntity) = replyRemoteDataSource.updateReplyRemote(reply)
     override suspend fun deleteReply(reply: Reply) = replyRemoteDataSource.deleteReply(reply)
 }

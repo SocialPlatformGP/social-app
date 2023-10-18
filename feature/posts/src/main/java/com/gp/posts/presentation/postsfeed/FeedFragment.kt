@@ -6,6 +6,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.PopupMenu
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -14,20 +16,19 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
 import com.gp.posts.R
 import com.gp.posts.adapter.FeedPostAdapter
 import com.gp.posts.adapter.StateWIthLifeCycle
 import com.gp.posts.databinding.FragmentFeedBinding
+import com.gp.posts.listeners.OnMoreOptionClicked
 import com.gp.posts.listeners.VotesClickedListener
 import com.gp.socialapp.database.model.PostEntity
 import com.gp.socialapp.utils.State
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class FeedFragment : Fragment() , VotesClickedListener {
+class FeedFragment : Fragment() , VotesClickedListener, OnMoreOptionClicked {
     lateinit var  binding:FragmentFeedBinding
     private val viewModel: FeedPostViewModel by viewModels()
     override fun onCreateView(
@@ -43,7 +44,7 @@ class FeedFragment : Fragment() , VotesClickedListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val feedAdapter=FeedPostAdapter(this)
+        val feedAdapter=FeedPostAdapter(this,this)
            binding.postsRecyclerView.apply {
                 adapter=feedAdapter
                itemAnimator=null
@@ -51,7 +52,7 @@ class FeedFragment : Fragment() , VotesClickedListener {
            }
         lifecycleScope.launch {
             viewModel.uiState.flowWithLifecycle(lifecycle).collect{currentState->
-                if(currentState is State.Success){
+                if(currentState is State.SuccessWithData){
                     feedAdapter.submitList(currentState.data)
                 }
             }
@@ -63,15 +64,48 @@ class FeedFragment : Fragment() , VotesClickedListener {
     }
 
     override fun onPostClicked(post: PostEntity) {
-        Snackbar.make(binding.root,"TODO : Navigate to PostDetailsFragment",Snackbar.LENGTH_SHORT).show()
+        val action = FeedFragmentDirections.actionFeedFragmentToPostDetialsFragment(post)
+        findNavController().navigate(action)
     }
 
     override fun onUpVoteClicked(post: PostEntity) {
+        Log.d("im in FeedFragment", "onUpVoteClicked: ${post.upvotes} ")
         viewModel.upVote(post)
     }
 
     override fun onDownVoteClicked(post: PostEntity) {
         viewModel.downVote(post)
+    }
+
+    override fun onMoreOptionClicked(imageView5: ImageView) {
+            val popupMenu = PopupMenu(requireActivity(), imageView5)
+            popupMenu.menuInflater.inflate(R.menu.extra_option_menu, popupMenu.menu)
+
+            // Set item click listener for the popup menu
+            popupMenu.setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    R.id.menu_item_1 -> {
+                        // Handle Item 1 click
+                        // Add your code here
+                        true
+                    }
+                    R.id.menu_item_2 -> {
+                        // Handle Item 2 click
+                        // Add your code here
+                        true
+                    }
+                    R.id.menu_item_3 -> {
+                        // Handle Item 3 click
+                        // Add your code here
+                        true
+                    }
+                    else -> false
+                }
+            }
+
+            // Show the popup menu
+            popupMenu.show()
+
     }
 
 

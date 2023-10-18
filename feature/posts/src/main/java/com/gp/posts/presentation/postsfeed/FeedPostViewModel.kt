@@ -1,5 +1,6 @@
 package com.gp.posts.presentation.postsfeed
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gp.socialapp.database.model.PostEntity
@@ -32,7 +33,7 @@ class FeedPostViewModel @Inject constructor(
                 _uiState.value = State.Loading
 
             repository.getAllLocalPosts().collect{posts->
-                _uiState.value = State.Success(posts)
+                _uiState.value = State.SuccessWithData(posts)
             }
 
         }
@@ -40,19 +41,22 @@ class FeedPostViewModel @Inject constructor(
     
 
     fun upVote(post: PostEntity){
+        Log.d("im in viewmodel", "upVote: ${post.upvotes} ")
+
         //update the ui
-        if(uiState.value is State.Success) {
-            val updatedPosts = (uiState.value as State.Success<List<PostEntity>>).data.map {
+        if(uiState.value is State.SuccessWithData) {
+            val updatedPosts = (uiState.value as State.SuccessWithData<List<PostEntity>>).data.map {
                 if (it.id == post.id) {
                     it.copy(upvotes = it.upvotes + 1)
                 } else {
                     it
                 }
             }
-            _uiState.value = State.Success(updatedPosts)
+            _uiState.value = State.SuccessWithData(updatedPosts)
 
             // Update the Room database
             viewModelScope.launch(Dispatchers.IO) {
+
                 repository.updateLocalPost(post.copy(upvotes = post.upvotes + 1))
                 repository.updatePost(post.copy(upvotes = post.upvotes + 1))
             }
@@ -60,20 +64,20 @@ class FeedPostViewModel @Inject constructor(
     }
     fun downVote(post: PostEntity){
         //update the ui
-        if(uiState.value is State.Success) {
-            val updatedPosts = (uiState.value as State.Success<List<PostEntity>>).data.map {
+        if(uiState.value is State.SuccessWithData) {
+            val updatedPosts = (uiState.value as State.SuccessWithData<List<PostEntity>>).data.map {
                 if (it.id == post.id) {
-                    it.copy(downvotes = it.downvotes + 1)
+                    it.copy(upvotes = it.upvotes - 1)
                 } else {
                     it
                 }
             }
-            _uiState.value = State.Success(updatedPosts)
+            _uiState.value = State.SuccessWithData(updatedPosts)
 
             // Update the Room database
             viewModelScope.launch(Dispatchers.IO) {
-                repository.updateLocalPost(post.copy(downvotes = post.downvotes + 1))
-                repository.updatePost(post.copy(downvotes = post.downvotes + 1))
+                repository.updateLocalPost(post.copy(upvotes = post.upvotes - 1))
+                repository.updatePost(post.copy(upvotes = post.upvotes - 1))
             }
         }
     }

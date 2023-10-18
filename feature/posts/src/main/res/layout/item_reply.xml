@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <!-- The reply depth indicator line -->
+    <View
+        android:id="@+id/depthIndicator"
+        android:layout_width="2dp"
+        android:layout_height="0dp"
+        android:background="#0091EA"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/itemReply" />
+
+    <!-- The Comment content -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/itemReply"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+
+        app:layout_constraintBottom_toTopOf="@id/nestedRecyclerView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/depthIndicator"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="visible"
+            android:background="@drawable/stroke"
+            android:id="@+id/defultViewNested"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/circular_background"
+                android:scaleType="centerCrop"
+                android:src="@drawable/pngwing_com"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="name"
+                android:textColor="#5E5B5C"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@+id/imageView"
+                app:layout_constraintStart_toEndOf="@+id/imageView"
+                app:layout_constraintTop_toTopOf="@id/imageView" />
+
+            <TextView
+                android:id="@+id/textTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:text="4d"
+                android:textColor="#90555151"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="@+id/textView"
+                app:layout_constraintStart_toEndOf="@+id/textView"
+                app:layout_constraintTop_toTopOf="@+id/textView" />
+
+            <TextView
+                android:id="@+id/replyTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="the content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/imageView"
+                app:layout_constraintTop_toBottomOf="@+id/imageView" />
+
+            <ImageView
+                android:id="@+id/imageView2"
+                style="@style/ImageViewVoteStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@+id/replyTextView"
+                app:layout_constraintTop_toBottomOf="@+id/replyTextView"
+                app:srcCompat="@drawable/ic_downvote" />
+
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:text="vote"
+                app:layout_constraintBottom_toBottomOf="@+id/imageView2"
+                app:layout_constraintEnd_toStartOf="@+id/imageView2"
+                app:layout_constraintTop_toTopOf="@+id/imageView2" />
+
+            <ImageView
+                android:id="@+id/imageView3"
+                style="@style/ImageViewVoteStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                app:layout_constraintBottom_toBottomOf="@+id/textView4"
+                app:layout_constraintEnd_toStartOf="@+id/textView4"
+                app:layout_constraintTop_toTopOf="@+id/textView4"
+                app:srcCompat="@drawable/ic_upvote" />
+
+            <ImageView
+                android:id="@+id/img_addComment"
+                style="@style/ImageViewVoteStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="30dp"
+                app:layout_constraintBottom_toBottomOf="@+id/imageView3"
+                app:layout_constraintEnd_toStartOf="@+id/imageView3"
+                app:layout_constraintTop_toTopOf="@+id/imageView3"
+                app:srcCompat="@drawable/baseline_comment_24" />
+
+            <ImageView
+                android:id="@+id/imageView5"
+                style="@style/ImageViewVoteStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="30dp"
+                app:layout_constraintBottom_toBottomOf="@+id/img_addComment"
+                app:layout_constraintEnd_toStartOf="@+id/img_addComment"
+                app:layout_constraintTop_toTopOf="@+id/img_addComment"
+                app:srcCompat="@drawable/baseline_more_vert_24" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <LinearLayout
+            android:id="@+id/alternativeReplyContainer"
+            style="@style/ImageViewVoteStyle"
+            android:layout_width="match_parent"
+            android:background="@drawable/stroke"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+            <ImageView
+                android:id="@+id/pic_collapse"
+                android:layout_width="30dp"
+                android:layout_marginStart="8dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                android:src="@drawable/pngwing_com"
+                android:scaleType="centerCrop"
+                android:background="@drawable/circular_background"
+
+                />
+
+            <TextView
+                android:id="@+id/userName_collapse"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="name"
+                android:layout_marginStart="4dp"
+                android:textSize="13sp"
+                android:textColor="#5E5B5C"
+                android:textStyle="bold"
+                />
+
+            <TextView
+                android:id="@+id/time_collapse"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="4d"
+                android:layout_marginStart="4dp"
+
+                android:textSize="12sp"
+                android:textColor="#F8D1CECE"
+                />
+
+            <TextView
+                android:id="@+id/content_collapse"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="the content"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:layout_marginStart="4dp"
+                style="@style/ImageViewVoteStyle2"
+                android:layout_marginEnd="8dp"
+                />
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- Nested reply view -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/nestedRecyclerView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="@+id/itemReply"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/itemReply"
+        app:layout_constraintTop_toBottomOf="@id/itemReply" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+

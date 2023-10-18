@@ -8,12 +8,15 @@ import com.gp.socialapp.source.local.PostLocalDataSource
 import com.gp.socialapp.source.remote.PostRemoteDataSource
 import com.gp.socialapp.util.PostMapper.toNetworkModel
 import com.gp.socialapp.utils.NetworkStatus
+import com.gp.socialapp.utils.State
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -46,12 +49,22 @@ class PostRepositoryImpl @Inject constructor(
             return postLocalSource.getAllPosts()
         }
     }
+
     override suspend fun deleteLocalPost(post: PostEntity) {
         postLocalSource.deletePost(post)
     }
 
-    override suspend fun createNetworkPost(post: NetworkPost) {
-        postRemoteSource.createPost(post)
+    override fun createNetworkPost(post: NetworkPost): Flow<State<Nothing>> = flow {
+        if(networkStatus.isOnline()){
+            val status = postRemoteSource.createPost(post)
+            status.collect {
+                Log.d("PostRepositoryImpl", "createNetworkPost: $it")
+                emit(it)
+
+            }
+        }else{
+            emit(State.Error("No Internet Connection"))
+        }
     }
 
     override fun fetchNetworkPosts(): Flow<List<PostEntity>> {
@@ -59,6 +72,8 @@ class PostRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updatePost(post: PostEntity) {
+        Log.d("im in repo", "updatePost: ${post.upvotes} ")
+
         postRemoteSource.updatePost(post)
     }
 
@@ -66,10 +81,6 @@ class PostRepositoryImpl @Inject constructor(
         postRemoteSource.deletePost(post)
     }
 
-    override suspend fun createPost(post: Post) {
-        createNetworkPost(post.toNetworkModel(currentUserID))
-
-    }
 
     override fun onCleared() {
         repositoryScope.cancel()

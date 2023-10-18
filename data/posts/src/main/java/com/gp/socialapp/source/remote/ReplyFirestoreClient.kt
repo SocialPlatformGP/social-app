@@ -2,19 +2,26 @@ package com.gp.socialapp.source.remote
 
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
+import com.gp.socialapp.database.model.ReplyEntity
+import com.gp.socialapp.model.NetworkReply
 import com.gp.socialapp.model.Reply
-import kotlinx.coroutines.flow.Flow
+import com.gp.socialapp.util.ReplyMapper.toEntity
+import com.gp.socialapp.util.ReplyMapper.toNetworkModel
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
 
-class ReplyFirestoreClient @Inject constructor(private val firestore: FirebaseFirestore) :
-    ReplyRemoteDataSource {
+class ReplyFirestoreClient @Inject constructor(
+    private val firestore: FirebaseFirestore
+) : ReplyRemoteDataSource {
+    private val ref = firestore.collection("replies")
 
-    override suspend fun createReply(reply: Reply) {
+
+    override suspend fun createReply(reply: NetworkReply) {
         firestore
             .collection("replies")
-            .document(reply.postId + "-" + reply.path.joinToString(separator = "-"))
-            .set(reply)
+            .add(reply)
             .addOnSuccessListener {
                 Log.d("TAG", "reply Created Successfully")
             }
@@ -23,26 +30,29 @@ class ReplyFirestoreClient @Inject constructor(private val firestore: FirebaseFi
             }
     }
 
-    override  fun fetchReplies(postId: String): Flow<List<Reply>> {
-        val result = mutableListOf<Reply>()
-        firestore
-            .collection("replies")
-            .get()
-            .addOnSuccessListener { documents ->
-                if (documents != null) {
-                    for (document in documents) {
-                        result.add(document.toObject(Reply::class.java))
-                    }
-                }
+    override  fun fetchReplies(postId: String) = callbackFlow{
+
+        val listener =ref.whereEqualTo("postId",postId).addSnapshotListener{data,error->
+            if(error!=null){
+                close(error)
+                return@addSnapshotListener
             }
-        return flowOf(result)
+            if(data!=null){
+                val result = mutableListOf<ReplyEntity>()
+                for (document in data.documents) {
+                    result.add(document.toObject(NetworkReply::class.java)!!.toEntity(document.id))
+                }
+                trySend(result)
+            }
+        }
+        awaitClose { listener.remove() }
     }
 
-    override suspend fun updateReply(reply:Reply) {
+    override suspend fun updateReplyRemote(reply:ReplyEntity) {
         firestore.
         collection("replies")
-            .document(reply.postId + "-" + reply.path.joinToString(separator = "-"))
-            .set(reply)
+            .document(reply.id)
+            .set(reply.toNetworkModel())
             .addOnSuccessListener {
                 Log.d("TAG", "Reply Updated Successfully")
             }.addOnFailureListener {
