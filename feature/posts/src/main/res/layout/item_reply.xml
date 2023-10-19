@@ -145,9 +145,8 @@
 
         <LinearLayout
             android:id="@+id/alternativeReplyContainer"
-            style="@style/ImageViewVoteStyle"
+            style="@style/ReplyItem"
             android:layout_width="match_parent"
-            android:background="@drawable/stroke"
             android:paddingTop="8dp"
             android:paddingBottom="8dp"
             android:layout_height="match_parent"
