@@ -13,6 +13,7 @@ data class ReplyEntity(
     val upvotes: Int,
     val downvotes: Int,
     val depth: Int ,// Used to determine the indentation level of the reply in the UI
-    val isDeleted: Boolean
+    val isDeleted: Boolean,
+    val createdAt: String?
 )
 

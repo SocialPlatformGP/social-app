@@ -16,6 +16,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -46,7 +47,6 @@ class PostDetailsViewModel @Inject constructor(
     fun insertReply(reply: NetworkReply){
         viewModelScope.launch (Dispatchers.IO){
             replyRepository.createReply(reply)
-
         }
     }
     fun upVote(post: PostEntity){
@@ -85,13 +85,9 @@ class PostDetailsViewModel @Inject constructor(
 
     }
     fun replyDownVote(reply: ReplyEntity){
-        //update the ui
-        if(currentReplies.value != null) {
-
             viewModelScope.launch(Dispatchers.IO) {
                 replyRepository.updateReplyRemote(reply.copy(upvotes = reply.upvotes - 1))
             }
-        }
     }
 
     fun deleteReply(reply: ReplyEntity) {

@@ -34,9 +34,14 @@ import com.gp.socialapp.database.model.PostEntity
 import com.gp.socialapp.database.model.ReplyEntity
 import com.gp.socialapp.model.NestedReplyItem
 import com.gp.socialapp.model.NetworkReply
+import com.gp.socialapp.util.ToNestedReplies.toNestedReplies
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import java.time.LocalDateTime
+import java.util.Date
+import java.util.Locale
 
 @AndroidEntryPoint
 class PostDetialsFragment : Fragment(), OnAddReplyClicked,VotePressedListener,OnMoreOptionClicked {
@@ -54,6 +59,7 @@ class PostDetialsFragment : Fragment(), OnAddReplyClicked,VotePressedListener,On
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
         viewModel.getRepliesById(args.psot.id)
         // Inflate the layout for this fragment
         val binding: FragmentPostDetialsBinding =
@@ -84,13 +90,17 @@ class PostDetialsFragment : Fragment(), OnAddReplyClicked,VotePressedListener,On
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         recyclerView = view.findViewById(R.id.recyclerView)
+        recyclerView.itemAnimator = null
+        replyAdapter = NestedReplyAdapter(this@PostDetialsFragment,0, this@PostDetialsFragment,this@PostDetialsFragment)
+        recyclerView.adapter = replyAdapter
+
         lifecycleScope.launch {
-            viewModel.currentReplies.collect {
-                replyAdapter = NestedReplyAdapter(this@PostDetialsFragment,0, this@PostDetialsFragment,this@PostDetialsFragment)
-                recyclerView.adapter = replyAdapter
+            viewModel.currentReplies.collectLatest {
+
                 replyAdapter.submitList(it.replies)
             }
         }
+
         replyEditText = view.findViewById(R.id.et_comment)
         replyEditTextLayout = view.findViewById(R.id.tl_comment)
         replyButton = view.findViewById(R.id.btn_send)
@@ -117,7 +127,8 @@ class PostDetialsFragment : Fragment(), OnAddReplyClicked,VotePressedListener,On
                     upvotes = 0,
                     downvotes = 0,
                     content = replyEditText.text.toString(),
-                    isDeleted = false
+                    deleted = false,
+                    createdAt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
 
                 )
             )
@@ -147,7 +158,9 @@ class PostDetialsFragment : Fragment(), OnAddReplyClicked,VotePressedListener,On
                     upvotes = 0,
                     downvotes = 0,
                     content = replyEditText.text.toString(),
-                    isDeleted = false
+                    deleted = false,
+                    createdAt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+
 
                 )
             )

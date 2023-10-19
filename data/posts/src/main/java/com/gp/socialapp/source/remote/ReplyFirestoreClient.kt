@@ -40,6 +40,7 @@ class ReplyFirestoreClient @Inject constructor(
             if(data!=null){
                 val result = mutableListOf<ReplyEntity>()
                 for (document in data.documents) {
+                    Log.d("bind2", "${document.id} => ${document.data}")
                     result.add(document.toObject(NetworkReply::class.java)!!.toEntity(document.id))
                 }
                 trySend(result)
