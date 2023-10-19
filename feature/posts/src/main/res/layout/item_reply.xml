@@ -5,14 +5,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+
     android:layout_height="wrap_content">
 
     <!-- The reply depth indicator line -->
-    <View
+    <com.google.android.material.divider.MaterialDivider
         android:id="@+id/depthIndicator"
         android:layout_width="2dp"
         android:layout_height="0dp"
-        android:background="#0091EA"
+        app:dividerColor="@color/defaultTempColor"
+        style="@style/Widget.Material3.MaterialDivider.Heavy"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/itemReply" />
@@ -23,7 +25,6 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="12dp"
-
         app:layout_constraintBottom_toTopOf="@id/nestedRecyclerView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/depthIndicator"
@@ -33,7 +34,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="visible"
-            android:background="@drawable/stroke"
+            style="@style/ReplyItem"
             android:id="@+id/defultViewNested"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -44,9 +45,10 @@
                 android:id="@+id/imageView"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="12dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/circular_background"
+
                 android:scaleType="centerCrop"
                 android:src="@drawable/pngwing_com"
                 app:layout_constraintStart_toStartOf="parent"
@@ -82,67 +84,62 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
+                android:layout_marginEnd="12dp"
                 android:text="the content"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/imageView"
                 app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
-            <ImageView
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/imageView2"
-                style="@style/ImageViewVoteStyle"
+                style="@style/Widget.Material3.Button.IconButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="8dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="@+id/replyTextView"
                 app:layout_constraintTop_toBottomOf="@+id/replyTextView"
-                app:srcCompat="@drawable/ic_downvote" />
+                app:icon="@drawable/ic_downvote" />
 
             <TextView
                 android:id="@+id/textView4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="4dp"
                 android:text="vote"
                 app:layout_constraintBottom_toBottomOf="@+id/imageView2"
                 app:layout_constraintEnd_toStartOf="@+id/imageView2"
                 app:layout_constraintTop_toTopOf="@+id/imageView2" />
 
-            <ImageView
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/imageView3"
-                style="@style/ImageViewVoteStyle"
+                style="@style/Widget.Material3.Button.IconButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="4dp"
                 app:layout_constraintBottom_toBottomOf="@+id/textView4"
                 app:layout_constraintEnd_toStartOf="@+id/textView4"
                 app:layout_constraintTop_toTopOf="@+id/textView4"
-                app:srcCompat="@drawable/ic_upvote" />
+                app:icon="@drawable/ic_upvote" />
 
-            <ImageView
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/img_addComment"
-                style="@style/ImageViewVoteStyle"
+                style="@style/Widget.Material3.Button.IconButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="30dp"
+                android:layout_marginEnd="10dp"
                 app:layout_constraintBottom_toBottomOf="@+id/imageView3"
                 app:layout_constraintEnd_toStartOf="@+id/imageView3"
                 app:layout_constraintTop_toTopOf="@+id/imageView3"
-                app:srcCompat="@drawable/baseline_comment_24" />
+                app:icon="@drawable/baseline_comment_24" />
 
-            <ImageView
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/imageView5"
-                style="@style/ImageViewVoteStyle"
+                style="@style/Widget.Material3.Button.IconButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="30dp"
+                android:layout_marginEnd="10dp"
                 app:layout_constraintBottom_toBottomOf="@+id/img_addComment"
                 app:layout_constraintEnd_toStartOf="@+id/img_addComment"
                 app:layout_constraintTop_toTopOf="@+id/img_addComment"
-                app:srcCompat="@drawable/baseline_more_vert_24" />
+                app:icon="@drawable/baseline_more_vert_24" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

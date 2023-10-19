@@ -12,7 +12,6 @@ import com.gp.posts.listeners.OnMoreOptionClicked
 import com.gp.posts.listeners.VotesClickedListener
 import com.gp.socialapp.database.model.PostEntity
 
-
 class FeedPostAdapter(
     val onMoreOptionClicked: OnMoreOptionClicked,
     val onPostClicked:VotesClickedListener
@@ -35,7 +34,7 @@ class FeedPostAdapter(
             onPostClicked.onDownVoteClicked(binding.postitem!!)
         }
         binding.imageView5.setOnClickListener {
-            onMoreOptionClicked.onMoreOptionClicked(binding.imageView5)
+            onMoreOptionClicked.onMoreOptionClicked(binding.imageView5,binding.postitem!!)
         }
         return PostViewHolder(binding)
     }
@@ -44,7 +43,6 @@ class FeedPostAdapter(
         val post = getItem(position)
         holder.bind(post)
     }
-
 
 
     inner class PostViewHolder(private val binding: ItemPostBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -62,7 +60,6 @@ class FeedPostAdapter(
         override fun areContentsTheSame(oldItem: PostEntity, newItem: PostEntity): Boolean {
               return oldItem == newItem
         }
-
 
     }
 

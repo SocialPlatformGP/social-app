@@ -64,7 +64,7 @@
                             android:id="@+id/imageView"
                             android:layout_width="30dp"
                             android:layout_height="30dp"
-                            android:layout_marginStart="4dp"
+                            android:layout_marginStart="12dp"
                             android:layout_marginTop="8dp"
                             android:src="@drawable/pngwing_com"
                             android:scaleType="centerCrop"
@@ -103,8 +103,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:layout_marginStart="4dp"
-                            android:layout_marginEnd="4dp"
+                            android:layout_marginEnd="12dp"
                             android:text="@{postitem.body}"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="@+id/imageView"
@@ -117,26 +116,22 @@
                             android:text="@{postitem.title}"
                             android:textStyle="bold"
                             android:layout_marginTop="8dp"
-                            android:layout_marginStart="4dp"
-                            android:layout_marginEnd="4dp"
+                            android:layout_marginEnd="12dp"
                             android:layout_marginBottom="8dp"
                             app:layout_constraintTop_toBottomOf="@+id/imageView"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="@+id/replyTextView" />
+                            app:layout_constraintStart_toStartOf="@+id/imageView" />
 
-                        <ImageView
+                        <com.google.android.material.button.MaterialButton
                             android:id="@+id/imageViewDownvotePost"
-                            style="@style/ImageViewVoteStyle"
+                            style="@style/Widget.Material3.Button.IconButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginEnd="16dp"
-                            android:layout_marginTop="8dp"
-                            android:layout_marginBottom="8dp"
                             android:onClick="@{() -> viewModel.downVote(postitem)}"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="@+id/replyTextView"
                             app:layout_constraintTop_toBottomOf="@+id/replyTextView"
-                            app:srcCompat="@drawable/ic_downvote" />
+                            app:icon="@drawable/ic_downvote" />
 
                         <TextView
                             android:id="@+id/textView4"
@@ -148,39 +143,37 @@
                             app:layout_constraintEnd_toStartOf="@+id/imageViewDownvotePost"
                             app:layout_constraintTop_toTopOf="@+id/imageViewDownvotePost" />
 
-                        <ImageView
+                        <com.google.android.material.button.MaterialButton
                             android:id="@+id/imageViewUpvotePost"
-                            style="@style/ImageViewVoteStyle"
+                            style="@style/Widget.Material3.Button.IconButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginEnd="4dp"
                             android:onClick="@{() -> viewModel.upVote(postitem)}"
                             app:layout_constraintBottom_toBottomOf="@+id/textView4"
                             app:layout_constraintEnd_toStartOf="@+id/textView4"
                             app:layout_constraintTop_toTopOf="@+id/textView4"
-                            app:srcCompat="@drawable/ic_upvote" />
+                            app:icon="@drawable/ic_upvote" />
 
-                        <ImageView
+                        <com.google.android.material.button.MaterialButton
                             android:id="@+id/img_addComment"
-                            style="@style/ImageViewVoteStyle"
+                            style="@style/Widget.Material3.Button.IconButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginEnd="30dp"
+                            android:layout_marginEnd="20dp"
                             app:layout_constraintBottom_toBottomOf="@+id/imageViewUpvotePost"
                             app:layout_constraintEnd_toStartOf="@+id/imageViewUpvotePost"
                             app:layout_constraintTop_toTopOf="@+id/imageViewUpvotePost"
-                            app:srcCompat="@drawable/baseline_comment_24" />
+                            app:icon="@drawable/baseline_comment_24" />
 
-                        <ImageView
+                        <com.google.android.material.button.MaterialButton
                             android:id="@+id/imageView5"
-                            style="@style/ImageViewVoteStyle"
+                            style="@style/Widget.Material3.Button.IconButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginEnd="8dp"
-                            android:layout_marginTop="8dp"
+
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:srcCompat="@drawable/baseline_more_vert_24" />
+                            app:icon="@drawable/baseline_more_vert_24" />
 
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -206,7 +199,7 @@
         <LinearLayout
             android:id="@+id/linearLayout"
             android:visibility="gone"
-            android:background="#FFFFFF"
+            style="@style/ImageViewVoteStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -214,10 +207,10 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toBottomOf="parent">
 
-            <View
+            <com.google.android.material.divider.MaterialDivider
                 android:layout_width="match_parent"
-                android:background="#0091EA"
-                android:layout_height="2dp"></View>
+                app:dividerColor="@color/defaultTempColor"
+                android:layout_height="2dp"></com.google.android.material.divider.MaterialDivider>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tl_comment"
@@ -232,13 +225,12 @@
                     android:layout_height="wrap_content" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <ImageButton
+            <com.google.android.material.button.MaterialButton
+                style="@style/Widget.Material3.Button.IconButton"
                 android:id="@+id/btn_send"
-                android:layout_width="35dp"
-                android:backgroundTint="#FFFFFF"
-                android:src="@drawable/baseline_send_24"
-                android:layout_marginStart="4dp"
-                android:layout_height="35dp" />
+                android:layout_width="wrap_content"
+                app:icon="@drawable/baseline_send_24"
+                android:layout_height="wrap_content" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -1,17 +1,18 @@
 package com.gp.posts.presentation.postDetails
 
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import android.widget.ImageButton
-import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.annotation.RequiresApi
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
@@ -19,12 +20,14 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.gp.posts.R
 import com.gp.posts.adapter.NestedReplyAdapter
 import com.gp.posts.databinding.FragmentPostDetialsBinding
 import com.gp.posts.listeners.OnAddReplyClicked
+import com.gp.posts.listeners.OnMoreOptionClicked
 import com.gp.posts.listeners.VotePressedListener
 import com.gp.posts.presentation.postsfeed.FeedPostViewModel
 import com.gp.socialapp.database.model.PostEntity
@@ -33,9 +36,10 @@ import com.gp.socialapp.model.NestedReplyItem
 import com.gp.socialapp.model.NetworkReply
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 
 @AndroidEntryPoint
-class PostDetialsFragment : Fragment(), OnAddReplyClicked,VotePressedListener {
+class PostDetialsFragment : Fragment(), OnAddReplyClicked,VotePressedListener,OnMoreOptionClicked {
     lateinit var replyAdapter: NestedReplyAdapter
     lateinit var recyclerView: RecyclerView
     val viewModel: PostDetailsViewModel by viewModels()
@@ -43,14 +47,14 @@ class PostDetialsFragment : Fragment(), OnAddReplyClicked,VotePressedListener {
     val args: PostDetialsFragmentArgs by navArgs()
     lateinit var replyEditText: TextInputEditText
     lateinit var replyEditTextLayout: TextInputLayout
-    lateinit var replyButton: ImageButton
+    lateinit var replyButton: MaterialButton
     lateinit var linearLayout: LinearLayout
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        viewModel.getRepliesById("xpjgGUTfgW0PY7vGSw7F")
+        viewModel.getRepliesById(args.psot.id)
         // Inflate the layout for this fragment
         val binding: FragmentPostDetialsBinding =
             DataBindingUtil.inflate(inflater, R.layout.fragment_post_detials, container, false)
@@ -82,7 +86,7 @@ class PostDetialsFragment : Fragment(), OnAddReplyClicked,VotePressedListener {
         recyclerView = view.findViewById(R.id.recyclerView)
         lifecycleScope.launch {
             viewModel.currentReplies.collect {
-                replyAdapter = NestedReplyAdapter(this@PostDetialsFragment,0, this@PostDetialsFragment)
+                replyAdapter = NestedReplyAdapter(this@PostDetialsFragment,0, this@PostDetialsFragment,this@PostDetialsFragment)
                 recyclerView.adapter = replyAdapter
                 replyAdapter.submitList(it.replies)
             }
@@ -91,7 +95,7 @@ class PostDetialsFragment : Fragment(), OnAddReplyClicked,VotePressedListener {
         replyEditTextLayout = view.findViewById(R.id.tl_comment)
         replyButton = view.findViewById(R.id.btn_send)
         linearLayout = view.findViewById(R.id.linearLayout)
-        val post = view.findViewById<ImageView>(R.id.img_addComment)
+        val post = view.findViewById<MaterialButton>(R.id.img_addComment)
         post.setOnClickListener {
             addComment(args.psot)
         }
@@ -113,6 +117,8 @@ class PostDetialsFragment : Fragment(), OnAddReplyClicked,VotePressedListener {
                     upvotes = 0,
                     downvotes = 0,
                     content = replyEditText.text.toString(),
+                    isDeleted = false
+
                 )
             )
             replyEditText.setText("")
@@ -141,6 +147,8 @@ class PostDetialsFragment : Fragment(), OnAddReplyClicked,VotePressedListener {
                     upvotes = 0,
                     downvotes = 0,
                     content = replyEditText.text.toString(),
+                    isDeleted = false
+
                 )
             )
             replyEditText.setText("")
@@ -157,6 +165,37 @@ class PostDetialsFragment : Fragment(), OnAddReplyClicked,VotePressedListener {
 
     override fun onDownVotePressed(comment: ReplyEntity) {
         viewModel.replyDownVote(comment)
+    }
+
+    override fun onMoreOptionClicked(imageView5: MaterialButton, postitem: PostEntity) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onMoreOptionClicked(imageView5: MaterialButton, reply: ReplyEntity) {
+        val popupMenu = PopupMenu(requireActivity(), imageView5)
+        popupMenu.menuInflater.inflate(R.menu.extra_option_menu, popupMenu.menu)
+
+        // Set item click listener for the popup menu
+        popupMenu.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.menu_item_1 -> {
+                    // Handle Item 1 click
+                    // Add your code here
+                    true
+                }
+                R.id.menu_item_2 -> {
+                    // Handle Item 2 click
+                    // Add your code here
+                    true
+                }
+                R.id.menu_item_3 -> {
+                    viewModel.deleteReply(reply)
+                    true
+                }
+                else -> false
+            }
+        }
+        popupMenu.show()
     }
 
 

@@ -1,21 +1,27 @@
 package com.gp.posts.presentation.postsfeed
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gp.socialapp.database.model.PostEntity
+import com.gp.socialapp.model.NetworkReply
 import com.gp.socialapp.repository.PostRepository
+import com.gp.socialapp.repository.ReplyRepository
 import com.gp.socialapp.utils.State
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 import javax.inject.Inject
 
+@RequiresApi(Build.VERSION_CODES.O)
 @HiltViewModel
 class FeedPostViewModel @Inject constructor(
-    val repository: PostRepository
+    val repository: PostRepository,
 ) : ViewModel() {
     init {
         getAllPosts()
@@ -86,5 +92,16 @@ class FeedPostViewModel @Inject constructor(
         super.onCleared()
         repository.onCleared()
     }
+
+    fun deletePost(post: PostEntity) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.deletePost(post)
+            repository.deleteLocalPost(post)
+        }
+    }
+
+
+
+
 
 }

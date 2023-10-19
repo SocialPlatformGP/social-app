@@ -6,7 +6,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.PopupMenu
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -15,6 +14,7 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.gp.posts.R
 import com.gp.posts.adapter.FeedPostAdapter
@@ -23,6 +23,7 @@ import com.gp.posts.databinding.FragmentFeedBinding
 import com.gp.posts.listeners.OnMoreOptionClicked
 import com.gp.posts.listeners.VotesClickedListener
 import com.gp.socialapp.database.model.PostEntity
+import com.gp.socialapp.database.model.ReplyEntity
 import com.gp.socialapp.utils.State
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -77,7 +78,7 @@ class FeedFragment : Fragment() , VotesClickedListener, OnMoreOptionClicked {
         viewModel.downVote(post)
     }
 
-    override fun onMoreOptionClicked(imageView5: ImageView) {
+    override fun onMoreOptionClicked(imageView5: MaterialButton, postitem: PostEntity) {
             val popupMenu = PopupMenu(requireActivity(), imageView5)
             popupMenu.menuInflater.inflate(R.menu.extra_option_menu, popupMenu.menu)
 
@@ -95,8 +96,7 @@ class FeedFragment : Fragment() , VotesClickedListener, OnMoreOptionClicked {
                         true
                     }
                     R.id.menu_item_3 -> {
-                        // Handle Item 3 click
-                        // Add your code here
+                        viewModel.deletePost(postitem)
                         true
                     }
                     else -> false
@@ -105,7 +105,10 @@ class FeedFragment : Fragment() , VotesClickedListener, OnMoreOptionClicked {
 
             // Show the popup menu
             popupMenu.show()
+    }
 
+    override fun onMoreOptionClicked(imageView5: MaterialButton, reply: ReplyEntity) {
+        TODO("Not yet implemented")
     }
 
 

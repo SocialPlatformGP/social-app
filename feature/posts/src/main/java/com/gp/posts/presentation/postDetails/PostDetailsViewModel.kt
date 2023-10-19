@@ -94,9 +94,13 @@ class PostDetailsViewModel @Inject constructor(
         }
     }
 
+    fun deleteReply(reply: ReplyEntity) {
+        viewModelScope.launch(Dispatchers.IO) {
+            replyRepository.updateReply(reply.copy(content = "content is deleted by owner",isDeleted = true))
+            replyRepository.updateReplyRemote(reply.copy(content = "content is deleted by owner",isDeleted = true))
+        }
 
-
-
+    }
 
 
 }

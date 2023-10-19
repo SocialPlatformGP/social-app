@@ -12,7 +12,6 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.gp.posts.R
-import com.gp.socialapp.util.PostState
 import com.gp.socialapp.database.model.PostEntity
 import com.gp.socialapp.utils.State
 import kotlinx.coroutines.Dispatchers
@@ -78,7 +77,7 @@ fun setVisabilityRecycler(view: View, params: StateWIthLifeCycle) {
 
     }
 }
-@BindingAdapter("app:imageUrl")
+@BindingAdapter("posts:imageUrl")
 fun setProfilePicture(view: ImageView, picUrl: String?) {
     if (picUrl != null) {
         Glide.with(view.context)

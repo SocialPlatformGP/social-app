@@ -13,8 +13,10 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.ListAdapter
+import com.google.android.material.button.MaterialButton
 import com.gp.posts.R
 import com.gp.posts.listeners.OnAddReplyClicked
+import com.gp.posts.listeners.OnMoreOptionClicked
 import com.gp.posts.listeners.VotePressedListener
 import com.gp.posts.listeners.VotesClickedListener
 import com.gp.socialapp.model.NestedReplyItem
@@ -22,20 +24,20 @@ import com.gp.socialapp.model.NestedReplyItem
 class NestedReplyAdapter(
     private val votesClickedListener: VotePressedListener,
     private val depth: Int,
-    private val onReplyClicked: OnAddReplyClicked
+    private val onReplyClicked: OnAddReplyClicked,
+    private val onMoreOptionClicked: OnMoreOptionClicked
 ) : ListAdapter<NestedReplyItem, NestedReplyAdapter.NestedReplyViewHolder>(NestedReplyDiffUtil()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NestedReplyViewHolder {
-        Log.d("NestedReplyAdapter", "bind: $depth")
-
+        Log.d("oncrea", "bind: $depth")
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_reply, parent, false)
         return NestedReplyViewHolder(view)
     }
 
 
-    @SuppressLint("SuspiciousIndentation")
     override fun onBindViewHolder(holder: NestedReplyViewHolder, position: Int) {
         val nestedReplyItem = getItem(position)
+
         holder.bind(nestedReplyItem)
 
         holder.replyButton.setOnClickListener {
@@ -43,19 +45,19 @@ class NestedReplyAdapter(
         }
 
         holder.itemView.setOnClickListener {
-            if (holder.defaultView.visibility == View.VISIBLE) {
+            if (holder.defaultView.visibility == View.VISIBLE ) {
                 holder.nestedRecyclerView.visibility = View.GONE
                 holder.defaultView.visibility = View.GONE
                 holder.alterView.visibility = View.VISIBLE
 
-
-            } else {
+            } else  {
                 holder.defaultView.visibility = View.VISIBLE
                 holder.alterView.visibility = View.GONE
                 holder.nestedRecyclerView.visibility = View.VISIBLE
             }
 
         }
+
 
 
         if (nestedReplyItem.reply?.parentReplyId == null) {
@@ -75,6 +77,9 @@ class NestedReplyAdapter(
         holder.downVoteImage.setOnClickListener {
             votesClickedListener.onDownVotePressed(nestedReplyItem.reply!!)
         }
+        holder.moreOptionButton.setOnClickListener {
+            onMoreOptionClicked.onMoreOptionClicked(holder.moreOptionButton, nestedReplyItem.reply!!)
+        }
     }
 
 
@@ -84,14 +89,15 @@ class NestedReplyAdapter(
         private val indicator: View = itemView.findViewById(R.id.depthIndicator)
         val alterView = itemView.findViewById<LinearLayout>(R.id.alternativeReplyContainer)
         val defaultView: ConstraintLayout = itemView.findViewById(R.id.defultViewNested)
-        private val contentAlter: TextView = itemView.findViewById(R.id.content_collapse)
+        val contentAlter: TextView = itemView.findViewById(R.id.content_collapse)
         private val voteText: TextView = itemView.findViewById(R.id.textView4)
-        val replyButton: ImageView = itemView.findViewById(R.id.img_addComment)
-        val upVoteImage: ImageView = itemView.findViewById(R.id.imageView3)
-        val downVoteImage: ImageView = itemView.findViewById(R.id.imageView2)
-
+        val replyButton: MaterialButton = itemView.findViewById(R.id.img_addComment)
+        val upVoteImage: MaterialButton = itemView.findViewById(R.id.imageView3)
+        val downVoteImage: MaterialButton = itemView.findViewById(R.id.imageView2)
+        val moreOptionButton: MaterialButton = itemView.findViewById(R.id.imageView5)
 
         fun bind(nestedReplyItem: NestedReplyItem) {
+
             replyContent.text = nestedReplyItem.reply?.content
             contentAlter.text = nestedReplyItem.reply?.content
             voteText.text = nestedReplyItem.reply?.upvotes.toString()
@@ -105,11 +111,14 @@ class NestedReplyAdapter(
             }
 
 
+
+
             // Initialize a new instance of the NestedReplyAdapter with the nested replies
-            val adapter = NestedReplyAdapter(votesClickedListener,depth + 1, onReplyClicked)
+            val adapter = NestedReplyAdapter(votesClickedListener,depth + 1, onReplyClicked, onMoreOptionClicked)
             adapter.submitList(nestedReplyItem.replies)
             nestedRecyclerView.layoutManager = LinearLayoutManager(itemView.context)
             nestedRecyclerView.adapter = adapter
+
         }
     }
 
@@ -117,14 +126,9 @@ class NestedReplyAdapter(
         override fun areItemsTheSame(oldItem: NestedReplyItem, newItem: NestedReplyItem): Boolean {
             return oldItem.reply?.id == newItem.reply?.id
         }
-
-        override fun areContentsTheSame(
-            oldItem: NestedReplyItem,
-            newItem: NestedReplyItem
-        ): Boolean {
+        override fun areContentsTheSame(oldItem: NestedReplyItem, newItem: NestedReplyItem): Boolean {
             return oldItem == newItem
         }
-
     }
 
 }

@@ -12,5 +12,8 @@
   <style name="ImageViewVoteStyle2">
     <item name="android:textColor">#AFAAAC</item>
   </style>
+  <style name="ReplyItem">
+    <item name="android:background">@drawable/stroke_night</item>
+  </style>
 
 </resources>

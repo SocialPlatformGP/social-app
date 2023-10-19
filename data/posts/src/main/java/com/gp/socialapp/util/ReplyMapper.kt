@@ -9,10 +9,10 @@ import com.gp.socialapp.model.Post
 object ReplyMapper {
 
     fun NetworkReply.toEntity(id: String): ReplyEntity {
-        return ReplyEntity(id,postId,parentReplyId,content,upvotes,downvotes,depth)
+        return ReplyEntity(id,postId,parentReplyId,content,upvotes,downvotes,depth,isDeleted)
     }
     fun ReplyEntity.toNetworkModel(): NetworkReply {
-        return NetworkReply(postId,parentReplyId,content,upvotes,downvotes,depth)
+        return NetworkReply(postId,parentReplyId,content,upvotes,downvotes,depth,isDeleted)
     }
 
 
