@@ -16,4 +16,5 @@ interface PostRepository {
     suspend fun deletePost(post: PostEntity)
     suspend fun createPost(post: Post)
     fun onCleared()
+    fun searchPostsByTitle(searchText: String): Flow<List<PostEntity>>
 }
