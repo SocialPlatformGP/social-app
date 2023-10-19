@@ -8,4 +8,11 @@
     <string name="create_account">Create Account</string>
     <string name="confirm_password">Confirm Password</string>
     <string name="already_have_an_account">Already have an account?</string>
+    <string name="complete_your_profile">Complete your Profile</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="complete_account">Complete Account</string>
+    <string name="about">About</string>
+    <string name="birthdate">Birthdate</string>
 </resources>

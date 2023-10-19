@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/auth_nav_graph"
-    app:startDestination="@id/loginFragment">
+    app:startDestination="@id/userInformationFragment">
 
     <fragment
         android:id="@+id/loginFragment"
@@ -22,6 +22,9 @@
         android:label="fragment_registeration"
         tools:layout="@layout/fragment_registration" >
         <action
+            android:id="@+id/action_registerationFragment_to_userInformationFragment"
+            app:destination="@id/userInformationFragment" />
+        <action
             android:id="@+id/action_registerationFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
     </fragment>
@@ -30,4 +33,8 @@
         android:name="com.gp.auth.ui.passwordreset.PasswordResetFragment"
         android:label="fragment_password_reset"
         tools:layout="@layout/fragment_password_reset" />
+    <fragment
+        android:id="@+id/userInformationFragment"
+        android:name="com.gp.auth.ui.registration.UserInformationFragment"
+        android:label="UserInformationFragment" />
 </navigation>
