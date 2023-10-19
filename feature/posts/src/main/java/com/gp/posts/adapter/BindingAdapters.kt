@@ -1,7 +1,9 @@
 package com.gp.posts.adapter
 
+import android.text.TextWatcher
 import android.util.Log
 import android.view.View
+import android.widget.EditText
 import androidx.databinding.BindingAdapter
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
@@ -59,5 +61,16 @@ fun setVisabilityRecycler(view: View, params: StateWIthLifeCycle) {
 
         }
 
+    }
+}
+
+
+
+@BindingAdapter("android:textWatcher")
+fun bindTextWatcher(view: EditText, textWatcher: TextWatcher?) {
+    if (textWatcher != null) {
+        view.addTextChangedListener(textWatcher)
+    } else {
+        view.addTextChangedListener(null)
     }
 }
