@@ -2,5 +2,6 @@
 <resources>
     <color name="upvote_icon_light">#000000</color> <!-- Black for light theme -->
     <color name="upvote_icon_dark">#FFFFFF</color> <!-- White for dark theme -->
+    <color name="defaultTempColor">#6750A4</color> <!-- Black for light theme -->
 
 </resources>

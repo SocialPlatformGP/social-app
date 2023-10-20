@@ -20,6 +20,21 @@
         <action
             android:id="@+id/action_feedFragment_to_createPostFragment"
             app:destination="@id/createPostFragment" />
+        <action
+            android:id="@+id/action_feedFragment_to_postDetialsFragment"
+            app:destination="@id/postDetialsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/postDetialsFragment"
+        android:name="com.gp.posts.presentation.postDetails.PostDetialsFragment"
+        android:label="fragment_post_detials"
+        tools:layout="@layout/fragment_post_detials" >
+        <action
+            android:id="@+id/action_postDetialsFragment_to_feedFragment"
+            app:destination="@id/feedFragment" />
+        <argument
+            android:name="psot"
+            app:argType="com.gp.socialapp.database.model.PostEntity" />
     </fragment>
     <fragment
         android:id="@+id/search_Fragment"
