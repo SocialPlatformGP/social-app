@@ -3,6 +3,7 @@ package com.gp.socialapp.database.dao
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.gp.socialapp.database.model.ReplyEntity
@@ -12,13 +13,13 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ReplyDao {
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertReply(replyEntity: ReplyEntity): Long
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE )
     suspend fun insertReplies(replies: List<ReplyEntity>)
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.REPLACE)
     suspend fun updateReply(replyEntity: ReplyEntity)
 
     @Update
@@ -50,8 +51,9 @@ interface ReplyDao {
     @Query("SELECT * FROM replies WHERE parentReplyId IS NULL AND postId = :postId")
     fun getTopLevelRepliesByPostId(postId: String): Flow<List<ReplyEntity>>
 
+@Query("UPDATE replies SET upVotes = upVotes + 1 WHERE id = :id")
+suspend fun upVoteLocal(id:String)
 
-
-
-
+    @Query("UPDATE replies SET upVotes = upVotes - 1 WHERE id = :id")
+    suspend fun downVoteLocal(id:String)
 }

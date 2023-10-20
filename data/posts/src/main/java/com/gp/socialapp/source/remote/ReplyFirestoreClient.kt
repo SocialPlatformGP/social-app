@@ -72,4 +72,18 @@ class ReplyFirestoreClient @Inject constructor(
                 Log.d("TAG", "Post Deletion Failed")
             }
     }
+
+    override suspend fun upVoteReply(reply: ReplyEntity) {
+        ref.document(reply.id).get().addOnSuccessListener {
+            val upvotes = it.getLong("upvotes")!!
+            ref.document(reply.id).update("upvotes",upvotes+1)
+        }
+    }
+
+    override suspend fun downVoteReply(reply: ReplyEntity) {
+        ref.document(reply.id).get().addOnSuccessListener {
+            val upvotes = it.getLong("upvotes")!!
+            ref.document(reply.id).update("upvotes",upvotes-1)
+        }
+    }
 }

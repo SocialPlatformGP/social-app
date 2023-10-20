@@ -10,4 +10,7 @@ interface ReplyRemoteDataSource {
     fun fetchReplies(postId: String): Flow<List<ReplyEntity>>
     suspend fun updateReplyRemote(reply: ReplyEntity)
     suspend fun deleteReply(reply: Reply)
+
+    suspend fun upVoteReply(reply: ReplyEntity)
+    suspend fun downVoteReply(reply: ReplyEntity)
 }

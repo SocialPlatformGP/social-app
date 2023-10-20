@@ -1,6 +1,7 @@
 package com.gp.socialapp.source.local
 
 
+import androidx.room.Query
 import com.gp.socialapp.database.model.ReplyEntity
 import com.gp.socialapp.database.model.relationship.PostWithReplies
 import kotlinx.coroutines.flow.Flow
@@ -18,6 +19,10 @@ interface ReplyLocalDataSource {
     fun getReplyById(id: Long): Flow<ReplyEntity>
     fun getRepliesByParentReplyId(parentReplyId: Long): Flow<List<ReplyEntity>>
     fun getTopLevelRepliesByPostId(postId: String): Flow<List<ReplyEntity>>
+
+   suspend fun upVoteLocal(id:String)
+
+  suspend  fun downVoteLocal(id:String)
 
 
 

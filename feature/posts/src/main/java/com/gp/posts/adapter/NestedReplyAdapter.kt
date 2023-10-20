@@ -128,10 +128,10 @@ class NestedReplyAdapter(
             voteText.text = nestedReplyItem.reply?.upvotes.toString()
             GlobalScope.launch (Dispatchers.Default){
                 while (true){
-                    delay(60000)
                     withContext(Dispatchers.Main) {
                         time.text = calculateTimeDifference(nestedReplyItem.reply?.createdAt!!)
                     }
+                    delay(60000)
                 }
             }
             voteText.text = nestedReplyItem.reply?.upvotes.toString()

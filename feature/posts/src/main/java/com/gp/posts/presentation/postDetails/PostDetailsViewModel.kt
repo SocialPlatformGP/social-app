@@ -39,14 +39,14 @@ class PostDetailsViewModel @Inject constructor(
 
     fun getRepliesById(id:String){
         viewModelScope.launch (Dispatchers.IO){
-            replyRepository.fetchReplies(id).collect {
+            replyRepository.getReplies(id).collect {
                 _currentReplies.value = it.toNestedReplies()
             }
         }
     }
     fun insertReply(reply: NetworkReply){
         viewModelScope.launch (Dispatchers.IO){
-            replyRepository.createReply(reply)
+            replyRepository.insertReply(reply)
         }
     }
     fun upVote(post: PostEntity){
@@ -79,21 +79,19 @@ class PostDetailsViewModel @Inject constructor(
     }
     fun replyUpVote(reply: ReplyEntity){
             viewModelScope.launch(Dispatchers.IO) {
-                replyRepository.updateReplyRemote(reply.copy(upvotes = reply.upvotes + 1))
+                replyRepository.upVoteReply(reply)
             }
-
-
     }
     fun replyDownVote(reply: ReplyEntity){
             viewModelScope.launch(Dispatchers.IO) {
-                replyRepository.updateReplyRemote(reply.copy(upvotes = reply.upvotes - 1))
+                replyRepository.downVoteReply(reply)
             }
     }
 
     fun deleteReply(reply: ReplyEntity) {
         viewModelScope.launch(Dispatchers.IO) {
-            replyRepository.updateReply(reply.copy(content = "content is deleted by owner",isDeleted = true))
-            replyRepository.updateReplyRemote(reply.copy(content = "content is deleted by owner",isDeleted = true))
+            var deletedReply = reply.copy(content = "content is deleted by owner",isDeleted = true)
+            replyRepository.deleteReply(deletedReply)
         }
 
     }
