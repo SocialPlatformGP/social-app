@@ -21,8 +21,13 @@ import kotlinx.coroutines.Dispatchers
 object RepositoryModule {
 
     @Provides
-    fun provideReplyRepository(replyLocalDataSource: ReplyLocalDataSource,replyRemoteDataSource: ReplyRemoteDataSource): ReplyRepository {
-        return ReplyRepositoryImpl(replyLocalDataSource,replyRemoteDataSource)
+    fun provideReplyRepository(
+        replyLocalDataSource: ReplyLocalDataSource,
+        replyRemoteDataSource: ReplyRemoteDataSource,
+        networkStatus:NetworkStatus,
+        coroutineScope: CoroutineScope
+    ): ReplyRepository {
+        return ReplyRepositoryImpl(replyLocalDataSource,replyRemoteDataSource,networkStatus,coroutineScope)
     }
     @Provides
     fun providePostRepository(
