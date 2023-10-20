@@ -13,17 +13,20 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.button.MaterialButton
 import com.gp.posts.R
 import com.gp.posts.adapter.FeedPostAdapter
 import com.gp.posts.databinding.FragmentSearchBinding
+import com.gp.posts.listeners.OnMoreOptionClicked
 import com.gp.posts.listeners.VotesClickedListener
 import com.gp.socialapp.database.model.PostEntity
+import com.gp.socialapp.database.model.ReplyEntity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class Search_Fragment : Fragment(), VotesClickedListener {
+class Search_Fragment : Fragment(), VotesClickedListener, OnMoreOptionClicked {
     private val viewModel: SearchViewModel by viewModels()
     lateinit var binding: FragmentSearchBinding
 
@@ -40,7 +43,7 @@ class Search_Fragment : Fragment(), VotesClickedListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val recyclerView = binding.rvSearchPosts
-        val adapter = FeedPostAdapter(this)
+        val adapter = FeedPostAdapter(this,this)
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         lifecycleScope.launch {
@@ -83,6 +86,14 @@ class Search_Fragment : Fragment(), VotesClickedListener {
     }
 
     override fun onPostClicked(post: PostEntity) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onMoreOptionClicked(imageView5: MaterialButton, postitem: PostEntity) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onMoreOptionClicked(imageView5: MaterialButton, reply: ReplyEntity) {
         TODO("Not yet implemented")
     }
 
