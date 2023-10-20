@@ -14,7 +14,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -64,12 +68,7 @@ class PostRepositoryImpl @Inject constructor(
         postRemoteSource.deletePost(post)
     }
 
-    override fun createPost(post: Post): Flow<State<Nothing>> {
-        Log.d("EDREES", "Repository createPost Called")
-        val res = postRemoteSource.createPost(post.toNetworkModel(currentUserID))
-        Log.d("EDREES", "Repository createPost Executed")
-        return res
-    }
+    override fun createPost(post: Post) = postRemoteSource.createPost(post.toNetworkModel(currentUserID))
 
     override fun onCleared() {
         repositoryScope.cancel()

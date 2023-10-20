@@ -1,13 +1,13 @@
-package com.example.users.di
+package com.gp.users.di
 
-import com.example.users.Source.local.UserLocalDataSource
-import com.example.users.Source.remote.UserRemoteDataSource
-import com.example.users.repository.UserRepository
-import com.example.users.repository.UserRepositoryImpl
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
+import com.gp.users.Source.local.UserLocalDataSource
+import com.gp.users.Source.remote.UserRemoteDataSource
+import com.gp.users.repository.UserRepository
+import com.gp.users.repository.UserRepositoryImpl
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 
 @InstallIn(SingletonComponent::class)
 @Module

@@ -10,30 +10,18 @@ import com.gp.socialapp.utils.State
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class PostFirestoreClient@Inject constructor(private val firestore: FirebaseFirestore): PostRemoteDataSource {
     private val ref = firestore.collection("posts")
-    override fun createPost(post: NetworkPost): Flow<State<Nothing>> = flow {
-        emit(State.Idle)
-        try {
-            val documentRef = firestore.collection("posts").add(post).await()
-            emit(State.Success)
-        } catch (exception: Exception) {
-            emit(State.Error("Post Creation Failed: ${exception.message}"))
-        }
-        /*
-        * addOnSuccessListener {
-            Log.d("EDREES", "FireStore onSuccess Called")
+    override fun createPost(post: NetworkPost) = callbackFlow<State<Nothing>> {
+        trySend(State.Loading)
+        firestore.collection("posts").add(post).addOnSuccessListener {
             trySend(State.Success)
-            Log.d("EDREES", "FireStore onSuccess Executed")
         }.addOnFailureListener {
-            Log.d("EDREES", "FireStore onFailure Executed")
             trySend(State.Error("Post Creation Failed: ${it.message}"))
-            Log.d("EDREES", "FireStore onFailure Executed")
-        }*/
+        }
+        awaitClose()
     }
 
 

@@ -1,5 +1,6 @@
 package com.gp.auth.ui.registration
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -7,29 +8,38 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.navArgs
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseUser
 import com.gp.auth.R
 import com.gp.auth.databinding.FragmentUserInformationBinding
+import com.gp.socialapp.utils.State
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 @AndroidEntryPoint
 class UserInformationFragment : Fragment() {
-
     private val viewModel: UserInformationViewModel by viewModels()
     private lateinit var binding: FragmentUserInformationBinding
+    private val args: UserInformationFragmentArgs by navArgs()
     private val galleryImageResultLauncher =
-        registerForActivityResult(ActivityResultContracts.GetContent(),
-            ActivityResultCallback {
-                binding.profilePictureImageview.setImageURI(it)
-            })
+        registerForActivityResult(ActivityResultContracts.GetContent()
+        ) {
+            binding.profilePictureImageview.setImageURI(it)
+        }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -86,7 +96,27 @@ class UserInformationFragment : Fragment() {
 
 
     fun onCompleteAccountClick() {
+        viewModel.uiState.value.pfp = binding.profilePictureImageview.drawable
+        viewModel.onCompleteAccount(args.userEmail, args.userPassword)
         makeSnackbar("Account created successfully")
+        lifecycleScope.launch {
+            viewModel.uiState.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                .distinctUntilChanged { old, new ->
+                    old.createdState == new.createdState
+                }.collect {
+                    when(it.createdState){
+                        is State.Success-> {
+                            val intent = Intent()
+                            intent.setClassName("com.gp.socialapp", "com.gp.socialapp.MainActivity")
+                            startActivity(intent)
+                        }
+                        is State.Error ->{
+                            makeSnackbar((it.createdState as State.Error).message)
+                        }
+                        else -> {}
+                    }
+                }
+        }
         Log.d("edrees", "state: ${viewModel.uiState.value}")
     }
 

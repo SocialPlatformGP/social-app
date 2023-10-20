@@ -15,4 +15,7 @@
     <string name="complete_account">Complete Account</string>
     <string name="about">About</string>
     <string name="birthdate">Birthdate</string>
+    <string name="invalid_password">Invalid Password</string>
+    <string name="invalid_email">Invalid Email</string>
+    <string name="invalid_login_credentials">Invalid Login Credentials</string>
 </resources>

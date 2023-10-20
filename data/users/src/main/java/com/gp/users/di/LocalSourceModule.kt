@@ -1,7 +1,7 @@
-package com.example.users.di
+package com.gp.users.di
 
-import com.example.users.Source.local.UserLocalDataSourceImp
-import com.example.users.Source.local.UserLocalDataSource
+import com.gp.users.Source.local.UserLocalDataSourceImp
+import com.gp.users.Source.local.UserLocalDataSource
 import com.gp.socialapp.database.dao.UserDao
 import dagger.Module
 import dagger.Provides

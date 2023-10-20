@@ -1,4 +1,4 @@
-package com.example.users.Source.local
+package com.gp.users.Source.local
 import com.gp.socialapp.database.model.UserEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -7,5 +7,4 @@ interface UserLocalDataSource {
     suspend fun updateUser(user:UserEntity)
     suspend fun getAllUsers(): Flow<List<UserEntity>>
     suspend fun deleteUser(user:UserEntity)
-    suspend fun getUserByID(userID: String)
 }

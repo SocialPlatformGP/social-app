@@ -47,7 +47,8 @@ class RegistrationFragment : Fragment() {
                     when(it.isSignedUp) {
                         is State.SuccessWithData<FirebaseUser> ->{
                             makeSnackbar("User Created Successfully")
-                            findNavController().navigate(R.id.action_registerationFragment_to_userInformationFragment)
+                            val action = RegistrationFragmentDirections.actionRegisterationFragmentToUserInformationFragment(viewModel.registrationUiState.value.email, viewModel.registrationUiState.value.password)
+                            findNavController().navigate(action)
                         }
                         is State.Error -> {
                             makeSnackbar("SignUp Failed: ${(it.isSignedUp as State.Error).message}")

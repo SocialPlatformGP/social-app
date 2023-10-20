@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/auth_nav_graph"
-    app:startDestination="@id/userInformationFragment">
+    app:startDestination="@id/loginFragment">
 
     <fragment
         android:id="@+id/loginFragment"
@@ -36,5 +36,12 @@
     <fragment
         android:id="@+id/userInformationFragment"
         android:name="com.gp.auth.ui.registration.UserInformationFragment"
-        android:label="UserInformationFragment" />
+        android:label="UserInformationFragment" >
+        <argument
+            android:name="user_email"
+            app:argType="string" />
+        <argument
+            android:name="user_password"
+            app:argType="string" />
+    </fragment>
 </navigation>

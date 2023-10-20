@@ -3,6 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'com.google.dagger.hilt.android'
+    id 'androidx.navigation.safeargs.kotlin'
 }
 
 android {
@@ -58,6 +59,7 @@ dependencies {
     def nav_version = "2.6.0"
     implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
     implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
+
     implementation project(path: ':core')
     implementation project(path: ':data:users')
 

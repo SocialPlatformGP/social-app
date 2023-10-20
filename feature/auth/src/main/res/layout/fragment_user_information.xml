@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:auth="http://schemas.android.com/apk/res-auto">
 
     <data>
+        <import type="android.graphics.drawable.Drawable" />
         <variable
             name="viewmodel"
             type="com.gp.auth.ui.registration.UserInformationViewModel" />
@@ -23,21 +24,21 @@
             android:layout_height="wrap_content"
             android:id="@+id/h_guideline1"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.1" />
+            auth:layout_constraintGuide_percent="0.1" />
 
         <androidx.constraintlayout.widget.Guideline
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/v_guideline1"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.5" />
+            auth:layout_constraintGuide_percent="0.5" />
 
         <TextView
             android:id="@+id/complete_profile_textview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/complete_your_profile"
-            app:layout_constraintTop_toTopOf="@id/h_guideline1"
+            auth:layout_constraintTop_toTopOf="@id/h_guideline1"
             android:textSize="32sp"
             android:gravity="center" />
 
@@ -46,20 +47,20 @@
             android:layout_width="@dimen/complete_account_pfp"
             android:layout_height="@dimen/complete_account_pfp"
             android:id="@+id/profile_picture_imageview"
-            app:layout_constraintTop_toBottomOf="@id/complete_profile_textview"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+            auth:layout_constraintTop_toBottomOf="@id/complete_profile_textview"
+            auth:layout_constraintStart_toStartOf="parent"
+            auth:layout_constraintEnd_toEndOf="parent"
             android:layout_marginTop="20dp"
             android:scaleType="centerCrop"
             android:src="@drawable/pfp"
-            app:shapeAppearanceOverlay="@style/circleImageView"/>
+            auth:shapeAppearanceOverlay="@style/circleImageView"/>
         <com.google.android.material.button.MaterialButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/load_pfp_button"
-            app:layout_constraintEnd_toEndOf="@id/profile_picture_imageview"
-            app:layout_constraintBottom_toBottomOf="@id/profile_picture_imageview"
-            app:icon="@drawable/baseline_photo_camera_48"
+            auth:layout_constraintEnd_toEndOf="@id/profile_picture_imageview"
+            auth:layout_constraintBottom_toBottomOf="@id/profile_picture_imageview"
+            auth:icon="@drawable/baseline_photo_camera_48"
 
             style="@style/Widget.Material3.Button.IconButton.Filled"
             android:onClick="@{() -> fragment.onLoadPictureClick()}"/>
@@ -67,14 +68,14 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/profile_picture_imageview"
+            auth:layout_constraintTop_toBottomOf="@id/profile_picture_imageview"
             android:id="@+id/first_name_text_field"
             android:hint="@string/first_name"
             android:layout_marginVertical="16dp"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/v_guideline1"
+            auth:layout_constraintStart_toStartOf="parent"
+            auth:layout_constraintEnd_toStartOf="@id/v_guideline1"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -87,14 +88,14 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/profile_picture_imageview"
+            auth:layout_constraintTop_toBottomOf="@id/profile_picture_imageview"
             android:id="@+id/last_name_text_field"
             android:hint="@string/last_name"
             android:layout_marginVertical="16dp"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/v_guideline1"
+            auth:layout_constraintEnd_toEndOf="parent"
+            auth:layout_constraintStart_toEndOf="@id/v_guideline1"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -107,13 +108,13 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/first_name_text_field"
+            auth:layout_constraintTop_toBottomOf="@id/first_name_text_field"
             android:id="@+id/phonenumber_text_field"
             android:hint="@string/phone_number"
             android:layout_margin="16dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            app:endIconMode="clear_text"
-            app:startIconDrawable="@drawable/baseline_local_phone_24">
+            auth:endIconMode="clear_text"
+            auth:startIconDrawable="@drawable/baseline_local_phone_24">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
@@ -125,14 +126,14 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/phonenumber_text_field"
+            auth:layout_constraintTop_toBottomOf="@id/phonenumber_text_field"
             android:id="@+id/birth_date_field"
             android:hint="@string/birthdate"
-            app:hintEnabled="true"
+            auth:hintEnabled="true"
             android:layout_margin="16dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            app:endIconMode="clear_text"
-            app:startIconDrawable="@drawable/baseline_calendar_month_24">
+            auth:endIconMode="clear_text"
+            auth:startIconDrawable="@drawable/baseline_calendar_month_24">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
@@ -146,12 +147,12 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/birth_date_field"
+            auth:layout_constraintTop_toBottomOf="@id/birth_date_field"
             android:id="@+id/about_text_field"
             android:hint="@string/about"
             android:layout_margin="16dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            app:startIconDrawable="@drawable/baseline_info_24">
+            auth:startIconDrawable="@drawable/baseline_info_24">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
@@ -164,10 +165,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:id="@+id/complete_account_button"
-            app:layout_constraintTop_toBottomOf="@id/about_text_field"
+            auth:layout_constraintTop_toBottomOf="@id/about_text_field"
             android:layout_marginTop="16dp"
-            app:layout_constraintStart_toStartOf="@id/phonenumber_text_field"
-            app:layout_constraintEnd_toEndOf="@id/phonenumber_text_field"
+            auth:layout_constraintStart_toStartOf="@id/phonenumber_text_field"
+            auth:layout_constraintEnd_toEndOf="@id/phonenumber_text_field"
             android:text="@string/complete_account"
             android:textSize="16sp"
             android:onClick="@{() -> fragment.onCompleteAccountClick()}"/>
