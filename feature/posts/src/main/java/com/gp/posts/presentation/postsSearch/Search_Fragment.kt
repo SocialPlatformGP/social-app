@@ -1,4 +1,5 @@
 package com.gp.posts.presentation.postsSearch
+
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
@@ -22,16 +23,16 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class Search_Fragment : Fragment() , VotesClickedListener {
-    private val viewModel:SearchViewModel by viewModels()
-     lateinit var binding:FragmentSearchBinding
+class Search_Fragment : Fragment(), VotesClickedListener {
+    private val viewModel: SearchViewModel by viewModels()
+    lateinit var binding: FragmentSearchBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        binding = DataBindingUtil.inflate(inflater,R.layout.fragment_search_,container,false)
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_search_, container, false)
         binding.lifecycleOwner = this
         return binding.root
     }
@@ -44,12 +45,11 @@ class Search_Fragment : Fragment() , VotesClickedListener {
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         lifecycleScope.launch {
             viewModel.searchResult.flowWithLifecycle(lifecycle).collect {
-                if(it.isEmpty()) {
-                    binding.rvSearchPosts.visibility = View.GONE
-                }else{
-                    binding.rvSearchPosts.visibility = View.VISIBLE
-                    adapter.submitList(it)
-                }
+
+
+                binding.rvSearchPosts.visibility = View.VISIBLE
+                adapter.submitList(it)
+
 
             }
         }
@@ -57,14 +57,13 @@ class Search_Fragment : Fragment() , VotesClickedListener {
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener,
             android.widget.SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                              return true
+                return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                if(newText ==""){
-                   binding.rvSearchPosts.visibility = View.GONE
-                }
-                else {
+                if (newText == "") {
+                    binding.rvSearchPosts.visibility = View.GONE
+                } else {
                     binding.rvSearchPosts.visibility = View.VISIBLE
                     viewModel.searchPosts(newText.orEmpty())
                 }
@@ -74,6 +73,7 @@ class Search_Fragment : Fragment() , VotesClickedListener {
 
 
     }
+
     override fun onUpVoteClicked(post: PostEntity) {
         TODO("Not yet implemented")
     }

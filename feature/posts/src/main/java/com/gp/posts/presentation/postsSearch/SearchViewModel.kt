@@ -13,12 +13,6 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 @HiltViewModel
 class SearchViewModel @Inject constructor(private val repository: PostRepository) : ViewModel() {
-    private val _textFlow = MutableStateFlow("")
-    val textFlow = _textFlow.asStateFlow()
-
-    fun updateText(text: String) {
-        _textFlow.value = text
-    }
 
     var searchResult :MutableStateFlow<List<PostEntity>> = MutableStateFlow(listOf())
 
