@@ -1,6 +1,7 @@
 package com.gp.posts.adapter
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,6 +22,12 @@ import com.gp.posts.listeners.OnMoreOptionClicked
 import com.gp.posts.listeners.VotePressedListener
 import com.gp.posts.listeners.VotesClickedListener
 import com.gp.socialapp.model.NestedReplyItem
+import com.gp.socialapp.util.ToTimeTaken.calculateTimeDifference
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class NestedReplyAdapter(
     private val votesClickedListener: VotePressedListener,
@@ -35,6 +43,7 @@ class NestedReplyAdapter(
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: NestedReplyViewHolder, position: Int) {
         val nestedReplyItem = getItem(position)
 
@@ -96,11 +105,13 @@ class NestedReplyAdapter(
         val defaultView: ConstraintLayout = itemView.findViewById(R.id.defultViewNested)
         val contentAlter: TextView = itemView.findViewById(R.id.content_collapse)
          val voteText: TextView = itemView.findViewById(R.id.textView4)
+         val time: TextView = itemView.findViewById(R.id.textTime)
         val replyButton: MaterialButton = itemView.findViewById(R.id.img_addComment)
         val upVoteImage: MaterialButton = itemView.findViewById(R.id.imageView3)
         val downVoteImage: MaterialButton = itemView.findViewById(R.id.imageView2)
         val moreOptionButton: MaterialButton = itemView.findViewById(R.id.imageView5)
 
+        @RequiresApi(Build.VERSION_CODES.O)
         fun bind(nestedReplyItem: NestedReplyItem) {
             Log.d("bind", "bind: ${nestedReplyItem.reply?.isDeleted}")
 
@@ -115,6 +126,16 @@ class NestedReplyAdapter(
             replyContent.text = nestedReplyItem.reply?.content
             contentAlter.text = nestedReplyItem.reply?.content
             voteText.text = nestedReplyItem.reply?.upvotes.toString()
+            GlobalScope.launch (Dispatchers.Default){
+                while (true){
+                    delay(60000)
+                    withContext(Dispatchers.Main) {
+                        time.text = calculateTimeDifference(nestedReplyItem.reply?.createdAt!!)
+                    }
+                }
+            }
+            voteText.text = nestedReplyItem.reply?.upvotes.toString()
+
             if (depth == 0) {
                 indicator.visibility = View.GONE
                 //add margin button = 12
@@ -123,10 +144,6 @@ class NestedReplyAdapter(
             } else {
                 indicator.visibility = View.VISIBLE
             }
-
-
-
-
 
             // Initialize a new instance of the NestedReplyAdapter with the nested replies
             val adapter = NestedReplyAdapter(votesClickedListener,depth + 1, onReplyClicked, onMoreOptionClicked)

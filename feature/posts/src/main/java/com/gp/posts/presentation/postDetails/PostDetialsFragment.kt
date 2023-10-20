@@ -40,8 +40,10 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 
 @AndroidEntryPoint
 class PostDetialsFragment : Fragment(), OnAddReplyClicked,VotePressedListener,OnMoreOptionClicked {
@@ -87,6 +89,7 @@ class PostDetialsFragment : Fragment(), OnAddReplyClicked,VotePressedListener,On
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         recyclerView = view.findViewById(R.id.recyclerView)
@@ -111,6 +114,7 @@ class PostDetialsFragment : Fragment(), OnAddReplyClicked,VotePressedListener,On
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun addComment(post: PostEntity) {
         replyEditText.requestFocus()
         linearLayout.visibility = View.VISIBLE
@@ -128,7 +132,7 @@ class PostDetialsFragment : Fragment(), OnAddReplyClicked,VotePressedListener,On
                     downvotes = 0,
                     content = replyEditText.text.toString(),
                     deleted = false,
-                    createdAt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+                    createdAt =LocalDateTime.now(ZoneId.of("UTC")).toString()
 
                 )
             )
@@ -141,6 +145,7 @@ class PostDetialsFragment : Fragment(), OnAddReplyClicked,VotePressedListener,On
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onAddReplyClicked(reply: NestedReplyItem) {
         val currentReply = reply.reply
         replyEditText.requestFocus()
@@ -159,9 +164,7 @@ class PostDetialsFragment : Fragment(), OnAddReplyClicked,VotePressedListener,On
                     downvotes = 0,
                     content = replyEditText.text.toString(),
                     deleted = false,
-                    createdAt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
-
-
+                    createdAt = LocalDateTime.now(ZoneId.of("UTC")).toString()
                 )
             )
             replyEditText.setText("")
