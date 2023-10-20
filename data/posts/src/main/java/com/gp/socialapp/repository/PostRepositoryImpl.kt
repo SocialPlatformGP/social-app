@@ -74,4 +74,8 @@ class PostRepositoryImpl @Inject constructor(
     override fun onCleared() {
         repositoryScope.cancel()
     }
+
+    override fun searchPostsByTitle(searchText: String): Flow<List<PostEntity>> {
+        return postLocalSource.searchPostsByTitle(searchText)
+    }
 }
