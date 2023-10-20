@@ -22,7 +22,4 @@ interface UserDao {
 
         @Query("SELECT * FROM users")
          fun getAllUsers(): Flow<List<UserEntity>>
-
-        @Query("SELECT * FROM users WHERE userID = :userID")
-         fun getUserByID(userID: String):Flow<UserEntity>
 }

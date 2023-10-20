@@ -1,0 +1,21 @@
+<resources>
+    <string name="welcome_back">Welcome Back</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="forgot_password"><u>Forgot Password?</u></string>
+    <string name="sign_in">Sign in</string>
+    <string name="sign_up"><u>Sign up</u></string>
+    <string name="create_account">Create Account</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="already_have_an_account">Already have an account?</string>
+    <string name="complete_your_profile">Complete your Profile</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="complete_account">Complete Account</string>
+    <string name="about">About</string>
+    <string name="birthdate">Birthdate</string>
+    <string name="invalid_password">Invalid Password</string>
+    <string name="invalid_email">Invalid Email</string>
+    <string name="invalid_login_credentials">Invalid Login Credentials</string>
+</resources>

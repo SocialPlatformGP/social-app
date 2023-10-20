@@ -5,7 +5,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.users.model.User
+import com.gp.users.model.User
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.repository.PostRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,12 +21,10 @@ class CreatePostViewModel @Inject constructor (
     private val postRepository: PostRepository
 ) : ViewModel() {
     val uiState = MutableStateFlow(CreatePostUIState())
-    private val currentUser = User("Mohammed Edrees",
-        "https://upload.wikimedia.org/wikipedia/commons/b/b3/Solid_gray.png",
-    "mohamed@edrees.com")
+    private val pfpLink = "https://clipart-library.com/data_images/6103.png"
     private val currentUserName = "User 1"
     init{
-        uiState.value.userProfilePicURL = currentUser.profilePictureURL
+        uiState.value.userProfilePicURL = pfpLink
     }
     @RequiresApi(Build.VERSION_CODES.O)
     fun onCreatePost(){

@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:auth="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="android.graphics.drawable.Drawable" />
+        <variable
+            name="viewmodel"
+            type="com.gp.auth.ui.registration.UserInformationViewModel" />
+        <variable
+            name="fragment"
+            type="com.gp.auth.ui.registration.UserInformationFragment" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.registration.UserInformationFragment">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/h_guideline1"
+            android:orientation="horizontal"
+            auth:layout_constraintGuide_percent="0.1" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/v_guideline1"
+            android:orientation="vertical"
+            auth:layout_constraintGuide_percent="0.5" />
+
+        <TextView
+            android:id="@+id/complete_profile_textview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/complete_your_profile"
+            auth:layout_constraintTop_toTopOf="@id/h_guideline1"
+            android:textSize="32sp"
+            android:gravity="center" />
+
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:layout_width="@dimen/complete_account_pfp"
+            android:layout_height="@dimen/complete_account_pfp"
+            android:id="@+id/profile_picture_imageview"
+            auth:layout_constraintTop_toBottomOf="@id/complete_profile_textview"
+            auth:layout_constraintStart_toStartOf="parent"
+            auth:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="20dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/pfp"
+            auth:shapeAppearanceOverlay="@style/circleImageView"/>
+        <com.google.android.material.button.MaterialButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/load_pfp_button"
+            auth:layout_constraintEnd_toEndOf="@id/profile_picture_imageview"
+            auth:layout_constraintBottom_toBottomOf="@id/profile_picture_imageview"
+            auth:icon="@drawable/baseline_photo_camera_48"
+
+            style="@style/Widget.Material3.Button.IconButton.Filled"
+            android:onClick="@{() -> fragment.onLoadPictureClick()}"/>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            auth:layout_constraintTop_toBottomOf="@id/profile_picture_imageview"
+            android:id="@+id/first_name_text_field"
+            android:hint="@string/first_name"
+            android:layout_marginVertical="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
+            auth:layout_constraintStart_toStartOf="parent"
+            auth:layout_constraintEnd_toStartOf="@id/v_guideline1"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:inputType="text"
+                android:text="@={viewmodel.uiState.firstName}"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            auth:layout_constraintTop_toBottomOf="@id/profile_picture_imageview"
+            android:id="@+id/last_name_text_field"
+            android:hint="@string/last_name"
+            android:layout_marginVertical="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
+            auth:layout_constraintEnd_toEndOf="parent"
+            auth:layout_constraintStart_toEndOf="@id/v_guideline1"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:inputType="text"
+                android:text="@={viewmodel.uiState.lastName}"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            auth:layout_constraintTop_toBottomOf="@id/first_name_text_field"
+            android:id="@+id/phonenumber_text_field"
+            android:hint="@string/phone_number"
+            android:layout_margin="16dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            auth:endIconMode="clear_text"
+            auth:startIconDrawable="@drawable/baseline_local_phone_24">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:inputType="phone"
+                android:text="@={viewmodel.uiState.phoneNumber}" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            auth:layout_constraintTop_toBottomOf="@id/phonenumber_text_field"
+            android:id="@+id/birth_date_field"
+            android:hint="@string/birthdate"
+            auth:hintEnabled="true"
+            android:layout_margin="16dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            auth:endIconMode="clear_text"
+            auth:startIconDrawable="@drawable/baseline_calendar_month_24">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:inputType="none"
+                android:cursorVisible="false"
+                android:focusable="false"
+                android:onClick="@{() -> fragment.onDateFieldClick()}"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            auth:layout_constraintTop_toBottomOf="@id/birth_date_field"
+            android:id="@+id/about_text_field"
+            android:hint="@string/about"
+            android:layout_margin="16dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            auth:startIconDrawable="@drawable/baseline_info_24">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:inputType="textMultiLine"
+                android:text="@={viewmodel.uiState.bio}"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/complete_account_button"
+            auth:layout_constraintTop_toBottomOf="@id/about_text_field"
+            android:layout_marginTop="16dp"
+            auth:layout_constraintStart_toStartOf="@id/phonenumber_text_field"
+            auth:layout_constraintEnd_toEndOf="@id/phonenumber_text_field"
+            android:text="@string/complete_account"
+            android:textSize="16sp"
+            android:onClick="@{() -> fragment.onCompleteAccountClick()}"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

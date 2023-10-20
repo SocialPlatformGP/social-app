@@ -1,14 +1,18 @@
 package com.gp.socialapp.database.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.util.Date
 
 @Entity(tableName = "users")
 data class UserEntity(
-    @PrimaryKey
-    val userID: String,
-    val userName: String,
+    val userFirstName: String,
+    val userLastName: String,
     val userPassword: String,
     val userProfilePictureURL: String,
+    val userBirthdate: Date,
+    @PrimaryKey
     val userEmail: String,
     val userPhoneNumber: String,
+    val userBio: String,
+    val userCreatedAt: Date
 )
