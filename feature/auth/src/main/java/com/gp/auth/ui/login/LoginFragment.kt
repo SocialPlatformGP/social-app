@@ -52,6 +52,7 @@ class LoginFragment : Fragment() {
                                 val intent = Intent()
                                 intent.setClassName("com.gp.socialapp", "com.gp.socialapp.MainActivity")
                                 startActivity(intent)
+                                activity?.finish()
                             }
                             is State.Error ->{
                                 makeSnackbar(getString(R.string.invalid_login_credentials))

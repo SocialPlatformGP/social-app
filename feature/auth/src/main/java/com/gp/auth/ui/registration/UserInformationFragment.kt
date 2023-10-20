@@ -109,6 +109,7 @@ class UserInformationFragment : Fragment() {
                             val intent = Intent()
                             intent.setClassName("com.gp.socialapp", "com.gp.socialapp.MainActivity")
                             startActivity(intent)
+                            activity?.finish()
                         }
                         is State.Error ->{
                             makeSnackbar((it.createdState as State.Error).message)
