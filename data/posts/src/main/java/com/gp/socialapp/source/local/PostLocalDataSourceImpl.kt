@@ -14,11 +14,15 @@ class PostLocalDataSourceImpl @Inject constructor(private val postDao: PostDao):
         postDao.updatePost(post)
     }
 
-    override suspend fun getAllPosts(): Flow<List<PostEntity>> {
+    override  fun getAllPosts(): Flow<List<PostEntity>> {
         return postDao.getAllPosts()
     }
 
     override suspend fun deletePost(post: PostEntity) {
         postDao.deletePost(post)
+    }
+
+    override  fun searchPostsByTitle(searchText: String): Flow<List<PostEntity>> {
+        return postDao.searchPostsByTitle(searchText)
     }
 }

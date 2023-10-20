@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:post="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="com.gp.posts.presentation.postsSearch.SearchViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- SearchView -->
+        <SearchView
+            android:id="@+id/search_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:iconifiedByDefault="false"
+            android:queryHint="Search"
+            post:iconifiedByDefault="false"
+            post:layout_behavior="@string/appbar_scrolling_view_behavior"
+            post:layout_constraintEnd_toEndOf="parent"
+            post:layout_constraintStart_toStartOf="parent"
+            post:layout_constraintTop_toTopOf="parent"
+            post:theme="@style/Widget.AppCompat.SearchView" />
+
+        <!-- RecyclerView for Posts -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_search_posts"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            post:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            post:layout_constraintBottom_toBottomOf="parent"
+            post:layout_constraintTop_toBottomOf="@+id/search_view"
+            post:layout_constraintVertical_bias="0.0"
+            tools:layout_editor_absoluteX="0dp" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -1,0 +1,19 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+  <!-- Base application theme. -->
+  <style name="Base.Theme.SocialApp" parent="Theme.Material3.DayNight.NoActionBar">
+    <!-- Customize your dark theme here. -->
+    <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+  </style>
+  <!-- res/values-night/styles.xml -->
+  <style name="ImageViewVoteStyle">
+    <item name="android:tint">@color/upvote_icon_dark</item>
+    <item name="android:background">#000000</item>
+  </style>
+  <style name="ImageViewVoteStyle2">
+    <item name="android:textColor">#AFAAAC</item>
+  </style>
+  <style name="ReplyItem">
+    <item name="android:background">@drawable/stroke_night</item>
+  </style>
+
+</resources>

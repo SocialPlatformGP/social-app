@@ -5,6 +5,8 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.gp.socialapp.source.remote.PostFirestoreClient
 import com.gp.socialapp.source.remote.PostRemoteDataSource
+import com.gp.socialapp.source.remote.ReplyFirestoreClient
+import com.gp.socialapp.source.remote.ReplyRemoteDataSource
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,4 +20,8 @@ object RemoteSourceModule {
     @Provides
     fun providePostRemoteDataSource(firestore: FirebaseFirestore): PostRemoteDataSource
         = PostFirestoreClient(firestore)
+
+    @Provides
+    fun provideReplyRemoteDataSource(firestore: FirebaseFirestore): ReplyRemoteDataSource
+        = ReplyFirestoreClient(firestore)
 }

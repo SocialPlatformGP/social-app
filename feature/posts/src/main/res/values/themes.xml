@@ -1,0 +1,25 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+  <!-- Base application theme. -->
+  <style name="Base.Theme.SocialApp" parent="Theme.Material3.DayNight.NoActionBar">
+    <!-- Customize your light theme here. -->
+    <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+  </style>
+
+  <style name="Theme.SocialApp" parent="Base.Theme.SocialApp" />
+
+  <!-- res/values/styles.xml -->
+  <style name="ImageViewVoteStyle">
+    <item name="android:tint">@color/upvote_icon_light</item>
+    <item name="android:background">#FFFFFF</item>
+  </style>
+  <style name="ImageViewVoteStyle2">
+    <item name="android:textColor">#902E2D2D</item>
+  </style>
+  <style name="ReplyItem">
+    <item name="android:background">@drawable/stroke</item>
+  </style>
+
+
+
+
+</resources>
