@@ -96,5 +96,11 @@ class PostDetailsViewModel @Inject constructor(
 
     }
 
+    fun updateReply(reply: ReplyEntity) {
+        viewModelScope.launch (Dispatchers.IO){
+            replyRepository.updateReply(reply)
+        }
+    }
+
 
 }

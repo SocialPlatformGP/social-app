@@ -28,6 +28,7 @@ import com.gp.posts.adapter.NestedReplyAdapter
 import com.gp.posts.databinding.FragmentPostDetialsBinding
 import com.gp.posts.listeners.OnAddReplyClicked
 import com.gp.posts.listeners.OnMoreOptionClicked
+import com.gp.posts.listeners.OnReplyCollapsed
 import com.gp.posts.listeners.VotePressedListener
 import com.gp.posts.presentation.postsfeed.FeedPostViewModel
 import com.gp.socialapp.database.model.PostEntity
@@ -46,7 +47,8 @@ import java.util.Locale
 import java.util.TimeZone
 
 @AndroidEntryPoint
-class PostDetialsFragment : Fragment(), OnAddReplyClicked,VotePressedListener,OnMoreOptionClicked {
+class PostDetialsFragment
+    : Fragment(), OnAddReplyClicked,VotePressedListener,OnMoreOptionClicked, OnReplyCollapsed {
     lateinit var replyAdapter: NestedReplyAdapter
     lateinit var recyclerView: RecyclerView
     val viewModel: PostDetailsViewModel by viewModels()
@@ -94,7 +96,13 @@ class PostDetialsFragment : Fragment(), OnAddReplyClicked,VotePressedListener,On
         super.onViewCreated(view, savedInstanceState)
         recyclerView = view.findViewById(R.id.recyclerView)
         recyclerView.itemAnimator = null
-        replyAdapter = NestedReplyAdapter(this@PostDetialsFragment,0, this@PostDetialsFragment,this@PostDetialsFragment)
+        replyAdapter = NestedReplyAdapter(
+            this@PostDetialsFragment,
+            0,
+            this@PostDetialsFragment,
+            this@PostDetialsFragment,
+            this@PostDetialsFragment
+        )
         recyclerView.adapter = replyAdapter
 
         lifecycleScope.launch {
@@ -132,7 +140,8 @@ class PostDetialsFragment : Fragment(), OnAddReplyClicked,VotePressedListener,On
                     downvotes = 0,
                     content = replyEditText.text.toString(),
                     deleted = false,
-                    createdAt =LocalDateTime.now(ZoneId.of("UTC")).toString()
+                    createdAt =LocalDateTime.now(ZoneId.of("UTC")).toString(),
+                    collapsed = false
 
                 )
             )
@@ -164,7 +173,9 @@ class PostDetialsFragment : Fragment(), OnAddReplyClicked,VotePressedListener,On
                     downvotes = 0,
                     content = replyEditText.text.toString(),
                     deleted = false,
-                    createdAt = LocalDateTime.now(ZoneId.of("UTC")).toString()
+                    createdAt = LocalDateTime.now(ZoneId.of("UTC")).toString(),
+                    collapsed = false
+
                 )
             )
             replyEditText.setText("")
@@ -184,7 +195,6 @@ class PostDetialsFragment : Fragment(), OnAddReplyClicked,VotePressedListener,On
     }
 
     override fun onMoreOptionClicked(imageView5: MaterialButton, postitem: PostEntity) {
-        TODO("Not yet implemented")
     }
 
     override fun onMoreOptionClicked(imageView5: MaterialButton, reply: ReplyEntity) {
@@ -212,6 +222,10 @@ class PostDetialsFragment : Fragment(), OnAddReplyClicked,VotePressedListener,On
             }
         }
         popupMenu.show()
+    }
+
+    override fun onReplyCollapsed(reply: ReplyEntity) {
+        viewModel.updateReply(reply)
     }
 
 
