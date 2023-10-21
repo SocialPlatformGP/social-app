@@ -78,14 +78,44 @@ class PostDetailsViewModel @Inject constructor(
         }
     }
     fun replyUpVote(reply: ReplyEntity){
-            viewModelScope.launch(Dispatchers.IO) {
-                replyRepository.upVoteReply(reply)
-            }
-    }
-    fun replyDownVote(reply: ReplyEntity){
-            viewModelScope.launch(Dispatchers.IO) {
+        if(reply.upvoted && !reply.downvoted) {
+            viewModelScope.launch (Dispatchers.IO){
+                replyRepository.updateReply(reply.copy(upvoted = false,downvoted = false))
                 replyRepository.downVoteReply(reply)
             }
+        }
+        else if(!reply.upvoted && reply.downvoted){
+            viewModelScope.launch(Dispatchers.IO){
+                replyRepository.updateReply(reply.copy(upvoted = true,downvoted = false))
+                replyRepository.upVoteReply(reply)
+            }
+        }
+        else{
+            viewModelScope.launch(Dispatchers.IO){
+                replyRepository.updateReply(reply.copy(upvoted = true,downvoted = false))
+                replyRepository.upVoteReply(reply)
+            }
+        }
+    }
+    fun replyDownVote(reply: ReplyEntity){
+        if(reply.upvoted && !reply.downvoted) {
+            viewModelScope.launch (Dispatchers.IO){
+                replyRepository.updateReply(reply.copy(upvoted = false,downvoted = true))
+                replyRepository.downVoteReply(reply)
+            }
+        }
+        else if(!reply.upvoted && reply.downvoted){
+            viewModelScope.launch(Dispatchers.IO){
+                replyRepository.updateReply(reply.copy(upvoted = false,downvoted = false))
+                replyRepository.upVoteReply(reply)
+            }
+        }
+        else{
+            viewModelScope.launch(Dispatchers.IO){
+                replyRepository.updateReply(reply.copy(upvoted = false,downvoted = true))
+                replyRepository.downVoteReply(reply)
+            }
+        }
     }
 
     fun deleteReply(reply: ReplyEntity) {
