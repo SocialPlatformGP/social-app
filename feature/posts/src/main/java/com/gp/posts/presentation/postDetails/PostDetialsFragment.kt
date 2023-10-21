@@ -141,7 +141,9 @@ class PostDetialsFragment
                     content = replyEditText.text.toString(),
                     deleted = false,
                     createdAt =LocalDateTime.now(ZoneId.of("UTC")).toString(),
-                    collapsed = false
+                    collapsed = false,
+                    upvoted = false,
+                    downvoted = false,
 
                 )
             )
@@ -174,7 +176,9 @@ class PostDetialsFragment
                     content = replyEditText.text.toString(),
                     deleted = false,
                     createdAt = LocalDateTime.now(ZoneId.of("UTC")).toString(),
-                    collapsed = false
+                    collapsed = false,
+                    upvoted = false,
+                    downvoted = false,
 
                 )
             )

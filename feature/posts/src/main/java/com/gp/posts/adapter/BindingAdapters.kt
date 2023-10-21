@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
+import com.google.android.material.button.MaterialButton
 import com.gp.posts.R
 import com.gp.socialapp.database.model.PostEntity
 import com.gp.socialapp.util.ToTimeTaken
@@ -110,4 +111,20 @@ fun setTimeTillNow(view: TextView, time: String?) {
         }
     }
     job.cancel()
+}
+@BindingAdapter("posts:upVoteImage")
+fun setUpVoteImage(view: MaterialButton, isUpVoted: Boolean) {
+    if (isUpVoted) {
+        view.iconTint = view.context.getColorStateList(R.color.Blue)
+    } else {
+        view.iconTint = view.context.getColorStateList(R.color.Gray)
+    }
+}
+@BindingAdapter("posts:downVoteImage")
+fun setDownVoteImage(view: MaterialButton, isDownVoted: Boolean) {
+    if (isDownVoted) {
+        view.iconTint = view.context.getColorStateList(R.color.Red)
+    } else {
+        view.iconTint = view.context.getColorStateList(R.color.Gray)
+    }
 }
