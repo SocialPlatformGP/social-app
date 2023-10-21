@@ -1,9 +1,12 @@
 package com.gp.posts.adapter
 
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
+import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.databinding.BindingAdapter
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
@@ -13,13 +16,17 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.gp.posts.R
 import com.gp.socialapp.database.model.PostEntity
+import com.gp.socialapp.util.ToTimeTaken
 import com.gp.socialapp.utils.State
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 data class StateWIthLifeCycle(
@@ -88,4 +95,19 @@ fun setProfilePicture(view: ImageView, picUrl: String?) {
     } else {
         view.setImageResource(R.drawable.ic_person_24)
     }
+}
+@OptIn(DelicateCoroutinesApi::class)
+@RequiresApi(Build.VERSION_CODES.O)
+@BindingAdapter("posts:timeTillNow")
+fun setTimeTillNow(view: TextView, time: String?) {
+    view.text= ToTimeTaken.calculateTimeDifference(time!!)
+    val job=GlobalScope.launch(Dispatchers.Default) {
+        repeat (60) {
+            delay(60000)
+            withContext(Dispatchers.Main) {
+                view.text= ToTimeTaken.calculateTimeDifference(time!!)
+            }
+        }
+    }
+    job.cancel()
 }

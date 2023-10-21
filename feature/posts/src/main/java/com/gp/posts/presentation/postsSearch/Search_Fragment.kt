@@ -43,16 +43,14 @@ class Search_Fragment : Fragment(), VotesClickedListener, OnMoreOptionClicked {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val recyclerView = binding.rvSearchPosts
-        val adapter = FeedPostAdapter(this,this)
+        val adapter = FeedPostAdapter(this, this)
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         lifecycleScope.launch {
             viewModel.searchResult.flowWithLifecycle(lifecycle).collect {
 
-
                 binding.rvSearchPosts.visibility = View.VISIBLE
                 adapter.submitList(it)
-
 
             }
         }
@@ -64,37 +62,31 @@ class Search_Fragment : Fragment(), VotesClickedListener, OnMoreOptionClicked {
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                if (newText == "") {
+                if (newText.isNullOrEmpty()) {
                     binding.rvSearchPosts.visibility = View.GONE
+                    return true
                 } else {
                     binding.rvSearchPosts.visibility = View.VISIBLE
-                    viewModel.searchPosts(newText.orEmpty())
+                    viewModel.searchPosts(newText)
+                    return true
                 }
-                return true
             }
         })
-
-
     }
 
     override fun onUpVoteClicked(post: PostEntity) {
-        TODO("Not yet implemented")
     }
 
     override fun onDownVoteClicked(post: PostEntity) {
-        TODO("Not yet implemented")
     }
 
     override fun onPostClicked(post: PostEntity) {
-        TODO("Not yet implemented")
     }
 
     override fun onMoreOptionClicked(imageView5: MaterialButton, postitem: PostEntity) {
-        TODO("Not yet implemented")
     }
 
     override fun onMoreOptionClicked(imageView5: MaterialButton, reply: ReplyEntity) {
-        TODO("Not yet implemented")
     }
 
 }
