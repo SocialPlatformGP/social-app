@@ -17,4 +17,5 @@ interface ReplyRepository {
     suspend fun upVoteReply(reply: ReplyEntity)
     suspend fun downVoteReply(reply: ReplyEntity)
     suspend fun insertReply(replyEntity: NetworkReply)
+
 }

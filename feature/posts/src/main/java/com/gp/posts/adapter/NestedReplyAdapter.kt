@@ -21,6 +21,7 @@ import com.gp.posts.R
 import com.gp.posts.databinding.ItemReplyBinding
 import com.gp.posts.listeners.OnAddReplyClicked
 import com.gp.posts.listeners.OnMoreOptionClicked
+import com.gp.posts.listeners.OnReplyCollapsed
 import com.gp.posts.listeners.VotePressedListener
 import com.gp.posts.listeners.VotesClickedListener
 import com.gp.socialapp.model.NestedReplyItem
@@ -36,7 +37,8 @@ class NestedReplyAdapter(
     private val votesClickedListener: VotePressedListener,
     private val depth: Int,
     private val onReplyClicked: OnAddReplyClicked,
-    private val onMoreOptionClicked: OnMoreOptionClicked
+    private val onMoreOptionClicked: OnMoreOptionClicked,
+    private val onReplyCollapsed: OnReplyCollapsed
 ) : ListAdapter<NestedReplyItem, NestedReplyAdapter.NestedReplyViewHolder>(NestedReplyDiffUtil()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NestedReplyViewHolder {
@@ -85,6 +87,17 @@ class NestedReplyAdapter(
                 alterView.visibility = View.GONE
             }
 
+            if (nestedReplyItem.reply?.collapsed == true) {
+                defaultView.visibility = View.GONE
+                nestedRecyclerView.visibility = View.GONE
+                alterView.visibility = View.VISIBLE
+            }
+            else {
+                defaultView.visibility = View.VISIBLE
+                alterView.visibility = View.GONE
+                nestedRecyclerView.visibility = View.VISIBLE
+
+            }
             // put margin button = 12 if the reply is the last reply in the nested replies
             if (depth == 0) {
                 indicator.visibility = View.GONE
@@ -106,11 +119,14 @@ class NestedReplyAdapter(
                     nestedRecyclerView.visibility = View.GONE
                     defaultView.visibility = View.GONE
                     alterView.visibility = View.VISIBLE
+                    onReplyCollapsed.onReplyCollapsed(nestedReplyItem.reply!!.copy(collapsed = true))
 
                 } else if (defaultView.visibility == View.GONE && nestedReplyItem.reply?.isDeleted == false) {
                     defaultView.visibility = View.VISIBLE
                     alterView.visibility = View.GONE
                     nestedRecyclerView.visibility = View.VISIBLE
+                    onReplyCollapsed.onReplyCollapsed(nestedReplyItem.reply!!.copy(collapsed = false))
+
                 } else {
                     //if the reply is deleted
                     defaultView.visibility = View.GONE
@@ -139,7 +155,8 @@ class NestedReplyAdapter(
                 votesClickedListener,
                 depth + 1,
                 onReplyClicked,
-                onMoreOptionClicked
+                onMoreOptionClicked,
+                onReplyCollapsed
             )
             //submit the nested replies to the adapter
             adapter.submitList(nestedReplyItem.replies)

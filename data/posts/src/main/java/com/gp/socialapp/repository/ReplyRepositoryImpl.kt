@@ -41,8 +41,14 @@ class ReplyRepositoryImpl @Inject constructor(
     override suspend fun insertReplies(replies: List<ReplyEntity>) =
         replyLocalDataSource.insertReplies(replies)
 
-    override suspend fun updateReply(replyEntity: ReplyEntity) =
-        replyLocalDataSource.updateReply(replyEntity)
+    override suspend fun updateReply(replyEntity: ReplyEntity) {
+        if (networkStatus.isOnline()) {
+            replyRemoteDataSource.updateReplyRemote(replyEntity)
+            replyLocalDataSource.updateReply(replyEntity)
+        }
+        //todo return state errror  in else
+
+    }
 
 
     ////////////remote////////////
