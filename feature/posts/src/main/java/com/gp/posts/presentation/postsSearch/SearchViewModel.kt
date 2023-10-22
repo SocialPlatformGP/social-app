@@ -3,6 +3,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.gp.socialapp.database.model.PostEntity
+import com.gp.socialapp.model.Post
 import com.gp.socialapp.repository.PostRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -14,7 +15,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SearchViewModel @Inject constructor(private val repository: PostRepository) : ViewModel() {
 
-    var searchResult :MutableStateFlow<List<PostEntity>> = MutableStateFlow(listOf())
+    var searchResult :MutableStateFlow<List<Post>> = MutableStateFlow(listOf())
 
     fun searchPosts(text: String) {
         viewModelScope.launch (Dispatchers.IO){

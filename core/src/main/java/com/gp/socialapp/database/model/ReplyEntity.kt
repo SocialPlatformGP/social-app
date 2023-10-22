@@ -15,7 +15,9 @@ data class ReplyEntity(
     val isDeleted: Boolean,
     val createdAt: String?,
     val upvoted: String,
-    val downvoted: String
+    val downvoted: String,
+    val editStatus: Boolean
+
 
 )
 

@@ -3,7 +3,7 @@
     <data>
         <variable
             name="postSearchItem"
-            type="com.gp.socialapp.database.model.PostEntity" />
+            type="com.gp.socialapp.model.Post" />
     </data>
     <androidx.cardview.widget.CardView
         android:id="@+id/cardViewPost"
@@ -85,7 +85,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:textSize="14sp"
-                    android:text="@{Integer.toString(postSearchItem.upvotes)}" />
+                    android:text="@{Integer.toString(postSearchItem.votes)}" />
 
                 <ImageView
                     android:id="@+id/imageViewDownvote"
@@ -95,13 +95,6 @@
                     android:theme="@style/ImageViewVoteStyle"
                     android:layout_marginStart="16dp" />
 
-                <TextView
-                    android:id="@+id/textViewDownvotes"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:textSize="14sp"
-                    android:text="@{Integer.toString(postSearchItem.downvotes)}" />
             </LinearLayout>
 
             <!-- Moderation Status -->

@@ -17,12 +17,12 @@ object ReplyMapper {
     fun NetworkReply.toEntity(id: String): ReplyEntity {
         val upvotes= upvoted.joinToString(separator = ",")
         val downvotes= downvoted.joinToString(separator = ",")
-        return ReplyEntity(id,postId,parentReplyId,content,votes,depth,deleted,createdAt,upvotes,downvotes)
+        return ReplyEntity(id,postId,parentReplyId,content,votes,depth,deleted,createdAt,upvotes,downvotes,editStatus)
     }
     fun ReplyEntity.toNetworkModel(): NetworkReply {
         val upvotes= upvoted.split(",")
         val downvotes= downvoted.split(",")
-        return NetworkReply(postId,parentReplyId,content,votes,depth,createdAt,isDeleted,upvotes,downvotes)
+        return NetworkReply(postId,parentReplyId,content,votes,depth,createdAt,isDeleted,upvotes,downvotes,editStatus)
     }
     fun ReplyEntity.toModel(): Reply {
         val upvotes= upvoted.split(",")
@@ -36,10 +36,10 @@ object ReplyMapper {
     fun Reply.toEntity(): ReplyEntity {
         val upvotes= upvoted.joinToString(separator = ",")
         val downvotes= downvoted.joinToString(separator = ",")
-        return ReplyEntity(id,postId,parentReplyId,content,votes,depth,deleted,createdAt,upvotes,downvotes)
+        return ReplyEntity(id,postId,parentReplyId,content,votes,depth,deleted,createdAt,upvotes,downvotes,editStatus)
     }
     fun Reply.toNetworkModel(): NetworkReply {
-        return NetworkReply(postId,parentReplyId,content,votes,depth,createdAt,deleted,upvoted,downvoted)
+        return NetworkReply(postId,parentReplyId,content,votes,depth,createdAt,deleted,upvoted,downvoted,editStatus)
     }
 
     fun Flow<List<ReplyEntity>>.toReplyFlow(): Flow<List<Reply>> {

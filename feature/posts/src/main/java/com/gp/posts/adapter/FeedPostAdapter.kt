@@ -11,11 +11,12 @@ import com.gp.posts.databinding.ItemPostBinding
 import com.gp.posts.listeners.OnMoreOptionClicked
 import com.gp.posts.listeners.VotesClickedListener
 import com.gp.socialapp.database.model.PostEntity
+import com.gp.socialapp.model.Post
 
 class FeedPostAdapter(
     val onMoreOptionClicked: OnMoreOptionClicked,
     val onPostClicked:VotesClickedListener
-) : ListAdapter<PostEntity,FeedPostAdapter.PostViewHolder>(PostDiffUtil()) {
+) : ListAdapter<Post,FeedPostAdapter.PostViewHolder>(PostDiffUtil()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
         var binding : ItemPostBinding = DataBindingUtil.inflate(
@@ -33,8 +34,11 @@ class FeedPostAdapter(
         binding.imageViewDownvotePost.setOnClickListener {
             onPostClicked.onDownVoteClicked(binding.postitem!!)
         }
-        binding.imageView5.setOnClickListener {
-            onMoreOptionClicked.onMoreOptionClicked(binding.imageView5,binding.postitem!!)
+        binding.moreOptionPost.setOnClickListener {
+            onMoreOptionClicked.onMoreOptionClicked(binding.moreOptionPost,binding.postitem!!)
+        }
+        binding.imgAddComment.setOnClickListener {
+            onPostClicked.onPostClicked(binding.postitem!!)
         }
         return PostViewHolder(binding)
     }
@@ -46,18 +50,18 @@ class FeedPostAdapter(
 
 
     inner class PostViewHolder(private val binding: ItemPostBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(post: PostEntity) {
+        fun bind(post: Post) {
             binding.postitem = post
             binding.executePendingBindings()
         }
     }
 
-    private class PostDiffUtil : DiffUtil.ItemCallback<PostEntity>(){
-        override fun areItemsTheSame(oldItem: PostEntity, newItem: PostEntity): Boolean {
+    private class PostDiffUtil : DiffUtil.ItemCallback<Post>(){
+        override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean {
             return oldItem.id == newItem.id
         }
 
-        override fun areContentsTheSame(oldItem: PostEntity, newItem: PostEntity): Boolean {
+        override fun areContentsTheSame(oldItem: Post, newItem: Post): Boolean {
               return oldItem == newItem
         }
 
