@@ -74,7 +74,7 @@ class PostDetialsFragment
         // Inflate the layout for this fragment
          binding =
             DataBindingUtil.inflate(inflater, R.layout.fragment_post_detials, container, false)
-        viewModel.getPost(args.post.id)
+        viewModel.getPost(args.post)
         lifecycleScope.launch {
             viewModel.currentPost.flowWithLifecycle(lifecycle).collect {
                 binding.viewModel = viewModel
