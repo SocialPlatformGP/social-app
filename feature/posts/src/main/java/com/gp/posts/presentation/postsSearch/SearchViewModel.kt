@@ -14,7 +14,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SearchViewModel @Inject constructor(private val repository: PostRepository) : ViewModel() {
 
-    var searchResult :MutableStateFlow<List<PostEntity>> = MutableStateFlow(listOf())
+        var searchResult :MutableStateFlow<List<PostEntity>> = MutableStateFlow(listOf())
 
     fun searchPosts(text: String) {
         viewModelScope.launch (Dispatchers.IO){

@@ -45,7 +45,7 @@ class FeedPostAdapter(
     }
 
 
-    inner class PostViewHolder(private val binding: ItemPostBinding) : RecyclerView.ViewHolder(binding.root) {
+      inner class PostViewHolder(private val binding: ItemPostBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(post: PostEntity) {
             binding.postitem = post
             binding.executePendingBindings()
@@ -64,8 +64,4 @@ class FeedPostAdapter(
     }
 
 }
-
-
-
-
 
