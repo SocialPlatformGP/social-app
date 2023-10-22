@@ -18,12 +18,12 @@ class AuthenticationActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         val currentUser = viewModel.getSignedInUser()
-//        if (currentUser != null) {
-//            val intent = Intent()
-//            intent.setClassName("com.gp.socialapp", "com.gp.socialapp.MainActivity")
-//            startActivity(intent)
-//            finish()
-//        }
+        if (currentUser != null) {
+            val intent = Intent()
+            intent.setClassName("com.gp.socialapp", "com.gp.socialapp.MainActivity")
+            startActivity(intent)
+            finish()
+        }
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
