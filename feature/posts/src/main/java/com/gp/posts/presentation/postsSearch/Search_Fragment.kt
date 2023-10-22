@@ -18,9 +18,11 @@ import com.gp.posts.R
 import com.gp.posts.adapter.FeedPostAdapter
 import com.gp.posts.databinding.FragmentSearchBinding
 import com.gp.posts.listeners.OnMoreOptionClicked
+import com.gp.posts.listeners.OnReplyCollapsed
 import com.gp.posts.listeners.VotesClickedListener
 import com.gp.socialapp.database.model.PostEntity
 import com.gp.socialapp.database.model.ReplyEntity
+import com.gp.socialapp.model.Reply
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -86,8 +88,9 @@ class Search_Fragment : Fragment(), VotesClickedListener, OnMoreOptionClicked {
     override fun onMoreOptionClicked(imageView5: MaterialButton, postitem: PostEntity) {
     }
 
-    override fun onMoreOptionClicked(imageView5: MaterialButton, reply: ReplyEntity) {
+    override fun onMoreOptionClicked(imageView5: MaterialButton, reply: Reply) {
     }
+
 
 }
 

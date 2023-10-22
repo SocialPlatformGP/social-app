@@ -3,24 +3,28 @@ package com.gp.socialapp.source.local
 import com.gp.socialapp.database.dao.ReplyDao
 import com.gp.socialapp.database.model.ReplyEntity
 import com.gp.socialapp.database.model.relationship.PostWithReplies
+import com.gp.socialapp.model.Reply
+import com.gp.socialapp.util.ReplyMapper.toEntity
+import com.gp.socialapp.util.ReplyMapper.toNetworkModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class ReplyLocalDataSourceImpl @Inject constructor(
     private val replyDao: ReplyDao
 ) : ReplyLocalDataSource {
 
-    override suspend fun insertReply(replyEntity: ReplyEntity): Long = replyDao.insertReply(replyEntity)
+    override suspend fun insertReply(reply: Reply): Long = replyDao.insertReply(reply.toEntity())
 
-    override suspend fun insertReplies(replies: List<ReplyEntity>) = replyDao.insertReplies(replies)
+    override suspend fun insertReplies(replies: List<Reply>) = replyDao.insertReplies(replies.map { it.toEntity() })
 
-    override suspend fun updateReply(replyEntity: ReplyEntity) = replyDao.updateReply(replyEntity)
+    override suspend fun updateReply(reply: Reply) = replyDao.updateReply(reply.toEntity())
 
-    override suspend fun updateReplies(replies: List<ReplyEntity>) = replyDao.updateReplies(replies)
+    override suspend fun updateReplies(replies: List<Reply>) = replyDao.updateReplies(replies.map { it.toEntity() })
 
-    override suspend fun deleteReply(replyEntity: ReplyEntity) = replyDao.deleteReply(replyEntity)
+    override suspend fun deleteReply(reply: Reply) = replyDao.deleteReply(reply.toEntity())
 
-    override suspend fun deleteReplies(replies: List<ReplyEntity>) = replyDao.deleteReplies(replies)
+    override suspend fun deleteReplies(replies: List<Reply>) = replyDao.deleteReplies(replies.map { it.toEntity() })
 
     override suspend fun deleteAllReplies() = replyDao.deleteAllReplies()
 
