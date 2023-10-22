@@ -1,11 +1,14 @@
 package com.gp.socialapp.util
 
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.gp.socialapp.database.model.PostEntity
 import com.gp.socialapp.database.model.ReplyEntity
 import com.gp.socialapp.model.NetworkPost
 import com.gp.socialapp.model.NetworkReply
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.model.Reply
+import com.gp.socialapp.util.ReplyMapper.toModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

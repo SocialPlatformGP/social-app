@@ -3,6 +3,7 @@ package com.gp.posts.presentation.postDetails
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +15,7 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -53,7 +55,6 @@ class PostDetialsFragment
     lateinit var replyAdapter: NestedReplyAdapter
     lateinit var recyclerView: RecyclerView
     val viewModel: PostDetailsViewModel by viewModels()
-    val feedViewModel: FeedPostViewModel by viewModels()
     val args: PostDetialsFragmentArgs by navArgs()
     lateinit var replyEditText: TextInputEditText
     lateinit var replyEditTextLayout: TextInputLayout
@@ -108,7 +109,7 @@ class PostDetialsFragment
 
         lifecycleScope.launch {
             viewModel.currentReplies.collectLatest {
-
+                Log.d("PostDetailsFragment", "onViewCreated: ${it.replies.toString()}")
                 replyAdapter.submitList(it.replies)
             }
         }
@@ -216,7 +217,12 @@ class PostDetialsFragment
     }
 
     override fun onReplyCollapsed(reply: Reply) {
-        viewModel.updateReply(reply)
+        if(reply.collapsed){
+            viewModel.collapsedReplies.remove(reply.id)
+        }else {
+            viewModel.collapsedReplies.add(reply.id)
+        }
+        Log.d("zarea in fragment",viewModel.collapsedReplies.toString())
     }
 
 

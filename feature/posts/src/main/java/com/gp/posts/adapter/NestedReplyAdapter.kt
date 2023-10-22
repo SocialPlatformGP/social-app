@@ -119,13 +119,13 @@ class NestedReplyAdapter(
                     nestedRecyclerView.visibility = View.GONE
                     defaultView.visibility = View.GONE
                     alterView.visibility = View.VISIBLE
-                    onReplyCollapsed.onReplyCollapsed(nestedReplyItem.reply!!.copy(collapsed = true))
+                    onReplyCollapsed.onReplyCollapsed(nestedReplyItem.reply!!)
 
                 } else if (defaultView.visibility == View.GONE && nestedReplyItem.reply?.deleted == false) {
                     defaultView.visibility = View.VISIBLE
                     alterView.visibility = View.GONE
                     nestedRecyclerView.visibility = View.VISIBLE
-                    onReplyCollapsed.onReplyCollapsed(nestedReplyItem.reply!!.copy(collapsed = false))
+                    onReplyCollapsed.onReplyCollapsed(nestedReplyItem.reply!!)
 
                 } else {
                     //if the reply is deleted

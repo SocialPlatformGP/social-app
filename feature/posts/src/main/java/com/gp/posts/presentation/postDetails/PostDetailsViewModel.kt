@@ -26,6 +26,7 @@ class PostDetailsViewModel @Inject constructor(
     private val postRepository: PostRepository,
     private val replyRepository: ReplyRepository
 ): ViewModel(){
+    var collapsedReplies = mutableListOf<String>()
 
     private val _currentReplies = MutableStateFlow(NestedReplyItem(null, emptyList()))
     val currentReplies get() = _currentReplies.asStateFlow()
@@ -38,13 +39,21 @@ class PostDetailsViewModel @Inject constructor(
         _currentPost.value = post
     }
 
-    fun getRepliesById(id:String){
-        viewModelScope.launch (Dispatchers.IO){
-            replyRepository.getReplies(id).collect {
-                _currentReplies.value = it.toNestedReplies()
+    fun getRepliesById(id: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            replyRepository.getReplies(id).collect { replies ->
+                val updatedReplies = replies.map { reply ->
+                    if (collapsedReplies.contains(reply.id)) {
+                        reply.copy(collapsed = true)
+                    } else {
+                        reply
+                    }
+                }
+                _currentReplies.value = updatedReplies.toNestedReplies()
             }
         }
     }
+
     fun insertReply(reply: Reply){
         viewModelScope.launch (Dispatchers.IO){
             replyRepository.insertReply(reply)
