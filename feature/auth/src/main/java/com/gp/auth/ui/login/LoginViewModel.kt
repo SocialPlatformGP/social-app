@@ -2,6 +2,7 @@ package com.gp.auth.ui.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.gp.auth.repo.AuthenticationRepository
 import com.gp.auth.util.Validator
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,4 +24,5 @@ class LoginViewModel @Inject constructor(private val authRepo: AuthenticationRep
             }
         }
     }
+    fun authenticateWithGoogle(account: GoogleSignInAccount) = authRepo.authenticateWithGoogle(account)
 }
