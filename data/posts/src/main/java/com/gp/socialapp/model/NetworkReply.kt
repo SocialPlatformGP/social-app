@@ -1,6 +1,7 @@
 package com.gp.socialapp.model
 
 data class NetworkReply(
+    val autherEmail: String,
     val postId: String,
     val parentReplyId: String?,
     val content: String,
@@ -13,5 +14,5 @@ data class NetworkReply(
     val editStatus: Boolean
 
 ){
-    constructor() : this("",null,"",0,0,"",false, emptyList(), emptyList(),false)
+    constructor() : this("","",null,"",0,0,"",false, emptyList(), emptyList(),false)
 }

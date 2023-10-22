@@ -18,6 +18,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.gp.posts.R
 import com.gp.posts.adapter.FeedPostAdapter
 import com.gp.posts.adapter.StateWIthLifeCycle
@@ -36,6 +38,8 @@ import kotlinx.coroutines.launch
 class FeedFragment : Fragment() , VotesClickedListener, OnMoreOptionClicked {
     lateinit var  binding:FragmentFeedBinding
     private val viewModel: FeedPostViewModel by viewModels()
+    private val currentUser= Firebase.auth.currentUser
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
@@ -88,10 +92,14 @@ class FeedFragment : Fragment() , VotesClickedListener, OnMoreOptionClicked {
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onMoreOptionClicked(imageView5: MaterialButton, postitem: Post) {
-            val popupMenu = PopupMenu(requireActivity(), imageView5)
-            popupMenu.menuInflater.inflate(R.menu.extra_option_menu, popupMenu.menu)
+        var resourceXml=R.menu.extra_option_menu
+        if(currentUser?.email!=postitem.authorEmail){
+            resourceXml=R.menu.extra_option_menu_not_owner
+        }
+        val popupMenu = PopupMenu(requireActivity(), imageView5)
+        popupMenu.menuInflater.inflate(resourceXml, popupMenu.menu)
 
-            // Set item click listener for the popup menu
+        // Set item click listener for the popup menu
             popupMenu.setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     R.id.item_save -> {
