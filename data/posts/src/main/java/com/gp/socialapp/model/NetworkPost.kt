@@ -8,6 +8,7 @@ data class NetworkPost (
     val upvotes: Int,
     val downvotes: Int,
     val moderationStatus: String,
-    val editStatus: Boolean){
+    val editStatus: Boolean
+){
     constructor() : this(0L,"","","",0,0,"",false)
 }

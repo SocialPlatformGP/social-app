@@ -7,14 +7,15 @@ import com.gp.socialapp.model.Reply
 import kotlinx.coroutines.flow.Flow
 
 interface ReplyRepository {
-    fun getReplies(postId: String): Flow<List<ReplyEntity>>
-    suspend fun insertReplies(replies: List<ReplyEntity>)
-    suspend fun updateReply(replyEntity: ReplyEntity)
-    suspend fun deleteReply(replyEntity: ReplyEntity)
+    fun getReplies(postId: String): Flow<List<Reply>>
+    suspend fun insertReplies(replies: List<Reply>)
+    suspend fun updateReply(replyEntity: Reply)
+    suspend fun deleteReply(replyEntity: Reply)
 
     ////////////remote////////////
 
-    suspend fun upVoteReply(reply: ReplyEntity)
-    suspend fun downVoteReply(reply: ReplyEntity)
-    suspend fun insertReply(replyEntity: NetworkReply)
+    suspend fun upVoteReply(reply: Reply)
+    suspend fun downVoteReply(reply: Reply)
+    suspend fun insertReply(reply: Reply)
+
 }

@@ -1,12 +1,14 @@
 package com.gp.posts.presentation.postsfeed
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import androidx.annotation.RequiresApi
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -24,6 +26,7 @@ import com.gp.posts.listeners.OnMoreOptionClicked
 import com.gp.posts.listeners.VotesClickedListener
 import com.gp.socialapp.database.model.PostEntity
 import com.gp.socialapp.database.model.ReplyEntity
+import com.gp.socialapp.model.Reply
 import com.gp.socialapp.utils.State
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -32,6 +35,7 @@ import kotlinx.coroutines.launch
 class FeedFragment : Fragment() , VotesClickedListener, OnMoreOptionClicked {
     lateinit var  binding:FragmentFeedBinding
     private val viewModel: FeedPostViewModel by viewModels()
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -41,6 +45,7 @@ class FeedFragment : Fragment() , VotesClickedListener, OnMoreOptionClicked {
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("SuspiciousIndentation")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -69,15 +74,18 @@ class FeedFragment : Fragment() , VotesClickedListener, OnMoreOptionClicked {
         findNavController().navigate(action)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onUpVoteClicked(post: PostEntity) {
         Log.d("im in FeedFragment", "onUpVoteClicked: ${post.upvotes} ")
         viewModel.upVote(post)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onDownVoteClicked(post: PostEntity) {
         viewModel.downVote(post)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onMoreOptionClicked(imageView5: MaterialButton, postitem: PostEntity) {
             val popupMenu = PopupMenu(requireActivity(), imageView5)
             popupMenu.menuInflater.inflate(R.menu.extra_option_menu, popupMenu.menu)
@@ -107,9 +115,11 @@ class FeedFragment : Fragment() , VotesClickedListener, OnMoreOptionClicked {
             popupMenu.show()
     }
 
-    override fun onMoreOptionClicked(imageView5: MaterialButton, reply: ReplyEntity) {
+    override fun onMoreOptionClicked(imageView5: MaterialButton, reply: Reply) {
         TODO("Not yet implemented")
     }
+
+
 
 
 }

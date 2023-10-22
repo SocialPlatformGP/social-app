@@ -1,9 +1,12 @@
 package com.gp.posts.adapter
 
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
+import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.databinding.BindingAdapter
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
@@ -11,17 +14,23 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
+import com.google.android.material.button.MaterialButton
+import com.google.firebase.auth.FirebaseAuth
 import com.gp.posts.R
 import com.gp.socialapp.database.model.PostEntity
+import com.gp.socialapp.util.ToTimeTaken
 import com.gp.socialapp.utils.State
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-
+val currentEmail = FirebaseAuth.getInstance().currentUser?.email
 data class StateWIthLifeCycle(
     var state: StateFlow<State<List<PostEntity>>>,
     var lifecycle: Lifecycle
@@ -87,5 +96,36 @@ fun setProfilePicture(view: ImageView, picUrl: String?) {
             .into(view)
     } else {
         view.setImageResource(R.drawable.ic_person_24)
+    }
+}
+@OptIn(DelicateCoroutinesApi::class)
+@RequiresApi(Build.VERSION_CODES.O)
+@BindingAdapter("posts:timeTillNow")
+fun setTimeTillNow(view: TextView, time: String?) {
+    view.text= ToTimeTaken.calculateTimeDifference(time!!)
+    val job=GlobalScope.launch(Dispatchers.Default) {
+        repeat (60) {
+            delay(60000)
+            withContext(Dispatchers.Main) {
+                view.text= ToTimeTaken.calculateTimeDifference(time!!)
+            }
+        }
+    }
+    job.cancel()
+}
+@BindingAdapter("posts:upVoteImage")
+fun setUpVoteImage(view: MaterialButton, upVoteList: List<String>) {
+    if (currentEmail in upVoteList) {
+        view.iconTint = view.context.getColorStateList(R.color.Blue)
+    } else {
+        view.iconTint = view.context.getColorStateList(R.color.Gray)
+    }
+}
+@BindingAdapter("posts:downVoteImage")
+fun setDownVoteImage(view: MaterialButton, downVoteList: List<String>) {
+    if (currentEmail in downVoteList) {
+        view.iconTint = view.context.getColorStateList(R.color.Red)
+    } else {
+        view.iconTint = view.context.getColorStateList(R.color.Gray)
     }
 }

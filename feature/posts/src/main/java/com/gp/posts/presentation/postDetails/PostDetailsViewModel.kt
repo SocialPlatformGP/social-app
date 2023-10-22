@@ -7,6 +7,7 @@ import com.gp.socialapp.database.model.PostEntity
 import com.gp.socialapp.database.model.ReplyEntity
 import com.gp.socialapp.model.NestedReplyItem
 import com.gp.socialapp.model.NetworkReply
+import com.gp.socialapp.model.Reply
 import com.gp.socialapp.repository.PostRepository
 import com.gp.socialapp.repository.ReplyRepository
 import com.gp.socialapp.util.ReplyMapper.toNetworkModel
@@ -26,7 +27,7 @@ class PostDetailsViewModel @Inject constructor(
     private val replyRepository: ReplyRepository
 ): ViewModel(){
 
-    private val _currentReplies = MutableStateFlow<NestedReplyItem>(NestedReplyItem(null, emptyList()))
+    private val _currentReplies = MutableStateFlow(NestedReplyItem(null, emptyList()))
     val currentReplies get() = _currentReplies.asStateFlow()
 
     private val _currentPost = MutableStateFlow<PostEntity?>(null)
@@ -44,7 +45,7 @@ class PostDetailsViewModel @Inject constructor(
             }
         }
     }
-    fun insertReply(reply: NetworkReply){
+    fun insertReply(reply: Reply){
         viewModelScope.launch (Dispatchers.IO){
             replyRepository.insertReply(reply)
         }
@@ -77,23 +78,29 @@ class PostDetailsViewModel @Inject constructor(
             }
         }
     }
-    fun replyUpVote(reply: ReplyEntity){
-            viewModelScope.launch(Dispatchers.IO) {
-                replyRepository.upVoteReply(reply)
-            }
+    fun replyUpVote(reply: Reply){
+        viewModelScope.launch(Dispatchers.IO) {
+            replyRepository.upVoteReply(reply)
+        }
     }
-    fun replyDownVote(reply: ReplyEntity){
-            viewModelScope.launch(Dispatchers.IO) {
-                replyRepository.downVoteReply(reply)
-            }
+    fun replyDownVote(reply: Reply){
+        viewModelScope.launch(Dispatchers.IO) {
+            replyRepository.downVoteReply(reply)
+        }
     }
 
-    fun deleteReply(reply: ReplyEntity) {
+    fun deleteReply(reply: Reply) {
         viewModelScope.launch(Dispatchers.IO) {
-            var deletedReply = reply.copy(content = "content is deleted by owner",isDeleted = true)
+            var deletedReply = reply.copy(content = "content is deleted by owner",deleted = true)
             replyRepository.deleteReply(deletedReply)
         }
 
+    }
+
+    fun updateReply(reply: Reply) {
+        viewModelScope.launch (Dispatchers.IO){
+            replyRepository.updateReply(reply)
+        }
     }
 
 
