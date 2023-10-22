@@ -2,6 +2,7 @@ package com.gp.socialapp.model
 
 data class Reply(
     val id : String="",
+    val authorEmail: String,
     val postId: String,
     val parentReplyId: String?,
     val content: String,

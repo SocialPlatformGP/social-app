@@ -26,6 +26,8 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.android.play.core.integrity.p
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.gp.posts.R
 import com.gp.posts.adapter.NestedReplyAdapter
 import com.gp.posts.databinding.FragmentPostDetialsBinding
@@ -64,6 +66,7 @@ class PostDetialsFragment
     lateinit var replyEditTextLayout: TextInputLayout
     lateinit var replyButton: MaterialButton
     lateinit var linearLayout: LinearLayout
+    private val currentUser= Firebase.auth.currentUser
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -157,6 +160,7 @@ class PostDetialsFragment
                     depth = 0,
                     content = replyEditText.text.toString(),
                     createdAt =LocalDateTime.now(ZoneId.of("UTC")).toString(),
+                    authorEmail = currentUser?.email.toString()
                 )
             )
             replyEditText.setText("")
@@ -183,6 +187,7 @@ class PostDetialsFragment
                     depth = currentReply!!.depth!!.plus(1),
                     content = replyEditText.text.toString(),
                     createdAt = LocalDateTime.now(ZoneId.of("UTC")).toString(),
+                    authorEmail = currentUser?.email.toString()
                 )
             )
             replyEditText.setText("")
@@ -202,8 +207,12 @@ class PostDetialsFragment
 
 
     override fun onMoreOptionClicked(imageView5: MaterialButton, postitem: Post) {
+        var resourceXml=R.menu.extra_option_menu
+        if(currentUser?.email!=postitem.authorEmail){
+            resourceXml=R.menu.extra_option_menu_not_owner
+        }
         val popupMenu = PopupMenu(requireActivity(), imageView5)
-        popupMenu.menuInflater.inflate(R.menu.extra_option_menu, popupMenu.menu)
+        popupMenu.menuInflater.inflate(resourceXml, popupMenu.menu)
 
         // Set item click listener for the popup menu
         popupMenu.setOnMenuItemClickListener { item ->
@@ -233,8 +242,12 @@ class PostDetialsFragment
     }
 
     override fun onMoreOptionClicked(imageView5: MaterialButton, reply: Reply) {
+        var resourceXml=R.menu.extra_option_menu
+        if(currentUser?.email!=reply.authorEmail){
+            resourceXml=R.menu.extra_option_menu_not_owner
+        }
         val popupMenu = PopupMenu(requireActivity(), imageView5)
-        popupMenu.menuInflater.inflate(R.menu.extra_option_menu, popupMenu.menu)
+        popupMenu.menuInflater.inflate(resourceXml, popupMenu.menu)
 
         // Set item click listener for the popup menu
         popupMenu.setOnMenuItemClickListener { item ->
