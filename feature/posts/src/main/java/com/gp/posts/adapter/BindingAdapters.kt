@@ -15,6 +15,7 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.button.MaterialButton
+import com.google.firebase.auth.FirebaseAuth
 import com.gp.posts.R
 import com.gp.socialapp.database.model.PostEntity
 import com.gp.socialapp.util.ToTimeTaken
@@ -29,7 +30,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-
+val currentEmail = FirebaseAuth.getInstance().currentUser?.email
 data class StateWIthLifeCycle(
     var state: StateFlow<State<List<PostEntity>>>,
     var lifecycle: Lifecycle
@@ -113,16 +114,16 @@ fun setTimeTillNow(view: TextView, time: String?) {
     job.cancel()
 }
 @BindingAdapter("posts:upVoteImage")
-fun setUpVoteImage(view: MaterialButton, isUpVoted: Boolean) {
-    if (isUpVoted) {
+fun setUpVoteImage(view: MaterialButton, upVoteList: List<String>) {
+    if (currentEmail in upVoteList) {
         view.iconTint = view.context.getColorStateList(R.color.Blue)
     } else {
         view.iconTint = view.context.getColorStateList(R.color.Gray)
     }
 }
 @BindingAdapter("posts:downVoteImage")
-fun setDownVoteImage(view: MaterialButton, isDownVoted: Boolean) {
-    if (isDownVoted) {
+fun setDownVoteImage(view: MaterialButton, downVoteList: List<String>) {
+    if (currentEmail in downVoteList) {
         view.iconTint = view.context.getColorStateList(R.color.Red)
     } else {
         view.iconTint = view.context.getColorStateList(R.color.Gray)

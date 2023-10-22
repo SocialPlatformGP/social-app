@@ -78,7 +78,7 @@ class NestedReplyAdapter(
             binding.reply = nestedReplyItem.reply
             binding.executePendingBindings()
             //prevent the reply from being clicked if it is deleted
-            if (nestedReplyItem.reply?.isDeleted == true) {
+            if (nestedReplyItem.reply?.deleted == true) {
                 defaultView.visibility = View.GONE
                 alterView.visibility = View.VISIBLE
             }
@@ -115,13 +115,13 @@ class NestedReplyAdapter(
             }
             //handle collapse and expand
             itemView.setOnClickListener {
-                if (defaultView.visibility == View.VISIBLE && nestedReplyItem.reply?.isDeleted == false) {
+                if (defaultView.visibility == View.VISIBLE && nestedReplyItem.reply?.deleted == false) {
                     nestedRecyclerView.visibility = View.GONE
                     defaultView.visibility = View.GONE
                     alterView.visibility = View.VISIBLE
                     onReplyCollapsed.onReplyCollapsed(nestedReplyItem.reply!!.copy(collapsed = true))
 
-                } else if (defaultView.visibility == View.GONE && nestedReplyItem.reply?.isDeleted == false) {
+                } else if (defaultView.visibility == View.GONE && nestedReplyItem.reply?.deleted == false) {
                     defaultView.visibility = View.VISIBLE
                     alterView.visibility = View.GONE
                     nestedRecyclerView.visibility = View.VISIBLE

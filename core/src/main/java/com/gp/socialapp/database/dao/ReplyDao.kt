@@ -7,8 +7,9 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.gp.socialapp.database.model.ReplyEntity
-import com.gp.socialapp.database.model.relationship.PostWithReplies
 import kotlinx.coroutines.flow.Flow
+
+
 
 @Dao
 interface ReplyDao {
@@ -51,9 +52,9 @@ interface ReplyDao {
     @Query("SELECT * FROM replies WHERE parentReplyId IS NULL AND postId = :postId")
     fun getTopLevelRepliesByPostId(postId: String): Flow<List<ReplyEntity>>
 
-@Query("UPDATE replies SET upVotes = upVotes + 1 WHERE id = :id")
+@Query("UPDATE replies SET votes = votes + 1 WHERE id = :id")
 suspend fun upVoteLocal(id:String)
 
-    @Query("UPDATE replies SET upVotes = upVotes - 1 WHERE id = :id")
+    @Query("UPDATE replies SET votes = votes - 1 WHERE id = :id")
     suspend fun downVoteLocal(id:String)
 }

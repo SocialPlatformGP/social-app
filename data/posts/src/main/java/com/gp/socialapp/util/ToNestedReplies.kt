@@ -3,9 +3,10 @@ package com.gp.socialapp.util
 import android.util.Log
 import com.gp.socialapp.database.model.ReplyEntity
 import com.gp.socialapp.model.NestedReplyItem
+import com.gp.socialapp.model.Reply
 
 object ToNestedReplies {
-     fun List<ReplyEntity>.toNestedReplies(): NestedReplyItem {
+     fun List<Reply>.toNestedReplies(): NestedReplyItem {
         Log.d("ToNestedRepliesb", "toNestedReplies: ${this.size}")
         val nestedRepliesList = buildNestedReplies(this, null)
          Log.d("ToNestedRepliesa", "toNestedReplies: ${this.size}")
@@ -16,7 +17,7 @@ object ToNestedReplies {
      }
 
     private fun buildNestedReplies(
-        replies: List<ReplyEntity>,
+        replies: List<Reply>,
         parentReplyId: String?
     ): List<NestedReplyItem> {
         return replies
