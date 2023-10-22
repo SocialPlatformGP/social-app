@@ -18,6 +18,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
 import com.gp.posts.R
 import com.gp.socialapp.database.model.PostEntity
+import com.gp.socialapp.model.Post
 import com.gp.socialapp.util.ToTimeTaken
 import com.gp.socialapp.utils.State
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -32,7 +33,7 @@ import kotlinx.coroutines.withContext
 
 val currentEmail = FirebaseAuth.getInstance().currentUser?.email
 data class StateWIthLifeCycle(
-    var state: StateFlow<State<List<PostEntity>>>,
+    var state: StateFlow<State<List<Post>>>,
     var lifecycle: Lifecycle
 
 )

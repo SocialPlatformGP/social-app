@@ -22,6 +22,7 @@ import com.gp.posts.listeners.OnReplyCollapsed
 import com.gp.posts.listeners.VotesClickedListener
 import com.gp.socialapp.database.model.PostEntity
 import com.gp.socialapp.database.model.ReplyEntity
+import com.gp.socialapp.model.Post
 import com.gp.socialapp.model.Reply
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
@@ -76,16 +77,16 @@ class Search_Fragment : Fragment(), VotesClickedListener, OnMoreOptionClicked {
         })
     }
 
-    override fun onUpVoteClicked(post: PostEntity) {
+    override fun onUpVoteClicked(post: Post) {
     }
 
-    override fun onDownVoteClicked(post: PostEntity) {
+    override fun onDownVoteClicked(post: Post) {
     }
 
-    override fun onPostClicked(post: PostEntity) {
+    override fun onPostClicked(post: Post) {
     }
 
-    override fun onMoreOptionClicked(imageView5: MaterialButton, postitem: PostEntity) {
+    override fun onMoreOptionClicked(imageView5: MaterialButton, postitem: Post) {
     }
 
     override fun onMoreOptionClicked(imageView5: MaterialButton, reply: Reply) {

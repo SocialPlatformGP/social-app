@@ -7,6 +7,7 @@ import com.gp.socialapp.database.model.PostEntity
 import com.gp.socialapp.database.model.ReplyEntity
 import com.gp.socialapp.model.NestedReplyItem
 import com.gp.socialapp.model.NetworkReply
+import com.gp.socialapp.model.Post
 import com.gp.socialapp.model.Reply
 import com.gp.socialapp.repository.PostRepository
 import com.gp.socialapp.repository.ReplyRepository
@@ -31,11 +32,11 @@ class PostDetailsViewModel @Inject constructor(
     private val _currentReplies = MutableStateFlow(NestedReplyItem(null, emptyList()))
     val currentReplies get() = _currentReplies.asStateFlow()
 
-    private val _currentPost = MutableStateFlow<PostEntity?>(null)
+    private val _currentPost = MutableStateFlow<Post?>(null)
     val currentPost get() = _currentPost.asStateFlow()
 
 
-    fun setThePost(post: PostEntity){
+    fun setThePost(post: Post){
         _currentPost.value = post
     }
 
@@ -59,32 +60,20 @@ class PostDetailsViewModel @Inject constructor(
             replyRepository.insertReply(reply)
         }
     }
-    fun upVote(post: PostEntity){
-        //update the ui
-        if(currentPost.value != null) {
-            val updatedPost = currentPost.value!!.copy(upvotes = currentPost.value!!.upvotes + 1)
-            _currentPost.value = updatedPost
-            // Update the Room database
-            viewModelScope.launch(Dispatchers.IO) {
-                Log.d("PostDetailsViewModel", "upVote: ${updatedPost.upvotes}")
-                postRepository.updatePost(updatedPost)
-                postRepository.updateLocalPost(updatedPost)
-            }
-        }
-
-
+    fun upVote(post: Post){
+        //TODO: implement upvote
     }
     fun downVote(post: PostEntity){
-        //update the ui
-        if(currentPost.value != null) {
-            val updatedPost = currentPost.value!!.copy(upvotes = currentPost.value!!.upvotes - 1)
-            _currentPost.value = updatedPost
-            // Update the Room database
-            viewModelScope.launch(Dispatchers.IO) {
-                postRepository.updatePost(updatedPost)
-                postRepository.updateLocalPost(updatedPost)
-
-            }
+        //TODO: implement downvote
+    }
+    fun deletePost(post: Post){
+        viewModelScope.launch(Dispatchers.IO) {
+            postRepository.deletePost(post)
+        }
+    }
+    fun updatePost(post: Post){
+        viewModelScope.launch (Dispatchers.IO){
+            postRepository.updatePost(post)
         }
     }
     fun replyUpVote(reply: Reply){

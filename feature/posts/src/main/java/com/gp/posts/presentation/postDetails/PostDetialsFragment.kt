@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import com.google.android.play.core.integrity.p
 import com.gp.posts.R
 import com.gp.posts.adapter.NestedReplyAdapter
 import com.gp.posts.databinding.FragmentPostDetialsBinding
@@ -32,11 +33,13 @@ import com.gp.posts.listeners.OnAddReplyClicked
 import com.gp.posts.listeners.OnMoreOptionClicked
 import com.gp.posts.listeners.OnReplyCollapsed
 import com.gp.posts.listeners.VotePressedListener
+import com.gp.posts.presentation.postsfeed.FeedFragmentDirections
 import com.gp.posts.presentation.postsfeed.FeedPostViewModel
 import com.gp.socialapp.database.model.PostEntity
 import com.gp.socialapp.database.model.ReplyEntity
 import com.gp.socialapp.model.NestedReplyItem
 import com.gp.socialapp.model.NetworkReply
+import com.gp.socialapp.model.Post
 import com.gp.socialapp.model.Reply
 import com.gp.socialapp.util.ToNestedReplies.toNestedReplies
 import dagger.hilt.android.AndroidEntryPoint
@@ -56,6 +59,7 @@ class PostDetialsFragment
     lateinit var recyclerView: RecyclerView
     val viewModel: PostDetailsViewModel by viewModels()
     val args: PostDetialsFragmentArgs by navArgs()
+    lateinit var binding: FragmentPostDetialsBinding
     lateinit var replyEditText: TextInputEditText
     lateinit var replyEditTextLayout: TextInputLayout
     lateinit var replyButton: MaterialButton
@@ -66,9 +70,9 @@ class PostDetialsFragment
         savedInstanceState: Bundle?
     ): View? {
 
-        viewModel.getRepliesById(args.psot.id)
+        viewModel.getRepliesById(args.post.id)
         // Inflate the layout for this fragment
-        val binding: FragmentPostDetialsBinding =
+         binding =
             DataBindingUtil.inflate(inflater, R.layout.fragment_post_detials, container, false)
         lifecycleScope.launch {
             viewModel.currentPost.flowWithLifecycle(lifecycle).collect {
@@ -86,8 +90,9 @@ class PostDetialsFragment
                 }
             }
         }
+
         requireActivity().onBackPressedDispatcher.addCallback(requireActivity(), callback)
-        viewModel.setThePost(args.psot)
+        viewModel.setThePost(args.post)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         return binding.root
@@ -111,6 +116,7 @@ class PostDetialsFragment
             viewModel.currentReplies.collectLatest {
                 Log.d("PostDetailsFragment", "onViewCreated: ${it.replies.toString()}")
                 replyAdapter.submitList(it.replies)
+
             }
         }
 
@@ -120,12 +126,15 @@ class PostDetialsFragment
         linearLayout = view.findViewById(R.id.linearLayout)
         val post = view.findViewById<MaterialButton>(R.id.img_addComment)
         post.setOnClickListener {
-            addComment(args.psot)
+            addComment(args.post)
+        }
+        binding.moreOptionPost.setOnClickListener {
+            onMoreOptionClicked(binding.moreOptionPost,args.post)
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun addComment(post: PostEntity) {
+    private fun addComment(post: Post) {
         replyEditText.requestFocus()
         linearLayout.visibility = View.VISIBLE
         //open keyboard
@@ -146,8 +155,6 @@ class PostDetialsFragment
             replyEditText.clearFocus()
             linearLayout.visibility = View.GONE
             inputMethodManager.hideSoftInputFromWindow(replyEditText.windowToken, 0)
-            replyAdapter.notifyDataSetChanged()
-
         }
     }
 
@@ -174,7 +181,6 @@ class PostDetialsFragment
             replyEditText.clearFocus()
             linearLayout.visibility = View.GONE
             inputMethodManager.hideSoftInputFromWindow(replyEditText.windowToken, 0)
-            replyAdapter.notifyDataSetChanged()
         }
     }
 
@@ -186,7 +192,35 @@ class PostDetialsFragment
         viewModel.replyDownVote(comment)
     }
 
-    override fun onMoreOptionClicked(imageView5: MaterialButton, postitem: PostEntity) {
+    override fun onMoreOptionClicked(imageView5: MaterialButton, postitem: Post) {
+        val popupMenu = PopupMenu(requireActivity(), imageView5)
+        popupMenu.menuInflater.inflate(R.menu.extra_option_menu, popupMenu.menu)
+
+        // Set item click listener for the popup menu
+        popupMenu.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.item_save -> {
+                    // Handle Item 1 click
+                    // Add your code here
+                    true
+                }
+                R.id.item_delete -> {
+                    viewModel.deletePost(postitem)
+                    true
+                }
+                R.id.item_report -> {
+                    true
+                }
+                R.id.item_edit -> {
+                    val action = PostDetialsFragmentDirections.actionPostDetialsFragmentToEditPostFragment(postitem)
+                    findNavController().navigate(action)
+                    true
+                }
+                else -> false
+            }
+        }
+        // Show the popup menu
+        popupMenu.show()
     }
 
     override fun onMoreOptionClicked(imageView5: MaterialButton, reply: Reply) {
@@ -196,18 +230,39 @@ class PostDetialsFragment
         // Set item click listener for the popup menu
         popupMenu.setOnMenuItemClickListener { item ->
             when (item.itemId) {
-                R.id.menu_item_1 -> {
-                    // Handle Item 1 click
-                    // Add your code here
-                    true
-                }
-                R.id.menu_item_2 -> {
-                    // Handle Item 2 click
-                    // Add your code here
-                    true
-                }
-                R.id.menu_item_3 -> {
+                R.id.item_delete -> {
                     viewModel.deleteReply(reply)
+                    true
+                }
+                R.id.item_edit -> {
+                    replyEditText.requestFocus()
+                    linearLayout.visibility = View.VISIBLE
+                    //open keyboard
+                    val inputMethodManager =
+                        requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    inputMethodManager.showSoftInput(replyEditText, InputMethodManager.SHOW_IMPLICIT)
+                    replyEditText.setText(reply.content)
+                    replyButton.setOnClickListener {
+                        viewModel.updateReply(
+                            reply.copy(
+                                content = replyEditText.text.toString(),
+                                editStatus = true
+                            )
+                        )
+                        replyEditText.setText("")
+                        replyEditText.clearFocus()
+                        linearLayout.visibility = View.GONE
+                        inputMethodManager.hideSoftInputFromWindow(replyEditText.windowToken, 0)
+                    }
+
+                    true
+                }
+                R.id.item_report -> {
+                    //todo after ml model feature
+                    true
+                }
+                R.id.item_save -> {
+                    //todo after bookmark feature
                     true
                 }
                 else -> false

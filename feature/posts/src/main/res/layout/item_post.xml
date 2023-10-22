@@ -7,7 +7,7 @@
 
         <variable
             name="postitem"
-            type="com.gp.socialapp.database.model.PostEntity" />
+            type="com.gp.socialapp.model.Post" />
 
     </data>
 
@@ -108,7 +108,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="4dp"
-                android:text="@{Integer.toString(postitem.upvotes)}"
+                android:text="@{Integer.toString(postitem.votes)}"
                 app:layout_constraintBottom_toBottomOf="@+id/imageViewDownvotePost"
                 app:layout_constraintEnd_toStartOf="@+id/imageViewDownvotePost"
                 app:layout_constraintTop_toTopOf="@+id/imageViewDownvotePost" />
@@ -136,7 +136,7 @@
                 />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/imageView5"
+                android:id="@+id/moreOptionPost"
                 style="@style/Widget.Material3.Button.IconButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

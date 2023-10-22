@@ -9,8 +9,9 @@ data class NetworkReply(
     val createdAt: String? ,
     val deleted: Boolean,
     val upvoted: List<String>,
-    val downvoted: List<String>
+    val downvoted: List<String>,
+    val editStatus: Boolean
 
 ){
-    constructor() : this("",null,"",0,0,"",false, emptyList(), emptyList())
+    constructor() : this("",null,"",0,0,"",false, emptyList(), emptyList(),false)
 }

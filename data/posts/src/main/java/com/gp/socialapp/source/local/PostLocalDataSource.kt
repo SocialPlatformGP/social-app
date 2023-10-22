@@ -5,9 +5,9 @@ import kotlinx.coroutines.flow.Flow
 
 interface PostLocalDataSource {
     suspend fun insertPost(vararg post: PostEntity)
-    suspend fun updatePost(post: PostEntity)
+    suspend fun updatePost(post: Post)
      fun getAllPosts(): Flow<List<PostEntity>>
-    suspend fun deletePost(post: PostEntity)
+    suspend fun deletePost(post: Post)
      fun searchPostsByTitle(searchText: String): Flow<List<PostEntity>>
 
 }
