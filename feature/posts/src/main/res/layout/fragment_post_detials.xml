@@ -2,24 +2,22 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:posts="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-
     android:background="#D8D4D4">
 
     <data>
 
-            <variable
-                name="postitem"
-                type="com.gp.socialapp.model.Post" />
+        <variable
+            name="postitem"
+            type="com.gp.socialapp.model.Post" />
 
-            <variable
-                name="viewModel"
-                type="com.gp.posts.presentation.postDetails.PostDetailsViewModel" />
+        <variable
+            name="viewModel"
+            type="com.gp.posts.presentation.postDetails.PostDetailsViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
+        android:layout_height="match_parent">
 
 
         <androidx.core.widget.NestedScrollView
@@ -39,21 +37,21 @@
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/item_post"
+                    style="@style/ImageViewVoteStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:foreground="@drawable/stroke_cardview"
                     posts:cardCornerRadius="16dp"
                     posts:cardElevation="6dp"
+                    posts:cardUseCompatPadding="true"
                     posts:layout_constraintEnd_toEndOf="parent"
                     posts:layout_constraintStart_toStartOf="parent"
-                    posts:layout_constraintTop_toTopOf="parent"
-                    posts:cardUseCompatPadding="true"
-                    android:foreground="@drawable/stroke_cardview"
-                    style="@style/ImageViewVoteStyle">
+                    posts:layout_constraintTop_toTopOf="parent">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/replyContainer"
-                        android:layout_width="match_parent"
                         style="@style/ImageViewVoteStyle"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         posts:layout_constraintBottom_toTopOf="@id/nestedRecyclerView"
                         posts:layout_constraintEnd_toEndOf="parent"
@@ -66,12 +64,11 @@
                             android:layout_height="30dp"
                             android:layout_marginStart="12dp"
                             android:layout_marginTop="8dp"
-                            android:src="@drawable/pngwing_com"
-                            android:scaleType="centerCrop"
                             android:background="@drawable/circular_background"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/pngwing_com"
                             posts:layout_constraintStart_toStartOf="parent"
-                            posts:layout_constraintTop_toTopOf="parent"
-                            />
+                            posts:layout_constraintTop_toTopOf="parent" />
 
                         <TextView
                             android:id="@+id/textView"
@@ -92,8 +89,8 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="4dp"
                             android:text="4d"
-                            android:textSize="12sp"
                             android:textColor="#90555151"
+                            android:textSize="12sp"
                             posts:layout_constraintBottom_toBottomOf="@+id/textView"
                             posts:layout_constraintStart_toEndOf="@+id/textView"
                             posts:layout_constraintTop_toTopOf="@+id/textView" />
@@ -113,14 +110,14 @@
                             android:id="@+id/titleTextView"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:text="@{postitem.title}"
-                            android:textStyle="bold"
                             android:layout_marginTop="8dp"
                             android:layout_marginEnd="12dp"
                             android:layout_marginBottom="8dp"
-                            posts:layout_constraintTop_toBottomOf="@+id/imageView"
+                            android:text="@{postitem.title}"
+                            android:textStyle="bold"
                             posts:layout_constraintEnd_toEndOf="parent"
-                            posts:layout_constraintStart_toStartOf="@+id/imageView" />
+                            posts:layout_constraintStart_toStartOf="@+id/imageView"
+                            posts:layout_constraintTop_toBottomOf="@+id/imageView" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/imageViewDownvotePost"
@@ -128,10 +125,10 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             posts:downVoteImage="@{postitem.downvoted}"
+                            posts:icon="@drawable/ic_downvote"
                             posts:layout_constraintBottom_toBottomOf="parent"
                             posts:layout_constraintEnd_toEndOf="@+id/replyTextView"
-                            posts:layout_constraintTop_toBottomOf="@+id/replyTextView"
-                            posts:icon="@drawable/ic_downvote" />
+                            posts:layout_constraintTop_toBottomOf="@+id/replyTextView" />
 
                         <TextView
                             android:id="@+id/textView4"
@@ -148,11 +145,11 @@
                             style="@style/Widget.Material3.Button.IconButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            posts:upVoteImage="@{postitem.upvoted}"
+                            posts:icon="@drawable/ic_upvote"
                             posts:layout_constraintBottom_toBottomOf="@+id/textView4"
                             posts:layout_constraintEnd_toStartOf="@+id/textView4"
                             posts:layout_constraintTop_toTopOf="@+id/textView4"
-                            posts:icon="@drawable/ic_upvote" />
+                            posts:upVoteImage="@{postitem.upvoted}" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/img_addComment"
@@ -160,10 +157,10 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="20dp"
+                            posts:icon="@drawable/baseline_comment_24"
                             posts:layout_constraintBottom_toBottomOf="@+id/imageViewUpvotePost"
                             posts:layout_constraintEnd_toStartOf="@+id/imageViewUpvotePost"
-                            posts:layout_constraintTop_toTopOf="@+id/imageViewUpvotePost"
-                            posts:icon="@drawable/baseline_comment_24" />
+                            posts:layout_constraintTop_toTopOf="@+id/imageViewUpvotePost" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/moreOptionPost"
@@ -171,9 +168,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
 
+                            posts:icon="@drawable/baseline_more_vert_24"
                             posts:layout_constraintEnd_toEndOf="parent"
-                            posts:layout_constraintTop_toTopOf="parent"
-                            posts:icon="@drawable/baseline_more_vert_24" />
+                            posts:layout_constraintTop_toTopOf="parent" />
 
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -198,39 +195,39 @@
 
         <LinearLayout
             android:id="@+id/linearLayout"
-            android:visibility="gone"
             style="@style/ImageViewVoteStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:visibility="gone"
+            posts:layout_constraintBottom_toBottomOf="parent"
             posts:layout_constraintEnd_toEndOf="parent"
-            posts:layout_constraintStart_toStartOf="parent"
-            posts:layout_constraintBottom_toBottomOf="parent">
+            posts:layout_constraintStart_toStartOf="parent">
 
             <com.google.android.material.divider.MaterialDivider
                 android:layout_width="match_parent"
-                posts:dividerColor="@color/defaultTempColor"
-                android:layout_height="2dp"></com.google.android.material.divider.MaterialDivider>
+                android:layout_height="2dp"
+                posts:dividerColor="@color/defaultTempColor"></com.google.android.material.divider.MaterialDivider>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tl_comment"
                 android:layout_width="match_parent"
-                android:hint="Enter your comment"
+                android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:layout_height="wrap_content">
+                android:hint="Enter your comment">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:layout_width="match_parent"
                     android:id="@+id/et_comment"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.button.MaterialButton
-                style="@style/Widget.Material3.Button.IconButton"
                 android:id="@+id/btn_send"
+                style="@style/Widget.Material3.Button.IconButton"
                 android:layout_width="wrap_content"
-                posts:icon="@drawable/baseline_send_24"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                posts:icon="@drawable/baseline_send_24" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

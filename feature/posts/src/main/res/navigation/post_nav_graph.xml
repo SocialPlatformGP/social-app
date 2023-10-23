@@ -43,11 +43,6 @@
             app:destination="@id/editPostFragment" />
     </fragment>
     <fragment
-        android:id="@+id/search_Fragment"
-        android:name="com.gp.posts.presentation.postsSearch.Search_Fragment"
-        android:label="fragment_search_"
-        tools:layout="@layout/fragment_search_" />
-    <fragment
         android:id="@+id/editPostFragment"
         android:name="com.gp.posts.presentation.editPostContent.EditPostFragment"
         android:label="EditPostFragment" >
