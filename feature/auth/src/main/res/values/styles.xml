@@ -4,4 +4,7 @@
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">50%</item>
     </style>
+    <style name="GoogleSignInButtonStyle" parent = "">
+        <item name="android:background">@drawable/google_btn_background</item>
+    </style>
 </resources>
