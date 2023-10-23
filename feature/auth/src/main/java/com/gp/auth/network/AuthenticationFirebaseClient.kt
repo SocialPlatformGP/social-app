@@ -5,6 +5,8 @@ import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.gp.socialapp.utils.State
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -41,6 +43,16 @@ class AuthenticationFirebaseClient @Inject constructor(private val auth: Firebas
                 }
             awaitClose()
         }
+    override fun sendPasswordResetEmail(email: String): Flow<State<Nothing>> = callbackFlow {
+        trySend(State.Loading)
+        Firebase.auth.sendPasswordResetEmail(email)
+            .addOnSuccessListener {
+                trySend(State.Success)
+            }.addOnFailureListener{
+                trySend(State.Error(it.message!!))
+            }
+        awaitClose()
+    }
 }
 //}
 //enum class FirebaseError(val code: String, val message: String) {

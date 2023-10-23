@@ -16,4 +16,7 @@ class AuthenticationRepositoryImpl @Inject constructor(
     override fun signUpUser(email: String, password: String): Flow<State<FirebaseUser>>{
         return authenticationRemoteDataSource.signUpUser(email, password)
     }
+
+    override fun sendPasswordResetEmail(email: String)
+    = authenticationRemoteDataSource.sendPasswordResetEmail(email)
 }
