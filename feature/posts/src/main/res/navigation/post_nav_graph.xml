@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/post_nav_graph"
-    app:startDestination="@id/feedFragment">
+    app:startDestination="@id/search_Fragment">
 
     <fragment
         android:id="@+id/createPostFragment"
@@ -26,7 +26,7 @@
     </fragment>
     <fragment
         android:id="@+id/postDetialsFragment"
-        android:name="com.gp.posts.presentation.postDetails.PostDetialsFragment"
+        android:name="com.gp.posts.presentation.postDetails.PostDetailsFragment"
         android:label="fragment_post_detials"
         tools:layout="@layout/fragment_post_detials" >
         <action
@@ -38,7 +38,7 @@
     </fragment>
     <fragment
         android:id="@+id/search_Fragment"
-        android:name="com.gp.posts.presentation.postsSearch.Search_Fragment"
+        android:name="com.gp.posts.presentation.postsSearch.SearchFragment"
         android:label="fragment_search_"
         tools:layout="@layout/fragment_search_" />
 </navigation>

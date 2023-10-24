@@ -11,11 +11,9 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import android.widget.PopupMenu
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -32,30 +30,22 @@ import com.gp.posts.listeners.OnAddReplyClicked
 import com.gp.posts.listeners.OnMoreOptionClicked
 import com.gp.posts.listeners.OnReplyCollapsed
 import com.gp.posts.listeners.VotePressedListener
-import com.gp.posts.presentation.postsfeed.FeedPostViewModel
 import com.gp.socialapp.database.model.PostEntity
-import com.gp.socialapp.database.model.ReplyEntity
 import com.gp.socialapp.model.NestedReplyItem
-import com.gp.socialapp.model.NetworkReply
 import com.gp.socialapp.model.Reply
-import com.gp.socialapp.util.ToNestedReplies.toNestedReplies
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.util.Date
-import java.util.Locale
-import java.util.TimeZone
 
 @AndroidEntryPoint
-class PostDetialsFragment
+class PostDetailsFragment
     : Fragment(), OnAddReplyClicked,VotePressedListener,OnMoreOptionClicked, OnReplyCollapsed {
     lateinit var replyAdapter: NestedReplyAdapter
     lateinit var recyclerView: RecyclerView
     val viewModel: PostDetailsViewModel by viewModels()
-    val args: PostDetialsFragmentArgs by navArgs()
+    val args: PostDetailsFragmentArgs by navArgs()
     lateinit var replyEditText: TextInputEditText
     lateinit var replyEditTextLayout: TextInputLayout
     lateinit var replyButton: MaterialButton
@@ -99,11 +89,11 @@ class PostDetialsFragment
         recyclerView = view.findViewById(R.id.recyclerView)
         recyclerView.itemAnimator = null
         replyAdapter = NestedReplyAdapter(
-            this@PostDetialsFragment,
+            this@PostDetailsFragment,
             0,
-            this@PostDetialsFragment,
-            this@PostDetialsFragment,
-            this@PostDetialsFragment
+            this@PostDetailsFragment,
+            this@PostDetailsFragment,
+            this@PostDetailsFragment
         )
         recyclerView.adapter = replyAdapter
 
