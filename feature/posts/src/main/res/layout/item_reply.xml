@@ -33,7 +33,7 @@
             android:id="@+id/itemReply"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
+            android:layout_marginStart="8dp"
             posts:layout_constraintBottom_toTopOf="@id/nestedRecyclerView"
             posts:layout_constraintEnd_toEndOf="parent"
             posts:layout_constraintStart_toEndOf="@id/depthIndicator"
