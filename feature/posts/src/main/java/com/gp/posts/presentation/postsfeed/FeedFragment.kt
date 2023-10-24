@@ -65,6 +65,7 @@ class FeedFragment : Fragment() , VotesClickedListener, OnMoreOptionClicked {
         lifecycleScope.launch {
             viewModel.uiState.flowWithLifecycle(lifecycle).collect{currentState->
                 if(currentState is State.SuccessWithData){
+                    Log.d("TAG258", "onViewCreated: ${currentState.data}")
                     feedAdapter.submitList(currentState.data)
                 }
             }

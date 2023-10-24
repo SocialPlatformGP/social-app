@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 @HiltViewModel
-class RegistrationViewModel @Inject constructor(private val authRepo: AuthenticationRepository) : ViewModel() {
+class  RegistrationViewModel @Inject constructor(private val authRepo: AuthenticationRepository) : ViewModel() {
     val registrationUiState = MutableStateFlow(RegistrationUiState())
     fun onSignUp(){
         viewModelScope.launch {

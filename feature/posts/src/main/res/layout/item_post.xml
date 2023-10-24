@@ -39,6 +39,7 @@
                 android:layout_marginTop="8dp"
                 android:src="@drawable/pngwing_com"
                 android:scaleType="centerCrop"
+                posts:user_image="@{postitem.authorEmail}"
                 android:background="@drawable/circular_background"
                 posts:layout_constraintStart_toStartOf="parent"
                 posts:layout_constraintTop_toTopOf="parent"
@@ -49,10 +50,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:text="name"
                 android:textColor="#5E5B5C"
                 android:textSize="13sp"
                 android:textStyle="bold"
+                posts:user_name="@{postitem.authorEmail}"
                 posts:layout_constraintBottom_toBottomOf="@+id/imageView"
                 posts:layout_constraintStart_toEndOf="@+id/imageView"
                 posts:layout_constraintTop_toTopOf="@+id/imageView" />
@@ -145,6 +146,16 @@
                 posts:layout_constraintEnd_toEndOf="parent"
                 posts:layout_constraintTop_toTopOf="parent"
                 posts:icon="@drawable/baseline_more_vert_24" />
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:gravity="center"
+                posts:replyCount="@{postitem.id}"
+                posts:layout_constraintBottom_toBottomOf="@+id/img_addComment"
+                posts:layout_constraintEnd_toStartOf="@+id/img_addComment"
+                posts:layout_constraintTop_toTopOf="@+id/img_addComment" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

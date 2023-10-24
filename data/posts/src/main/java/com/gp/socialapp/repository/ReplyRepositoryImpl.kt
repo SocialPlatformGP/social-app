@@ -40,6 +40,9 @@ class ReplyRepositoryImpl @Inject constructor(
         //todo return state errror  in else
     }
 
+    override fun getReplyCountByPostId(postId: String): Flow<Int> =
+        replyRemoteDataSource.getReplyCountByPostId(postId)
+
     override suspend fun insertReplies(replies: List<Reply>) =
         replyLocalDataSource.insertReplies(replies)
 

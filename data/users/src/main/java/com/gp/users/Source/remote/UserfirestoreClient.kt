@@ -5,8 +5,10 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.gp.socialapp.database.model.UserEntity
 import com.gp.socialapp.utils.State
 import com.gp.users.model.NetworkUser
+import com.gp.users.model.User
 import com.gp.users.util.UserMapper.toNetworkModel
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -47,6 +49,27 @@ class UserfirestoreClient @Inject constructor(val firestore:FirebaseFirestore):
                 Log.d("TAG", "User Update Failed")
             }
         awaitClose()
+    }
+
+
+
+
+    override fun fetchUser(email: String): Flow<NetworkUser> = callbackFlow {
+        val listener=firestore
+            .collection("users")
+            .whereEqualTo("userEmail",email)
+            .addSnapshotListener { data, error ->
+            if (error!=null){
+                close(error)
+                return@addSnapshotListener
+            }
+            if (data!=null){
+                for(document in data.documents){
+                    trySend(document.toObject(NetworkUser::class.java)!!)
+                }
+            }
+        }
+        awaitClose { listener.remove() }
     }
 
     override fun deleteUser(user: UserEntity)= callbackFlow<State<Nothing>>{

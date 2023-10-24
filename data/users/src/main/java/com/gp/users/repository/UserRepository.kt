@@ -18,4 +18,6 @@ interface UserRepository {
     fun createNetworkUser(user: NetworkUser): Flow<State<Nothing>>
     fun updateNetworkUser(user: UserEntity): Flow<State<Nothing>>
     fun deleteNetworkUser(user: UserEntity): Flow<State<Nothing>>
+    fun fetchUser(email: String): Flow<NetworkUser>
+
 }

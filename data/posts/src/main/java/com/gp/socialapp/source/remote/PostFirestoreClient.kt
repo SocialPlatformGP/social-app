@@ -38,6 +38,7 @@ class PostFirestoreClient@Inject constructor(private val firestore: FirebaseFire
             if (data!=null){
                 val result = mutableListOf<Post>()
                 for (document in data.documents) {
+
                     result.add(document.toObject(NetworkPost::class.java)!!.toModel(document.id))
                 }
                 trySend(result)

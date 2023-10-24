@@ -5,6 +5,8 @@ import android.os.Parcelable
 import java.io.Serializable
 
 data class Post(
+    val replyCount: Int=0,
+    val userName:String="",
     val id: String="",
     val authorEmail: String,
     val publishedAt: String,

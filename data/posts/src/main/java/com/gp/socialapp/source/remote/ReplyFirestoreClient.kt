@@ -52,6 +52,18 @@ class ReplyFirestoreClient @Inject constructor(
         }
         awaitClose { listener.remove() }
     }
+    override fun getReplyCountByPostId(postId: String) = callbackFlow<Int> {
+        val listener =ref.whereEqualTo("postId",postId).addSnapshotListener{data,error->
+            if(error!=null){
+                close(error)
+                return@addSnapshotListener
+            }
+            if(data!=null){
+                trySend(data.size())
+            }
+        }
+        awaitClose { listener.remove() }
+    }
 
     override suspend fun updateReplyRemote(reply:Reply) {
         firestore.

@@ -30,4 +30,5 @@ class UserRepositoryImpl @Inject constructor(private val userLocalSource: UserLo
     override fun updateNetworkUser(user: UserEntity) = userRemoteSource.updateUser(user)
 
     override fun deleteNetworkUser(user: UserEntity) = userRemoteSource.deleteUser(user)
+    override fun fetchUser(email: String): Flow<NetworkUser> = userRemoteSource.fetchUser(email)
 }

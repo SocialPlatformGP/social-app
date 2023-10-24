@@ -21,4 +21,6 @@ interface PostRepository {
     suspend fun downVotePost(post: Post)
     fun fetchPostById(id: String): Flow<Post>
 
+
+
 }

@@ -16,7 +16,10 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
 import com.gp.posts.R
+import com.gp.posts.presentation.postsfeed.FeedPostViewModel
 import com.gp.socialapp.database.model.PostEntity
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.util.ToTimeTaken
@@ -30,8 +33,10 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 val currentEmail = FirebaseAuth.getInstance().currentUser?.email
+
 data class StateWIthLifeCycle(
     var state: StateFlow<State<List<Post>>>,
     var lifecycle: Lifecycle
@@ -87,6 +92,7 @@ fun setVisabilityRecycler(view: View, params: StateWIthLifeCycle) {
 
     }
 }
+
 @BindingAdapter("posts:imageUrl")
 fun setProfilePicture(view: ImageView, picUrl: String?) {
     if (picUrl != null) {
@@ -99,21 +105,23 @@ fun setProfilePicture(view: ImageView, picUrl: String?) {
         view.setImageResource(R.drawable.ic_person_24)
     }
 }
+
 @OptIn(DelicateCoroutinesApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @BindingAdapter("posts:timeTillNow")
 fun setTimeTillNow(view: TextView, time: String?) {
-    view.text= ToTimeTaken.calculateTimeDifference(time!!)
-    val job=GlobalScope.launch(Dispatchers.Default) {
-        repeat (60) {
+    view.text = ToTimeTaken.calculateTimeDifference(time!!)
+    val job = GlobalScope.launch(Dispatchers.Default) {
+        repeat(60) {
             delay(60000)
             withContext(Dispatchers.Main) {
-                view.text= ToTimeTaken.calculateTimeDifference(time!!)
+                view.text = ToTimeTaken.calculateTimeDifference(time!!)
             }
         }
     }
     job.cancel()
 }
+
 @BindingAdapter("posts:upVoteImage")
 fun setUpVoteImage(view: MaterialButton, upVoteList: List<String>) {
     if (currentEmail in upVoteList) {
@@ -122,6 +130,7 @@ fun setUpVoteImage(view: MaterialButton, upVoteList: List<String>) {
         view.iconTint = view.context.getColorStateList(R.color.Gray)
     }
 }
+
 @BindingAdapter("posts:downVoteImage")
 fun setDownVoteImage(view: MaterialButton, downVoteList: List<String>) {
     if (currentEmail in downVoteList) {
@@ -129,4 +138,57 @@ fun setDownVoteImage(view: MaterialButton, downVoteList: List<String>) {
     } else {
         view.iconTint = view.context.getColorStateList(R.color.Gray)
     }
+}
+
+@BindingAdapter("posts:user_name")
+fun setUserName(view: TextView, email: String) {
+    val db = FirebaseFirestore.getInstance()
+    db.collection("users").whereEqualTo("userEmail", email)
+        .addSnapshotListener { value, error ->
+            if (error != null) {
+                Log.d("TAG", "setUserName: ${error.message}")
+                return@addSnapshotListener
+            }
+            for (document in value!!) {
+                view.text = "${document.data["userFirstName"]} ${document.data["userLastName"]} "
+                Log.d("TAG", "setUserName: ${document.data}")
+            }
+        }
+
+}
+
+@BindingAdapter("posts:user_image")
+fun setUserPicture(view: ImageView, email: String) {
+    val db = FirebaseFirestore.getInstance()
+    db.collection("users").whereEqualTo("userEmail", email)
+        .addSnapshotListener { value, error ->
+            if (error != null) {
+                Log.d("TAG", "setUserName: ${error.message}")
+                return@addSnapshotListener
+            }
+            for (document in value!!) {
+                val url=document.data["userProfilePictureURL"].toString()
+                if (url != null) {
+                    Glide.with(view.context)
+                        .load(url)
+                        .placeholder(R.drawable.ic_person_24)
+                        .apply(RequestOptions.circleCropTransform())
+                        .into(view)
+                } else {
+                    view.setImageResource(R.drawable.ic_person_24)
+                }
+            }
+        }
+}
+@BindingAdapter("posts:replyCount")
+fun setReplyCount(view: TextView, postId: String) {
+    val db = FirebaseFirestore.getInstance()
+    db.collection("replies").whereEqualTo("postId", postId)
+        .addSnapshotListener { value, error ->
+            if (error != null) {
+                Log.d("TAG", "setUserName: ${error.message}")
+                return@addSnapshotListener
+            }
+            view.text = value!!.size().toString()
+        }
 }
