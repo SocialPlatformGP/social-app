@@ -16,6 +16,7 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
+//import com.google.firebase.auth.FirebaseAuth
 import com.gp.posts.R
 import com.gp.socialapp.database.model.PostEntity
 import com.gp.socialapp.util.ToTimeTaken
@@ -128,4 +129,19 @@ fun setDownVoteImage(view: MaterialButton, downVoteList: List<String>) {
     } else {
         view.iconTint = view.context.getColorStateList(R.color.Gray)
     }
+}
+@BindingAdapter(value = ["posts:formattedNumber", "posts:formattedLabel"], requireAll = true)
+fun TextView.setFormattedNumberWithLabel(number: Int, label: String) {
+    val suffixes = arrayOf("", "k", "M", "B", "T")
+    var num = number.toDouble()
+    var suffixIndex = 0
+
+    while (num >= 1000 && suffixIndex < suffixes.size - 1) {
+        num /= 1000
+        suffixIndex++
+    }
+
+    val formattedNumber = String.format("%.1f", num)
+    val formattedText = "$formattedNumber${suffixes[suffixIndex]} $label"
+    text = formattedText
 }

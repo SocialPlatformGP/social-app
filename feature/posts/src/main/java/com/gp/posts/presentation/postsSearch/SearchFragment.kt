@@ -2,8 +2,6 @@ package com.gp.posts.presentation.postsSearch
 
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
@@ -13,22 +11,14 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.button.MaterialButton
 import com.gp.posts.R
-import com.gp.posts.adapter.FeedPostAdapter
+import com.gp.posts.adapter.SearchResultAdapter
 import com.gp.posts.databinding.FragmentSearchBinding
-import com.gp.posts.listeners.OnMoreOptionClicked
-import com.gp.posts.listeners.OnReplyCollapsed
-import com.gp.posts.listeners.VotesClickedListener
-import com.gp.socialapp.database.model.PostEntity
-import com.gp.socialapp.database.model.ReplyEntity
-import com.gp.socialapp.model.Reply
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class Search_Fragment : Fragment(), VotesClickedListener, OnMoreOptionClicked {
+class SearchFragment : Fragment(){
     private val viewModel: SearchViewModel by viewModels()
     lateinit var binding: FragmentSearchBinding
 
@@ -45,15 +35,13 @@ class Search_Fragment : Fragment(), VotesClickedListener, OnMoreOptionClicked {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val recyclerView = binding.rvSearchPosts
-        val adapter = FeedPostAdapter(this, this)
+        val adapter = SearchResultAdapter()
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         lifecycleScope.launch {
             viewModel.searchResult.flowWithLifecycle(lifecycle).collect {
-
                 binding.rvSearchPosts.visibility = View.VISIBLE
                 adapter.submitList(it)
-
             }
         }
         val searchView = binding.searchView
@@ -75,22 +63,6 @@ class Search_Fragment : Fragment(), VotesClickedListener, OnMoreOptionClicked {
             }
         })
     }
-
-    override fun onUpVoteClicked(post: PostEntity) {
-    }
-
-    override fun onDownVoteClicked(post: PostEntity) {
-    }
-
-    override fun onPostClicked(post: PostEntity) {
-    }
-
-    override fun onMoreOptionClicked(imageView5: MaterialButton, postitem: PostEntity) {
-    }
-
-    override fun onMoreOptionClicked(imageView5: MaterialButton, reply: Reply) {
-    }
-
 
 }
 
