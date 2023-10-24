@@ -13,6 +13,7 @@ import com.gp.socialapp.util.ReplyMapper.toNetworkModel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class ReplyFirestoreClient @Inject constructor(
@@ -52,17 +53,14 @@ class ReplyFirestoreClient @Inject constructor(
         }
         awaitClose { listener.remove() }
     }
-    override fun getReplyCountByPostId(postId: String) = callbackFlow<Int> {
-        val listener =ref.whereEqualTo("postId",postId).addSnapshotListener{data,error->
-            if(error!=null){
-                close(error)
-                return@addSnapshotListener
-            }
-            if(data!=null){
-                trySend(data.size())
-            }
+    override  suspend fun getReplyCountByPostId(postId: String):Int {
+        val result = try {
+            ref.whereEqualTo("postId",postId).get().await().size()
+        }catch (e:Exception){
+            Log.d("TAG  ERROR", "getReplyCountByPostId: ${e.message}")
+            -1
         }
-        awaitClose { listener.remove() }
+        return result
     }
 
     override suspend fun updateReplyRemote(reply:Reply) {

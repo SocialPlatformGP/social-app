@@ -2,6 +2,7 @@ package com.gp.socialapp.source.remote
 
 import android.util.Log
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.gp.socialapp.model.NetworkPost
@@ -66,6 +67,30 @@ class PostFirestoreClient@Inject constructor(private val firestore: FirebaseFire
             }.addOnFailureListener {
                 Log.d("TAG", "Post Update Failed")
             }
+    }
+    override suspend fun incrementReplyCounter(postId: String) {
+        //get reply count field then increment it by 1
+        val increment = FieldValue.increment(1)
+        val postRef = firestore.collection("posts").document(postId)
+        postRef.update("replyCount", increment)
+            .addOnSuccessListener {
+                // The update was successful
+            }
+            .addOnFailureListener { e ->
+                // Handle the error
+            }
+    }
+    override suspend fun decrementReplyCounter(postId: String) {
+        firestore.collection("posts").document(postId).addSnapshotListener{
+                data, error ->
+            if (error!=null){
+                return@addSnapshotListener
+            }
+            if (data!=null){
+                val remotePost = data.toObject(NetworkPost::class.java)!!
+                firestore.collection("posts").document(postId).update("replyCount", remotePost.replyCount -1)
+            }
+        }
     }
 
     override suspend fun deletePost(post: Post) {

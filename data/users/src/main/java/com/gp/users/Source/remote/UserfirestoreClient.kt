@@ -13,9 +13,9 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
-class UserfirestoreClient @Inject constructor(val firestore:FirebaseFirestore):
+class UserfirestoreClient @Inject constructor(val firestore: FirebaseFirestore) :
     UserRemoteDataSource {
-    override fun createUser(user: NetworkUser) = callbackFlow{
+    override fun createUser(user: NetworkUser) = callbackFlow {
         trySend(State.Loading)
         firestore.collection("users").add(user).addOnSuccessListener {
             trySend(State.Success)
@@ -27,7 +27,7 @@ class UserfirestoreClient @Inject constructor(val firestore:FirebaseFirestore):
         awaitClose()
     }
 
-    override fun updateUser(user: UserEntity)= callbackFlow<State<Nothing>>{
+    override fun updateUser(user: UserEntity) = callbackFlow<State<Nothing>> {
         trySend(State.Loading)
 
         val querySnapshot = firestore.collection("users")
@@ -39,7 +39,7 @@ class UserfirestoreClient @Inject constructor(val firestore:FirebaseFirestore):
             trySend(State.Error("User not found with email: ${user.userEmail}"))
             return@callbackFlow
         }
-        val documentRef =  querySnapshot.documents.first().reference
+        val documentRef = querySnapshot.documents.first().reference
         documentRef.set(user.toNetworkModel())
             .addOnSuccessListener {
                 trySend(State.Success)
@@ -52,27 +52,23 @@ class UserfirestoreClient @Inject constructor(val firestore:FirebaseFirestore):
     }
 
 
-
-
-    override fun fetchUser(email: String): Flow<NetworkUser> = callbackFlow {
-        val listener=firestore
-            .collection("users")
-            .whereEqualTo("userEmail",email)
-            .addSnapshotListener { data, error ->
-            if (error!=null){
-                close(error)
-                return@addSnapshotListener
+    override suspend fun fetchUser(email: String): State<NetworkUser> {
+        var result =
+            try {
+               val data= firestore
+                    .collection("users")
+                    .whereEqualTo("userEmail", email).get().await()
+                    .toObjects(NetworkUser::class.java)
+                    .first()
+                State.SuccessWithData(data)
+            } catch (e: Exception) {
+                Log.d("TAG", "fetchUser: ${e.message}")
+                State.Error(e.message ?: "Unknown Error")
             }
-            if (data!=null){
-                for(document in data.documents){
-                    trySend(document.toObject(NetworkUser::class.java)!!)
-                }
-            }
-        }
-        awaitClose { listener.remove() }
+        return result
     }
 
-    override fun deleteUser(user: UserEntity)= callbackFlow<State<Nothing>>{
+    override fun deleteUser(user: UserEntity) = callbackFlow<State<Nothing>> {
         trySend(State.Loading)
         val querySnapshot = firestore.collection("users")
             .whereEqualTo("userEmail", user.userEmail)
@@ -82,7 +78,7 @@ class UserfirestoreClient @Inject constructor(val firestore:FirebaseFirestore):
             trySend(State.Error("User not found with email: ${user.userEmail}"))
             return@callbackFlow
         }
-        val documentRef =  querySnapshot.documents.first().reference
+        val documentRef = querySnapshot.documents.first().reference
         documentRef.delete()
             .addOnSuccessListener {
                 trySend(State.Success)

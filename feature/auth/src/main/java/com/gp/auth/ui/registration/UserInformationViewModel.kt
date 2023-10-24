@@ -24,6 +24,7 @@ class UserInformationViewModel @Inject constructor(private val userRepo: UserRep
                 networkFlow.collect{state ->
                     uiState.value = uiState.value.copy(createdState = state)
                 }
+
             }
         }
     }

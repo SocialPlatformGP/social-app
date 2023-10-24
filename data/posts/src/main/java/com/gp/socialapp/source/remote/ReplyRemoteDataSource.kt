@@ -13,5 +13,5 @@ interface ReplyRemoteDataSource {
 
     suspend fun upVoteReply(reply: Reply)
     suspend fun downVoteReply(reply: Reply)
-    fun getReplyCountByPostId(postId: String): Flow<Int>
+    suspend fun getReplyCountByPostId(postId: String):Int
 }

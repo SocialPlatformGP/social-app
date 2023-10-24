@@ -10,7 +10,7 @@ object PostMapper {
     fun NetworkPost.toEntity(id: String): PostEntity{
         return PostEntity(
             id= id,
-            authorEmail = autherEmail,
+            authorEmail = authorEmail,
             publishedAt = publishedAt,
             title = title,
             body = body,
@@ -18,12 +18,15 @@ object PostMapper {
             upvoted = upvoted.joinToString(separator = ","),
             downvoted = downvoted.joinToString(separator = ","),
             moderationStatus = moderationStatus,
-            editStatus = editStatus
+            editStatus = editStatus,
+            replyCount = replyCount,
+            userName = userName,
+            userPfp = userPfp
         )
     }
     fun PostEntity.toNetworkModel(): NetworkPost{
         return NetworkPost(
-            autherEmail = authorEmail,
+authorEmail = authorEmail,
             publishedAt = publishedAt,
             title = title,
             body = body,
@@ -31,12 +34,18 @@ object PostMapper {
             upvoted = upvoted.split(","),
             downvoted = downvoted.split(","),
             moderationStatus = moderationStatus,
-            editStatus = editStatus
+            editStatus = editStatus,
+            replyCount = replyCount,
+            userName = userName,
+            userPfp = userPfp
         )
     }
     fun Post.toNetworkModel(): NetworkPost{
         return NetworkPost(
-            autherEmail = authorEmail,
+            replyCount = replyCount,
+            userName = userName,
+            userPfp = userPfp,
+            authorEmail = authorEmail,
             publishedAt = publishedAt,
             title = title,
             body = body,
@@ -50,7 +59,10 @@ object PostMapper {
     fun NetworkPost.toModel(id: String): Post{
         return Post(
             id = id,
-            authorEmail = autherEmail,
+            replyCount = replyCount,
+            userName = userName,
+            userPfp = userPfp,
+            authorEmail = authorEmail,
             publishedAt = publishedAt,
             title = title,
             body = body,
@@ -72,7 +84,10 @@ object PostMapper {
             upvoted = upvoted.joinToString(separator = ","),
             downvoted = downvoted.joinToString(separator = ","),
             moderationStatus = moderationStatus,
-            editStatus = editStatus
+            editStatus = editStatus,
+            replyCount = replyCount,
+            userName = userName,
+            userPfp = userPfp
         )
     }
     fun PostEntity.toModel(): Post{

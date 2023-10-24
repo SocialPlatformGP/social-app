@@ -100,4 +100,8 @@ class PostRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun incrementReplyCounter(postId: String) = postRemoteSource.incrementReplyCounter(postId)
+
+    override suspend fun decrementReplyCounter(postId: String) = postRemoteSource.decrementReplyCounter(postId)
+
 }

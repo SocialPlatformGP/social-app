@@ -139,56 +139,56 @@ fun setDownVoteImage(view: MaterialButton, downVoteList: List<String>) {
         view.iconTint = view.context.getColorStateList(R.color.Gray)
     }
 }
-
-@BindingAdapter("posts:user_name")
-fun setUserName(view: TextView, email: String) {
-    val db = FirebaseFirestore.getInstance()
-    db.collection("users").whereEqualTo("userEmail", email)
-        .addSnapshotListener { value, error ->
-            if (error != null) {
-                Log.d("TAG", "setUserName: ${error.message}")
-                return@addSnapshotListener
-            }
-            for (document in value!!) {
-                view.text = "${document.data["userFirstName"]} ${document.data["userLastName"]} "
-                Log.d("TAG", "setUserName: ${document.data}")
-            }
-        }
-
-}
-
-@BindingAdapter("posts:user_image")
-fun setUserPicture(view: ImageView, email: String) {
-    val db = FirebaseFirestore.getInstance()
-    db.collection("users").whereEqualTo("userEmail", email)
-        .addSnapshotListener { value, error ->
-            if (error != null) {
-                Log.d("TAG", "setUserName: ${error.message}")
-                return@addSnapshotListener
-            }
-            for (document in value!!) {
-                val url=document.data["userProfilePictureURL"].toString()
-                if (url != null) {
-                    Glide.with(view.context)
-                        .load(url)
-                        .placeholder(R.drawable.ic_person_24)
-                        .apply(RequestOptions.circleCropTransform())
-                        .into(view)
-                } else {
-                    view.setImageResource(R.drawable.ic_person_24)
-                }
-            }
-        }
-}
-@BindingAdapter("posts:replyCount")
-fun setReplyCount(view: TextView, postId: String) {
-    val db = FirebaseFirestore.getInstance()
-    db.collection("replies").whereEqualTo("postId", postId)
-        .addSnapshotListener { value, error ->
-            if (error != null) {
-                Log.d("TAG", "setUserName: ${error.message}")
-                return@addSnapshotListener
-            }
-            view.text = value!!.size().toString()
-        }
-}
+//
+//@BindingAdapter("posts:user_name")
+//fun setUserName(view: TextView, email: String) {
+//    val db = FirebaseFirestore.getInstance()
+//    db.collection("users").whereEqualTo("userEmail", email)
+//        .addSnapshotListener { value, error ->
+//            if (error != null) {
+//                Log.d("TAG", "setUserName: ${error.message}")
+//                return@addSnapshotListener
+//            }
+//            for (document in value!!) {
+//                view.text = "${document.data["userFirstName"]} ${document.data["userLastName"]} "
+//                Log.d("TAG", "setUserName: ${document.data}")
+//            }
+//        }
+//
+//}
+//
+//@BindingAdapter("posts:user_image")
+//fun setUserPicture(view: ImageView, email: String) {
+//    val db = FirebaseFirestore.getInstance()
+//    db.collection("users").whereEqualTo("userEmail", email)
+//        .addSnapshotListener { value, error ->
+//            if (error != null) {
+//                Log.d("TAG", "setUserName: ${error.message}")
+//                return@addSnapshotListener
+//            }
+//            for (document in value!!) {
+//                val url=document.data["userProfilePictureURL"].toString()
+//                if (url != null) {
+//                    Glide.with(view.context)
+//                        .load(url)
+//                        .placeholder(R.drawable.ic_person_24)
+//                        .apply(RequestOptions.circleCropTransform())
+//                        .into(view)
+//                } else {
+//                    view.setImageResource(R.drawable.ic_person_24)
+//                }
+//            }
+//        }
+//}
+//@BindingAdapter("posts:replyCount")
+//fun setReplyCount(view: TextView, postId: String) {
+//    val db = FirebaseFirestore.getInstance()
+//    db.collection("replies").whereEqualTo("postId", postId)
+//        .addSnapshotListener { value, error ->
+//            if (error != null) {
+//                Log.d("TAG", "setUserName: ${error.message}")
+//                return@addSnapshotListener
+//            }
+//            view.text = value!!.size().toString()
+//        }
+//}

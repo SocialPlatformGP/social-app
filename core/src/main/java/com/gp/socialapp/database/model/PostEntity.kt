@@ -9,14 +9,17 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "posts")
 data class PostEntity(
     @PrimaryKey
-    @ColumnInfo(name="id") val id: String,
-    @ColumnInfo(name="author_email") val authorEmail: String,
-    @ColumnInfo(name = "published_at") val publishedAt: String,
-    @ColumnInfo(name="title") val title: String,
-    @ColumnInfo(name="body") val body: String,
-    @ColumnInfo(name="votes") val votes: Int,
-    @ColumnInfo(name="upvoted") var upvoted: String,
-    @ColumnInfo(name="downvoted") val downvoted: String,
-    @ColumnInfo(name="moderation_status") val moderationStatus: String,
-    @ColumnInfo(name="edit_status") val editStatus: Boolean
+    val id: String,
+    val replyCount: Int,
+    val userName:String,
+    val userPfp:String,
+    val authorEmail: String,
+    val publishedAt: String,
+    val title: String,
+    val body: String,
+    val votes: Int,
+    val downvoted: String,
+    val upvoted: String,
+    val moderationStatus: String,
+    val editStatus: Boolean ,
 )

@@ -14,4 +14,6 @@ interface PostRemoteDataSource {
     suspend fun upVotePost(post: Post)
     suspend fun downVotePost(post: Post)
     fun fetchPostById(id: String): Flow<Post>
+    suspend fun incrementReplyCounter(postId: String)
+    suspend fun decrementReplyCounter(postId: String)
 }

@@ -16,7 +16,8 @@ class ReplyRepositoryImpl @Inject constructor(
     private val replyLocalDataSource: ReplyLocalDataSource,
     private val replyRemoteDataSource: ReplyRemoteDataSource,
     private val networkStatus: NetworkStatus,
-    private val repositoryScope: CoroutineScope
+    private val repositoryScope: CoroutineScope,
+    private val postRepository: PostRepository
 
 ) : ReplyRepository {
     override fun getReplies(postId: String): Flow<List<Reply>> {
@@ -36,11 +37,12 @@ class ReplyRepositoryImpl @Inject constructor(
     override suspend fun insertReply(reply: Reply) {
         if (networkStatus.isOnline()) {
             replyRemoteDataSource.createReply(reply)
+            postRepository.incrementReplyCounter(reply.postId)
         }
         //todo return state errror  in else
     }
 
-    override fun getReplyCountByPostId(postId: String): Flow<Int> =
+    override suspend fun getReplyCountByPostId(postId: String): Int =
         replyRemoteDataSource.getReplyCountByPostId(postId)
 
     override suspend fun insertReplies(replies: List<Reply>) =

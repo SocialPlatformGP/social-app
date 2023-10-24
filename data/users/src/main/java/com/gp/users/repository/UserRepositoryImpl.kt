@@ -1,6 +1,7 @@
 package com.gp.users.repository
 
 import com.gp.socialapp.database.model.UserEntity
+import com.gp.socialapp.utils.State
 import com.gp.users.Source.local.UserLocalDataSource
 import com.gp.users.Source.remote.UserRemoteDataSource
 import com.gp.users.model.NetworkUser
@@ -30,5 +31,6 @@ class UserRepositoryImpl @Inject constructor(private val userLocalSource: UserLo
     override fun updateNetworkUser(user: UserEntity) = userRemoteSource.updateUser(user)
 
     override fun deleteNetworkUser(user: UserEntity) = userRemoteSource.deleteUser(user)
-    override fun fetchUser(email: String): Flow<NetworkUser> = userRemoteSource.fetchUser(email)
+    override suspend fun fetchUser(email: String): State<NetworkUser> = userRemoteSource.fetchUser(email)
+    override suspend fun getUserById(email: String) = userLocalSource.getUserById(email)
 }

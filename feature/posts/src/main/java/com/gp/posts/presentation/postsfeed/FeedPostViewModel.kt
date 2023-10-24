@@ -16,6 +16,7 @@ import com.gp.users.model.NetworkUser
 import com.gp.users.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
@@ -29,7 +30,8 @@ import javax.inject.Inject
 @HiltViewModel
 class FeedPostViewModel @Inject constructor(
     val repository: PostRepository,
-    val replyRepository: ReplyRepository
+    val replyRepository: ReplyRepository,
+    val userRepository: UserRepository
 ) : ViewModel() {
     init {
         getAllPosts()
@@ -41,7 +43,6 @@ class FeedPostViewModel @Inject constructor(
         get() = _uiState.asStateFlow()
 
     fun getAllPosts() {
-
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.value = State.Loading
             repository.getAllLocalPosts().collect { posts ->
@@ -49,9 +50,6 @@ class FeedPostViewModel @Inject constructor(
             }
         }
     }
-
-
-
 
     fun upVote(post: Post) {
         viewModelScope.launch(Dispatchers.IO) {
