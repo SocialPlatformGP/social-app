@@ -1,25 +1,17 @@
 package com.gp.posts.presentation.postDetails
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gp.socialapp.database.model.PostEntity
-import com.gp.socialapp.database.model.ReplyEntity
 import com.gp.socialapp.model.NestedReplyItem
-import com.gp.socialapp.model.NetworkReply
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.model.Reply
 import com.gp.socialapp.repository.PostRepository
 import com.gp.socialapp.repository.ReplyRepository
-import com.gp.socialapp.util.ReplyMapper.toNetworkModel
 import com.gp.socialapp.util.ToNestedReplies.toNestedReplies
-import com.gp.socialapp.utils.State
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -33,12 +25,14 @@ class PostDetailsViewModel @Inject constructor(
     private val _currentReplies = MutableStateFlow(NestedReplyItem(null, emptyList()))
     val currentReplies get() = _currentReplies.asStateFlow()
 
-    private val _currentPost = MutableStateFlow(Post(
+    private val _currentPost = MutableStateFlow(
+        Post(
         authorEmail = "",
         title = "",
         body = "",
         publishedAt = ""
-    ))
+    )
+    )
     val currentPost get() = _currentPost.asStateFlow()
 
 

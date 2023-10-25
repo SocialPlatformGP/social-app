@@ -12,8 +12,9 @@ import com.gp.posts.databinding.SearchItemBinding
 import com.gp.posts.listeners.OnMoreOptionClicked
 import com.gp.posts.listeners.VotesClickedListener
 import com.gp.socialapp.database.model.PostEntity
+import com.gp.socialapp.model.Post
 
-class SearchResultAdapter () : ListAdapter<UiPost, SearchResultAdapter.SearchResultViewHolder>(PostDiffUtil()) {
+class SearchResultAdapter () : ListAdapter<Post, SearchResultAdapter.SearchResultViewHolder>(PostDiffUtil()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchResultViewHolder {
         val binding : SearchItemBinding = DataBindingUtil.inflate(
@@ -32,30 +33,18 @@ class SearchResultAdapter () : ListAdapter<UiPost, SearchResultAdapter.SearchRes
 
 
     inner class SearchResultViewHolder(private val binding: SearchItemBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(post: UiPost) {
+        fun bind(post: Post) {
             binding.post = post
             binding.executePendingBindings()
         }
     }
 
-    private class PostDiffUtil : DiffUtil.ItemCallback<UiPost>(){
-        override fun areItemsTheSame(oldItem: UiPost, newItem: UiPost): Boolean {
-            return oldItem.publishTime == newItem.publishTime && oldItem.authorName == newItem.authorName
+    private class PostDiffUtil : DiffUtil.ItemCallback<Post>(){
+        override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean {
+            return oldItem.publishedAt == newItem.publishedAt && oldItem.userName == newItem.userName
         }
-
-        override fun areContentsTheSame(oldItem: UiPost, newItem: UiPost): Boolean {
+        override fun areContentsTheSame(oldItem: Post, newItem: Post): Boolean {
             return oldItem == newItem
         }
-
     }
-
 }
-data class UiPost(
-    val pictureUrl: String,
-    val authorName: String,
-    val publishTime: String,
-    val title: String,
-    val content: String,
-    val upvoteCount: Int,
-    val commentCount: Int
-)

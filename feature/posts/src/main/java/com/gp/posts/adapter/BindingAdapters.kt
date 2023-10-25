@@ -11,16 +11,10 @@ import androidx.databinding.BindingAdapter
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.ktx.Firebase
 import com.gp.posts.R
-import com.gp.posts.presentation.postsfeed.FeedPostViewModel
-import com.gp.socialapp.database.model.PostEntity
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.util.ToTimeTaken
 import com.gp.socialapp.utils.State
@@ -29,11 +23,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 val currentEmail = FirebaseAuth.getInstance().currentUser?.email
 
