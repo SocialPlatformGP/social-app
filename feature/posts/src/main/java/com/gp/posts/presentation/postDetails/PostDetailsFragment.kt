@@ -11,9 +11,11 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import android.widget.PopupMenu
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -23,6 +25,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import com.google.android.play.core.integrity.p
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.gp.posts.R
 import com.gp.posts.adapter.NestedReplyAdapter
 import com.gp.posts.databinding.FragmentPostDetialsBinding
@@ -30,36 +35,49 @@ import com.gp.posts.listeners.OnAddReplyClicked
 import com.gp.posts.listeners.OnMoreOptionClicked
 import com.gp.posts.listeners.OnReplyCollapsed
 import com.gp.posts.listeners.VotePressedListener
+import com.gp.posts.presentation.postsfeed.FeedFragmentDirections
+import com.gp.posts.presentation.postsfeed.FeedPostViewModel
 import com.gp.socialapp.database.model.PostEntity
+import com.gp.socialapp.database.model.ReplyEntity
 import com.gp.socialapp.model.NestedReplyItem
+import com.gp.socialapp.model.NetworkReply
+import com.gp.socialapp.model.Post
 import com.gp.socialapp.model.Reply
+import com.gp.socialapp.util.ToNestedReplies.toNestedReplies
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 @AndroidEntryPoint
-class PostDetailsFragment
+class PostDetialsFragment
     : Fragment(), OnAddReplyClicked,VotePressedListener,OnMoreOptionClicked, OnReplyCollapsed {
     lateinit var replyAdapter: NestedReplyAdapter
     lateinit var recyclerView: RecyclerView
     val viewModel: PostDetailsViewModel by viewModels()
-    val args: PostDetailsFragmentArgs by navArgs()
+    val args: PostDetialsFragmentArgs by navArgs()
+    lateinit var binding: FragmentPostDetialsBinding
     lateinit var replyEditText: TextInputEditText
     lateinit var replyEditTextLayout: TextInputLayout
     lateinit var replyButton: MaterialButton
     lateinit var linearLayout: LinearLayout
+    private val currentUser= Firebase.auth.currentUser
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
 
-        viewModel.getRepliesById(args.psot.id)
+        viewModel.getRepliesById(args.post.id)
         // Inflate the layout for this fragment
-        val binding: FragmentPostDetialsBinding =
+         binding =
             DataBindingUtil.inflate(inflater, R.layout.fragment_post_detials, container, false)
+        viewModel.getPost(args.post)
         lifecycleScope.launch {
             viewModel.currentPost.flowWithLifecycle(lifecycle).collect {
                 binding.viewModel = viewModel
@@ -77,7 +95,7 @@ class PostDetailsFragment
             }
         }
         requireActivity().onBackPressedDispatcher.addCallback(requireActivity(), callback)
-        viewModel.setThePost(args.psot)
+
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         return binding.root
@@ -89,11 +107,11 @@ class PostDetailsFragment
         recyclerView = view.findViewById(R.id.recyclerView)
         recyclerView.itemAnimator = null
         replyAdapter = NestedReplyAdapter(
-            this@PostDetailsFragment,
+            this@PostDetialsFragment,
             0,
-            this@PostDetailsFragment,
-            this@PostDetailsFragment,
-            this@PostDetailsFragment
+            this@PostDetialsFragment,
+            this@PostDetialsFragment,
+            this@PostDetialsFragment
         )
         recyclerView.adapter = replyAdapter
 
@@ -101,6 +119,7 @@ class PostDetailsFragment
             viewModel.currentReplies.collectLatest {
                 Log.d("PostDetailsFragment", "onViewCreated: ${it.replies.toString()}")
                 replyAdapter.submitList(it.replies)
+
             }
         }
 
@@ -110,12 +129,23 @@ class PostDetailsFragment
         linearLayout = view.findViewById(R.id.linearLayout)
         val post = view.findViewById<MaterialButton>(R.id.img_addComment)
         post.setOnClickListener {
-            addComment(args.psot)
+            addComment(args.post)
+        }
+        binding.moreOptionPost.setOnClickListener {
+            onMoreOptionClicked(binding.moreOptionPost,args.post)
+        }
+        binding.imageViewUpvotePost.setOnClickListener {
+            viewModel.upVote(args.post)
+        }
+        binding.imageViewDownvotePost.setOnClickListener {
+            viewModel.downVote(args.post)
         }
     }
 
+
+
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun addComment(post: PostEntity) {
+    private fun addComment(post: Post) {
         replyEditText.requestFocus()
         linearLayout.visibility = View.VISIBLE
         //open keyboard
@@ -130,14 +160,13 @@ class PostDetailsFragment
                     depth = 0,
                     content = replyEditText.text.toString(),
                     createdAt =LocalDateTime.now(ZoneId.of("UTC")).toString(),
+                    authorEmail = currentUser?.email.toString()
                 )
             )
             replyEditText.setText("")
             replyEditText.clearFocus()
             linearLayout.visibility = View.GONE
             inputMethodManager.hideSoftInputFromWindow(replyEditText.windowToken, 0)
-            replyAdapter.notifyDataSetChanged()
-
         }
     }
 
@@ -158,13 +187,13 @@ class PostDetailsFragment
                     depth = currentReply!!.depth!!.plus(1),
                     content = replyEditText.text.toString(),
                     createdAt = LocalDateTime.now(ZoneId.of("UTC")).toString(),
+                    authorEmail = currentUser?.email.toString()
                 )
             )
             replyEditText.setText("")
             replyEditText.clearFocus()
             linearLayout.visibility = View.GONE
             inputMethodManager.hideSoftInputFromWindow(replyEditText.windowToken, 0)
-            replyAdapter.notifyDataSetChanged()
         }
     }
 
@@ -176,28 +205,86 @@ class PostDetailsFragment
         viewModel.replyDownVote(comment)
     }
 
-    override fun onMoreOptionClicked(imageView5: MaterialButton, postitem: PostEntity) {
-    }
 
-    override fun onMoreOptionClicked(imageView5: MaterialButton, reply: Reply) {
+    override fun onMoreOptionClicked(imageView5: MaterialButton, postitem: Post) {
+        var resourceXml=R.menu.extra_option_menu
+        if(currentUser?.email!=postitem.authorEmail){
+            resourceXml=R.menu.extra_option_menu_not_owner
+        }
         val popupMenu = PopupMenu(requireActivity(), imageView5)
-        popupMenu.menuInflater.inflate(R.menu.extra_option_menu, popupMenu.menu)
+        popupMenu.menuInflater.inflate(resourceXml, popupMenu.menu)
 
         // Set item click listener for the popup menu
         popupMenu.setOnMenuItemClickListener { item ->
             when (item.itemId) {
-                R.id.menu_item_1 -> {
+                R.id.item_save -> {
                     // Handle Item 1 click
                     // Add your code here
                     true
                 }
-                R.id.menu_item_2 -> {
-                    // Handle Item 2 click
-                    // Add your code here
+                R.id.item_delete -> {
+                    viewModel.deletePost(postitem)
                     true
                 }
-                R.id.menu_item_3 -> {
+                R.id.item_report -> {
+                    true
+                }
+                R.id.item_edit -> {
+                    val action = PostDetialsFragmentDirections.actionPostDetialsFragmentToEditPostFragment(postitem)
+                    findNavController().navigate(action)
+                    true
+                }
+                else -> false
+            }
+        }
+        // Show the popup menu
+        popupMenu.show()
+    }
+
+    override fun onMoreOptionClicked(imageView5: MaterialButton, reply: Reply) {
+        var resourceXml=R.menu.extra_option_menu
+        if(currentUser?.email!=reply.authorEmail){
+            resourceXml=R.menu.extra_option_menu_not_owner
+        }
+        val popupMenu = PopupMenu(requireActivity(), imageView5)
+        popupMenu.menuInflater.inflate(resourceXml, popupMenu.menu)
+
+        // Set item click listener for the popup menu
+        popupMenu.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.item_delete -> {
                     viewModel.deleteReply(reply)
+                    true
+                }
+                R.id.item_edit -> {
+                    replyEditText.requestFocus()
+                    linearLayout.visibility = View.VISIBLE
+                    //open keyboard
+                    val inputMethodManager =
+                        requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    inputMethodManager.showSoftInput(replyEditText, InputMethodManager.SHOW_IMPLICIT)
+                    replyEditText.setText(reply.content)
+                    replyButton.setOnClickListener {
+                        viewModel.updateReply(
+                            reply.copy(
+                                content = replyEditText.text.toString(),
+                                editStatus = true
+                            )
+                        )
+                        replyEditText.setText("")
+                        replyEditText.clearFocus()
+                        linearLayout.visibility = View.GONE
+                        inputMethodManager.hideSoftInputFromWindow(replyEditText.windowToken, 0)
+                    }
+
+                    true
+                }
+                R.id.item_report -> {
+                    //todo after ml model feature
+                    true
+                }
+                R.id.item_save -> {
+                    //todo after bookmark feature
                     true
                 }
                 else -> false

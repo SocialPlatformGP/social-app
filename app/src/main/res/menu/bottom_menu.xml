@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/Announcement"
+        android:enabled="true"
+        android:icon="@drawable/baseline_announcement_24"
+        android:title="Announcement" />
+    <item
+        android:id="@+id/post_nav_graph"
+        android:enabled="true"
+        android:icon="@drawable/baseline_public_24"
+        android:title="Posts" />
+    <item
+        android:id="@+id/Chat"
+        android:enabled="true"
+        android:icon="@drawable/baseline_chat_24"
+        android:title="Chat" />
+    <item
+        android:id="@+id/Material"
+        android:enabled="true"
+        android:icon="@drawable/baseline_menu_book_24"
+        android:title="Material" />
+</menu>

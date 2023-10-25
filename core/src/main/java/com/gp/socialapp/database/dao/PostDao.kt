@@ -19,6 +19,8 @@ interface PostDao {
 
     @Query("select * from posts")
     fun getAllPosts(): Flow<List<PostEntity>>
+    @Query("select * from posts where id = :id")
+    fun getPostById(id: String): Flow<PostEntity>
 
     @Delete
     suspend fun deletePost(post: PostEntity)

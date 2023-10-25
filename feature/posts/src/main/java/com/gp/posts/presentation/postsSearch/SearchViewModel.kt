@@ -5,6 +5,7 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.gp.posts.adapter.UiPost
 import com.gp.socialapp.database.model.PostEntity
+import com.gp.socialapp.model.Post
 import com.gp.socialapp.repository.PostRepository
 import com.gp.users.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
