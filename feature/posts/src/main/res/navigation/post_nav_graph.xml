@@ -56,6 +56,6 @@
     <fragment
         android:id="@+id/search_Fragment"
         android:name="com.gp.posts.presentation.postsSearch.SearchFragment"
-        android:label="fragment_search_"
-        tools:layout="@layout/fragment_search_" />
+        android:label="fragment_search"
+        tools:layout="@layout/fragment_search" />
 </navigation>
