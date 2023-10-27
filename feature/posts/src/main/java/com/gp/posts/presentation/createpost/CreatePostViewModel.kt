@@ -66,7 +66,7 @@ class CreatePostViewModel @Inject constructor (
         viewModelScope.launch (Dispatchers.IO) {
            when(userRepository.fetchUser(currentUserName!!)){
                is State.SuccessWithData -> {
-                   currentUser.value = (userRepository.fetchUser(currentUserName!!) as State.SuccessWithData<NetworkUser>).data!!
+                   currentUser.value = (userRepository.fetchUser(currentUserName) as State.SuccessWithData<NetworkUser>).data
                }
                else-> {}
            }

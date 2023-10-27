@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.ContextThemeWrapper
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -21,6 +22,7 @@ import com.github.dhaval2404.colorpicker.listener.ColorListener
 import com.github.dhaval2404.colorpicker.model.ColorShape
 import com.github.dhaval2404.colorpicker.model.ColorSwatch
 import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.gp.posts.R
@@ -39,7 +41,7 @@ class CreatePostFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding =
             DataBindingUtil.inflate(layoutInflater, R.layout.fragment_create_post, container, false)
         binding.lifecycleOwner = this
@@ -83,8 +85,13 @@ class CreatePostFragment : Fragment() {
             }
         }
     }
-    fun onAddTagClick(){
-        addTagBinding = DataBindingUtil.inflate(layoutInflater, R.layout.dialog_add_tag, binding.root as? ViewGroup, false)
+    fun onAddTagClick() {
+        addTagBinding = DataBindingUtil.inflate(
+            layoutInflater,
+            R.layout.dialog_add_tag,
+            binding.root as? ViewGroup,
+            false
+        )
         val labelEditText = addTagBinding.labelTextField
         val colorEditText = addTagBinding.colorField
         val addButton = addTagBinding.addButton
@@ -107,24 +114,44 @@ class CreatePostFragment : Fragment() {
 
         addButton.setOnClickListener {
             val label = labelEditText.editText?.text
-            if(label.isNullOrBlank()){
+            if (label.isNullOrBlank()) {
                 labelEditText.error = "Label is Required!"
                 labelEditText.editText!!.addTextChangedListener(object : TextWatcher {
-                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                    override fun beforeTextChanged(
+                        s: CharSequence?,
+                        start: Int,
+                        count: Int,
+                        after: Int
+                    ) {
+                    }
+                    override fun onTextChanged(
+                        s: CharSequence?,
+                        start: Int,
+                        before: Int,
+                        count: Int
+                    ) {
                         labelEditText.error = null
                     }
 
                     override fun afterTextChanged(s: Editable?) {}
                 })
-            }else {
+            } else {
                 val color = colorEditText.boxBackgroundColor
-                val chip = Chip(requireContext())
+                val chip = Chip(ContextThemeWrapper(context, R.style.Chip_Entry))
                 chip.text = label
                 chip.setChipBackgroundColorResource(android.R.color.transparent)
                 chip.chipBackgroundColor = ColorStateList.valueOf(color)
+                chip.isCloseIconVisible = true
+                chip.setOnCloseIconClickListener {
+                    binding.tagsChipgroup.removeView(chip)
+                    binding.addTagButton.isEnabled = true
+                    binding.addTagButton.alpha = 1f
+                }
                 binding.tagsChipgroup.addView(chip)
+                if (binding.tagsChipgroup.childCount == 8) {
+                    binding.addTagButton.isEnabled = false
+                    binding.addTagButton.alpha = 0.5f
+                }
                 dialog.dismiss()
             }
         }
@@ -132,6 +159,7 @@ class CreatePostFragment : Fragment() {
             dialog.dismiss()
         }
         dialog.show()
+        labelEditText.requestFocus()
     }
 
     private fun showColorPicker(onColorSelected: (color: Int) -> Unit) {
