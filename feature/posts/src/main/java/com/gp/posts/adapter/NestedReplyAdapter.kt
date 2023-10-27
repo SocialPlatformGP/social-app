@@ -159,7 +159,7 @@ class NestedReplyAdapter(
         }
     }
 
-    class NestedReplyDiffUtil() : DiffUtil.ItemCallback<NestedReplyItem>() {
+    class NestedReplyDiffUtil : DiffUtil.ItemCallback<NestedReplyItem>() {
         override fun areItemsTheSame(oldItem: NestedReplyItem, newItem: NestedReplyItem): Boolean {
             return oldItem.reply?.id == newItem.reply?.id
         }

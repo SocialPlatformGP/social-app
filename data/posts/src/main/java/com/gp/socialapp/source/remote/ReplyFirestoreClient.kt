@@ -96,7 +96,7 @@ class ReplyFirestoreClient @Inject constructor(
             } else if (currentEmail in remoteReply.downvoted && currentEmail !in remoteReply.upvoted) {
                 ref.document(reply.id).update("votes", remoteReply.votes + 2)
                 ref.document(reply.id).update("upvoted", remoteReply.upvoted + currentEmail!!)
-                ref.document(reply.id).update("downvoted", remoteReply.downvoted - currentEmail!!)
+                ref.document(reply.id).update("downvoted", remoteReply.downvoted - currentEmail)
             } else if (currentEmail !in remoteReply.upvoted && currentEmail !in remoteReply.downvoted) {
                 ref.document(reply.id).update("votes", remoteReply.votes + 1)
                 ref.document(reply.id).update("upvoted", remoteReply.upvoted + currentEmail!!)
@@ -115,7 +115,7 @@ class ReplyFirestoreClient @Inject constructor(
             } else if (currentEmail in remoteReply.upvoted && currentEmail !in remoteReply.downvoted) {
                 ref.document(reply.id).update("votes", remoteReply.votes - 2)
                 ref.document(reply.id).update("downvoted", remoteReply.downvoted + currentEmail!!)
-                ref.document(reply.id).update("upvoted", remoteReply.upvoted - currentEmail!!)
+                ref.document(reply.id).update("upvoted", remoteReply.upvoted - currentEmail)
             } else if (currentEmail !in remoteReply.upvoted && currentEmail !in remoteReply.downvoted) {
                 ref.document(reply.id).update("votes", remoteReply.votes - 1)
                 ref.document(reply.id).update("downvoted", remoteReply.downvoted + currentEmail!!)

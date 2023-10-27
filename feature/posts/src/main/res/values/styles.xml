@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Chip_Entry" parent="Widget.MaterialComponents.Chip.Entry">
+    </style>
+</resources>
