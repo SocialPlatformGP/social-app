@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gp.posts.R
 import com.gp.posts.adapter.SearchResultAdapter
@@ -21,6 +22,7 @@ import kotlinx.coroutines.launch
 class SearchFragment : Fragment(){
     private val viewModel: SearchViewModel by viewModels()
     lateinit var binding: FragmentSearchBinding
+    private  val args: SearchFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -44,24 +46,9 @@ class SearchFragment : Fragment(){
                 adapter.submitList(it)
             }
         }
-        val searchView = binding.searchView
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener,
-            android.widget.SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                return true
-            }
+        viewModel.searchPosts(args.SearchQuery)
+        binding.searchView.text="Search Results for: "+args.SearchQuery
 
-            override fun onQueryTextChange(newText: String?): Boolean {
-                if (newText.isNullOrEmpty()) {
-                    binding.rvSearchPosts.visibility = View.GONE
-                    return true
-                } else {
-                    binding.rvSearchPosts.visibility = View.VISIBLE
-                    viewModel.searchPosts(newText)
-                    return true
-                }
-            }
-        })
     }
 
 }
