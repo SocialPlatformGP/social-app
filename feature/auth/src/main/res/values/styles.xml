@@ -4,7 +4,15 @@
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">50%</item>
     </style>
-    <style name="GoogleSignInButtonStyle" parent = "">
+    <style name="GoogleSignInButtonStyle" parent = "Widget.Material3.Button">
         <item name="android:background">@drawable/google_btn_background</item>
+        <item name="android:icon">@drawable/google</item>
     </style>
+
+    <style name="buttonTez" parent="Theme.Material3.Light">
+        <item name="android:background">@drawable/google_btn_background</item>
+        <item name="android:backgroundTint">@color/ma700_light_blue</item>
+        <item name="enforceMaterialTheme">false</item>
+    </style>
+
 </resources>

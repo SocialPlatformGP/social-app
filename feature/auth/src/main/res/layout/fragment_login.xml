@@ -132,18 +132,24 @@
             android:textSize="18sp"/>
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/google_sign_in_button"
+            style="@style/buttonTez"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:id="@+id/google_sign_in_button"
-            app:layout_constraintTop_toBottomOf="@id/or_divider"
-            app:layout_constraintStart_toStartOf="@id/or_divider"
-            app:layout_constraintEnd_toEndOf="@id/or_divider"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="24dp"
+            android:onClick="@{() -> fragment.onSignInWithGoogleClick()}"
             android:text="@string/sign_in_with_google"
             android:textSize="16sp"
-            android:drawableStart="@drawable/google"
-            android:background="@drawable/google_btn_background"
-            android:onClick="@{() -> fragment.onSignInWithGoogleClick()}"/>
+            android:theme="@style/buttonTez"
+            app:backgroundTint="@color/ma700_light_blue"
+            app:icon="@drawable/google"
+            app:iconGravity="start"
+            app:iconSize="30dp"
+            app:iconTintMode="multiply"
+            app:layout_constraintEnd_toEndOf="@id/or_divider"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@id/or_divider"
+            app:layout_constraintTop_toBottomOf="@id/or_divider" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
