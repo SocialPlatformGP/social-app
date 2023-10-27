@@ -46,6 +46,7 @@ class FeedFragment : Fragment() , VotesClickedListener, OnMoreOptionClicked {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
         binding = DataBindingUtil.inflate(inflater,R.layout.fragment_feed,container,false)
         binding.stateWithLifecycle= StateWIthLifeCycle(viewModel.uiState, lifecycle = lifecycle)
         return binding.root

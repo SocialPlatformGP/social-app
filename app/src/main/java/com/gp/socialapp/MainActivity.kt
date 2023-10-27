@@ -39,7 +39,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-
         drawerLayout = findViewById(R.id.drawerLayout)
         navView = findViewById(R.id.nav_view)
         bottomNavigationView = findViewById(R.id.bottomNavigationView)
@@ -93,6 +92,7 @@ class MainActivity : AppCompatActivity() {
                 return false
             }
         }
+
     }
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
