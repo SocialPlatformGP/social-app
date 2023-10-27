@@ -1,14 +1,21 @@
 package com.gp.socialapp.model
 
-import com.google.type.DateTime
-import java.time.LocalDateTime
+import com.gp.socialapp.database.model.Tag
+import java.io.Serializable
 
 data class Post(
-    val authorName: String,
-    val publishedAt: LocalDateTime,
+    val replyCount: Int=0,
+    val userName:String="",
+    val userPfp:String="",
+    val id: String="",
+    val authorEmail: String,
+    val publishedAt: String,
     val title: String,
     val body: String,
-    val upvotes: Int,
-    val downvotes: Int,
-    val editStatus: Boolean
-)
+    val votes: Int=0,
+    val downvoted: List<String> = emptyList(),
+    val upvoted: List<String> = emptyList(),
+    val moderationStatus: String = "submitted",
+    val editStatus: Boolean = false,
+    val tags: List<Tag> = emptyList()
+):Serializable

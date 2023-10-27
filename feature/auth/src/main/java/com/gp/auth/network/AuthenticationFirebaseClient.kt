@@ -24,9 +24,9 @@ class AuthenticationFirebaseClient @Inject constructor(private val auth: Firebas
                 }.addOnFailureListener {
                     Log.d(
                         "Edrees", "Cause: ${(it as FirebaseException).cause}, " +
-                                "LocalizedMessage: ${(it as FirebaseException).localizedMessage}, " +
-                                "Stacktrace: ${(it as FirebaseException).stackTrace}, " +
-                                "Message: ${(it as FirebaseException).message}"
+                                "LocalizedMessage: ${it.localizedMessage}, " +
+                                "Stacktrace: ${it.stackTrace}, " +
+                                "Message: ${it.message}"
                     )
                     trySend(State.Error(it.message!!))
                 }

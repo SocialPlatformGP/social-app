@@ -8,13 +8,22 @@ import kotlinx.coroutines.flow.Flow
 
 interface PostRepository {
     suspend fun insertLocalPost(vararg post: PostEntity)
-    suspend fun updateLocalPost(post: PostEntity)
-     fun getAllLocalPosts(): Flow<List<PostEntity>>
-    suspend fun deleteLocalPost(post: PostEntity)
-     fun fetchNetworkPosts(): Flow<List<PostEntity>>
-    suspend fun updatePost(post: PostEntity)
-    suspend fun deletePost(post: PostEntity)
+    suspend fun updateLocalPost(post: Post)
+     fun getAllLocalPosts(): Flow<List<Post>>
+    suspend fun deleteLocalPost(post: Post)
+     fun fetchNetworkPosts(): Flow<List<Post>>
+    suspend fun updatePost(post: Post)
+    suspend fun deletePost(post: Post)
     fun createPost(post: Post): Flow<State<Nothing>>
     fun onCleared()
-    fun searchPostsByTitle(searchText: String): Flow<List<PostEntity>>
+    fun searchPostsByTitle(searchText: String): Flow<List<Post>>
+    suspend fun upVotePost(post: Post)
+    suspend fun downVotePost(post: Post)
+    fun fetchPostById(id: String): Flow<Post>
+
+    suspend fun incrementReplyCounter(postId: String)
+    suspend fun decrementReplyCounter(postId: String)
+
+
+
 }

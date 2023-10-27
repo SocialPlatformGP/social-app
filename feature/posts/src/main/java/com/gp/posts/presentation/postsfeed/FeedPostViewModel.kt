@@ -7,13 +7,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gp.socialapp.database.model.PostEntity
 import com.gp.socialapp.model.NetworkReply
+import com.gp.socialapp.model.Post
+import com.gp.socialapp.model.Reply
 import com.gp.socialapp.repository.PostRepository
 import com.gp.socialapp.repository.ReplyRepository
 import com.gp.socialapp.utils.State
+import com.gp.users.model.NetworkUser
+import com.gp.users.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import javax.inject.Inject
@@ -22,69 +30,36 @@ import javax.inject.Inject
 @HiltViewModel
 class FeedPostViewModel @Inject constructor(
     val repository: PostRepository,
+    val replyRepository: ReplyRepository,
+    val userRepository: UserRepository
 ) : ViewModel() {
     init {
         getAllPosts()
     }
 
 
-
-    private val _uiState = MutableStateFlow<State<List<PostEntity>>>(State.Idle)
+    private val _uiState = MutableStateFlow<State<List<Post>>>(State.Idle)
     val uiState
         get() = _uiState.asStateFlow()
 
-    fun getAllPosts(){
-
+    fun getAllPosts() {
         viewModelScope.launch(Dispatchers.IO) {
-                _uiState.value = State.Loading
-
-            repository.getAllLocalPosts().collect{posts->
+            _uiState.value = State.Loading
+            repository.getAllLocalPosts().collect { posts ->
                 _uiState.value = State.SuccessWithData(posts)
             }
-
         }
     }
-    
 
-    fun upVote(post: PostEntity){
-        Log.d("im in viewmodel", "upVote: ${post.upvotes} ")
-
-        //update the ui
-        if(uiState.value is State.SuccessWithData) {
-            val updatedPosts = (uiState.value as State.SuccessWithData<List<PostEntity>>).data.map {
-                if (it.id == post.id) {
-                    it.copy(upvotes = it.upvotes + 1)
-                } else {
-                    it
-                }
-            }
-            _uiState.value = State.SuccessWithData(updatedPosts)
-
-            // Update the Room database
-            viewModelScope.launch(Dispatchers.IO) {
-
-                repository.updateLocalPost(post.copy(upvotes = post.upvotes + 1))
-                repository.updatePost(post.copy(upvotes = post.upvotes + 1))
-            }
+    fun upVote(post: Post) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.upVotePost(post)
         }
     }
-    fun downVote(post: PostEntity){
-        //update the ui
-        if(uiState.value is State.SuccessWithData) {
-            val updatedPosts = (uiState.value as State.SuccessWithData<List<PostEntity>>).data.map {
-                if (it.id == post.id) {
-                    it.copy(upvotes = it.upvotes - 1)
-                } else {
-                    it
-                }
-            }
-            _uiState.value = State.SuccessWithData(updatedPosts)
 
-            // Update the Room database
-            viewModelScope.launch(Dispatchers.IO) {
-                repository.updateLocalPost(post.copy(upvotes = post.upvotes - 1))
-                repository.updatePost(post.copy(upvotes = post.upvotes - 1))
-            }
+    fun downVote(post: Post) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.downVotePost(post)
         }
     }
 
@@ -93,15 +68,12 @@ class FeedPostViewModel @Inject constructor(
         repository.onCleared()
     }
 
-    fun deletePost(post: PostEntity) {
+    fun deletePost(post: Post) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.deletePost(post)
             repository.deleteLocalPost(post)
         }
     }
-
-
-
 
 
 }

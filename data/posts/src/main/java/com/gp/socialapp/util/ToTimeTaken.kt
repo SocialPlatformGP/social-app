@@ -1,34 +1,47 @@
-package com.gp.socialapp.util
+package com.gp.socialapp.util;
 
-import android.os.Build
-import androidx.annotation.RequiresApi
-import java.text.SimpleDateFormat
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.temporal.ChronoUnit
-import java.util.Locale
-import java.util.TimeZone
+import android.os.Build;
+import androidx.annotation.RequiresApi;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 object ToTimeTaken {
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun calculateTimeDifference(dateTimeString: String): String {
-        val currentDate = LocalDateTime.now(ZoneId.of("UTC"))
-        val targetDate = LocalDateTime.parse(dateTimeString)
+    fun calculateTimeDifference(inputDateTimeString: String): String {
+        if (inputDateTimeString.isBlank()) return ""
+        else {
+            val sdf = SimpleDateFormat("EEE MMM dd HH:mm:ss 'GMT'XXX yyyy", Locale.ENGLISH)
+            sdf.timeZone = TimeZone.getTimeZone("UTC")
 
-        val minutesDifference = ChronoUnit.MINUTES.between(targetDate, currentDate)
-        val hoursDifference = ChronoUnit.HOURS.between(targetDate, currentDate)
-        val daysDifference = ChronoUnit.DAYS.between(targetDate, currentDate)
-        val monthsDifference = ChronoUnit.MONTHS.between(targetDate, currentDate)
+            var inputDate: Date? = null
+            try {
+                inputDate = sdf.parse(inputDateTimeString)
+            } catch (e: ParseException) {
+                e.printStackTrace()
+            }
 
-        return when {
-            monthsDifference > 0 -> "$monthsDifference months"
-            daysDifference > 0 -> "$daysDifference days"
-            hoursDifference > 0 -> "$hoursDifference hours"
-            minutesDifference > 0 -> "$minutesDifference minutes"
-            else -> "less than a minute"
+            if (inputDate != null) {
+                val currentDate = Date()
+                val timeDifference = currentDate.time - inputDate.time
+                val secondsDifference = timeDifference / 1000
+                val minutesDifference = secondsDifference / 60
+                val hoursDifference = minutesDifference / 60
+                val daysDifference = hoursDifference / 24
+                val monthsDifference = daysDifference / 30 // Approximate months
+
+                return when {
+                    monthsDifference > 0 -> "$monthsDifference months"
+                    daysDifference > 0 -> "$daysDifference days"
+                    hoursDifference > 0 -> "$hoursDifference hours"
+                    minutesDifference > 0 -> "$minutesDifference minutes"
+                    else -> "less than a minute"
+                }
+            } else {
+                return "Invalid Date Format"
+            }
         }
     }
-
 }

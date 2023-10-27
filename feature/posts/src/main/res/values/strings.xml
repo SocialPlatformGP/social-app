@@ -4,4 +4,8 @@
     <string name="title_label">Title</string>
     <string name="body_label">Content</string>
     <string name="post_created_successfully">Post Created Successfully!</string>
+    <string name="upvotes">Upvotes</string>
+    <string name="comments">Comments</string>
+    <string name="tag_label">Tag Label</string>
+    <string name="color">Color</string>
 </resources>
