@@ -15,8 +15,8 @@
         android:id="@+id/cardViewPost"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        posts:cardCornerRadius="16dp"
-        posts:cardElevation="6dp"
+        posts:cardCornerRadius="8dp"
+        posts:cardElevation="5dp"
         posts:cardUseCompatPadding="true"
         android:foreground="@drawable/stroke_cardview"
         style="@style/ImageViewVoteStyle">
