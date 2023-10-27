@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,7 +35,6 @@ class CreatePostViewModel @Inject constructor (
     }
     private val currentUser= MutableStateFlow(NetworkUser())
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun onCreatePost(){
         viewModelScope.launch {
             with(uiState.value) {
@@ -43,9 +43,10 @@ class CreatePostViewModel @Inject constructor (
                         userPfp = pfpLink,//todo: change to user pfp
                         userName= currentUser.value.userFirstName,//todo: change to user name to full name
                         authorEmail = currentUserName!!,
-                        publishedAt = LocalDateTime.now().toString(),
+                        publishedAt = Date().toString(),
                         title = title,
-                        body = body
+                        body = body,
+                        tags = tags
                     ))
                 state.collect{newState ->
                     uiState.value = uiState.value.copy(createdState = newState)

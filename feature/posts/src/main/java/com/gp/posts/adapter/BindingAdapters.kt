@@ -13,6 +13,7 @@ import androidx.lifecycle.flowWithLifecycle
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.chip.ChipGroup
 import com.google.firebase.auth.FirebaseAuth
 import com.gp.posts.R
 import com.gp.socialapp.model.Post

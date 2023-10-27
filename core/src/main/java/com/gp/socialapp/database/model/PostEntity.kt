@@ -22,6 +22,6 @@ data class PostEntity(
     val tags: List<Tag>
 )
 data class Tag(
-    val label: String,
-    val rgbColor: String,
+    val label: String="",
+    val hexColor: String="#000000",
 )
