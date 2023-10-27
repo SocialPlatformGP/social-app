@@ -3,15 +3,14 @@ package com.gp.posts.adapter
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
-import android.graphics.drawable.Drawable
 import android.os.Build
 import android.util.Log
+import android.util.TypedValue
+import android.view.ContextThemeWrapper
 import android.view.View
-import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.databinding.BindingAdapter
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
@@ -20,7 +19,6 @@ import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
-import com.google.android.material.shape.ShapeAppearanceModel
 import com.google.firebase.auth.FirebaseAuth
 import com.gp.posts.R
 import com.gp.socialapp.database.model.Tag
@@ -34,6 +32,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
 
 val currentEmail = FirebaseAuth.getInstance().currentUser?.email
 
@@ -151,7 +150,7 @@ fun setTags(view: ChipGroup, tags: List<Tag>, context: Context) {
         chip.chipBackgroundColor = ColorStateList.valueOf(color)
         chip.shapeAppearanceModel
         .toBuilder()
-        .setAllCornerSizes(200f) // Set corner radius to make chips oval-shaped
+        .setAllCornerSizes(64f) // Set corner radius to make chips oval-shaped
         .build()
         view.addView(chip)
     }

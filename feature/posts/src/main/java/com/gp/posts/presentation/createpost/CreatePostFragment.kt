@@ -168,7 +168,7 @@ class CreatePostFragment : Fragment() {
             .Builder(requireActivity())
             .setTitle("Pick Tag Color")
             .setColorShape(ColorShape.CIRCLE)
-            .setColorSwatch(ColorSwatch._500)
+            .setColorSwatch(ColorSwatch.A400)
             .setDefaultColor(R.color.Gray)
             .setColorListener(object : ColorListener {
                 override fun onColorSelected(color: Int, colorHex: String) {

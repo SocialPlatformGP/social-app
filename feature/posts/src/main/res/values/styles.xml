@@ -2,4 +2,12 @@
 <resources>
     <style name="Chip_Entry" parent="Widget.MaterialComponents.Chip.Entry">
     </style>
+    <style name="Small_Chip" parent="Widget.MaterialComponents.Chip.Action">
+        <item name="chipEndPadding">0dp</item>
+        <item name="chipIconSize">0dp</item>
+        <item name="chipIconVisible">false</item>
+        <item name="chipMinHeight">24dp</item>
+        <item name="chipMinTouchTargetSize">24dp</item>
+        <item name="chipStartPadding">0dp</item>
+    </style>
 </resources>
