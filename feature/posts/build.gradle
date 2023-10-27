@@ -88,6 +88,14 @@ dependencies {
 
     //Flex-box layout
     implementation 'com.google.android.flexbox:flexbox:3.0.0'
+    //Material design
+    implementation 'com.google.android.material:material:1.4.0'
+
+    //CardView
+    implementation 'androidx.cardview:cardview:1.0.0'
+    //safe args
+    apply plugin: "androidx.navigation.safeargs.kotlin"
+
 }
 
 kapt {

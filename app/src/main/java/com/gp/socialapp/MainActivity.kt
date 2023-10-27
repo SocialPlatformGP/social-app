@@ -86,7 +86,7 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.search_Fragment->{
-                navController.navigate(R.id.search_Fragment2)
+                navController.navigate(com.gp.posts.R.id.suggest_post)
                 return true
             }
             else->{

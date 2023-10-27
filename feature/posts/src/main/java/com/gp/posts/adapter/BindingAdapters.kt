@@ -15,6 +15,8 @@ import androidx.databinding.BindingAdapter
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.chip.Chip
@@ -30,9 +32,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-
+import javax.inject.Inject
 
 val currentEmail = FirebaseAuth.getInstance().currentUser?.email
 
@@ -112,7 +116,7 @@ fun setTimeTillNow(view: TextView, time: String?) {
         repeat(60) {
             delay(60000)
             withContext(Dispatchers.Main) {
-                view.text = ToTimeTaken.calculateTimeDifference(time)
+                view.text = ToTimeTaken.calculateTimeDifference(time!!)
             }
         }
     }

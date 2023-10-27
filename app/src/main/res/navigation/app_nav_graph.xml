@@ -6,8 +6,4 @@
     app:startDestination="@id/post_nav_graph">
     <include app:graph="@navigation/post_nav_graph" />
     <include app:graph="@navigation/auth_nav_graph" />
-    <fragment
-        android:id="@+id/search_Fragment2"
-        android:name="com.gp.posts.presentation.postsSearch.Search_Fragment"
-        android:label="Search_Fragment" />
 </navigation>
