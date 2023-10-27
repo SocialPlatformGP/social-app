@@ -20,4 +20,7 @@ class AuthenticationRepositoryImpl @Inject constructor(
 
     override fun getSignedInUser() = authenticationRemoteDataSource.getSignedInUser()
     override fun authenticateWithGoogle(account: GoogleSignInAccount) = authenticationRemoteDataSource.authenticateWithGoogle(account)
+
+    override fun sendPasswordResetEmail(email: String)
+    = authenticationRemoteDataSource.sendPasswordResetEmail(email)
 }
