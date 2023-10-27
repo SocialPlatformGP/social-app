@@ -16,30 +16,29 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.button.MaterialButton
 import com.gp.posts.R
-import com.gp.posts.adapter.FeedPostAdapter
+import com.gp.posts.adapter.SearchResultAdapter
 import com.gp.posts.databinding.FragmentSearchBinding
 import com.gp.posts.listeners.OnMoreOptionClicked
+import com.gp.posts.listeners.OnReplyCollapsed
 import com.gp.posts.listeners.VotesClickedListener
 import com.gp.socialapp.database.model.PostEntity
 import com.gp.socialapp.database.model.ReplyEntity
-import com.gp.socialapp.model.Post
 import com.gp.socialapp.model.Reply
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class Search_Fragment : Fragment(), VotesClickedListener, OnMoreOptionClicked {
+class SearchFragment : Fragment(){
     private val viewModel: SearchViewModel by viewModels()
     lateinit var binding: FragmentSearchBinding
-    val args:Search_FragmentArgs by navArgs()
+    val args:SearchFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_search_, container, false)
         binding.lifecycleOwner = this
         return binding.root
@@ -48,7 +47,7 @@ class Search_Fragment : Fragment(), VotesClickedListener, OnMoreOptionClicked {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val recyclerView = binding.rvSearchPosts
-        val adapter = FeedPostAdapter(this,this)
+        val adapter = SearchResultAdapter()
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.searchView.setQuery(args.SearchQuery,true)
@@ -79,35 +78,20 @@ class Search_Fragment : Fragment(), VotesClickedListener, OnMoreOptionClicked {
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                if(newText.isNullOrEmpty()){
+                if (newText.isNullOrEmpty()) {
                     binding.rvSearchPosts.visibility = View.GONE
                     return true
-                }
-                else{
+                } else {
                     binding.rvSearchPosts.visibility = View.VISIBLE
                     viewModel.searchPosts(newText)
                     return true
                 }
             }
         })
-
-
     }
 
-    override fun onUpVoteClicked(post: Post) {
-    }
-
-    override fun onDownVoteClicked(post: Post) {
-    }
-
-    override fun onPostClicked(post: Post) {
-    }
-
-    override fun onMoreOptionClicked(imageView5: MaterialButton, postitem: Post) {
-    }
-
-    override fun onMoreOptionClicked(imageView5: MaterialButton, reply: Reply) {
-
-    }
 
 }
+
+
+

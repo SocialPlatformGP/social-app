@@ -26,7 +26,7 @@ class PostLocalDataSourceImpl @Inject constructor(private val postDao: PostDao):
         postDao.deletePost(post.toEntity())
     }
 
-    override  fun searchPostsByTitle(searchText: String): Flow<List<PostEntity>> {
+    override fun searchPostsByTitle(searchText: String): Flow<List<PostEntity>> {
         return postDao.searchPostsByTitle(searchText)
     }
 

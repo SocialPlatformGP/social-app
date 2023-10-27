@@ -3,7 +3,7 @@
     <data>
         <variable
             name="suggestitem"
-            type="com.gp.socialapp.database.model.PostEntity" />
+            type="com.gp.socialapp.model.Post" />
     </data>
     <androidx.cardview.widget.CardView
         android:id="@+id/cardViewPost"

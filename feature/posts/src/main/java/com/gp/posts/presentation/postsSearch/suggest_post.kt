@@ -53,7 +53,7 @@ class suggest_post : Fragment() {
 
         val btnSearch = view.findViewById<Button>(R.id.btn_search)
         btnSearch.setOnClickListener {
-            val action=suggest_postDirections.actionSuggestPostToSearchFragment(searchText)
+            val action=suggest_postDirections.actionSuggestPostToSearchFragment2(searchText)
             Navigation.findNavController(view).navigate(action)
 
         }
