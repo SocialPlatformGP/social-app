@@ -1,6 +1,7 @@
 package com.gp.auth.repo
 
 import android.util.Log
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.firebase.auth.FirebaseUser
 import com.gp.auth.network.AuthenticationRemoteDataSource
 import com.gp.socialapp.utils.State
@@ -16,4 +17,10 @@ class AuthenticationRepositoryImpl @Inject constructor(
     override fun signUpUser(email: String, password: String): Flow<State<FirebaseUser>>{
         return authenticationRemoteDataSource.signUpUser(email, password)
     }
+
+    override fun getSignedInUser() = authenticationRemoteDataSource.getSignedInUser()
+    override fun authenticateWithGoogle(account: GoogleSignInAccount) = authenticationRemoteDataSource.authenticateWithGoogle(account)
+
+    override fun sendPasswordResetEmail(email: String)
+    = authenticationRemoteDataSource.sendPasswordResetEmail(email)
 }
