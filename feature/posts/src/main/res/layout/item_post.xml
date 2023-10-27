@@ -64,6 +64,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:text="4d"
+                posts:timeTillNow="@{postitem.publishedAt}"
                 android:textSize="12sp"
                 android:textColor="#90555151"
                 posts:layout_constraintBottom_toBottomOf="@+id/textView"
