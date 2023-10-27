@@ -43,11 +43,8 @@ class SearchResultAdapter () : ListAdapter<Post, SearchResultAdapter.SearchResul
         override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean {
             return oldItem.publishedAt == newItem.publishedAt && oldItem.userName == newItem.userName
         }
-
         override fun areContentsTheSame(oldItem: Post, newItem: Post): Boolean {
             return oldItem == newItem
         }
-
     }
-
 }

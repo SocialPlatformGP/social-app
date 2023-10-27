@@ -4,18 +4,16 @@ import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import android.widget.PopupMenu
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -25,7 +23,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import com.google.android.play.core.integrity.p
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.gp.posts.R
@@ -35,32 +32,23 @@ import com.gp.posts.listeners.OnAddReplyClicked
 import com.gp.posts.listeners.OnMoreOptionClicked
 import com.gp.posts.listeners.OnReplyCollapsed
 import com.gp.posts.listeners.VotePressedListener
-import com.gp.posts.presentation.postsfeed.FeedFragmentDirections
-import com.gp.posts.presentation.postsfeed.FeedPostViewModel
-import com.gp.socialapp.database.model.PostEntity
-import com.gp.socialapp.database.model.ReplyEntity
 import com.gp.socialapp.model.NestedReplyItem
-import com.gp.socialapp.model.NetworkReply
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.model.Reply
-import com.gp.socialapp.util.ToNestedReplies.toNestedReplies
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.util.Date
-import java.util.Locale
-import java.util.TimeZone
+
 
 @AndroidEntryPoint
-class PostDetialsFragment
+class PostDetailsFragment
     : Fragment(), OnAddReplyClicked,VotePressedListener,OnMoreOptionClicked, OnReplyCollapsed {
     lateinit var replyAdapter: NestedReplyAdapter
     lateinit var recyclerView: RecyclerView
     val viewModel: PostDetailsViewModel by viewModels()
-    val args: PostDetialsFragmentArgs by navArgs()
+    val args: PostDetailsFragmentArgs by navArgs()
     lateinit var binding: FragmentPostDetialsBinding
     lateinit var replyEditText: TextInputEditText
     lateinit var replyEditTextLayout: TextInputLayout
@@ -107,11 +95,11 @@ class PostDetialsFragment
         recyclerView = view.findViewById(R.id.recyclerView)
         recyclerView.itemAnimator = null
         replyAdapter = NestedReplyAdapter(
-            this@PostDetialsFragment,
+            this@PostDetailsFragment,
             0,
-            this@PostDetialsFragment,
-            this@PostDetialsFragment,
-            this@PostDetialsFragment
+            this@PostDetailsFragment,
+            this@PostDetailsFragment,
+            this@PostDetailsFragment
         )
         recyclerView.adapter = replyAdapter
 
@@ -230,7 +218,7 @@ class PostDetialsFragment
                     true
                 }
                 R.id.item_edit -> {
-                    val action = PostDetialsFragmentDirections.actionPostDetialsFragmentToEditPostFragment(postitem)
+                    val action = PostDetailsFragmentDirections.actionPostDetialsFragmentToEditPostFragment(postitem)
                     findNavController().navigate(action)
                     true
                 }

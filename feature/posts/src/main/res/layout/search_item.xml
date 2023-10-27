@@ -8,7 +8,6 @@
     </data>
     <androidx.cardview.widget.CardView
         android:id="@+id/cardViewPost"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         posts:cardCornerRadius="4dp"
@@ -38,7 +37,6 @@
                     android:id="@+id/imageView"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:layout_marginStart="12dp"
                     android:layout_marginTop="8dp"
                     android:src="@drawable/pngwing_com"
                     android:scaleType="centerCrop"
@@ -87,11 +85,12 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/content_textview"
                 posts:layout_constraintStart_toStartOf="@id/title_textview"
-                posts:layout_constraintEnd_toEndOf="@id/title_textview"
+                posts:layout_constraintEnd_toStartOf="@id/guideline1"
                 posts:layout_constraintTop_toBottomOf="@id/title_textview"
                 android:text="@{post.body}"
                 android:textSize="14sp"
                 android:maxLines="3"
+                android:ellipsize="end"
                 android:minLines="2"/>
             <LinearLayout
                 android:layout_width="match_parent"
@@ -99,23 +98,11 @@
                 android:orientation="horizontal"
                 posts:layout_constraintTop_toBottomOf="@id/content_textview"
                 android:layout_marginTop="8dp">
-
-                <ImageView
-                    android:id="@+id/imageViewUpvote"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_upvote"
-                    android:theme="@style/ImageViewVoteStyle"
-
-                    />
-
-                />
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/upvote_counter_textview"
-                    posts:formattedNumber="@{post.votes}"
+                    posts:formattedNumber="@{post.upvoted.size()}"
                     posts:formattedLabel="@{@string/upvotes}"
                     android:textSize="11sp"/>
                 <TextView

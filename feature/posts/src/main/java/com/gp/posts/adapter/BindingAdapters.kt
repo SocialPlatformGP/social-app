@@ -17,7 +17,6 @@ import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
 import com.gp.posts.R
-import com.gp.posts.presentation.postsfeed.FeedPostViewModel
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.util.ToTimeTaken
 import com.gp.socialapp.utils.State
@@ -89,6 +88,7 @@ fun setVisabilityRecycler(view: View, params: StateWIthLifeCycle) {
 
     }
 }
+
 @BindingAdapter("posts:imageUrl")
 fun setProfilePicture(view: ImageView, picUrl: String?) {
     if (picUrl != null) {
@@ -101,6 +101,7 @@ fun setProfilePicture(view: ImageView, picUrl: String?) {
         view.setImageResource(R.drawable.ic_person_24)
     }
 }
+
 @OptIn(DelicateCoroutinesApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @BindingAdapter("posts:timeTillNow")
@@ -116,6 +117,7 @@ fun setTimeTillNow(view: TextView, time: String?) {
     }
     job.cancel()
 }
+
 @BindingAdapter("posts:upVoteImage")
 fun setUpVoteImage(view: MaterialButton, upVoteList: List<String>) {
     if (currentEmail in upVoteList) {
@@ -124,6 +126,7 @@ fun setUpVoteImage(view: MaterialButton, upVoteList: List<String>) {
         view.iconTint = view.context.getColorStateList(R.color.Gray)
     }
 }
+
 @BindingAdapter("posts:downVoteImage")
 fun setDownVoteImage(view: MaterialButton, downVoteList: List<String>) {
     if (currentEmail in downVoteList) {

@@ -22,14 +22,14 @@
             app:destination="@id/createPostFragment" />
         <action
             android:id="@+id/action_feedFragment_to_postDetialsFragment"
-            app:destination="@id/postDetialsFragment" />
+            app:destination="@id/postDetailsFragment" />
         <action
             android:id="@+id/action_feedFragment_to_editPostFragment"
             app:destination="@id/editPostFragment" />
     </fragment>
     <fragment
-        android:id="@+id/postDetialsFragment"
-        android:name="com.gp.posts.presentation.postDetails.PostDetialsFragment"
+        android:id="@+id/postDetailsFragment"
+        android:name="com.gp.posts.presentation.postDetails.PostDetailsFragment"
         android:label="fragment_post_detials"
         tools:layout="@layout/fragment_post_detials" >
         <action
