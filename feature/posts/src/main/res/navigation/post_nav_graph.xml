@@ -60,6 +60,9 @@
         <action
             android:id="@+id/action_suggest_post_to_searchFragment2"
             app:destination="@id/searchFragment2" />
+        <action
+            android:id="@+id/action_suggest_post_to_feedFragment"
+            app:popUpTo="@id/feedFragment" />
     </fragment>
     <argument
         android:name="search_query"
@@ -72,5 +75,8 @@
             android:name="Search_query"
             app:argType="string"
             android:defaultValue='" "' />
+        <action
+            android:id="@+id/action_searchFragment2_to_suggest_post"
+            app:popUpTo="@id/suggest_post" />
     </fragment>
 </navigation>
