@@ -4,15 +4,16 @@ package com.gp.socialapp.source.local
 import androidx.room.Query
 import com.gp.socialapp.database.model.ReplyEntity
 import com.gp.socialapp.database.model.relationship.PostWithReplies
+import com.gp.socialapp.model.Reply
 import kotlinx.coroutines.flow.Flow
 
 interface ReplyLocalDataSource {
-    suspend fun insertReply(replyEntity: ReplyEntity): Long
-    suspend fun insertReplies(replies: List<ReplyEntity>)
-    suspend fun updateReply(replyEntity: ReplyEntity)
-    suspend fun updateReplies(replies: List<ReplyEntity>)
-    suspend fun deleteReply(replyEntity: ReplyEntity)
-    suspend fun deleteReplies(replies: List<ReplyEntity>)
+    suspend fun insertReply(replyEntity:Reply ): Long
+    suspend fun insertReplies(replies: List<Reply>)
+    suspend fun updateReply(replyEntity: Reply)
+    suspend fun updateReplies(replies: List<Reply>)
+    suspend fun deleteReply(replyEntity: Reply)
+    suspend fun deleteReplies(replies: List<Reply>)
     suspend fun deleteAllReplies()
     fun getAllReplies(): Flow<List<ReplyEntity>>
     fun getRepliesByPostId(postId: String): Flow<List<ReplyEntity>>

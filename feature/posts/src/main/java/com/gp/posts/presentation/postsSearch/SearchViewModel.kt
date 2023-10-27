@@ -1,27 +1,24 @@
 package com.gp.posts.presentation.postsSearch
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.gp.socialapp.database.model.PostEntity
+import com.gp.socialapp.model.Post
 import com.gp.socialapp.repository.PostRepository
+import com.gp.users.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
 @HiltViewModel
-class SearchViewModel @Inject constructor(private val repository: PostRepository) : ViewModel() {
-
-    var searchResult :MutableStateFlow<List<PostEntity>> = MutableStateFlow(listOf())
-
+class SearchViewModel @Inject constructor(private val postRepo: PostRepository,
+private val userRepo: UserRepository) : ViewModel() {
+    var searchResult :MutableStateFlow<List<Post>> = MutableStateFlow(listOf())
     fun searchPosts(text: String) {
         viewModelScope.launch (Dispatchers.IO){
-            repository.searchPostsByTitle(text).collect{
+            postRepo.searchPostsByTitle(text).collect{
                 searchResult.value = it
             }
         }
-
     }
-    }
+}

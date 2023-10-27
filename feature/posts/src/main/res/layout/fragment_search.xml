@@ -15,18 +15,14 @@
         android:layout_height="match_parent">
 
         <!-- SearchView -->
-        <SearchView
+        <TextView
             android:id="@+id/search_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:iconifiedByDefault="false"
-            android:queryHint="Search"
-            post:iconifiedByDefault="false"
-            post:layout_behavior="@string/appbar_scrolling_view_behavior"
             post:layout_constraintEnd_toEndOf="parent"
             post:layout_constraintStart_toStartOf="parent"
             post:layout_constraintTop_toTopOf="parent"
-            post:theme="@style/Widget.AppCompat.SearchView" />
+       />
 
         <!-- RecyclerView for Posts -->
         <androidx.recyclerview.widget.RecyclerView

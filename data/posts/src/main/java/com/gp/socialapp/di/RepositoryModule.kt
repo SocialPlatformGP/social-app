@@ -25,9 +25,10 @@ object RepositoryModule {
         replyLocalDataSource: ReplyLocalDataSource,
         replyRemoteDataSource: ReplyRemoteDataSource,
         networkStatus:NetworkStatus,
-        coroutineScope: CoroutineScope
+        coroutineScope: CoroutineScope,
+        postRepository: PostRepository
     ): ReplyRepository {
-        return ReplyRepositoryImpl(replyLocalDataSource,replyRemoteDataSource,networkStatus,coroutineScope)
+        return ReplyRepositoryImpl(replyLocalDataSource,replyRemoteDataSource,networkStatus,coroutineScope,postRepository)
     }
     @Provides
     fun providePostRepository(

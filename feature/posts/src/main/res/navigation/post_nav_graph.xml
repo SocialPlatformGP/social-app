@@ -22,23 +22,61 @@
             app:destination="@id/createPostFragment" />
         <action
             android:id="@+id/action_feedFragment_to_postDetialsFragment"
-            app:destination="@id/postDetialsFragment" />
+            app:destination="@id/postDetailsFragment" />
+        <action
+            android:id="@+id/action_feedFragment_to_editPostFragment"
+            app:destination="@id/editPostFragment" />
     </fragment>
     <fragment
-        android:id="@+id/postDetialsFragment"
-        android:name="com.gp.posts.presentation.postDetails.PostDetialsFragment"
-        android:label="fragment_post_detials"
-        tools:layout="@layout/fragment_post_detials" >
+        android:id="@+id/postDetailsFragment"
+        android:name="com.gp.posts.presentation.postDetails.PostDetailsFragment"
+        android:label="fragment_post_details"
+        tools:layout="@layout/fragment_post_detials">
         <action
             android:id="@+id/action_postDetialsFragment_to_feedFragment"
             app:destination="@id/feedFragment" />
         <argument
-            android:name="psot"
-            app:argType="com.gp.socialapp.database.model.PostEntity" />
+            android:name="post"
+            app:argType="com.gp.socialapp.model.Post" />
+        <action
+            android:id="@+id/action_postDetialsFragment_to_editPostFragment"
+            app:destination="@id/editPostFragment" />
     </fragment>
     <fragment
-        android:id="@+id/search_Fragment"
-        android:name="com.gp.posts.presentation.postsSearch.Search_Fragment"
-        android:label="fragment_search_"
-        tools:layout="@layout/fragment_search_" />
+        android:id="@+id/editPostFragment"
+        android:name="com.gp.posts.presentation.editPostContent.EditPostFragment"
+        android:label="EditPostFragment" >
+        <action
+            android:id="@+id/action_editPostFragment_to_feedFragment"
+            app:destination="@id/feedFragment" />
+        <argument
+            android:name="post"
+            app:argType="com.gp.socialapp.model.Post" />
+    </fragment>
+    <fragment
+        android:id="@+id/suggest_post"
+        android:name="com.gp.posts.suggest_post"
+        android:label="suggest_post" >
+        <action
+            android:id="@+id/action_suggest_post_to_searchFragment2"
+            app:destination="@id/searchFragment2" />
+        <action
+            android:id="@+id/action_suggest_post_to_feedFragment"
+            app:popUpTo="@id/feedFragment" />
+    </fragment>
+    <argument
+        android:name="search_query"
+        app:argType="string" />
+    <fragment
+        android:id="@+id/searchFragment2"
+        android:name="com.gp.posts.presentation.postsSearch.SearchFragment"
+        android:label="SearchFragment" >
+        <argument
+            android:name="Search_query"
+            app:argType="string"
+            android:defaultValue='" "' />
+        <action
+            android:id="@+id/action_searchFragment2_to_suggest_post"
+            app:popUpTo="@id/suggest_post" />
+    </fragment>
 </navigation>

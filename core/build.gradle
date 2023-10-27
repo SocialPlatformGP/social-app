@@ -50,7 +50,7 @@ dependencies {
     implementation("androidx.room:room-ktx:$room_version")
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version" // Set Kotlin version for your app module
-
+    implementation 'com.google.code.gson:gson:2.8.8'
 
 }
 kapt {

@@ -1,13 +1,19 @@
 package com.gp.socialapp.model
 
+import com.gp.socialapp.database.model.Tag
+
 data class NetworkPost (
-    val authorID: Long,
-    val publishedAt: String,
-    val title: String,
-    val body: String,
-    val upvotes: Int,
-    val downvotes: Int,
-    val moderationStatus: String,
-    val editStatus: Boolean){
-    constructor() : this(0L,"","","",0,0,"",false)
-}
+    val replyCount: Int=0,
+    val userName:String="",
+    val userPfp:String="",
+    val authorEmail: String = "",
+    val publishedAt: String = "",
+    val title: String = "",
+    val body: String = "",
+    val votes: Int=0,
+    val downvoted: List<String> = emptyList(),
+    val upvoted: List<String> = emptyList(),
+    val moderationStatus: String = "submitted",
+    val editStatus: Boolean = false,
+    val tags: List<Tag> = emptyList()
+)

@@ -112,7 +112,7 @@ class UserInformationFragment : Fragment() {
                             activity?.finish()
                         }
                         is State.Error ->{
-                            makeSnackbar((it.createdState as State.Error).message)
+                            makeSnackbar(it.createdState.message)
                         }
                         else -> {}
                     }
