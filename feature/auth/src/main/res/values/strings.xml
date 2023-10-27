@@ -18,4 +18,10 @@
     <string name="invalid_password">Invalid Password</string>
     <string name="invalid_email">Invalid Email</string>
     <string name="invalid_login_credentials">Invalid Login Credentials</string>
+    <string name="or">  Or  </string>
+    <string name="sign_in_with_google">Sign in with Google</string>
+    <string name="web_client_id">248788416128-t9k9umk9qntrd0co983khe0no7m2ho1l.apps.googleusercontent.com</string>
+    <string name="reset_your_password">Reset your Password</string>
+    <string name="send_reset_email">Send Reset Email</string>
+    <string name="reset_email_has_been_sent_please_check_your_inbox">Reset Email has been sent. Please Check your inbox!</string>
 </resources>
