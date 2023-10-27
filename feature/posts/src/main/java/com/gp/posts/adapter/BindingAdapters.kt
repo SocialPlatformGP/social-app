@@ -17,7 +17,8 @@ import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
 import com.gp.posts.R
-import com.gp.socialapp.database.model.PostEntity
+import com.gp.posts.presentation.postsfeed.FeedPostViewModel
+import com.gp.socialapp.model.Post
 import com.gp.socialapp.util.ToTimeTaken
 import com.gp.socialapp.utils.State
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -29,10 +30,12 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 val currentEmail = FirebaseAuth.getInstance().currentUser?.email
+
 data class StateWIthLifeCycle(
-    var state: StateFlow<State<List<PostEntity>>>,
+    var state: StateFlow<State<List<Post>>>,
     var lifecycle: Lifecycle
 
 )
@@ -128,4 +131,19 @@ fun setDownVoteImage(view: MaterialButton, downVoteList: List<String>) {
     } else {
         view.iconTint = view.context.getColorStateList(R.color.Gray)
     }
+}
+@BindingAdapter(value = ["posts:formattedNumber", "posts:formattedLabel"], requireAll = true)
+fun TextView.setFormattedNumberWithLabel(number: Int, label: String) {
+    val suffixes = arrayOf("", "k", "M", "B", "T")
+    var num = number.toDouble()
+    var suffixIndex = 0
+
+    while (num >= 1000 && suffixIndex < suffixes.size - 1) {
+        num /= 1000
+        suffixIndex++
+    }
+
+    val formattedNumber = String.format("%.1f", num)
+    val formattedText = "$formattedNumber${suffixes[suffixIndex]} $label"
+    text = formattedText
 }

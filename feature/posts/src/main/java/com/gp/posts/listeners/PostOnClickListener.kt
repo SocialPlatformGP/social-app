@@ -4,6 +4,6 @@ import com.gp.socialapp.database.model.PostEntity
 import com.gp.socialapp.model.Post
 
 interface PostOnClickListener {
-    fun onPostClicked(post: PostEntity)
+    fun onPostClicked(post: Post)
 
 }

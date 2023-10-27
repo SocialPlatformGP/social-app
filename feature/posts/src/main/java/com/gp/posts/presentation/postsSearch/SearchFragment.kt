@@ -12,10 +12,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.button.MaterialButton
 import com.gp.posts.R
-import com.gp.posts.adapter.FeedPostAdapter
+import com.gp.posts.adapter.SearchResultAdapter
 import com.gp.posts.databinding.FragmentSearchBinding
 import com.gp.posts.listeners.OnMoreOptionClicked
 import com.gp.posts.listeners.OnReplyCollapsed
@@ -28,9 +29,10 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class Search_Fragment : Fragment(), VotesClickedListener, OnMoreOptionClicked {
+class SearchFragment : Fragment(){
     private val viewModel: SearchViewModel by viewModels()
     lateinit var binding: FragmentSearchBinding
+    val args:SearchFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,9 +47,11 @@ class Search_Fragment : Fragment(), VotesClickedListener, OnMoreOptionClicked {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val recyclerView = binding.rvSearchPosts
-        val adapter = FeedPostAdapter(this, this)
+        val adapter = SearchResultAdapter()
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.searchView.setQuery(args.SearchQuery,true)
+        viewModel.searchPosts(args.SearchQuery.toString())
         lifecycleScope.launch {
             viewModel.searchResult.flowWithLifecycle(lifecycle).collect {
 
@@ -60,6 +64,16 @@ class Search_Fragment : Fragment(), VotesClickedListener, OnMoreOptionClicked {
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener,
             android.widget.SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
+
+                if(query.isNullOrEmpty()){
+                    binding.rvSearchPosts.visibility = View.GONE
+                    return true
+                }
+                else{
+                    binding.rvSearchPosts.visibility = View.VISIBLE
+                    viewModel.searchPosts(query)
+                    return true
+                }
                 return true
             }
 
@@ -74,21 +88,6 @@ class Search_Fragment : Fragment(), VotesClickedListener, OnMoreOptionClicked {
                 }
             }
         })
-    }
-
-    override fun onUpVoteClicked(post: PostEntity) {
-    }
-
-    override fun onDownVoteClicked(post: PostEntity) {
-    }
-
-    override fun onPostClicked(post: PostEntity) {
-    }
-
-    override fun onMoreOptionClicked(imageView5: MaterialButton, postitem: PostEntity) {
-    }
-
-    override fun onMoreOptionClicked(imageView5: MaterialButton, reply: Reply) {
     }
 
 

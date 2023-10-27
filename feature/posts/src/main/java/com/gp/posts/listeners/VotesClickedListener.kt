@@ -5,6 +5,6 @@ import com.gp.socialapp.model.Post
 
 interface VotesClickedListener:PostOnClickListener {
 
-    fun onUpVoteClicked(post: PostEntity)
-    fun onDownVoteClicked(post: PostEntity)
+    fun onUpVoteClicked(post: Post)
+    fun onDownVoteClicked(post: Post)
 }

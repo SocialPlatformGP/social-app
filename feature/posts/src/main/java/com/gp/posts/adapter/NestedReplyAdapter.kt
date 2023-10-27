@@ -40,7 +40,6 @@ class NestedReplyAdapter(
     private val onMoreOptionClicked: OnMoreOptionClicked,
     private val onReplyCollapsed: OnReplyCollapsed
 ) : ListAdapter<NestedReplyItem, NestedReplyAdapter.NestedReplyViewHolder>(NestedReplyDiffUtil()) {
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NestedReplyViewHolder {
         val binding: ItemReplyBinding = DataBindingUtil.inflate(
             LayoutInflater.from(parent.context),
@@ -51,32 +50,28 @@ class NestedReplyAdapter(
         return NestedReplyViewHolder(binding)
     }
 
-
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: NestedReplyViewHolder, position: Int) {
         val nestedReplyItem = getItem(position)
         holder.bind(nestedReplyItem)
-
     }
-
 
     inner class NestedReplyViewHolder(private var binding: ItemReplyBinding) : RecyclerView.ViewHolder(binding.root) {
         private val nestedRecyclerView = binding.nestedRecyclerView
         private val indicator = binding.depthIndicator
         private val alterView = binding.alternativeReplyContainer
         private val defaultView = binding.defultViewNested
-        private val time = binding.textTime
         private val replyButton = binding.imgAddComment
         private val upVoteImage = binding.imageView3
         private val downVoteImage = binding.imageView2
-        private val moreOptionButton = binding.imageView5
+        private val moreOptionButton = binding.moreOptionPost
 
-        @OptIn(DelicateCoroutinesApi::class)
         @RequiresApi(Build.VERSION_CODES.O)
         fun bind(nestedReplyItem: NestedReplyItem) {
             //bind the reply to the view
             binding.reply = nestedReplyItem.reply
             binding.executePendingBindings()
+
             //prevent the reply from being clicked if it is deleted
             if (nestedReplyItem.reply?.deleted == true) {
                 defaultView.visibility = View.GONE
@@ -87,22 +82,21 @@ class NestedReplyAdapter(
                 alterView.visibility = View.GONE
             }
 
-            if (nestedReplyItem.reply?.collapsed == true) {
+            if (nestedReplyItem.reply?.collapsed == true && nestedReplyItem.reply?.deleted == false) {
                 defaultView.visibility = View.GONE
                 nestedRecyclerView.visibility = View.GONE
                 alterView.visibility = View.VISIBLE
             }
-            else {
+            else if(nestedReplyItem.reply?.collapsed == false && nestedReplyItem.reply?.deleted == false) {
                 defaultView.visibility = View.VISIBLE
                 alterView.visibility = View.GONE
                 nestedRecyclerView.visibility = View.VISIBLE
-
             }
             // put margin button = 12 if the reply is the last reply in the nested replies
             if (depth == 0) {
                 indicator.visibility = View.GONE
                 //add margin button = 12
-                val params = itemView.layoutParams as ViewGroup.MarginLayoutParams
+                val params = binding.root.layoutParams as ViewGroup.MarginLayoutParams
                 params.setMargins(0, 0, 0, 32)
             }
             else {
@@ -114,7 +108,7 @@ class NestedReplyAdapter(
                 onReplyClicked.onAddReplyClicked(nestedReplyItem)
             }
             //handle collapse and expand
-            itemView.setOnClickListener {
+            binding.root.setOnClickListener {
                 if (defaultView.visibility == View.VISIBLE && nestedReplyItem.reply?.deleted == false) {
                     nestedRecyclerView.visibility = View.GONE
                     defaultView.visibility = View.GONE
@@ -132,9 +126,7 @@ class NestedReplyAdapter(
                     defaultView.visibility = View.GONE
                     alterView.visibility = View.VISIBLE
                 }
-
             }
-
             //upvote and downvote button
             upVoteImage.setOnClickListener {
                 votesClickedListener.onUpVotePressed(nestedReplyItem.reply!!)
@@ -171,7 +163,6 @@ class NestedReplyAdapter(
         override fun areItemsTheSame(oldItem: NestedReplyItem, newItem: NestedReplyItem): Boolean {
             return oldItem.reply?.id == newItem.reply?.id
         }
-
         override fun areContentsTheSame(
             oldItem: NestedReplyItem,
             newItem: NestedReplyItem
@@ -179,5 +170,4 @@ class NestedReplyAdapter(
             return oldItem == newItem
         }
     }
-
 }
