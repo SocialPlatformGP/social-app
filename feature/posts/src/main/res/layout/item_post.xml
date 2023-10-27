@@ -8,6 +8,9 @@
         <variable
             name="postitem"
             type="com.gp.socialapp.model.Post" />
+        <variable
+            name="context"
+            type="android.content.Context" />
 
     </data>
 
@@ -77,9 +80,10 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="12dp"
                 android:text="@{postitem.body}"
+                android:textSize="14sp"
                 posts:layout_constraintEnd_toEndOf="parent"
                 posts:layout_constraintStart_toStartOf="@+id/imageView"
-                posts:layout_constraintTop_toBottomOf="@+id/titleTextView" />
+                posts:layout_constraintTop_toBottomOf="@+id/tags_layout" />
 
             <TextView
                 android:id="@+id/titleTextView"
@@ -87,12 +91,33 @@
                 android:layout_height="wrap_content"
                 android:text="@{postitem.title}"
                 android:textStyle="bold"
+                android:textSize="20sp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="12dp"
                 android:layout_marginBottom="8dp"
                 posts:layout_constraintTop_toBottomOf="@+id/imageView"
                 posts:layout_constraintEnd_toEndOf="parent"
                 posts:layout_constraintStart_toStartOf="@+id/imageView" />
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/tags_layout"
+                posts:layout_constraintTop_toBottomOf="@id/titleTextView"
+                posts:layout_constraintEnd_toEndOf="parent"
+                posts:layout_constraintStart_toStartOf="parent"
+                android:padding="8dp"
+                posts:flexWrap="wrap"
+                posts:alignContent="stretch" >
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/tags_chipgroup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    posts:chipSpacingHorizontal= "4dp"
+                    posts:tags="@{postitem.tags}"
+                    posts:tagsContext="@{context}"/>
+            </com.google.android.flexbox.FlexboxLayout>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/imageViewDownvotePost"

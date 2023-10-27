@@ -1,5 +1,6 @@
 package com.gp.posts.adapter
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
@@ -15,7 +16,8 @@ import com.gp.socialapp.model.Post
 
 class FeedPostAdapter(
     val onMoreOptionClicked: OnMoreOptionClicked,
-    val onPostClicked:VotesClickedListener
+    val onPostClicked:VotesClickedListener,
+    val context: Context
 ) : ListAdapter<Post,FeedPostAdapter.PostViewHolder>(PostDiffUtil()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
@@ -52,6 +54,7 @@ class FeedPostAdapter(
     inner class PostViewHolder(private val binding: ItemPostBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(post: Post) {
             binding.postitem = post
+            binding.context = context
             binding.executePendingBindings()
         }
     }

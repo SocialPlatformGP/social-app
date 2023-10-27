@@ -1,21 +1,29 @@
 package com.gp.posts.adapter
 
+import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.databinding.BindingAdapter
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
+import com.google.android.material.shape.ShapeAppearanceModel
 import com.google.firebase.auth.FirebaseAuth
 import com.gp.posts.R
+import com.gp.socialapp.database.model.Tag
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.util.ToTimeTaken
 import com.gp.socialapp.utils.State
@@ -105,7 +113,7 @@ fun setTimeTillNow(view: TextView, time: String?) {
         repeat(60) {
             delay(60000)
             withContext(Dispatchers.Main) {
-                view.text = ToTimeTaken.calculateTimeDifference(time!!)
+                view.text = ToTimeTaken.calculateTimeDifference(time)
             }
         }
     }
@@ -129,6 +137,26 @@ fun setDownVoteImage(view: MaterialButton, downVoteList: List<String>) {
         view.iconTint = view.context.getColorStateList(R.color.Gray)
     }
 }
+
+@BindingAdapter(value = ["posts:tags", "posts:tagsContext"], requireAll = true)
+fun setTags(view: ChipGroup, tags: List<Tag>, context: Context) {
+    view.removeAllViews()
+    tags.forEach {
+        val label = it.label
+        val color = Color.parseColor(it.hexColor)
+        val chip = Chip(context)
+        chip.text = label
+        chip.textSize = 11f
+        chip.setChipBackgroundColorResource(android.R.color.transparent)
+        chip.chipBackgroundColor = ColorStateList.valueOf(color)
+        chip.shapeAppearanceModel
+        .toBuilder()
+        .setAllCornerSizes(200f) // Set corner radius to make chips oval-shaped
+        .build()
+        view.addView(chip)
+    }
+}
+
 @BindingAdapter(value = ["posts:formattedNumber", "posts:formattedLabel"], requireAll = true)
 fun TextView.setFormattedNumberWithLabel(number: Int, label: String) {
     val suffixes = arrayOf("", "k", "M", "B", "T")

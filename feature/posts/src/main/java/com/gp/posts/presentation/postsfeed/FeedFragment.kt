@@ -45,7 +45,7 @@ class FeedFragment : Fragment() , VotesClickedListener, OnMoreOptionClicked {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = DataBindingUtil.inflate(inflater,R.layout.fragment_feed,container,false)
         binding.stateWithLifecycle= StateWIthLifeCycle(viewModel.uiState, lifecycle = lifecycle)
         return binding.root
@@ -56,7 +56,7 @@ class FeedFragment : Fragment() , VotesClickedListener, OnMoreOptionClicked {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val feedAdapter=FeedPostAdapter(this,this)
+        val feedAdapter=FeedPostAdapter(this,this, requireContext())
            binding.postsRecyclerView.apply {
                 adapter=feedAdapter
                itemAnimator=null
