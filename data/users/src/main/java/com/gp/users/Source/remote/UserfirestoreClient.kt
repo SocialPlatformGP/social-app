@@ -45,7 +45,7 @@ class UserfirestoreClient @Inject constructor(val firestore: FirebaseFirestore) 
                 trySend(State.Success)
                 Log.d("TAG", "User Updated Successfully")
             }.addOnFailureListener { exception ->
-                trySend(State.Error("User update failed: ${exception?.message}"))
+                trySend(State.Error("User update failed: ${exception.message}"))
                 Log.d("TAG", "User Update Failed")
             }
         awaitClose()

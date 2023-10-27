@@ -59,7 +59,7 @@ class PostDetailsFragment
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         viewModel.getRepliesById(args.post.id)
         // Inflate the layout for this fragment
@@ -70,6 +70,7 @@ class PostDetailsFragment
             viewModel.currentPost.flowWithLifecycle(lifecycle).collect {
                 binding.viewModel = viewModel
                 binding.postitem = it
+                binding.context = requireContext()
             }
         }
 
@@ -105,7 +106,7 @@ class PostDetailsFragment
 
         lifecycleScope.launch {
             viewModel.currentReplies.collectLatest {
-                Log.d("PostDetailsFragment", "onViewCreated: ${it.replies.toString()}")
+                Log.d("PostDetailsFragment", "onViewCreated: ${it.replies}")
                 replyAdapter.submitList(it.replies)
 
             }
@@ -143,7 +144,7 @@ class PostDetailsFragment
         replyButton.setOnClickListener {
             viewModel.insertReply(
                 Reply(
-                    postId = post!!.id,
+                    postId = post.id,
                     parentReplyId = null,
                     depth = 0,
                     content = replyEditText.text.toString(),
@@ -171,8 +172,8 @@ class PostDetailsFragment
             viewModel.insertReply(
                 Reply(
                     postId = currentReply!!.postId,
-                    parentReplyId = currentReply?.id,
-                    depth = currentReply!!.depth!!.plus(1),
+                    parentReplyId = currentReply.id,
+                    depth = currentReply.depth.plus(1),
                     content = replyEditText.text.toString(),
                     createdAt = LocalDateTime.now(ZoneId.of("UTC")).toString(),
                     authorEmail = currentUser?.email.toString()

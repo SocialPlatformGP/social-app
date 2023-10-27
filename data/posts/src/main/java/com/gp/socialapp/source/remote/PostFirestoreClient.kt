@@ -112,7 +112,7 @@ class PostFirestoreClient@Inject constructor(private val firestore: FirebaseFire
             } else if (currentEmail in remotePost.downvoted && currentEmail !in remotePost.upvoted) {
                 ref.document(post.id).update("votes", remotePost.votes + 2)
                 ref.document(post.id).update("upvoted", remotePost.upvoted + currentEmail!!)
-                ref.document(post.id).update("downvoted", remotePost.downvoted - currentEmail!!)
+                ref.document(post.id).update("downvoted", remotePost.downvoted - currentEmail)
             } else if (currentEmail !in remotePost.upvoted && currentEmail !in remotePost.downvoted) {
                 ref.document(post.id).update("votes", remotePost.votes + 1)
                 ref.document(post.id).update("upvoted", remotePost.upvoted + currentEmail!!)
@@ -131,7 +131,7 @@ class PostFirestoreClient@Inject constructor(private val firestore: FirebaseFire
             } else if (currentEmail in remotePost.upvoted && currentEmail !in remotePost.downvoted) {
                 ref.document(post.id).update("votes", remotePost.votes - 2)
                 ref.document(post.id).update("downvoted", remotePost.downvoted + currentEmail!!)
-                ref.document(post.id).update("upvoted", remotePost.upvoted - currentEmail!!)
+                ref.document(post.id).update("upvoted", remotePost.upvoted - currentEmail)
             } else if (currentEmail !in remotePost.upvoted && currentEmail !in remotePost.downvoted) {
                 ref.document(post.id).update("votes", remotePost.votes - 1)
                 ref.document(post.id).update("downvoted", remotePost.downvoted + currentEmail!!)

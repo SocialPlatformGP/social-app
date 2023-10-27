@@ -83,6 +83,11 @@ dependencies {
     //Glide
     implementation 'com.github.bumptech.glide:glide:5.0.0-rc01'
 
+    //Color-Picker
+    implementation 'com.github.Dhaval2404:ColorPicker:2.3'
+
+    //Flex-box layout
+    implementation 'com.google.android.flexbox:flexbox:3.0.0'
     //Material design
     implementation 'com.google.android.material:material:1.4.0'
 

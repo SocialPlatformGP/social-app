@@ -14,7 +14,7 @@ import com.gp.posts.listeners.VotesClickedListener
 import com.gp.socialapp.database.model.PostEntity
 import com.gp.socialapp.model.Post
 
-class SearchResultAdapter () : ListAdapter<Post, SearchResultAdapter.SearchResultViewHolder>(PostDiffUtil()) {
+class SearchResultAdapter : ListAdapter<Post, SearchResultAdapter.SearchResultViewHolder>(PostDiffUtil()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchResultViewHolder {
         val binding : SearchItemBinding = DataBindingUtil.inflate(
