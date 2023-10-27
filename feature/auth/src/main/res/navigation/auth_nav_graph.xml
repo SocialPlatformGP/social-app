@@ -32,7 +32,11 @@
         android:id="@+id/passwordResetFragment"
         android:name="com.gp.auth.ui.passwordreset.PasswordResetFragment"
         android:label="fragment_password_reset"
-        tools:layout="@layout/fragment_password_reset" />
+        tools:layout="@layout/fragment_password_reset" >
+        <action
+            android:id="@+id/action_passwordResetFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+    </fragment>
     <fragment
         android:id="@+id/userInformationFragment"
         android:name="com.gp.auth.ui.registration.UserInformationFragment"
