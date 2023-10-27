@@ -54,8 +54,29 @@
             app:argType="com.gp.socialapp.model.Post" />
     </fragment>
     <fragment
-        android:id="@+id/search_Fragment"
+        android:id="@+id/suggest_post"
+        android:name="com.gp.posts.suggest_post"
+        android:label="suggest_post" >
+        <action
+            android:id="@+id/action_suggest_post_to_searchFragment2"
+            app:destination="@id/searchFragment2" />
+        <action
+            android:id="@+id/action_suggest_post_to_feedFragment"
+            app:popUpTo="@id/feedFragment" />
+    </fragment>
+    <argument
+        android:name="search_query"
+        app:argType="string" />
+    <fragment
+        android:id="@+id/searchFragment2"
         android:name="com.gp.posts.presentation.postsSearch.SearchFragment"
-        android:label="fragment_search"
-        tools:layout="@layout/fragment_search" />
+        android:label="SearchFragment" >
+        <argument
+            android:name="Search_query"
+            app:argType="string"
+            android:defaultValue='" "' />
+        <action
+            android:id="@+id/action_searchFragment2_to_suggest_post"
+            app:popUpTo="@id/suggest_post" />
+    </fragment>
 </navigation>
