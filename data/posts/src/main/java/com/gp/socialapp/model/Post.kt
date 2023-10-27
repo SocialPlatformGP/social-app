@@ -1,7 +1,6 @@
 package com.gp.socialapp.model
 
-import android.os.Parcel
-import android.os.Parcelable
+import com.gp.socialapp.database.model.Tag
 import java.io.Serializable
 
 data class Post(
@@ -18,4 +17,5 @@ data class Post(
     val upvoted: List<String> = emptyList(),
     val moderationStatus: String = "submitted",
     val editStatus: Boolean = false,
+    val tags: List<Tag>
 ):Serializable

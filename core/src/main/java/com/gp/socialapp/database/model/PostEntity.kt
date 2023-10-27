@@ -1,8 +1,5 @@
 package com.gp.socialapp.database.model
 
-import android.os.Parcel
-import android.os.Parcelable
-import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -22,4 +19,9 @@ data class PostEntity(
     val upvoted: String,
     val moderationStatus: String,
     val editStatus: Boolean ,
+    val tags: List<Tag>
+)
+data class Tag(
+    val label: String,
+    val rgbColor: String,
 )
