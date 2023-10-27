@@ -1,12 +1,15 @@
 package com.gp.posts.adapter
 
 import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.chip.Chip
 import com.gp.posts.R
 import com.gp.posts.databinding.ItemPostBinding
 import com.gp.posts.listeners.OnMoreOptionClicked
@@ -16,12 +19,12 @@ import com.gp.socialapp.model.Post
 
 class FeedPostAdapter(
     val onMoreOptionClicked: OnMoreOptionClicked,
-    val onPostClicked:VotesClickedListener,
+    val onPostClicked: VotesClickedListener,
     val context: Context
-) : ListAdapter<Post,FeedPostAdapter.PostViewHolder>(PostDiffUtil()) {
+) : ListAdapter<Post, FeedPostAdapter.PostViewHolder>(PostDiffUtil()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
-        var binding : ItemPostBinding = DataBindingUtil.inflate(
+        var binding: ItemPostBinding = DataBindingUtil.inflate(
             LayoutInflater.from(parent.context),
             R.layout.item_post,
             parent,
@@ -37,11 +40,12 @@ class FeedPostAdapter(
             onPostClicked.onDownVoteClicked(binding.postitem!!)
         }
         binding.moreOptionPost.setOnClickListener {
-            onMoreOptionClicked.onMoreOptionClicked(binding.moreOptionPost,binding.postitem!!)
+            onMoreOptionClicked.onMoreOptionClicked(binding.moreOptionPost, binding.postitem!!)
         }
         binding.imgAddComment.setOnClickListener {
             onPostClicked.onPostClicked(binding.postitem!!)
         }
+
         return PostViewHolder(binding)
     }
 
@@ -51,7 +55,8 @@ class FeedPostAdapter(
     }
 
 
-    inner class PostViewHolder(private val binding: ItemPostBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class PostViewHolder(private val binding: ItemPostBinding) :
+        RecyclerView.ViewHolder(binding.root) {
         fun bind(post: Post) {
             binding.postitem = post
             binding.context = context
@@ -59,13 +64,13 @@ class FeedPostAdapter(
         }
     }
 
-    private class PostDiffUtil : DiffUtil.ItemCallback<Post>(){
+    private class PostDiffUtil : DiffUtil.ItemCallback<Post>() {
         override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean {
             return oldItem.id == newItem.id
         }
 
         override fun areContentsTheSame(oldItem: Post, newItem: Post): Boolean {
-              return oldItem == newItem
+            return oldItem == newItem
         }
 
     }

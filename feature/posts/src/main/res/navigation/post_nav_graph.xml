@@ -30,8 +30,8 @@
     <fragment
         android:id="@+id/postDetailsFragment"
         android:name="com.gp.posts.presentation.postDetails.PostDetailsFragment"
-        android:label="fragment_post_detials"
-        tools:layout="@layout/fragment_post_detials" >
+        android:label="fragment_post_details"
+        tools:layout="@layout/fragment_post_detials">
         <action
             android:id="@+id/action_postDetialsFragment_to_feedFragment"
             app:destination="@id/feedFragment" />

@@ -116,7 +116,8 @@
                     android:layout_height="wrap_content"
                     posts:chipSpacingHorizontal= "4dp"
                     posts:tags="@{postitem.tags}"
-                    posts:tagsContext="@{context}"/>
+                    posts:tagsContext="@{context}"
+                    />
             </com.google.android.flexbox.FlexboxLayout>
 
             <com.google.android.material.button.MaterialButton

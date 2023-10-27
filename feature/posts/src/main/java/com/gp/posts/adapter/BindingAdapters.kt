@@ -25,7 +25,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.gp.posts.R
 import com.gp.socialapp.database.model.Tag
 import com.gp.socialapp.model.Post
-import com.gp.socialapp.util.ToTimeTaken
 import com.gp.socialapp.utils.State
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -37,6 +36,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import com.gp.socialapp.util.ToTimeTaken
 
 val currentEmail = FirebaseAuth.getInstance().currentUser?.email
 
@@ -143,20 +143,22 @@ fun setDownVoteImage(view: MaterialButton, downVoteList: List<String>) {
 
 @BindingAdapter(value = ["posts:tags", "posts:tagsContext"], requireAll = true)
 fun setTags(view: ChipGroup, tags: List<Tag>, context: Context) {
-    view.removeAllViews()
-    tags.forEach {
-        val label = it.label
-        val color = Color.parseColor(it.hexColor)
-        val chip = Chip(context)
-        chip.text = label
-        chip.textSize = 11f
-        chip.setChipBackgroundColorResource(android.R.color.transparent)
-        chip.chipBackgroundColor = ColorStateList.valueOf(color)
-        chip.shapeAppearanceModel
-        .toBuilder()
-        .setAllCornerSizes(64f) // Set corner radius to make chips oval-shaped
-        .build()
-        view.addView(chip)
+    if (view.childCount==0) {
+        tags.forEach {
+            val label = it.label
+            val color = Color.parseColor(it.hexColor)
+            val chip = Chip(context)
+            chip.text = label
+            chip.textSize = 11f
+            chip.setChipBackgroundColorResource(android.R.color.transparent)
+            chip.chipBackgroundColor = ColorStateList.valueOf(color)
+            chip.shapeAppearanceModel
+                .toBuilder()
+                .setAllCornerSizes(64f) // Set corner radius to make chips oval-shaped
+                .build()
+            view.addView(chip)
+
+        }
     }
 }
 
