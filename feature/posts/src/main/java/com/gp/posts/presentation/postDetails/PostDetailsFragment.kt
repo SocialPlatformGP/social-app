@@ -40,6 +40,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.util.Date
 
 
 @AndroidEntryPoint
@@ -148,7 +149,7 @@ class PostDetailsFragment
                     parentReplyId = null,
                     depth = 0,
                     content = replyEditText.text.toString(),
-                    createdAt =LocalDateTime.now(ZoneId.of("UTC")).toString(),
+                    createdAt =Date().toString(),
                     authorEmail = currentUser?.email.toString()
                 )
             )
@@ -175,7 +176,7 @@ class PostDetailsFragment
                     parentReplyId = currentReply.id,
                     depth = currentReply.depth.plus(1),
                     content = replyEditText.text.toString(),
-                    createdAt = LocalDateTime.now(ZoneId.of("UTC")).toString(),
+                    createdAt = Date().toString(),
                     authorEmail = currentUser?.email.toString()
                 )
             )
