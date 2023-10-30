@@ -14,10 +14,20 @@ import javax.inject.Inject
 class SearchViewModel @Inject constructor(private val postRepo: PostRepository,
 private val userRepo: UserRepository) : ViewModel() {
     var searchResult :MutableStateFlow<List<Post>> = MutableStateFlow(listOf())
-    fun searchPosts(text: String) {
+    fun searchPostsByTitle(title: String) {
         viewModelScope.launch (Dispatchers.IO){
-            postRepo.searchPostsByTitle(text).collect{
+            postRepo.searchPostsByTitle(title).collect{
                 searchResult.value = it
+            }
+        }
+    }
+    fun searchPostsByTag(tag: String) {
+        viewModelScope.launch (Dispatchers.IO){
+            postRepo.getAllLocalPosts().collect{posts ->
+                val filteredPosts = posts.filter { post ->
+                    post.tags.any {it.label == tag}
+                }
+                searchResult.value = filteredPosts
             }
         }
     }

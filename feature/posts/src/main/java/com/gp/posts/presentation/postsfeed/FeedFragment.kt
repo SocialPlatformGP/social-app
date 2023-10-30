@@ -25,9 +25,9 @@ import com.gp.posts.adapter.FeedPostAdapter
 import com.gp.posts.adapter.StateWIthLifeCycle
 import com.gp.posts.databinding.FragmentFeedBinding
 import com.gp.posts.listeners.OnMoreOptionClicked
+import com.gp.posts.listeners.OnTagClicked
 import com.gp.posts.listeners.VotesClickedListener
-import com.gp.socialapp.database.model.PostEntity
-import com.gp.socialapp.database.model.ReplyEntity
+import com.gp.socialapp.database.model.Tag
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.model.Reply
 import com.gp.socialapp.utils.State
@@ -35,20 +35,19 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class FeedFragment : Fragment() , VotesClickedListener, OnMoreOptionClicked {
-    lateinit var  binding:FragmentFeedBinding
+class FeedFragment : Fragment(), VotesClickedListener, OnMoreOptionClicked, OnTagClicked {
+    lateinit var binding: FragmentFeedBinding
     private val viewModel: FeedPostViewModel by viewModels()
-    private val currentUser= Firebase.auth.currentUser
+    private val currentUser = Firebase.auth.currentUser
 
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
 
-        binding = DataBindingUtil.inflate(inflater,R.layout.fragment_feed,container,false)
-        binding.stateWithLifecycle= StateWIthLifeCycle(viewModel.uiState, lifecycle = lifecycle)
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_feed, container, false)
+        binding.stateWithLifecycle = StateWIthLifeCycle(viewModel.uiState, lifecycle = lifecycle)
         return binding.root
     }
 
@@ -57,15 +56,15 @@ class FeedFragment : Fragment() , VotesClickedListener, OnMoreOptionClicked {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val feedAdapter=FeedPostAdapter(this,this, requireContext())
-           binding.postsRecyclerView.apply {
-                adapter=feedAdapter
-               itemAnimator=null
-                layoutManager=LinearLayoutManager(requireContext())
-           }
+        val feedAdapter = FeedPostAdapter(this, this, this, requireContext())
+        binding.postsRecyclerView.apply {
+            adapter = feedAdapter
+            itemAnimator = null
+            layoutManager = LinearLayoutManager(requireContext())
+        }
         lifecycleScope.launch {
-            viewModel.uiState.flowWithLifecycle(lifecycle).collect{currentState->
-                if(currentState is State.SuccessWithData){
+            viewModel.uiState.flowWithLifecycle(lifecycle).collect { currentState ->
+                if (currentState is State.SuccessWithData) {
                     Log.d("TAG258", "onViewCreated: ${currentState.data}")
                     feedAdapter.submitList(currentState.data)
                 }
@@ -94,45 +93,53 @@ class FeedFragment : Fragment() , VotesClickedListener, OnMoreOptionClicked {
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onMoreOptionClicked(imageView5: MaterialButton, postitem: Post) {
-        var resourceXml=R.menu.extra_option_menu
-        if(currentUser?.email!=postitem.authorEmail){
-            resourceXml=R.menu.extra_option_menu_not_owner
+        var resourceXml = R.menu.extra_option_menu
+        if (currentUser?.email != postitem.authorEmail) {
+            resourceXml = R.menu.extra_option_menu_not_owner
         }
         val popupMenu = PopupMenu(requireActivity(), imageView5)
         popupMenu.menuInflater.inflate(resourceXml, popupMenu.menu)
 
         // Set item click listener for the popup menu
-            popupMenu.setOnMenuItemClickListener { item ->
-                when (item.itemId) {
-                    R.id.item_save -> {
-                        // Handle Item 1 click
-                        // Add your code here
-                        true
-                    }
-                    R.id.item_delete -> {
-                        viewModel.deletePost(postitem)
-                        true
-                    }
-                    R.id.item_report -> {
-                        true
-                    }
-                    R.id.item_edit -> {
-                        val action = FeedFragmentDirections.actionFeedFragmentToEditPostFragment(postitem)
-                        findNavController().navigate(action)
-                        true
-                    }
-                    else -> false
+        popupMenu.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.item_save -> {
+                    // Handle Item 1 click
+                    // Add your code here
+                    true
                 }
+
+                R.id.item_delete -> {
+                    viewModel.deletePost(postitem)
+                    true
+                }
+
+                R.id.item_report -> {
+                    true
+                }
+
+                R.id.item_edit -> {
+                    val action =
+                        FeedFragmentDirections.actionFeedFragmentToEditPostFragment(postitem)
+                    findNavController().navigate(action)
+                    true
+                }
+
+                else -> false
             }
-            // Show the popup menu
-            popupMenu.show()
+        }
+        // Show the popup menu
+        popupMenu.show()
     }
 
     override fun onMoreOptionClicked(imageView5: MaterialButton, reply: Reply) {
         TODO("Not yet implemented")
     }
 
-
+    override fun onTagClicked(tag: Tag) {
+        val action = FeedFragmentDirections.actionFeedFragmentToSearchFragment2(tag.label, true)
+        findNavController().navigate(action)
+    }
 
 
 }

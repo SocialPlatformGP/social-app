@@ -31,7 +31,9 @@ import com.gp.posts.databinding.FragmentPostDetialsBinding
 import com.gp.posts.listeners.OnAddReplyClicked
 import com.gp.posts.listeners.OnMoreOptionClicked
 import com.gp.posts.listeners.OnReplyCollapsed
+import com.gp.posts.listeners.OnTagClicked
 import com.gp.posts.listeners.VotePressedListener
+import com.gp.socialapp.database.model.Tag
 import com.gp.socialapp.model.NestedReplyItem
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.model.Reply
@@ -45,7 +47,7 @@ import java.util.Date
 
 @AndroidEntryPoint
 class PostDetailsFragment
-    : Fragment(), OnAddReplyClicked,VotePressedListener,OnMoreOptionClicked, OnReplyCollapsed {
+    : Fragment(), OnAddReplyClicked,VotePressedListener,OnMoreOptionClicked, OnReplyCollapsed,OnTagClicked {
     lateinit var replyAdapter: NestedReplyAdapter
     lateinit var recyclerView: RecyclerView
     val viewModel: PostDetailsViewModel by viewModels()
@@ -72,6 +74,7 @@ class PostDetailsFragment
                 binding.viewModel = viewModel
                 binding.postitem = it
                 binding.context = requireContext()
+                binding.onTagClick = this@PostDetailsFragment
             }
         }
 
@@ -290,6 +293,11 @@ class PostDetailsFragment
             viewModel.collapsedReplies.add(reply.id)
         }
         Log.d("zarea in fragment",viewModel.collapsedReplies.toString())
+    }
+
+    override fun onTagClicked(tag: Tag) {
+        val action = PostDetailsFragmentDirections.actionPostDetailsFragmentToSearchFragment2(tag.label, true)
+        findNavController().navigate(action)
     }
 
 

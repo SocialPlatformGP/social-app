@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/post_nav_graph"
-    app:startDestination="@id/createPostFragment">
+    app:startDestination="@id/feedFragment">
 
     <fragment
         android:id="@+id/createPostFragment"
@@ -26,6 +26,9 @@
         <action
             android:id="@+id/action_feedFragment_to_editPostFragment"
             app:destination="@id/editPostFragment" />
+        <action
+            android:id="@+id/action_feedFragment_to_searchFragment2"
+            app:destination="@id/searchFragment2" />
     </fragment>
     <fragment
         android:id="@+id/postDetailsFragment"
@@ -41,6 +44,9 @@
         <action
             android:id="@+id/action_postDetialsFragment_to_editPostFragment"
             app:destination="@id/editPostFragment" />
+        <action
+            android:id="@+id/action_postDetailsFragment_to_searchFragment2"
+            app:destination="@id/searchFragment2" />
     </fragment>
     <fragment
         android:id="@+id/editPostFragment"
@@ -78,5 +84,9 @@
         <action
             android:id="@+id/action_searchFragment2_to_suggest_post"
             app:popUpTo="@id/suggest_post" />
+        <argument
+            android:name="isTag"
+            app:argType="boolean"
+            android:defaultValue="false" />
     </fragment>
 </navigation>

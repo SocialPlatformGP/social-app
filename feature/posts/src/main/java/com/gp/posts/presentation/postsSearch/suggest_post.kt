@@ -13,16 +13,9 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.button.MaterialButton
-import com.gp.posts.adapter.FeedPostAdapter
 import com.gp.posts.adapter.SuggestPostAdapter
-import com.gp.posts.databinding.FragmentSearchBinding
 import com.gp.posts.databinding.FragmentSuggestPostBinding
-import com.gp.posts.listeners.OnMoreOptionClicked
-import com.gp.posts.listeners.VotesClickedListener
 import com.gp.posts.presentation.postsSearch.SearchViewModel
-import com.gp.socialapp.database.model.PostEntity
-import com.gp.socialapp.database.model.ReplyEntity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -92,7 +85,7 @@ class suggest_post : Fragment() {
                 }
                 else{
                     binding.rvSuggestPosts.visibility = View.VISIBLE
-                    viewModel.searchPosts(newText)
+                    viewModel.searchPostsByTitle(newText)
                     return true
                 }}
         })

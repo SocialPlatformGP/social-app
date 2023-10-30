@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -46,8 +45,13 @@ class SearchFragment : Fragment(){
                 adapter.submitList(it)
             }
         }
-        viewModel.searchPosts(args.SearchQuery)
-        binding.searchView.text="Search Results for: "+args.SearchQuery
+        if(args.isTag){
+            viewModel.searchPostsByTag(args.SearchQuery)
+            binding.searchView.text="Search Results for Tag: "+args.SearchQuery
+        } else {
+            viewModel.searchPostsByTitle(args.SearchQuery)
+            binding.searchView.text="Search Results for: "+args.SearchQuery
+        }
 
     }
 
