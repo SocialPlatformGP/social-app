@@ -55,6 +55,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.8'
     implementation 'com.google.firebase:firebase-common-ktx:20.4.2'
     implementation 'com.google.firebase:firebase-auth-ktx:22.2.0'
+    implementation project(path: ':feature:chat')
 // You can use a newer version if available
 
     //////////
