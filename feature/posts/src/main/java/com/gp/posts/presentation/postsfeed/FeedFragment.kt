@@ -16,6 +16,8 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.ktx.auth
@@ -23,11 +25,11 @@ import com.google.firebase.ktx.Firebase
 import com.gp.posts.R
 import com.gp.posts.adapter.FeedPostAdapter
 import com.gp.posts.adapter.StateWIthLifeCycle
+import com.gp.posts.databinding.BottomSheetFeedOptionsBinding
 import com.gp.posts.databinding.FragmentFeedBinding
+import com.gp.posts.listeners.OnFeedOptionsClicked
 import com.gp.posts.listeners.OnMoreOptionClicked
 import com.gp.posts.listeners.VotesClickedListener
-import com.gp.socialapp.database.model.PostEntity
-import com.gp.socialapp.database.model.ReplyEntity
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.model.Reply
 import com.gp.socialapp.utils.State
@@ -35,7 +37,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class FeedFragment : Fragment() , VotesClickedListener, OnMoreOptionClicked {
+class FeedFragment : Fragment() , VotesClickedListener, OnMoreOptionClicked, OnFeedOptionsClicked {
     lateinit var  binding:FragmentFeedBinding
     private val viewModel: FeedPostViewModel by viewModels()
     private val currentUser= Firebase.auth.currentUser
@@ -49,6 +51,7 @@ class FeedFragment : Fragment() , VotesClickedListener, OnMoreOptionClicked {
 
         binding = DataBindingUtil.inflate(inflater,R.layout.fragment_feed,container,false)
         binding.stateWithLifecycle= StateWIthLifeCycle(viewModel.uiState, lifecycle = lifecycle)
+        binding.onFeedOptionsClicked = this
         return binding.root
     }
 
@@ -68,6 +71,8 @@ class FeedFragment : Fragment() , VotesClickedListener, OnMoreOptionClicked {
                 if(currentState is State.SuccessWithData){
                     Log.d("TAG258", "onViewCreated: ${currentState.data}")
                     feedAdapter.submitList(currentState.data)
+//                    feedAdapter.notifyDataSetChanged()
+//                    binding.postsRecyclerView.scrollToPosition(0)
                 }
             }
         }
@@ -132,7 +137,35 @@ class FeedFragment : Fragment() , VotesClickedListener, OnMoreOptionClicked {
         TODO("Not yet implemented")
     }
 
-
-
-
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onFeedOptionClicked() {
+        val bottomSheetBinding: BottomSheetFeedOptionsBinding = DataBindingUtil.inflate(
+            LayoutInflater.from(requireContext()),
+            R.layout.bottom_sheet_feed_options,
+            null,
+            false)
+        val bottomSheetDialog = BottomSheetDialog(requireContext())
+        bottomSheetDialog.setContentView(bottomSheetBinding.root)
+        bottomSheetBinding.sortApplyButton.setOnClickListener {
+            when (bottomSheetBinding.sortTypesChipgroup.checkedChipId) {
+                R.id.newest_sort_chip -> {
+                    viewModel.sortPostsByNewest()
+                }
+                R.id.popular_sort_chip -> {
+                    viewModel.sortPostsByPopularity()
+                }
+            }
+            bottomSheetDialog.dismiss()
+        }
+        bottomSheetDialog.setOnShowListener {
+            val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetBinding.bottomSheet)
+            bottomSheetBehavior.isHideable = false
+            val bottomSheetParent = bottomSheetBinding.bottomSheetParent
+            BottomSheetBehavior.from(bottomSheetParent.parent as View).peekHeight =
+                bottomSheetParent.height
+            bottomSheetBehavior.peekHeight = bottomSheetParent.height
+            bottomSheetParent.parent.requestLayout()
+        }
+        bottomSheetDialog.show()
+    }
 }
