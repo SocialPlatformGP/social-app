@@ -71,8 +71,7 @@ class FeedFragment : Fragment() , VotesClickedListener, OnMoreOptionClicked, OnF
                 if(currentState is State.SuccessWithData){
                     Log.d("TAG258", "onViewCreated: ${currentState.data}")
                     feedAdapter.submitList(currentState.data)
-//                    feedAdapter.notifyDataSetChanged()
-//                    binding.postsRecyclerView.scrollToPosition(0)
+                    binding.postsRecyclerView.scrollToPosition(0)
                 }
             }
         }
