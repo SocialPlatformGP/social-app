@@ -1,9 +1,12 @@
 package com.gp.socialapp
 
 import android.content.Intent
+import android.icu.lang.UCharacter.GraphemeClusterBreak.V
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
@@ -18,14 +21,16 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
+import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.gp.auth.ui.AuthenticationActivity
+import com.gp.socialapp.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-    private val currentUser = FirebaseAuth.getInstance()
+    lateinit var binding: ActivityMainBinding
     lateinit var drawerLayout: DrawerLayout
     lateinit var navView: NavigationView
     lateinit var bottomNavigationView: BottomNavigationView
@@ -33,11 +38,15 @@ class MainActivity : AppCompatActivity() {
     lateinit var navController: NavController
     private lateinit var appBarConfiguration: AppBarConfiguration
     lateinit var appBarLayout: AppBarLayout
+    private val currentUser = FirebaseAuth.getInstance()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        FirebaseApp.initializeApp(this)
+
 
         drawerLayout = findViewById(R.id.drawerLayout)
         navView = findViewById(R.id.nav_view)
@@ -50,7 +59,8 @@ class MainActivity : AppCompatActivity() {
         val navHostFragment= supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
         navController= navHostFragment.findNavController()
         appBarConfiguration= AppBarConfiguration(setOf(
-            R.id.post_nav_graph
+            R.id.post_nav_graph,
+            R.id.chat_nav_graph,
         ),drawerLayout)
 
         setupActionBarWithNavController(navController,appBarConfiguration)
@@ -69,13 +79,39 @@ class MainActivity : AppCompatActivity() {
                     finish()
                     return@setNavigationItemSelectedListener true
                 }
+                R.id.Announcement->{
+
+                    return@setNavigationItemSelectedListener true
+                }
+                R.id.Material->{
+                    return@setNavigationItemSelectedListener true
+                }
                 else->{
-                    return@setNavigationItemSelectedListener false
+                    navController.navigate(it.itemId)
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                    return@setNavigationItemSelectedListener true
                 }
             }
         }
+    navController.addOnDestinationChangedListener{_,destination,_->
 
+        when (destination.id){
+            com.gp.chat.R.id.privateChatFragment->{
+                hideBottomNav()
+            }
+            com.gp.posts.R.id.suggest_post->{
+                hideBottomNav()
+            }
+            com.gp.posts.R.id.searchFragment2->{
+                hideBottomNav()
+            }
+            else->{
+                showBottomNav()
+            }
+        }
     }
+    }
+
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.search_menu,menu)
@@ -103,6 +139,25 @@ class MainActivity : AppCompatActivity() {
         } else {
             super.onBackPressed()
         }
+    }
+
+    fun hideBottomNav(){
+        val params=bottomNavigationView.layoutParams as ViewGroup.LayoutParams
+        val dpToPx = resources.displayMetrics.density // Conversion factor
+        val heightInPixels = (0 * dpToPx).toInt()
+        params.height=heightInPixels
+        bottomNavigationView.layoutParams=params
+        binding.appBarMain.contentInAppBarMain.height=heightInPixels
+        bottomNavigationView.visibility= View.GONE
+    }
+    fun showBottomNav(){
+        val params=bottomNavigationView.layoutParams as ViewGroup.LayoutParams
+        val dpToPx = resources.displayMetrics.density // Conversion factor
+        val heightInPixels = (80 * dpToPx).toInt()
+        params.height=heightInPixels
+        bottomNavigationView.layoutParams=params
+        binding.appBarMain.contentInAppBarMain.height=heightInPixels
+        bottomNavigationView.visibility= View.VISIBLE
     }
 
 

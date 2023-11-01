@@ -6,12 +6,12 @@ plugins {
 }
 
 android {
-    namespace 'com.gp.chat'
-    compileSdk 33
+    namespace 'com.gp.data.chat'
+    compileSdk 34
 
     defaultConfig {
         minSdk 24
-        targetSdk 33
+        targetSdk 34
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -52,7 +52,7 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:32.3.1')
     implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation 'com.google.firebase:firebase-firestore-ktx:24.8.1'
-    implementation("com.google.firebase:firebase-database-ktx")
+    implementation 'com.google.firebase:firebase-database-ktx:20.3.0'
 }
 
 kapt {
