@@ -77,6 +77,6 @@
             android:defaultValue='" "' />
         <action
             android:id="@+id/action_searchFragment2_to_suggest_post"
-            app:popUpTo="@id/suggest_post" />
+            app:destination="@id/suggest_post" />
     </fragment>
 </navigation>

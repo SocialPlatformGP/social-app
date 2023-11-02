@@ -104,9 +104,15 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
     override fun onQueryTextChange(newText: String?): Boolean {
         val currentFragment= navHostFragment.childFragmentManager.fragments[0]
-        if(currentFragment is com.gp.posts.suggest_post){
-            currentFragment.updateSearchQuery(newText)
+        when(currentFragment){
+            is com.gp.posts.suggest_post->{
+                currentFragment.updateSearchQuery(newText)
+            }
+            is com.gp.posts.presentation.postsSearch.SearchFragment->{
+                currentFragment.backToSuggest(newText)
 
+
+            }
         }
         return true
     }
