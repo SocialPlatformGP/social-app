@@ -27,5 +27,7 @@ interface PostDao {
 
     @Query("SELECT * FROM posts WHERE title LIKE '%' || :searchText || '%' ")
     fun searchPostsByTitle(searchText: String): Flow<List<PostEntity>>
+    @Query("DELETE FROM posts")
+    fun deleteAllPosts()
 
 }

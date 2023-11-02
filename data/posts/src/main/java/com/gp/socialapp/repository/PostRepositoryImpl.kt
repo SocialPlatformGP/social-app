@@ -61,6 +61,7 @@ class PostRepositoryImpl @Inject constructor(
 
 
     override fun fetchNetworkPosts(): Flow<List<Post>> {
+        deleteAllPosts()
         return postRemoteSource.fetchPosts()
     }
 
@@ -99,6 +100,11 @@ class PostRepositoryImpl @Inject constructor(
            return postLocalSource.getPostById(id).toModel()
         }
     }
+
+    override fun deleteAllPosts() {
+        postLocalSource.deleteAllPosts()
+    }
+
 
     override suspend fun incrementReplyCounter(postId: String) = postRemoteSource.incrementReplyCounter(postId)
 

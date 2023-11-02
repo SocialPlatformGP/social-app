@@ -22,6 +22,8 @@
             post:layout_constraintEnd_toEndOf="parent"
             post:layout_constraintStart_toStartOf="parent"
             post:layout_constraintTop_toTopOf="parent"
+            android:textStyle="bold"
+            android:textSize="14dp"
        />
 
         <!-- RecyclerView for Posts -->
@@ -33,7 +35,7 @@
             post:layout_constraintBottom_toBottomOf="parent"
             post:layout_constraintTop_toBottomOf="@+id/search_view"
             post:layout_constraintVertical_bias="0.0"
-            tools:layout_editor_absoluteX="0dp" />
+            tools:layout_editor_absoluteX="-61dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

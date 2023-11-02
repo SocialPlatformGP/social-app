@@ -35,7 +35,7 @@ interface ReplyDao {
 
 
     @Query("DELETE FROM replies")
-    suspend fun deleteAllReplies()
+    fun deleteAllReplies()
 
     @Query("SELECT * FROM replies")
     fun getAllReplies(): Flow<List<ReplyEntity>>

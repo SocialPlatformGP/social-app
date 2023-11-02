@@ -26,4 +26,7 @@ class UserLocalDataSourceImp @Inject constructor(private val userDao: UserDao) :
     }
 
     override suspend fun getUserById(email: String)= userDao.getUserById(email)
+    override fun deleteAllUsers() {
+        userDao.deleteAllUsers()
+    }
 }
