@@ -2,10 +2,14 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/chat_nav_graph"
-    app:startDestination="@id/privateChatFragment">
+    app:startDestination="@id/groupChatFragment">
 
     <fragment
         android:id="@+id/privateChatFragment"
         android:name="com.gp.chat.presentation.privateChat.PrivateChatFragment"
         android:label="PrivateChatFragment" />
+    <fragment
+        android:id="@+id/groupChatFragment"
+        android:name="com.gp.chat.presentation.groupchat.GroupChatFragment"
+        android:label="GroupChatFragment" />
 </navigation>

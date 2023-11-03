@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:chat="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="messageItem"
+            type="com.gp.chat.model.GroupMessage" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp">
+
+        <TextView
+            android:id="@+id/received_chat_date_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="8dp"
+            android:text="@{messageItem.messageDate}"
+            android:textColor="#C0C0C0"
+            android:visibility="visible"
+            chat:layout_constraintEnd_toEndOf="parent"
+            chat:layout_constraintStart_toStartOf="parent"
+            chat:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/received_message_userpfp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:contentDescription="User Icon"
+            android:visibility="visible"
+            android:src="@drawable/baseline_person_24"
+            chat:imageUrl="@{messageItem.senderPfpURL}"
+            chat:layout_constraintStart_toStartOf="parent"
+            chat:layout_constraintTop_toBottomOf="@+id/received_chat_date_textview" />
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/received_chatbox_cardview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            chat:cardBackgroundColor="#eef1f6"
+            chat:cardCornerRadius="12dp"
+            chat:cardElevation="0dp"
+            chat:cardPreventCornerOverlap="false"
+            chat:cardUseCompatPadding="true"
+            chat:layout_constraintStart_toEndOf="@+id/received_message_userpfp"
+            chat:layout_constraintTop_toTopOf="@+id/received_message_userpfp">
+
+            <LinearLayout
+                android:id="@+id/received_chatbox_linearlayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="3dp">
+
+                <TextView
+                    android:id="@+id/received_message_username_textview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{messageItem.senderName}"
+                    android:textSize="14sp"
+                    android:paddingLeft="12dp"
+                    android:paddingTop="8dp"
+                    chat:layout_constraintStart_toEndOf="@+id/received_message_userpfp"
+                    chat:layout_constraintTop_toBottomOf="@+id/received_chat_date_textview" />
+
+                <TextView
+                    android:id="@+id/received_message_textview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:maxWidth="260dp"
+                    android:paddingLeft="12dp"
+                    android:paddingTop="4dp"
+                    android:paddingRight="12dp"
+                    android:text="@{messageItem.message}"
+                    android:textColor="#000000"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/received_message_timestamp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{messageItem.timestamp}"
+                    android:textColor="#C0C0C0"
+                    android:textSize="11sp"
+                    android:gravity="right"
+                    android:layout_gravity="right"
+                    android:paddingRight="12dp"/>
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -9,6 +9,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.gp.chat.model.GroupMessage
 import com.gp.chat.model.Message
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -50,6 +51,10 @@ class MessageFirebaseClient : MessageRemoteDataSource{
         awaitClose {
             messagesReference.removeEventListener(valueEventListener)
         }
+    }
+
+    override fun fetchGroupChatMessages(groupId: String): Flow<List<GroupMessage>> {
+        TODO("Not yet implemented")
     }
 
 
