@@ -105,6 +105,9 @@ class MainActivity : AppCompatActivity() {
             com.gp.posts.R.id.searchFragment2->{
                 hideBottomNav()
             }
+            com.gp.posts.R.id.postDetailsFragment->{
+                hideBottomNav()
+            }
             else->{
                 showBottomNav()
             }
