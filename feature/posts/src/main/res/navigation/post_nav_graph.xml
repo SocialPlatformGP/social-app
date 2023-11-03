@@ -41,6 +41,9 @@
         <action
             android:id="@+id/action_postDetialsFragment_to_editPostFragment"
             app:destination="@id/editPostFragment" />
+        <action
+            android:id="@+id/action_postDetailsFragment_to_suggest_post"
+            app:destination="@id/suggest_post" />
     </fragment>
     <fragment
         android:id="@+id/editPostFragment"
@@ -63,6 +66,13 @@
         <action
             android:id="@+id/action_suggest_post_to_feedFragment"
             app:popUpTo="@id/feedFragment" />
+        <action
+            android:id="@+id/action_suggest_post_to_suggestDeatails"
+            app:destination="@id/suggestDeatails" >
+        </action>
+        <action
+            android:id="@+id/action_suggest_post_to_postDetailsFragment"
+            app:destination="@id/postDetailsFragment" />
     </fragment>
     <argument
         android:name="search_query"
@@ -78,5 +88,14 @@
         <action
             android:id="@+id/action_searchFragment2_to_suggest_post"
             app:popUpTo="@id/suggest_post" />
+    </fragment>
+    <fragment
+        android:id="@+id/suggestDeatails"
+        android:name="com.gp.posts.suggestDeatails"
+        android:label="Post_details"
+        tools:layout="@layout/fragment_suggest_deatails" >
+        <argument
+            android:name="model"
+            app:argType="com.gp.socialapp.model.Post" />
     </fragment>
 </navigation>

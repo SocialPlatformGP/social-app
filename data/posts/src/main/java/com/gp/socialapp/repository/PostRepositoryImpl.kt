@@ -43,6 +43,7 @@ class PostRepositoryImpl @Inject constructor(
         if (networkStatus.isOnline()) {
             val posts = postRemoteSource.fetchPosts()
             repositoryScope.launch {
+                postLocalSource.deleteAllPosts()
                 posts.collect {
                     it.forEach { post ->
                         insertLocalPost(post.toEntity())
@@ -61,7 +62,6 @@ class PostRepositoryImpl @Inject constructor(
 
 
     override fun fetchNetworkPosts(): Flow<List<Post>> {
-        deleteAllPosts()
         return postRemoteSource.fetchPosts()
     }
 
@@ -102,7 +102,7 @@ class PostRepositoryImpl @Inject constructor(
     }
 
     override fun deleteAllPosts() {
-        postLocalSource.deleteAllPosts()
+
     }
 
 

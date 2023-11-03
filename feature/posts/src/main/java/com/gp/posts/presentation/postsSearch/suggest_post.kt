@@ -1,6 +1,8 @@
 package com.gp.posts
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -12,9 +14,12 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.button.MaterialButton
 import com.gp.posts.adapter.FeedPostAdapter
+import com.gp.posts.adapter.OnClickListener
+import com.gp.posts.adapter.SearchResultAdapter
 import com.gp.posts.adapter.SuggestPostAdapter
 import com.gp.posts.databinding.FragmentSearchBinding
 import com.gp.posts.databinding.FragmentSuggestPostBinding
@@ -23,6 +28,7 @@ import com.gp.posts.listeners.VotesClickedListener
 import com.gp.posts.presentation.postsSearch.SearchViewModel
 import com.gp.socialapp.database.model.PostEntity
 import com.gp.socialapp.database.model.ReplyEntity
+import com.gp.socialapp.model.Post
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -37,7 +43,7 @@ private const val ARG_PARAM2 = "param2"
  * create an instance of this fragment.
  */
 @AndroidEntryPoint
-class suggest_post : Fragment() {
+class suggest_post : Fragment(),OnClickListener {
     private val viewModel: SearchViewModel by viewModels()
     lateinit var binding: FragmentSuggestPostBinding
     lateinit var btnSearch: Button
@@ -58,23 +64,25 @@ class suggest_post : Fragment() {
 
         }
 
+
         return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val recyclerView = binding.rvSuggestPosts
-        val adapter = SuggestPostAdapter()
+        val adapter = SuggestPostAdapter(this)
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         lifecycleScope.launch {
             viewModel.searchResult.flowWithLifecycle(lifecycle).collect {
-
                 binding.rvSuggestPosts.visibility = View.VISIBLE
                 adapter.submitList(it)
 
             }
         }
+
+
         val searchView =binding.suggestView
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener,
             android.widget.SearchView.OnQueryTextListener {
@@ -97,4 +105,10 @@ class suggest_post : Fragment() {
                 }}
         })
     }
+
+    override fun onClick(model: Post) {
+        Log.d("frag", model.toString())
+        val suggestAction =suggest_postDirections.actionSuggestPostToPostDetailsFragment(model)
+     findNavController().navigate(suggestAction)
     }
+}
