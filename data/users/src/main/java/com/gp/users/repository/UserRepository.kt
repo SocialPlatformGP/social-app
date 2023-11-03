@@ -16,10 +16,15 @@ interface UserRepository {
     suspend fun getAllLocalUsers(): Flow<List<UserEntity>>
 
     fun createNetworkUser(user: NetworkUser): Flow<State<Nothing>>
+
     fun updateNetworkUser(user: UserEntity): Flow<State<Nothing>>
+
     fun deleteNetworkUser(user: UserEntity): Flow<State<Nothing>>
+
     suspend fun  fetchUser(email: String): State<NetworkUser>
+
     suspend fun getUserById(email:String): UserEntity
+
     fun deleteAllUsers()
 
 

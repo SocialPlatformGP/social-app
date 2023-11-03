@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!-- SearchView -->
+
         <TextView
             android:id="@+id/search_view"
             android:layout_width="match_parent"
@@ -26,7 +26,7 @@
             android:textSize="14dp"
        />
 
-        <!-- RecyclerView for Posts -->
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_search_posts"
             android:layout_width="match_parent"

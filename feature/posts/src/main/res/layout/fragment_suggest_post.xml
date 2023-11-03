@@ -16,13 +16,13 @@
         android:layout_height="match_parent"
         android:layout_margin="10dp">
 
-        <!-- TODO: Update blank fragment layout -->
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/container"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <!-- SearchView -->
+
             <SearchView
                 android:id="@+id/suggest_view"
                 android:layout_width="290dp"
@@ -51,7 +51,7 @@
                 android:layout_margin="5dp"
                 style="@style/Widget.MaterialComponents.Button" />
 
-            <!-- RecyclerView for Posts -->
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_suggest_posts"
                 android:layout_width="match_parent"
