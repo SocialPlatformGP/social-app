@@ -1,6 +1,5 @@
 package com.gp.socialapp.model
 
-import com.gp.socialapp.database.model.Tag
 import java.io.Serializable
 
 data class Post(

@@ -23,8 +23,8 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.firebase.auth.FirebaseAuth
 import com.gp.posts.R
-import com.gp.socialapp.database.model.Tag
 import com.gp.socialapp.model.Post
+import com.gp.socialapp.model.Tag
 import com.gp.socialapp.utils.State
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
