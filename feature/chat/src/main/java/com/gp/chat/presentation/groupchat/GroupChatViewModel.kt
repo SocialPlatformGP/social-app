@@ -17,7 +17,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -68,7 +67,7 @@ class GroupChatViewModel @Inject constructor (
                         Log.d("seerde", "Success")
                     }
                     is State.Error -> {
-                        Log.d("seerde", "Error: ${(it as State.Error).message}")
+                        Log.d("seerde", "Error: ${it.message}")
                     }
                     else -> {
                         Log.d("seerde", "Loading")

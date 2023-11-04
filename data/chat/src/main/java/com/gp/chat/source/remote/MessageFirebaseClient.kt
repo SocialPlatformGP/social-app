@@ -11,7 +11,6 @@ import com.gp.chat.model.NetworkMessage
 import com.gp.chat.model.RecentChat
 import com.gp.chat.util.ChatMapper.toMessage
 import com.gp.chat.util.ChatMapper.toNetworkMessage
-import com.gp.chat.util.ChatMapper.toNetworkRecentChat
 import com.gp.socialapp.utils.State
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -83,16 +82,16 @@ class MessageFirebaseClient : MessageRemoteDataSource{
                 updates["lastMessage"] = recentChat.lastMessage!!
                 updates["timestamp"] = recentChat.timestamp!!
                 databaseReference.child("chats")
-                    .child(message.groupId!!)
+                    .child(message.groupId)
                     .updateChildren(updates)
                     .addOnSuccessListener {
                         Log.d("EDREES", "Recent Sent")
                         trySend(State.Success)
                     }.addOnFailureListener{
-                        trySend(State.Error(it.localizedMessage))
+                        trySend(State.Error(it.localizedMessage!!))
                     }
             }.addOnFailureListener {
-                trySend(State.Error(it.localizedMessage))
+                trySend(State.Error(it.localizedMessage!!))
             }
         awaitClose()
     }

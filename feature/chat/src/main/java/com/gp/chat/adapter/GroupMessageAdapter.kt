@@ -11,11 +11,9 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.gp.chat.R
 import com.gp.chat.databinding.ItemReceivedMessageBinding
 import com.gp.chat.databinding.ItemSentMessageBinding
 import com.gp.chat.model.Message
-import java.util.Date
 
 class GroupMessageAdapter(private val context: Context) :
     ListAdapter<Message, GroupMessageAdapter.GroupMessageViewHolder>(GroupMessageDiffCallback()) {
