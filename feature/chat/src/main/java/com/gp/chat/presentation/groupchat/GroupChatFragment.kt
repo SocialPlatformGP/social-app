@@ -43,4 +43,7 @@ class GroupChatFragment : Fragment() {
             }
         }
     }
+    fun onSendMessageClick(){
+        viewModel.onSendMessage(GROUP_ID)
+    }
 }

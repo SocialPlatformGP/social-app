@@ -4,6 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <variable
+            name="viewmodel"
+            type="com.gp.chat.presentation.groupchat.GroupChatViewModel" />
+        <variable
+            name="fragment"
+            type="com.gp.chat.presentation.groupchat.GroupChatFragment" />
 
     </data>
 
@@ -72,6 +78,7 @@
                 android:layout_toStartOf="@+id/button_gchat_send"
                 android:background="@android:color/transparent"
                 android:hint="Enter Message"
+                android:text="@={viewmodel.currentMessageState.message}"
                 android:inputType="text"
                 android:maxLines="6"
                 tools:ignore="Autofill" />
@@ -84,6 +91,7 @@
                 style="@style/Widget.Material3.Button.IconButton"
                 android:background="?attr/selectableItemBackground"
                 chat:icon="@drawable/baseline_send_24"
+                android:onClick="@{() -> fragment.onSendMessageClick()}"
                 />
 
         </RelativeLayout>

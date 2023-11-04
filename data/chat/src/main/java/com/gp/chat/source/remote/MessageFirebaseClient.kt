@@ -11,6 +11,7 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.gp.chat.model.GroupMessage
 import com.gp.chat.model.Message
+import com.gp.socialapp.utils.State
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -57,5 +58,8 @@ class MessageFirebaseClient : MessageRemoteDataSource{
         TODO("Not yet implemented")
     }
 
+    override fun sendGroupMessage(groupId: String, message: GroupMessage): Flow<State<Nothing>> {
+        TODO("Not yet implemented")
+    }
 
 }
