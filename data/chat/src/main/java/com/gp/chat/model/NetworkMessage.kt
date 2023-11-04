@@ -1,8 +1,6 @@
 package com.gp.chat.model
 
-data class Message(
-    val id: String?= null,
-    val groupId : String?= null,
+data class NetworkMessage(
     val message: String?= null,
     val messageDate: String? = null,
     val senderId: String?= null,
