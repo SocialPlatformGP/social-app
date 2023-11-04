@@ -14,14 +14,14 @@ import com.google.firebase.ktx.Firebase
 import com.gp.chat.R
 import com.gp.chat.databinding.ItemReceivedMessageBinding
 import com.gp.chat.databinding.ItemSentMessageBinding
-import com.gp.chat.model.GroupMessage
+import com.gp.chat.model.Message
 import java.util.Date
 
 class GroupMessageAdapter(private val context: Context) :
-    ListAdapter<GroupMessage, GroupMessageAdapter.GroupMessageViewHolder>(GroupMessageDiffCallback()) {
+    ListAdapter<Message, GroupMessageAdapter.GroupMessageViewHolder>(GroupMessageDiffCallback()) {
     inner class GroupMessageViewHolder(val binding: ViewDataBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(message: GroupMessage) {
+        fun bind(message: Message) {
             if (binding is ItemSentMessageBinding) {
                 binding.messageItem = message
             } else if (binding is ItemReceivedMessageBinding) {
@@ -49,12 +49,16 @@ class GroupMessageAdapter(private val context: Context) :
         val previousItem = if (position >= 1) getItem(position - 1) else null
         if (previousItem != null) {
             val isSameSender = previousItem.senderId == item.senderId
-            val isDateSame =previousItem.messageDate == item.messageDate
+            val isDateSame = previousItem.messageDate == item.messageDate
             if (isSameSender && !isCurrentUser(item)) {
                 (holder.binding as ItemReceivedMessageBinding).receivedMessageUserpfp.visibility = View.INVISIBLE
-                (holder.binding as ItemReceivedMessageBinding).receivedMessageUsernameTextview.visibility = View.GONE
-                setTopMargin((holder.binding as ItemReceivedMessageBinding).root as ConstraintLayout
+                holder.binding.receivedMessageUsernameTextview.visibility = View.GONE
+                setTopMargin(holder.binding.root as ConstraintLayout
                 , 0)
+            }
+            if(previousItem.senderId == item.senderId && isCurrentUser(item)){
+                setTopMargin((holder.binding as ItemSentMessageBinding).root as ConstraintLayout
+                    , 0)
             }
             if (isDateSame) {
                 hideDateView(isCurrentUser(item), holder)
@@ -77,7 +81,7 @@ class GroupMessageAdapter(private val context: Context) :
         const val VIEW_TYPE_RECEIVED = 2
     }
 
-    fun isCurrentUser(item: GroupMessage): Boolean {
+    fun isCurrentUser(item: Message): Boolean {
         return item.senderId == Firebase.auth.currentUser?.email
     }
 
@@ -96,12 +100,12 @@ class GroupMessageAdapter(private val context: Context) :
     }
 }
 
-class GroupMessageDiffCallback : DiffUtil.ItemCallback<GroupMessage>() {
-    override fun areItemsTheSame(oldItem: GroupMessage, newItem: GroupMessage): Boolean {
+class GroupMessageDiffCallback : DiffUtil.ItemCallback<Message>() {
+    override fun areItemsTheSame(oldItem: Message, newItem: Message): Boolean {
         return oldItem.id == newItem.id
     }
 
-    override fun areContentsTheSame(oldItem: GroupMessage, newItem: GroupMessage): Boolean {
+    override fun areContentsTheSame(oldItem: Message, newItem: Message): Boolean {
         return oldItem == newItem
     }
 }

@@ -1,8 +1,8 @@
 package com.gp.chat.repository
 
 import android.util.Log
-import com.gp.chat.model.GroupMessage
 import com.gp.chat.model.Message
+import com.gp.chat.model.RecentChat
 import com.gp.chat.source.remote.MessageRemoteDataSource
 import com.gp.socialapp.utils.State
 import kotlinx.coroutines.flow.Flow
@@ -21,11 +21,11 @@ class MessageRepositoryImpl @Inject constructor(
         return messageRemoteDataSource.getChatMessages(chatId)
     }
 
-    override fun fetchGroupChatMessages(groupId: String): Flow<List<GroupMessage>> {
-        return messageRemoteDataSource.fetchGroupChatMessages(groupId)
+    override fun fetchGroupChatMessages(groupId: String): Flow<List<Message>> {
+        return messageRemoteDataSource.fetchGroupMessages(groupId)
     }
 
-    override fun sendGroupMessage(groupId: String, message: GroupMessage): Flow<State<Nothing>> {
-        return messageRemoteDataSource.sendGroupMessage(groupId, message)
+    override fun sendGroupMessage(message: Message, recentChat: RecentChat): Flow<State<Nothing>> {
+        return messageRemoteDataSource.sendGroupMessage(message, recentChat)
     }
 }

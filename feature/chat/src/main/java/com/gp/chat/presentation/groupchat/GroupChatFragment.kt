@@ -2,6 +2,7 @@ package com.gp.chat.presentation.groupchat
 
 import androidx.fragment.app.viewModels
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -21,7 +22,7 @@ import kotlinx.coroutines.launch
 class GroupChatFragment : Fragment() {
     private val viewModel: GroupChatViewModel by viewModels()
     private lateinit var binding: FragmentGroupChatBinding
-    private val GROUP_ID = ""
+    private val GROUP_ID = "test_group_id"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -29,6 +30,8 @@ class GroupChatFragment : Fragment() {
     ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_group_chat, container, false)
         binding.lifecycleOwner = this
+        binding.viewmodel = viewModel
+        binding.fragment = this
         return binding.root
     }
 
@@ -36,12 +39,14 @@ class GroupChatFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val adapter = GroupMessageAdapter(requireContext())
         binding.recyclerGchat.adapter = adapter
-        viewModel.fetchGroupChatMessages(GROUP_ID)
         lifecycleScope.launch {
             viewModel.chatMessagesFlow.flowWithLifecycle(lifecycle).collectLatest {
+                Log.d("edrees", "before submit")
                 adapter.submitList(it)
+                Log.d("edrees", "after submit")
             }
         }
+        viewModel.fetchGroupChatMessages(GROUP_ID)
     }
     fun onSendMessageClick(){
         viewModel.onSendMessage(GROUP_ID)

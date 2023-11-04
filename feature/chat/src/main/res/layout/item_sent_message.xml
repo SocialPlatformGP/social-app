@@ -5,7 +5,7 @@
     <data>
         <variable
             name="messageItem"
-            type="com.gp.chat.model.GroupMessage" />
+            type="com.gp.chat.model.Message" />
 
     </data>
 
