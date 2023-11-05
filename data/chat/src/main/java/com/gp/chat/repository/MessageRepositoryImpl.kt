@@ -4,6 +4,7 @@ import android.util.Log
 import com.gp.chat.model.Message
 import com.gp.chat.model.NetworkMessage
 import com.gp.chat.source.remote.MessageRemoteDataSource
+import com.gp.socialapp.utils.State
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -15,8 +16,7 @@ class MessageRepositoryImpl @Inject constructor(
         return messageRemoteDataSource.sendMessage(chatId, message)
     }
 
-    override fun getChatMessages(chatId: String): Flow<List<Message>> {
-
+    override fun getChatMessages(chatId: String): Flow<State<List<Message>>> {
         return messageRemoteDataSource.getChatMessages(chatId)
     }
 }
