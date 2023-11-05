@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.gp.chat.model.Message
+import com.gp.chat.model.NetworkMessage
 import com.gp.chat.repository.MessageRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -21,15 +22,18 @@ class PrivateChatViewModel @Inject constructor (
     private val messageRepository: MessageRepository
 ): ViewModel() {
     private val currentUser =Firebase.auth.currentUser
-    private val TAG = "ChatID1"
+    private var TAG = "123456"
     private val _messages = MutableStateFlow(listOf<Message>())
     val messages=_messages
-
     val currentMessage=MutableStateFlow(MessageState())
 
 
 
+
     fun getMessages(){
+        if(TAG.isEmpty()){
+            return
+        }
         viewModelScope.launch(Dispatchers.IO) {
             messageRepository.getChatMessages(TAG).collect{
                 _messages.value = it
@@ -42,14 +46,16 @@ class PrivateChatViewModel @Inject constructor (
         }
         else {
             viewModelScope.launch(Dispatchers.IO) {
-                messageRepository.sendMessage(
+                TAG=messageRepository.sendMessage(
                     TAG,
-                    Message(
-                        "",
-                        currentMessage.value.message,
-                        currentUser?.email ?: "",
-                        "2",
-                        Date().toString()
+                    NetworkMessage(
+                        message = currentMessage.value.message,
+                        messageDate = Date().toString(),
+                        senderId = currentUser?.email ?: "",
+                        senderName = currentUser?.displayName ?: "",
+                        timestamp = Date().toString()
+
+
                     )
                 )
                 currentMessage.value=currentMessage.value.copy(message = "")

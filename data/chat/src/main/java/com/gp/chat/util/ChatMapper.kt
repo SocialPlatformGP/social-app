@@ -8,6 +8,8 @@ import com.gp.chat.model.NetworkChatUser
 import com.gp.chat.model.NetworkMessage
 import com.gp.chat.model.NetworkRecentChat
 import com.gp.chat.model.RecentChat
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 object ChatMapper {
 
@@ -66,5 +68,9 @@ object ChatMapper {
         isPrivateChat = isPrivateChat,
         picUrl = picUrl
     )
+    fun Flow<List<NetworkMessage>>.toMessageFlow(id:String,groupId: String)
+    = map { list -> list.map { it.toMessage(id,groupId) } }
+
+
 
 }

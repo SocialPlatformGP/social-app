@@ -2,6 +2,7 @@ package com.gp.chat.repository
 
 import android.util.Log
 import com.gp.chat.model.Message
+import com.gp.chat.model.NetworkMessage
 import com.gp.chat.source.remote.MessageRemoteDataSource
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -9,7 +10,7 @@ import javax.inject.Inject
 class MessageRepositoryImpl @Inject constructor(
     private val messageRemoteDataSource: MessageRemoteDataSource
 ): MessageRepository {
-    override suspend fun sendMessage(chatId: String, message: Message) {
+    override suspend fun sendMessage(chatId: String, message: NetworkMessage): String {
         Log.d("viewmodel->repo", "sendMessage: $message")
         return messageRemoteDataSource.sendMessage(chatId, message)
     }
