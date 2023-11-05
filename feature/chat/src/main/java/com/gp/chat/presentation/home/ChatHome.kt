@@ -42,7 +42,7 @@ class ChatHome : Fragment(),OnItemClickListener {
         floatingActionButton=view.findViewById(R.id.fabNewChat)
 
         var arrayList:ArrayList<Message> = arrayListOf()
-        chatAdapter=ChatAdapter()
+        chatAdapter=ChatAdapter(this)
         chatAdapter.setData(arrayList)
 
         recyclerView.adapter=chatAdapter
@@ -54,7 +54,9 @@ class ChatHome : Fragment(),OnItemClickListener {
         }
     }
 
-
+    override fun onClick(user: UserEntity) {
+        TODO("Not yet implemented")
+    }
 
 
 }

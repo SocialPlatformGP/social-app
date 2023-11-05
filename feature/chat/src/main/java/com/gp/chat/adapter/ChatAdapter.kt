@@ -18,7 +18,7 @@ class ChatAdapter(var onItemClickListener: OnItemClickListener) : RecyclerView.A
         val  message=item.findViewById<TextView>(R.id.message)
         fun bind(chat: Message){
             name.text=chat.senderId.toString()
-            message.text=chat.text
+//            message.text=chat.text
             itemView.setOnClickListener{
 //                onItemClickListener.onClick(chat)
             }

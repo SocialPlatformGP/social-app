@@ -26,16 +26,12 @@ class PrivateChatFragment : Fragment() {
     lateinit var binding: FragmentPrivateChatBinding
     private val viewModel: PrivateChatViewModel by viewModels()
 
-
-
-        override fun onCreateView(
-//    private val args : PrivateChatFragmentArgs by navArgs()
+    private val args : PrivateChatFragmentArgs by navArgs()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // todo set tag
-//        viewModel.setTag()
+    ): View {
+        viewModel.setReceiverEmail(args.userEmail)
         binding  = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment_private_chat,

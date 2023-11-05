@@ -7,7 +7,12 @@
     <fragment
         android:id="@+id/privateChatFragment"
         android:name="com.gp.chat.presentation.privateChat.PrivateChatFragment"
-        android:label="PrivateChatFragment" />
+        android:label="PrivateChatFragment" >
+        <argument
+            android:name="userEmail"
+            app:argType="string"
+            android:defaultValue='""' />
+    </fragment>
     <fragment
         android:id="@+id/chatHome"
         android:name="com.gp.chat.presentation.home.ChatHome"

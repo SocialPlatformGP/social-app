@@ -65,5 +65,45 @@ class MessageFirebaseClient : MessageRemoteDataSource{
         }
     }
 
+    override fun checkIfNewChat(userEmail:String , receiverEmail: String): Flow<State<String>> = callbackFlow {
+        Log.d("MessageFirebaseClient start of the fun ", "checkIfNewChat: $userEmail $receiverEmail")
+        val reference = databaseReference.child("privateChats")
+        val listener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    Log.d("MessageFirebaseClient snapshot is exist", "checkIfNewChat: $snapshot")
+                    val receivers = snapshot.child(userEmail).child("receivers").value as? Map<*, *>
+                    var chatId = receivers?.get(receiverEmail) as? String
+                    Log.d("MessageFirebaseClient chatId my chat id ", "checkIfNewChat: $chatId")
+                    if(chatId == null){
+                        chatId = databaseReference.child("messages").push().key!!
+                        databaseReference.child("privateChats").child(userEmail).child("receivers").child(receiverEmail).setValue(chatId)
+                        Log.d("MessageFirebaseClient chatId my  new  chat id  ", "checkIfNewChat: $chatId")
+
+                    }
+                    trySend(State.SuccessWithData(chatId))
+                } else {
+                    Log.d("MessageFirebaseClient snapshot is not exist", "checkIfNewChat: $snapshot")
+                    reference.child(userEmail).child("receivers").child(receiverEmail).setValue("")
+                    val chatId = databaseReference.child("messages").push().key!!
+                    databaseReference.child("privateChats").child(userEmail).child("receivers").child(receiverEmail).setValue(chatId)
+                    Log.d("MessageFirebaseClient chatId my  new  chat id and new private chat  ", "checkIfNewChat: $chatId")
+                    trySend(State.SuccessWithData(chatId))
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                trySend(State.Error(error.message))
+                close(error.toException())
+            }
+        }
+
+        reference.addListenerForSingleValueEvent(listener)
+
+        awaitClose {
+            reference.removeEventListener(listener)
+        }
+    }
+
 
 }

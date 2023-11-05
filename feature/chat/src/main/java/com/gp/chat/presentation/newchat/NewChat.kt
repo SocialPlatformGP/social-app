@@ -53,6 +53,7 @@ class NewChat : Fragment() ,OnItemClickListener {
     }
 
     override fun onClick(user: UserEntity) {
-
+        val action = NewChatDirections.actionNewChatToPrivateChatFragment(user.userEmail)
+        findNavController().navigate(action)
     }
 }

@@ -19,4 +19,8 @@ class MessageRepositoryImpl @Inject constructor(
     override fun getChatMessages(chatId: String): Flow<State<List<Message>>> {
         return messageRemoteDataSource.getChatMessages(chatId)
     }
+
+    override fun checkIfNewChat(userEmail:String,receiverEmail: String): Flow<State<String>> {
+        return messageRemoteDataSource.checkIfNewChat(userEmail,receiverEmail)
+    }
 }
