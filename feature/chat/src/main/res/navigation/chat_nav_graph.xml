@@ -15,9 +15,16 @@
         <action
             android:id="@+id/action_chatHome_to_newChat"
             app:destination="@id/newChat" />
+        <action
+            android:id="@+id/action_chatHome_to_privateChatFragment"
+            app:destination="@id/privateChatFragment" />
     </fragment>
     <fragment
         android:id="@+id/newChat"
         android:name="com.gp.chat.presentation.newchat.NewChat"
-        android:label="NewChat" />
+        android:label="NewChat" >
+        <action
+            android:id="@+id/action_newChat_to_privateChatFragment"
+            app:destination="@id/privateChatFragment" />
+    </fragment>
 </navigation>

@@ -21,7 +21,7 @@ class PrivateChatViewModel @Inject constructor (
     private val messageRepository: MessageRepository
 ): ViewModel() {
     private val currentUser =Firebase.auth.currentUser
-    private val TAG = "ChatID1"
+    private var TAG = "ChatID1"
     private val _messages = MutableStateFlow(listOf<Message>())
     val messages=_messages
 
@@ -35,6 +35,9 @@ class PrivateChatViewModel @Inject constructor (
                 _messages.value = it
             }
         }
+    }
+    fun setTag(tag:String){
+        TAG=tag
     }
     fun sendMessage(){
         if(currentMessage.value.message.isEmpty()){

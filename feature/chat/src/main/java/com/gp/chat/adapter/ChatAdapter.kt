@@ -10,9 +10,8 @@ import com.gp.chat.R
 import com.gp.chat.model.Message
 import com.gp.chat.listener.OnItemClickListener
 
-class ChatAdapter : RecyclerView.Adapter<ChatAdapter.ChatViewHolder>() {
+class ChatAdapter(var onItemClickListener: OnItemClickListener) : RecyclerView.Adapter<ChatAdapter.ChatViewHolder>() {
     var arrayList:ArrayList<Message> = arrayListOf()
-    var onItemClickListener: OnItemClickListener?=null
 
     inner class ChatViewHolder(item:View):RecyclerView.ViewHolder(item){
         val name=item.findViewById<TextView>(R.id.name)
@@ -21,7 +20,7 @@ class ChatAdapter : RecyclerView.Adapter<ChatAdapter.ChatViewHolder>() {
             name.text=chat.senderId.toString()
             message.text=chat.text
             itemView.setOnClickListener{
-//                onItemClickListener?.onClick(chat)
+//                onItemClickListener.onClick(chat)
             }
 
         }

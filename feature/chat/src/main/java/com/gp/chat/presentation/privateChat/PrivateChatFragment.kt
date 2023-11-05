@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.navArgs
 import com.gp.chat.R
 import com.gp.chat.adapter.MessageAdapter
 import com.gp.chat.databinding.FragmentPrivateChatBinding
@@ -20,11 +21,13 @@ import kotlinx.coroutines.launch
 class PrivateChatFragment : Fragment() {
     lateinit var binding: FragmentPrivateChatBinding
     private val viewModel: PrivateChatViewModel by viewModels()
+//    private val args : PrivateChatFragmentArgs by navArgs()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        viewModel.getMessages()
+        // todo set tag
+//        viewModel.setTag()
         binding  = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment_private_chat,

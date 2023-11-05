@@ -1,3 +1,6 @@
+package com.gp.chat.presentation.newchat
+
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gp.socialapp.database.model.UserEntity
@@ -10,9 +13,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class NewChatViewModel @Inject constructor(
+class NewChatViewModel @Inject  constructor(
     private val userRepository: UserRepository
 ) : ViewModel() {
+
     init {
         getAllUsers()
     }
@@ -20,9 +24,10 @@ class NewChatViewModel @Inject constructor(
     private val _users = MutableStateFlow<List<UserEntity>>(emptyList())
     val users: StateFlow<List<UserEntity>>
         get() = _users
-    fun getAllUsers(){
+    private fun getAllUsers(){
         viewModelScope.launch (Dispatchers.IO) {
             userRepository.fetchAllUsers().collect{
+                Log.d("TAG", "getAllUsers: $it")
                 _users.value=it
 
             }
