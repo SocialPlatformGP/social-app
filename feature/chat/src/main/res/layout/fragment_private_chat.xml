@@ -85,7 +85,6 @@
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_marginBottom="2dp"
-                chat:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 chat:layout_constraintBottom_toTopOf="@+id/textInputLayout"
                 chat:layout_constraintEnd_toEndOf="parent"
                 chat:layout_constraintStart_toStartOf="parent"

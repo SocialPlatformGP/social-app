@@ -111,6 +111,9 @@ class MainActivity : AppCompatActivity() {
                 appBarLayout.visibility=View.GONE
 
             }
+            com.gp.posts.R.id.postDetailsFragment->{
+                hideBottomNav()
+            }
             else->{
                 showBottomNav()
                 appBarLayout.visibility=View.VISIBLE

@@ -42,6 +42,10 @@ class MessageAdapter() : ListAdapter<Message, MessageAdapter.MessageViewHolder>(
         item=item.copy(timestamp = ToSimpleTimeFormat.convertTimestampStringToFormattedTime(item.timestamp!!))
         holder.bind(item)
     }
+
+    override fun getItemCount(): Int {
+        return currentList.size
+    }
     override fun getItemViewType(position: Int): Int {
         val message = getItem(position)
         return if (message.senderId == Firebase.auth.currentUser?.email) {
