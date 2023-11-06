@@ -9,5 +9,4 @@ data class RecentChat(
     val receiverName: String?= null,
     val isPrivateChat : Boolean?= null,
     val picUrl : String?= null,
-
 )
