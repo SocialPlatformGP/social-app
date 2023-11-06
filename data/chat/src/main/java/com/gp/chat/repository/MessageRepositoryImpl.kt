@@ -3,6 +3,7 @@ package com.gp.chat.repository
 import android.util.Log
 import com.gp.chat.model.Message
 import com.gp.chat.model.NetworkMessage
+import com.gp.chat.model.RecentChat
 import com.gp.chat.source.remote.MessageRemoteDataSource
 import com.gp.socialapp.utils.State
 import kotlinx.coroutines.flow.Flow
@@ -22,5 +23,21 @@ class MessageRepositoryImpl @Inject constructor(
 
     override fun checkIfNewChat(userEmail:String,receiverEmail: String): Flow<State<String>> {
         return messageRemoteDataSource.checkIfNewChat(userEmail,receiverEmail)
+    }
+
+    override suspend fun updateRecent(chatId: String, message: String, userEmail: String,receiverEmail: String) {
+        return messageRemoteDataSource.updateRecent(chatId,message,userEmail,receiverEmail)
+    }
+
+    override fun getRecentChats(userEmail: String): Flow<State<List<RecentChat>>> {
+        return messageRemoteDataSource.getRecentChats(userEmail)
+    }
+
+    override suspend fun createNewChat(
+        userEmail: String,
+        receiverEmail: String,
+        chatId: String
+    ){
+        return messageRemoteDataSource.createNewChat(userEmail,receiverEmail,chatId)
     }
 }

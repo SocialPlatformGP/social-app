@@ -8,6 +8,9 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
@@ -19,12 +22,14 @@ import com.gp.chat.listener.OnItemClickListener
 import com.gp.chat.model.Message
 import com.gp.socialapp.database.model.UserEntity
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ChatHome : Fragment(),OnItemClickListener {
     lateinit var recyclerView: RecyclerView
     lateinit var chatAdapter: ChatAdapter
     lateinit var floatingActionButton: FloatingActionButton
+    private val viewModel: HomeViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,27 +40,34 @@ class ChatHome : Fragment(),OnItemClickListener {
         return inflater.inflate(R.layout.fragment_chat_home, container, false)
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.getRecentChats()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         recyclerView=view.findViewById(R.id.chatListRecyclerView)
         floatingActionButton=view.findViewById(R.id.fabNewChat)
-
-        var arrayList:ArrayList<Message> = arrayListOf()
         chatAdapter=ChatAdapter(this)
-        chatAdapter.setData(arrayList)
-
         recyclerView.adapter=chatAdapter
+
+        lifecycleScope.launch {
+            viewModel.recentChats.flowWithLifecycle(lifecycle).collect{
+                chatAdapter.submitList(it)
+            }
+        }
+
         floatingActionButton.setOnClickListener{
             val action =ChatHomeDirections.actionChatHomeToNewChat()
             findNavController().navigate(action)
-
-
         }
     }
 
-    override fun onClick(user: UserEntity) {
-        TODO("Not yet implemented")
+    override fun onClick(user: String) {
+        val action = ChatHomeDirections.actionChatHomeToPrivateChatFragment(user)
+        findNavController().navigate(action)
     }
 
 

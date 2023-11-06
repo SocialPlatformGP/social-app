@@ -5,44 +5,65 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.gp.chat.R
+import com.gp.chat.databinding.ChatitemBinding
 import com.gp.chat.model.Message
 import com.gp.chat.listener.OnItemClickListener
+import com.gp.chat.model.RecentChat
+import com.gp.chat.util.RemoveSpecialChar.removeSpecialCharacters
 
-class ChatAdapter(var onItemClickListener: OnItemClickListener) : RecyclerView.Adapter<ChatAdapter.ChatViewHolder>() {
-    var arrayList:ArrayList<Message> = arrayListOf()
+class ChatAdapter(var onItemClickListener: OnItemClickListener) : ListAdapter<RecentChat,ChatAdapter.ChatViewHolder>(DiffUtilCallBack) {
 
-    inner class ChatViewHolder(item:View):RecyclerView.ViewHolder(item){
-        val name=item.findViewById<TextView>(R.id.name)
-        val  message=item.findViewById<TextView>(R.id.message)
-        fun bind(chat: Message){
-            name.text=chat.senderId.toString()
-//            message.text=chat.text
+    inner class ChatViewHolder(val binding:ChatitemBinding):RecyclerView.ViewHolder(binding.root){
+        fun bind(chat: RecentChat){
+            binding.chat=chat
+            binding.executePendingBindings()
             itemView.setOnClickListener{
-//                onItemClickListener.onClick(chat)
-            }
+                val currentEmail= removeSpecialCharacters(Firebase.auth.currentUser?.email!!)
 
+                if (currentEmail==chat.senderName){
+                    onItemClickListener.onClick(chat.receiverName!!)
+                }
+                else{
+                    onItemClickListener.onClick(chat.senderName!!)
+                }
+            }
         }
 
     }
-    fun setData(arrayList: ArrayList<com.gp.chat.model.Message>){
-        this.arrayList=arrayList
-        notifyDataSetChanged()
-    }
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatViewHolder {
-        val  view= LayoutInflater.from(parent.context).inflate(R.layout.chatitem,parent,false)
-        return ChatViewHolder(view)
+        val  binding=DataBindingUtil.inflate(
+            LayoutInflater.from(parent.context),
+            R.layout.chatitem,
+            parent,
+            false
+        ) as ChatitemBinding
+        return ChatViewHolder(binding)
     }
 
-    override fun getItemCount(): Int {
-        return arrayList.size
-    }
+
 
     override fun onBindViewHolder(holder: ChatViewHolder, position: Int) {
-        val item=arrayList.get(position)
+        val item=getItem(position)
         holder.bind(item)
 
     }
+}
+object DiffUtilCallBack: DiffUtil.ItemCallback<RecentChat>(){
+    override fun areItemsTheSame(oldItem: RecentChat, newItem: RecentChat): Boolean {
+        return oldItem.id==newItem.id
+    }
+
+    override fun areContentsTheSame(oldItem: RecentChat, newItem: RecentChat): Boolean {
+        return oldItem==newItem
+    }
+
 }

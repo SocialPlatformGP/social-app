@@ -23,7 +23,7 @@ class UsersChatAdapter(var onItemClickListener: OnItemClickListener): ListAdapte
             name.text="${userEntity.userFirstName} ${userEntity.userLastName}"
             img.setProfilePicture(userEntity.userProfilePictureURL)
             itemView.setOnClickListener{
-                onItemClickListener.onClick(userEntity)
+                onItemClickListener.onClick(userEntity.userEmail)
             }
 
         }
