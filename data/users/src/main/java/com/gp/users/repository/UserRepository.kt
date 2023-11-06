@@ -3,6 +3,7 @@ package com.gp.users.repository
 import com.gp.socialapp.database.model.UserEntity
 import com.gp.socialapp.utils.State
 import com.gp.users.model.NetworkUser
+import com.gp.users.model.User
 import kotlinx.coroutines.flow.Flow
 
 interface UserRepository {
@@ -20,6 +21,6 @@ interface UserRepository {
     fun deleteNetworkUser(user: UserEntity): Flow<State<Nothing>>
     suspend fun  fetchUser(email: String): State<NetworkUser>
     suspend fun getUserById(email:String): UserEntity
-
+    fun fetchUsers(): Flow<State<List<User>>>
 
 }

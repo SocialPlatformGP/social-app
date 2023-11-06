@@ -5,6 +5,7 @@ import com.gp.socialapp.utils.State
 import com.gp.users.Source.local.UserLocalDataSource
 import com.gp.users.Source.remote.UserRemoteDataSource
 import com.gp.users.model.NetworkUser
+import com.gp.users.model.User
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -33,4 +34,7 @@ class UserRepositoryImpl @Inject constructor(private val userLocalSource: UserLo
     override fun deleteNetworkUser(user: UserEntity) = userRemoteSource.deleteUser(user)
     override suspend fun fetchUser(email: String): State<NetworkUser> = userRemoteSource.fetchUser(email)
     override suspend fun getUserById(email: String) = userLocalSource.getUserById(email)
+    override fun fetchUsers(): Flow<State<List<User>>> {
+        return userRemoteSource.fetchUsers()
+    }
 }

@@ -2,6 +2,7 @@ package com.gp.users.Source.remote
 
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QuerySnapshot
 import com.gp.socialapp.database.model.UserEntity
 import com.gp.socialapp.utils.State
 import com.gp.users.model.NetworkUser
@@ -88,5 +89,14 @@ class UserfirestoreClient @Inject constructor(val firestore: FirebaseFirestore) 
                 Log.d("TAG", "User Deletion Failed")
             }
         awaitClose()
+    }
+    override fun fetchUsers(): Flow<State<List<User>>> = callbackFlow {
+        trySend(State.Loading)
+        val ref= firestore.collection("users")
+        ref.get().addOnSuccessListener {
+            trySend(State.SuccessWithData(it.toObjects(User::class.java)))
+        }.addOnFailureListener {
+            trySend(State.Error(it.localizedMessage!!))
+        }
     }
 }
