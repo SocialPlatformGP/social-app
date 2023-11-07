@@ -40,10 +40,7 @@ class ChatHome : Fragment(),OnItemClickListener {
         return inflater.inflate(R.layout.fragment_chat_home, container, false)
     }
 
-    override fun onResume() {
-        super.onResume()
-        viewModel.getRecentChats()
-    }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -65,8 +62,8 @@ class ChatHome : Fragment(),OnItemClickListener {
         }
     }
 
-    override fun onClick(user: String) {
-        val action = ChatHomeDirections.actionChatHomeToPrivateChatFragment(user)
+    override fun onClick(chatId: String) {
+        val action = ChatHomeDirections.actionChatHomeToPrivateChatFragment(chatId=chatId)
         findNavController().navigate(action)
     }
 

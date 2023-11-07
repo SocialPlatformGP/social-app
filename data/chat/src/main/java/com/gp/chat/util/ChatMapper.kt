@@ -7,6 +7,8 @@ import com.gp.chat.model.NetworkChatGroup
 import com.gp.chat.model.NetworkChatUser
 import com.gp.chat.model.NetworkMessage
 import com.gp.chat.model.NetworkRecentChat
+import com.gp.chat.model.PrivateChats
+import com.gp.chat.model.PrivateChatsNetwork
 import com.gp.chat.model.RecentChat
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -17,20 +19,24 @@ object ChatMapper {
         name = name,
         members = members
     )
-    fun NetworkChatGroup.toChatGroup(id:String) = ChatGroup(
+
+    fun NetworkChatGroup.toChatGroup(id: String) = ChatGroup(
         id = id,
         name = name,
         members = members
     )
+
     fun ChatUser.toNetworkChatUser() = NetworkChatUser(
         name = name,
         groups = groups
     )
-    fun NetworkChatUser.toChatUser(id:String) = ChatUser(
+
+    fun NetworkChatUser.toChatUser(id: String) = ChatUser(
         id = id,
         name = name,
         groups = groups
     )
+
     fun Message.toNetworkMessage() = NetworkMessage(
         senderId = senderId,
         message = message,
@@ -39,9 +45,9 @@ object ChatMapper {
         senderName = senderName,
         senderPfpURL = senderPfpURL
     )
-    fun NetworkMessage.toMessage(id:String,groupId: String) = Message(
+
+    fun NetworkMessage.toModel(id: String) = Message(
         id = id,
-        groupId = groupId,
         senderId = senderId,
         message = message,
         timestamp = timestamp,
@@ -49,6 +55,9 @@ object ChatMapper {
         senderName = senderName,
         senderPfpURL = senderPfpURL
     )
+
+
+
     fun RecentChat.toNetworkRecentChat() = NetworkRecentChat(
         lastMessage = lastMessage,
         timestamp = timestamp,
@@ -58,7 +67,8 @@ object ChatMapper {
         isPrivateChat = isPrivateChat,
         picUrl = picUrl
     )
-    fun  NetworkRecentChat.toRecentChat(id:String) = RecentChat(
+
+    fun NetworkRecentChat.toRecentChat(id: String) = RecentChat(
         id = id,
         lastMessage = lastMessage,
         timestamp = timestamp,
@@ -68,9 +78,26 @@ object ChatMapper {
         isPrivateChat = isPrivateChat,
         picUrl = picUrl
     )
-    fun Flow<List<NetworkMessage>>.toMessageFlow(id:String,groupId: String)
-    = map { list -> list.map { it.toMessage(id,groupId) } }
 
+    fun Flow<List<NetworkMessage>>.toMessageFlow(id: String) =
+        map { list -> list.map { it.toModel(id) } }
+
+    fun PrivateChats.toNetworkPrivateChats() = PrivateChatsNetwork(
+        reciverUsers = reciverUsers,
+    )
+    fun PrivateChatsNetwork.toPrivateChats(id: String) = PrivateChats(
+        currentUser = id,
+        reciverUsers = reciverUsers,
+    )
+    fun RecentChat.toMap()= mapOf(
+        "lastMessage" to lastMessage,
+        "timestamp" to timestamp,
+        "title" to title,
+        "senderName" to senderName,
+        "receiverName" to receiverName,
+        "isPrivateChat" to isPrivateChat,
+        "picUrl" to picUrl
+    )
 
 
 }

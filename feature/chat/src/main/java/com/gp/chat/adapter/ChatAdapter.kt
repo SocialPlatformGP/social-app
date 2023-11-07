@@ -25,14 +25,8 @@ class ChatAdapter(var onItemClickListener: OnItemClickListener) : ListAdapter<Re
             binding.chat=chat
             binding.executePendingBindings()
             itemView.setOnClickListener{
-                val currentEmail= removeSpecialCharacters(Firebase.auth.currentUser?.email!!)
+                onItemClickListener.onClick(chat.id!!)
 
-                if (currentEmail==chat.senderName){
-                    onItemClickListener.onClick(chat.receiverName!!)
-                }
-                else{
-                    onItemClickListener.onClick(chat.senderName!!)
-                }
             }
         }
 

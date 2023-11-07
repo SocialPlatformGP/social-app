@@ -42,29 +42,15 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">
 
-                        <com.google.android.material.button.MaterialButton
-                            style="@style/Widget.Material3.Button.IconButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="0.5"
-                            chat:icon="@drawable/baseline_emoji_emotions_24"
-                            chat:iconGravity="textStart" />
+
 
                         <com.google.android.material.button.MaterialButton
-                            style="@style/Widget.Material3.Button.IconButton"
+                            style="@style/Widget.Material3.Button.TextButton"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="0.5"
-                            chat:icon="@drawable/baseline_emoji_emotions_24"
-                            chat:iconGravity="textStart" />
-
-                        <com.google.android.material.button.MaterialButton
-                            style="@style/Widget.Material3.Button.IconButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="0.5"
-                            chat:icon="@drawable/baseline_emoji_emotions_24"
-                            chat:iconGravity="textStart" />
+                            android:layout_weight="1.5"
+                            android:text="@={viewModel.currentMessage.error}"
+                             />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/message_send_button"

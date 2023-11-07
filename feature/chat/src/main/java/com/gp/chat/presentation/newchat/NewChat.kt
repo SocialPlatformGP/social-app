@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
@@ -16,12 +17,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.gp.chat.R
 import com.gp.chat.adapter.UsersChatAdapter
 import com.gp.chat.listener.OnItemClickListener
+import com.gp.chat.util.RemoveSpecialChar
+import com.gp.chat.util.RemoveSpecialChar.removeSpecialCharacters
 import com.gp.socialapp.database.model.UserEntity
+import com.gp.socialapp.utils.State
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class NewChat : Fragment() ,OnItemClickListener {
+class NewChat : Fragment(), OnItemClickListener {
     lateinit var recyclerView: RecyclerView
     lateinit var usersChatAdapter: UsersChatAdapter
     private val newChatViewModel: NewChatViewModel by viewModels()
@@ -49,11 +53,40 @@ class NewChat : Fragment() ,OnItemClickListener {
                 usersChatAdapter.submitList(it)
             }
         }
+        lifecycleScope.launch {
+            newChatViewModel.createNewChatState.flowWithLifecycle(lifecycle).collect {
+                when (it) {
+                    is State.Loading -> {
+                        Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
+                    }
+
+                    is State.SuccessWithData -> {
+                        Toast.makeText(requireContext(), it.data, Toast.LENGTH_SHORT).show()
+                        if(it.data!="-1"){
+                            val action = NewChatDirections.actionNewChatToPrivateChatFragment(
+                                chatId = it.data,
+                            )
+                            findNavController().navigate(action)
+                        }
+
+                    }
+                    is State.Success -> {
+                        Toast.makeText(requireContext(), "Success", Toast.LENGTH_SHORT).show()
+                    }
+
+                    is State.Error -> {
+                        Toast.makeText(requireContext(), it.message, Toast.LENGTH_SHORT).show()
+                    }
+                    else->{}
+                }
+            }
+        }
 
     }
 
-    override fun onClick(user: String) {
-        val action = NewChatDirections.actionNewChatToPrivateChatFragment(user)
-        findNavController().navigate(action)
+
+    override fun onClick(userEmail: String) {
+            newChatViewModel.createChat(userEmail)
     }
+
 }

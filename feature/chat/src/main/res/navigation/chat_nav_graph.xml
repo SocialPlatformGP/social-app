@@ -12,6 +12,10 @@
             android:name="userEmail"
             app:argType="string"
             android:defaultValue='""' />
+        <argument
+            android:name="chatId"
+            app:argType="string"
+            android:defaultValue='""' />
     </fragment>
     <fragment
         android:id="@+id/chatHome"
