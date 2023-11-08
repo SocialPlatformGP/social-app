@@ -1,6 +1,5 @@
 package com.gp.chat.repository
 
-
 import com.gp.chat.model.Message
 import com.gp.chat.model.RecentChat
 import com.gp.socialapp.utils.State
@@ -12,4 +11,5 @@ interface MessageRepository {
     fun getChatMessages(chatId: String): Flow<List<Message>>
     fun fetchGroupChatMessages(groupId: String): Flow<List<Message>>
     fun sendGroupMessage(message: Message, recentChat: RecentChat): Flow<State<Nothing>>
+    fun createGroupChat(name: String, avatarLink: String, members: List<String>): Flow<State<String>>
 }

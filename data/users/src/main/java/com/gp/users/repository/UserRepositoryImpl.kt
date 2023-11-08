@@ -1,5 +1,6 @@
 package com.gp.users.repository
 
+import android.util.Log
 import com.gp.socialapp.database.model.UserEntity
 import com.gp.socialapp.utils.State
 import com.gp.users.Source.local.UserLocalDataSource
@@ -35,6 +36,7 @@ class UserRepositoryImpl @Inject constructor(private val userLocalSource: UserLo
     override suspend fun fetchUser(email: String): State<NetworkUser> = userRemoteSource.fetchUser(email)
     override suspend fun getUserById(email: String) = userLocalSource.getUserById(email)
     override fun fetchUsers(): Flow<State<List<User>>> {
+        Log.d("TAG", "fetchUsers: Repository")
         return userRemoteSource.fetchUsers()
     }
 }

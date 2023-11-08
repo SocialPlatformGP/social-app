@@ -1,16 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    xmlns:chat="http://schemas.android.com/apk/res-auto">
+    xmlns:chat="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <import type="android.graphics.drawable.Drawable" />
+
         <variable
             name="viewmodel"
             type="com.gp.chat.presentation.createGroupChat.CreateGroupChatViewModel" />
+
         <variable
             name="fragment"
             type="com.gp.chat.presentation.createGroupChat.CreateGroupChatFragment" />
+
+        <variable
+            name="onMembersChangeListener"
+            type="com.gp.chat.listener.OnGroupMembersChangeListener" />
 
     </data>
 
@@ -20,62 +27,63 @@
         tools:context=".ui.registration.UserInformationFragment">
 
         <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/h_guideline1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/h_guideline1"
             android:orientation="horizontal"
             chat:layout_constraintGuide_percent="0.1" />
 
 
-
         <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/group_avatar_imageview"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:id="@+id/group_avatar_imageview"
-            chat:layout_constraintTop_toBottomOf="@id/h_guideline1"
-            chat:layout_constraintStart_toStartOf="parent"
-            chat:layout_constraintEnd_toEndOf="parent"
             android:layout_marginTop="20dp"
             android:scaleType="centerCrop"
             android:src="@drawable/group_avatar_placeholder"
-            chat:shapeAppearanceOverlay="@style/circleImageView"/>
+            chat:layout_constraintEnd_toEndOf="parent"
+            chat:layout_constraintStart_toStartOf="parent"
+            chat:layout_constraintTop_toBottomOf="@id/h_guideline1"
+            chat:shapeAppearanceOverlay="@style/circleImageView" />
+
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/load_image_button"
+            style="@style/Widget.Material3.Button.IconButton.Filled"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/load_image_button"
-            chat:layout_constraintEnd_toEndOf="@id/group_avatar_imageview"
-            chat:layout_constraintBottom_toBottomOf="@id/group_avatar_imageview"
+            android:onClick="@{() -> fragment.onLoadPictureClick()}"
             chat:icon="@drawable/baseline_photo_camera_24"
-            style="@style/Widget.Material3.Button.IconButton.Filled"
-            android:onClick="@{() -> fragment.onLoadPictureClick()}"/>
+            chat:layout_constraintBottom_toBottomOf="@id/group_avatar_imageview"
+            chat:layout_constraintEnd_toEndOf="@id/group_avatar_imageview" />
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/group_name_textfield"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            chat:layout_constraintTop_toBottomOf="@id/group_avatar_imageview"
-            android:id="@+id/group_name_textfield"
-            android:hint="Group Name"
             android:layout_margin="16dp"
+            android:hint="Group Name"
             chat:layout_constraintStart_toStartOf="parent"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            chat:layout_constraintTop_toBottomOf="@id/group_avatar_imageview">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:inputType="text"
-                android:text="@={viewmodel.uiState.name}"/>
+                android:text="@={viewmodel.uiState.name}" />
         </com.google.android.material.textfield.TextInputLayout>
 
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/group_members_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            chat:layout_constraintTop_toBottomOf="@id/group_name_textfield"
-            android:id="@+id/group_members_layout"
-            android:hint="Members"
             android:layout_margin="16dp"
+            android:hint="Members"
             chat:layout_constraintStart_toStartOf="parent"
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox">
+            chat:layout_constraintTop_toBottomOf="@id/group_name_textfield">
+
             <HorizontalScrollView
                 android:id="@+id/horizontal_scroll_view"
                 android:layout_width="match_parent"
@@ -88,24 +96,23 @@
                     tools:layout_editor_absoluteX="8dp"
                     tools:layout_editor_absoluteY="503dp">
 
-                    <!--ChipGroup to hold multiple chips and help in removal by getting child elements-->
-
                     <com.google.android.material.chip.ChipGroup
                         android:id="@+id/chipGroup"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        chat:layout_constraintBottom_toBottomOf="@+id/textInputEditText"
-                        chat:layout_constraintEnd_toStartOf="@+id/textInputEditText"
+                        chat:layout_constraintBottom_toBottomOf="@+id/search_textinput"
+                        chat:layout_constraintEnd_toStartOf="@+id/search_textinput"
                         chat:layout_constraintStart_toStartOf="parent"
-                        chat:layout_constraintTop_toTopOf="@+id/textInputEditText" />
-
-                    <!--Entering chip generation text and using commas to detect when a new chip is to be generated-->
+                        chat:layout_constraintTop_toTopOf="@+id/search_textinput"
+                        chat:members="@{viewmodel.uiState.selectedMembers}"
+                        chat:membersContext="@{fragment.requireContext()}"
+                        chat:onMembersChange="@{onMembersChangeListener}" />
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/textInputEditText"
+                        android:id="@+id/search_textinput"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:hint="Add Member"
+                        android:hint="Add Members"
                         chat:layout_constraintBottom_toBottomOf="parent"
                         chat:layout_constraintEnd_toEndOf="parent"
                         chat:layout_constraintStart_toEndOf="@+id/chipGroup"
@@ -115,24 +122,27 @@
 
             </HorizontalScrollView>
         </com.google.android.material.textfield.TextInputLayout>
+
         <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/users_recyclerview"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            chat:layout_constraintTop_toBottomOf="@id/group_members_layout"
+            android:scrollbars="vertical"
+            chat:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             chat:layout_constraintBottom_toTopOf="@id/create_group_button"
-            android:scrollbars="vertical"/>
+            chat:layout_constraintTop_toBottomOf="@id/group_members_layout" />
 
 
         <Button
+            android:id="@+id/create_group_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/create_group_button"
-            chat:layout_constraintBottom_toBottomOf="parent"
             android:layout_margin="16dp"
-            chat:layout_constraintStart_toStartOf="parent"
+            android:onClick="@{() -> fragment.onCreateGroupClick()}"
             android:text="Create Group"
             android:textSize="16sp"
-            android:onClick="@{() -> fragment.onCreateGroupClick()}"/>
+            chat:layout_constraintBottom_toBottomOf="parent"
+            chat:layout_constraintStart_toStartOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -2,7 +2,7 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/chat_nav_graph"
-    app:startDestination="@id/groupChatFragment">
+    app:startDestination="@id/createGroupChatFragment">
 
     <fragment
         android:id="@+id/privateChatFragment"
@@ -11,5 +11,18 @@
     <fragment
         android:id="@+id/groupChatFragment"
         android:name="com.gp.chat.presentation.groupchat.GroupChatFragment"
-        android:label="GroupChatFragment" />
+        android:label="GroupChatFragment" >
+        <argument
+            android:name="group_id"
+            app:argType="string"
+            android:defaultValue='""' />
+    </fragment>
+    <fragment
+        android:id="@+id/createGroupChatFragment"
+        android:name="com.gp.chat.presentation.createGroupChat.CreateGroupChatFragment"
+        android:label="CreateGroupChatFragment" >
+        <action
+            android:id="@+id/action_createGroupChatFragment_to_groupChatFragment"
+            app:destination="@id/groupChatFragment" />
+    </fragment>
 </navigation>
