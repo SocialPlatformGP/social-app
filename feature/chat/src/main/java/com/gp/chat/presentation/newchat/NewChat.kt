@@ -14,6 +14,8 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.gp.chat.R
 import com.gp.chat.adapter.UsersChatAdapter
 import com.gp.chat.listener.OnItemClickListener
@@ -30,6 +32,7 @@ class NewChat : Fragment(), OnItemClickListener {
     lateinit var usersChatAdapter: UsersChatAdapter
     private val newChatViewModel: NewChatViewModel by viewModels()
     var arrayList: ArrayList<UserEntity> = arrayListOf()
+    private val senderEmail = removeSpecialCharacters(Firebase.auth.currentUser?.email!!)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -53,6 +56,13 @@ class NewChat : Fragment(), OnItemClickListener {
                 usersChatAdapter.submitList(it)
             }
         }
+
+
+    }
+
+
+    override fun onClick(userEmail: String) {
+        newChatViewModel.createChat(userEmail)
         lifecycleScope.launch {
             newChatViewModel.createNewChatState.flowWithLifecycle(lifecycle).collect {
                 when (it) {
@@ -62,14 +72,18 @@ class NewChat : Fragment(), OnItemClickListener {
 
                     is State.SuccessWithData -> {
                         Toast.makeText(requireContext(), it.data, Toast.LENGTH_SHORT).show()
-                        if(it.data!="-1"){
+                        if (it.data != "-1") {
                             val action = NewChatDirections.actionNewChatToPrivateChatFragment(
                                 chatId = it.data,
+                                receiverEmail = removeSpecialCharacters(userEmail),
+                                senderEmail = senderEmail
                             )
                             findNavController().navigate(action)
+
                         }
 
                     }
+
                     is State.Success -> {
                         Toast.makeText(requireContext(), "Success", Toast.LENGTH_SHORT).show()
                     }
@@ -77,16 +91,11 @@ class NewChat : Fragment(), OnItemClickListener {
                     is State.Error -> {
                         Toast.makeText(requireContext(), it.message, Toast.LENGTH_SHORT).show()
                     }
-                    else->{}
+
+                    else -> {}
                 }
             }
         }
-
-    }
-
-
-    override fun onClick(userEmail: String) {
-            newChatViewModel.createChat(userEmail)
     }
 
 }

@@ -1,43 +1,35 @@
 package com.gp.chat.presentation.privateChat
 
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.gp.chat.model.ChatGroup
-import com.gp.chat.model.ChatUser
 import com.gp.chat.model.Message
-import com.gp.chat.model.NetworkMessage
-import com.gp.chat.model.PrivateChats
-import com.gp.chat.model.PrivateChatsNetwork
 import com.gp.chat.model.RecentChat
 import com.gp.chat.repository.MessageRepository
 import com.gp.chat.util.RemoveSpecialChar.removeSpecialCharacters
+import com.gp.chat.util.RemoveSpecialChar.restoreOriginalEmail
 import com.gp.socialapp.utils.State
-import dagger.hilt.android.internal.Contexts.getApplication
+import com.gp.users.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.jetbrains.annotations.Async
 import java.util.Date
 import javax.inject.Inject
 
 
 @HiltViewModel
 class PrivateChatViewModel @Inject constructor(
-    private val messageRepository: MessageRepository
+    private val messageRepository: MessageRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
-    private val senderEmail = removeSpecialCharacters(Firebase.auth.currentUser?.email!!)
+    private var currentEmail = removeSpecialCharacters(Firebase.auth.currentUser?.email!!)
     private var ChatId = "-1"
     private var receiverEmail = ""
+    private var senderEmail = ""
     val currentMessage = MutableStateFlow(MessageState())
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
     val messages = _messages.asStateFlow()
@@ -49,7 +41,10 @@ class PrivateChatViewModel @Inject constructor(
     }
 
     fun setReceiverEmail(email: String) {
-        receiverEmail = removeSpecialCharacters(email)
+        receiverEmail = email
+    }
+    fun setSenderEmail(senderEmail: String) {
+        this.senderEmail = senderEmail
     }
 
     fun getMessages() {
@@ -94,13 +89,16 @@ class PrivateChatViewModel @Inject constructor(
             }
         }
     }
-    fun updateRecent(){
+    private fun updateRecent(){
         viewModelScope.launch (Dispatchers.IO){
             val recentChat = RecentChat(
                 lastMessage = currentMessage.value.message,
                 timestamp = Date().toString(),
                 title = "private chat",
                 isPrivateChat = true,
+                receiverName = receiverEmail,
+                senderName = senderEmail,
+
 
             )
             messageRepository.updateRecentChat(recentChat,ChatId).collect{
@@ -108,7 +106,6 @@ class PrivateChatViewModel @Inject constructor(
                     is State.SuccessWithData -> {
                         currentMessage.value = currentMessage.value.copy(error = "recent updated")
                         currentMessage.value = currentMessage.value.copy(error = "recent updated",message = "")
-
                     }
                     is State.Error -> { currentMessage.value = currentMessage.value.copy(error = it.message) }
                     is State.Loading -> { currentMessage.value = currentMessage.value.copy(error = "recent updated") }
@@ -117,6 +114,8 @@ class PrivateChatViewModel @Inject constructor(
             }
         }
     }
+
+
 
 
 }

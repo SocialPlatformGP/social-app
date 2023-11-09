@@ -61,7 +61,9 @@ class UserfirestoreClient @Inject constructor(val firestore: FirebaseFirestore) 
                     .whereEqualTo("userEmail", email).get().await()
                     .toObjects(NetworkUser::class.java)
                     .first()
+                Log.d("TAG", "fetchUser: $data")
                 State.SuccessWithData(data)
+
             } catch (e: Exception) {
                 Log.d("TAG", "fetchUser: ${e.message}")
                 State.Error(e.message ?: "Unknown Error")

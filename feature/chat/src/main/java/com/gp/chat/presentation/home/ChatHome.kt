@@ -19,13 +19,14 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.gp.chat.R
 import com.gp.chat.adapter.ChatAdapter
 import com.gp.chat.listener.OnItemClickListener
+import com.gp.chat.listener.OnRecentChatClicked
 import com.gp.chat.model.Message
 import com.gp.socialapp.database.model.UserEntity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class ChatHome : Fragment(),OnItemClickListener {
+class ChatHome : Fragment(),OnRecentChatClicked {
     lateinit var recyclerView: RecyclerView
     lateinit var chatAdapter: ChatAdapter
     lateinit var floatingActionButton: FloatingActionButton
@@ -62,8 +63,17 @@ class ChatHome : Fragment(),OnItemClickListener {
         }
     }
 
-    override fun onClick(chatId: String) {
-        val action = ChatHomeDirections.actionChatHomeToPrivateChatFragment(chatId=chatId)
+    override fun onRecentChatClicked(
+        chatId: String,
+        receiverName: String,
+        senderName: String,
+        receiverImage: String
+    ) {
+        val action = ChatHomeDirections.actionChatHomeToPrivateChatFragment(
+            chatId=chatId,
+            senderEmail = senderName,
+            receiverEmail = receiverName,
+        )
         findNavController().navigate(action)
     }
 

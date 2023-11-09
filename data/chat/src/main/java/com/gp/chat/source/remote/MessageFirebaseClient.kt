@@ -149,7 +149,7 @@ override fun getMessages(chatId: String): Flow<State<List<Message>>> = callbackF
                         for(chatId in chatsId){
 
                             val recentChats = snapshot.child(chatId).
-                            getValue<NetworkRecentChat>()?.toRecentChat(snapshot.key!!)
+                            getValue<NetworkRecentChat>()?.toRecentChat(chatId)
                             if(recentChats!=null){
                                 list.add(recentChats)
                             }

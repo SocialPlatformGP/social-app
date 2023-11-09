@@ -9,11 +9,15 @@
         android:name="com.gp.chat.presentation.privateChat.PrivateChatFragment"
         android:label="PrivateChatFragment" >
         <argument
-            android:name="userEmail"
+            android:name="senderEmail"
             app:argType="string"
             android:defaultValue='""' />
         <argument
             android:name="chatId"
+            app:argType="string"
+            android:defaultValue='""' />
+        <argument
+            android:name="receiverEmail"
             app:argType="string"
             android:defaultValue='""' />
     </fragment>
@@ -34,6 +38,8 @@
         android:label="NewChat" >
         <action
             android:id="@+id/action_newChat_to_privateChatFragment"
-            app:destination="@id/privateChatFragment" />
+            app:destination="@id/privateChatFragment"
+            app:popUpTo="@id/chatHome"
+            app:popUpToInclusive="true" />
     </fragment>
 </navigation>

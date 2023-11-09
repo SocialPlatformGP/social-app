@@ -31,7 +31,8 @@ class PrivateChatFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel.setReceiverEmail(args.userEmail)
+        viewModel.setReceiverEmail(args.receiverEmail)
+        viewModel.setSenderEmail(args.senderEmail)
         viewModel.setChatId(args.chatId)
         viewModel.getMessages()
         binding  = DataBindingUtil.inflate(
