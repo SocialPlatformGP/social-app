@@ -31,4 +31,9 @@ class PostLocalDataSourceImpl @Inject constructor(private val postDao: PostDao):
     }
 
     override fun getPostById(id: String): Flow<PostEntity> = postDao.getPostById(id)
+    override fun deleteAllPosts() {
+        postDao.deleteAllPosts()
+    }
+
+
 }

@@ -42,7 +42,7 @@ class SearchFragment : Fragment(){
         val recyclerView = binding.rvSearchPosts
         val adapter = SearchResultAdapter()
         recyclerView.adapter = adapter
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.layoutManager= LinearLayoutManager(requireContext())
         lifecycleScope.launch {
             viewModel.searchResult.flowWithLifecycle(lifecycle).collect {
                 binding.rvSearchPosts.visibility = View.VISIBLE
@@ -50,7 +50,7 @@ class SearchFragment : Fragment(){
             }
         }
         viewModel.searchPosts(args.SearchQuery)
-        binding.searchView.text="Search Results for: "+args.SearchQuery
+        binding.searchView.text="Search Results for : "+ args.SearchQuery
 
     }
 }

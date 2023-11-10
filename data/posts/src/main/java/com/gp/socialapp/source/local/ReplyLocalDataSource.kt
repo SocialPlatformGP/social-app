@@ -14,7 +14,7 @@ interface ReplyLocalDataSource {
     suspend fun updateReplies(replies: List<Reply>)
     suspend fun deleteReply(replyEntity: Reply)
     suspend fun deleteReplies(replies: List<Reply>)
-    suspend fun deleteAllReplies()
+     fun deleteAllReplies()
     fun getAllReplies(): Flow<List<ReplyEntity>>
     fun getRepliesByPostId(postId: String): Flow<List<ReplyEntity>>
     fun getReplyById(id: Long): Flow<ReplyEntity>

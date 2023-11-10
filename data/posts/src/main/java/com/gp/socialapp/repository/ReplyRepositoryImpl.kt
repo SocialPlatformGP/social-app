@@ -21,6 +21,7 @@ class ReplyRepositoryImpl @Inject constructor(
 
 ) : ReplyRepository {
     override fun getReplies(postId: String): Flow<List<Reply>> {
+        deleteAllReplies()
         return if (networkStatus.isOnline()) {
             val replies = replyRemoteDataSource.fetchReplies(postId)
             repositoryScope.launch {
@@ -85,5 +86,9 @@ class ReplyRepositoryImpl @Inject constructor(
         } else {
             //todo return state errror  in else
         }
+    }
+
+    override fun deleteAllReplies() {
+        replyLocalDataSource.deleteAllReplies()
     }
 }
