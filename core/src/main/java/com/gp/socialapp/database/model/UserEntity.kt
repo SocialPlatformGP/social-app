@@ -1,6 +1,7 @@
 package com.gp.socialapp.database.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.io.Serializable
 import java.util.Date
 
 @Entity(tableName = "users")
@@ -15,4 +16,7 @@ data class UserEntity(
     val userPhoneNumber: String,
     val userBio: String,
     val userCreatedAt: Date
-)
+):Serializable
+{
+    constructor():this("","","","",Date(),"","","",Date())
+}

@@ -11,6 +11,8 @@ import com.google.firebase.ktx.Firebase
 import com.gp.chat.databinding.ItemMessageRecieveBinding
 import com.gp.chat.databinding.ItemMessageSendBinding
 import com.gp.chat.model.Message
+import com.gp.chat.util.RemoveSpecialChar
+import com.gp.chat.util.RemoveSpecialChar.removeSpecialCharacters
 import com.gp.chat.util.ToSimpleTimeFormat
 
 
@@ -42,9 +44,13 @@ class MessageAdapter() : ListAdapter<Message, MessageAdapter.MessageViewHolder>(
         item=item.copy(timestamp = ToSimpleTimeFormat.convertTimestampStringToFormattedTime(item.timestamp!!))
         holder.bind(item)
     }
+
+    override fun getItemCount(): Int {
+        return currentList.size
+    }
     override fun getItemViewType(position: Int): Int {
         val message = getItem(position)
-        return if (message.senderId == Firebase.auth.currentUser?.email) {
+        return if (message.senderId == removeSpecialCharacters(Firebase.auth.currentUser?.email!!)) {
             VIEW_TYPE_SENT
         } else {
             VIEW_TYPE_RECEIVED

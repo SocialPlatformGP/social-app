@@ -12,6 +12,7 @@ import com.gp.users.util.UserMapper.toNetworkModel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -57,18 +58,38 @@ class UserfirestoreClient @Inject constructor(val firestore: FirebaseFirestore) 
     override suspend fun fetchUser(email: String): State<NetworkUser> {
         var result =
             try {
-               val data= firestore
+                val data = firestore
                     .collection("users")
                     .whereEqualTo("userEmail", email).get().await()
                     .toObjects(NetworkUser::class.java)
                     .first()
+                Log.d("TAG", "fetchUser: $data")
                 State.SuccessWithData(data)
+
             } catch (e: Exception) {
                 Log.d("TAG", "fetchUser: ${e.message}")
                 State.Error(e.message ?: "Unknown Error")
             }
         return result
     }
+
+    override suspend fun fetchAllUsers() = callbackFlow {
+        val listener = firestore.collection("users").addSnapshotListener { data, error ->
+            if (error != null) {
+                close(error)
+                return@addSnapshotListener
+            }
+            if (data != null) {
+                val result = mutableListOf<UserEntity>()
+                for (document in data.documents) {
+                    result.add(document.toObject(UserEntity::class.java)!!)
+                }
+                trySend(result)
+            }
+        }
+        awaitClose { listener.remove() }
+    }
+
 
     override fun deleteUser(user: UserEntity) = callbackFlow<State<Nothing>> {
         trySend(State.Loading)
