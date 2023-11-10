@@ -105,75 +105,78 @@ fun ImageView.setProfilePicture( picUrl: String?) {
 @RequiresApi(Build.VERSION_CODES.O)
 @BindingAdapter("posts:timeTillNow")
 fun TextView.setTimeTillNow( time: String?) {
-    this.text = ToTimeTaken.calculateTimeDifference(time!!)
-fun setTimeTillNow(view: TextView, time: String?) {
-    view.text = DateUtils.calculateTimeDifference(time!!)
+    text = DateUtils.calculateTimeDifference(time!!)
     val job = GlobalScope.launch(Dispatchers.Default) {
         repeat(60) {
             delay(60000)
             withContext(Dispatchers.Main) {
-                view.text = DateUtils.calculateTimeDifference(time!!)
-                text = ToTimeTaken.calculateTimeDifference(time!!)
+                text = DateUtils.calculateTimeDifference(time!!)
+                text = DateUtils.calculateTimeDifference(time!!)
             }
         }
     }
     job.cancel()
-}
-
-@BindingAdapter("posts:upVoteImage")
-fun setUpVoteImage(view: MaterialButton, upVoteList: List<String>) {
-    if (currentEmail in upVoteList) {
-        view.iconTint = view.context.getColorStateList(R.color.Blue)
-    } else {
-        view.iconTint = view.context.getColorStateList(R.color.Gray)
     }
 }
 
-@BindingAdapter("posts:downVoteImage")
-fun setDownVoteImage(view: MaterialButton, downVoteList: List<String>) {
-    if (currentEmail in downVoteList) {
-        view.iconTint = view.context.getColorStateList(R.color.Red)
-    } else {
-        view.iconTint = view.context.getColorStateList(R.color.Gray)
-    }
-}
-
-@BindingAdapter(value = ["posts:tags", "posts:tagsContext", "posts:onTagClick"], requireAll = true)
-fun setTags(view: ChipGroup, tags: List<Tag>, context: Context, onTagClick: OnTagClicked) {
-    if (view.childCount==0) {
-        tags.forEach {tag ->
-            val label = tag.label
-            val color = Color.parseColor(tag.hexColor)
-            val chip = Chip(context)
-            chip.text = label
-            chip.textSize = 11f
-            chip.setChipBackgroundColorResource(android.R.color.transparent)
-            chip.chipBackgroundColor = ColorStateList.valueOf(color)
-            chip.shapeAppearanceModel
-                .toBuilder()
-                .setAllCornerSizes(64f) // Set corner radius to make chips oval-shaped
-                .build()
-            chip.setOnClickListener{
-                onTagClick.onTagClicked(tag)
-            }
-            view.addView(chip)
-
+    @BindingAdapter("posts:upVoteImage")
+    fun setUpVoteImage(view: MaterialButton, upVoteList: List<String>) {
+        if (currentEmail in upVoteList) {
+            view.iconTint = view.context.getColorStateList(R.color.Blue)
+        } else {
+            view.iconTint = view.context.getColorStateList(R.color.Gray)
         }
     }
-}
 
-@BindingAdapter(value = ["posts:formattedNumber", "posts:formattedLabel"], requireAll = true)
-fun TextView.setFormattedNumberWithLabel(number: Int, label: String) {
-    val suffixes = arrayOf("", "k", "M", "B", "T")
-    var num = number.toDouble()
-    var suffixIndex = 0
-
-    while (num >= 1000 && suffixIndex < suffixes.size - 1) {
-        num /= 1000
-        suffixIndex++
+    @BindingAdapter("posts:downVoteImage")
+    fun setDownVoteImage(view: MaterialButton, downVoteList: List<String>) {
+        if (currentEmail in downVoteList) {
+            view.iconTint = view.context.getColorStateList(R.color.Red)
+        } else {
+            view.iconTint = view.context.getColorStateList(R.color.Gray)
+        }
     }
 
-    val formattedNumber = String.format("%.1f", num)
-    val formattedText = "$formattedNumber${suffixes[suffixIndex]} $label"
-    text = formattedText
+    @BindingAdapter(
+        value = ["posts:tags", "posts:tagsContext", "posts:onTagClick"],
+        requireAll = true
+    )
+    fun setTags(view: ChipGroup, tags: List<Tag>, context: Context, onTagClick: OnTagClicked) {
+        if (view.childCount == 0) {
+            tags.forEach { tag ->
+                val label = tag.label
+                val color = Color.parseColor(tag.hexColor)
+                val chip = Chip(context)
+                chip.text = label
+                chip.textSize = 11f
+                chip.setChipBackgroundColorResource(android.R.color.transparent)
+                chip.chipBackgroundColor = ColorStateList.valueOf(color)
+                chip.shapeAppearanceModel
+                    .toBuilder()
+                    .setAllCornerSizes(64f) // Set corner radius to make chips oval-shaped
+                    .build()
+                chip.setOnClickListener {
+                    onTagClick.onTagClicked(tag)
+                }
+                view.addView(chip)
+
+            }
+        }
+    }
+
+    @BindingAdapter(value = ["posts:formattedNumber", "posts:formattedLabel"], requireAll = true)
+    fun TextView.setFormattedNumberWithLabel(number: Int, label: String) {
+        val suffixes = arrayOf("", "k", "M", "B", "T")
+        var num = number.toDouble()
+        var suffixIndex = 0
+
+        while (num >= 1000 && suffixIndex < suffixes.size - 1) {
+            num /= 1000
+            suffixIndex++
+        }
+
+        val formattedNumber = String.format("%.1f", num)
+        val formattedText = "$formattedNumber${suffixes[suffixIndex]} $label"
+        text = formattedText
+    }
 }

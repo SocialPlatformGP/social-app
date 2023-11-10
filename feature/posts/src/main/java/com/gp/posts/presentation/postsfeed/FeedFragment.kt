@@ -39,9 +39,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class FeedFragment : Fragment(), VotesClickedListener, OnMoreOptionClicked, OnTagClicked {
-    lateinit var binding: FragmentFeedBinding
-class FeedFragment : Fragment() , VotesClickedListener, OnMoreOptionClicked, OnFeedOptionsClicked {
+class FeedFragment : Fragment() , VotesClickedListener, OnMoreOptionClicked, OnFeedOptionsClicked , OnTagClicked{
     lateinit var  binding:FragmentFeedBinding
     private val viewModel: FeedPostViewModel by viewModels()
     private val currentUser = Firebase.auth.currentUser
