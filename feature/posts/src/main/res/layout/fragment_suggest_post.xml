@@ -8,7 +8,7 @@
 
         <variable
             name="viewModel"
-            type="com.gp.posts.presentation.postsSearch.SearchViewModel" />
+            type="com.gp.posts.presentation.postsSearch.SearchResultsViewModel" />
     </data>
 
     <androidx.cardview.widget.CardView

@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SearchViewModel @Inject constructor(private val postRepo: PostRepository, private val userRepo: UserRepository) : ViewModel() {
+class SearchResultsViewModel @Inject constructor(private val postRepo: PostRepository, private val userRepo: UserRepository) : ViewModel() {
     var searchResult :MutableStateFlow<List<Post>> = MutableStateFlow(listOf())
     fun searchPostsByTitle(title: String) {
         viewModelScope.launch (Dispatchers.IO){

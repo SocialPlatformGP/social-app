@@ -11,7 +11,7 @@ import com.gp.posts.databinding.SuggestItemBinding
 import com.gp.posts.listeners.OnSuggestedPostClickListener
 import com.gp.socialapp.model.Post
 
-class SuggestPostAdapter(private var onClickListener: OnSuggestedPostClickListener): ListAdapter<Post, SuggestPostAdapter.SuggestViewHolder>(
+class SearchAdapter(private var onClickListener: OnSuggestedPostClickListener): ListAdapter<Post, SearchAdapter.SuggestViewHolder>(
     PostDiffUtil()
 ) {
 
