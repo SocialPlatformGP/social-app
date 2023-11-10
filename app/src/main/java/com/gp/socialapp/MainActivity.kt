@@ -1,10 +1,12 @@
 package com.gp.socialapp
 
+import android.app.SearchManager
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -24,7 +26,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
     private val currentUser = FirebaseAuth.getInstance()
     lateinit var drawerLayout: DrawerLayout
     lateinit var navView: NavigationView
@@ -33,6 +35,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var navController: NavController
     private lateinit var appBarConfiguration: AppBarConfiguration
     lateinit var appBarLayout: AppBarLayout
+    lateinit var navHostFragment: NavHostFragment
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,7 +50,7 @@ class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(toolbar)
 
-        val navHostFragment= supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
+        navHostFragment= supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
         navController= navHostFragment.findNavController()
         appBarConfiguration= AppBarConfiguration(setOf(
             R.id.post_nav_graph
@@ -79,7 +82,39 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.search_menu,menu)
+        val searchManager = getSystemService(SEARCH_SERVICE) as SearchManager
+        val searchItem = menu?.findItem(R.id.search_Fragment)
+        val searchView = searchItem?.actionView as SearchView
+
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
+        searchView.queryHint = "Search"
+        searchView.setOnQueryTextListener(this)
+
         return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        val currentFragment= navHostFragment.childFragmentManager.fragments[0]
+        if(currentFragment is com.gp.posts.suggest_post){
+            currentFragment.navigateToFinalResult(query)
+
+        }
+        return true
+    }
+
+    override fun onQueryTextChange(newText: String?): Boolean {
+        val currentFragment= navHostFragment.childFragmentManager.fragments[0]
+        when(currentFragment){
+            is com.gp.posts.suggest_post->{
+                currentFragment.updateSearchQuery(newText)
+            }
+            is com.gp.posts.presentation.postsSearch.SearchFragment->{
+                currentFragment.backToSuggest(newText)
+
+
+            }
+        }
+        return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

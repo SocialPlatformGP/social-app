@@ -1,8 +1,7 @@
 package com.gp.posts
 
-import android.content.Intent
+import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -14,12 +13,10 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
-import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.button.MaterialButton
 import com.gp.posts.adapter.FeedPostAdapter
-import com.gp.posts.adapter.OnClickListener
-import com.gp.posts.adapter.SearchResultAdapter
 import com.gp.posts.adapter.SuggestPostAdapter
 import com.gp.posts.databinding.FragmentSearchBinding
 import com.gp.posts.databinding.FragmentSuggestPostBinding
@@ -28,27 +25,33 @@ import com.gp.posts.listeners.VotesClickedListener
 import com.gp.posts.presentation.postsSearch.SearchViewModel
 import com.gp.socialapp.database.model.PostEntity
 import com.gp.socialapp.database.model.ReplyEntity
-import com.gp.socialapp.model.Post
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [suggest_post.newInstance] factory method to
- * create an instance of this fragment.
- */
 @AndroidEntryPoint
-class suggest_post : Fragment(),OnClickListener {
+class suggest_post : Fragment() {
     private val viewModel: SearchViewModel by viewModels()
     lateinit var binding: FragmentSuggestPostBinding
-    lateinit var btnSearch: Button
     var searchText :String=""
 
+
+
+    fun updateSearchQuery(query: String?) {
+        searchText=query!!
+
+        if(query.isNullOrEmpty()){
+            binding.rvSuggestPosts.visibility = View.GONE
+        }
+        else{
+            binding.rvSuggestPosts.visibility = View.VISIBLE
+            viewModel.searchPosts(query)
+        }
+    }
+    fun navigateToFinalResult(query: String?) {
+        val action=suggest_postDirections.actionSuggestPostToSearchFragment2(query!!)
+        Navigation.findNavController(requireView()).navigate(action)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -57,12 +60,6 @@ class suggest_post : Fragment(),OnClickListener {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_suggest_post, container, false)
         val view = binding.root
 
-        val btnSearch = view.findViewById<Button>(R.id.btn_search)
-        btnSearch.setOnClickListener {
-            val action=suggest_postDirections.actionSuggestPostToSearchFragment2(searchText)
-            Navigation.findNavController(view).navigate(action)
-
-        }
 
 
         return view
@@ -70,12 +67,16 @@ class suggest_post : Fragment(),OnClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        if(!searchText.isNullOrEmpty()){
+            viewModel.searchPosts(searchText)
+        }
         val recyclerView = binding.rvSuggestPosts
-        val adapter = SuggestPostAdapter(this)
+        val adapter = SuggestPostAdapter()
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         lifecycleScope.launch {
             viewModel.searchResult.flowWithLifecycle(lifecycle).collect {
+
                 binding.rvSuggestPosts.visibility = View.VISIBLE
                 adapter.submitList(it)
 
@@ -83,32 +84,6 @@ class suggest_post : Fragment(),OnClickListener {
         }
 
 
-        val searchView =binding.suggestView
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener,
-            android.widget.SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                searchText=query!!
-                return true
-            }
 
-            override fun onQueryTextChange(newText: String?): Boolean {
-                searchText=newText!!
-
-                if(newText.isNullOrEmpty()){
-                    binding.rvSuggestPosts.visibility = View.GONE
-                    return true
-                }
-                else{
-                    binding.rvSuggestPosts.visibility = View.VISIBLE
-                    viewModel.searchPosts(newText)
-                    return true
-                }}
-        })
     }
-
-    override fun onClick(model: Post) {
-        Log.d("frag", model.toString())
-        val suggestAction =suggest_postDirections.actionSuggestPostToPostDetailsFragment(model)
-     findNavController().navigate(suggestAction)
     }
-}
