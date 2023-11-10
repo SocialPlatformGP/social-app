@@ -27,23 +27,21 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.gp.posts.R
 import com.gp.posts.adapter.NestedReplyAdapter
-import com.gp.posts.databinding.FragmentPostDetialsBinding
+import com.gp.posts.databinding.FragmentPostDetailsBinding
 import com.gp.posts.listeners.OnAddReplyClicked
 import com.gp.posts.listeners.OnMoreOptionClicked
 import com.gp.posts.listeners.OnReplyCollapsed
 import com.gp.posts.listeners.OnTagClicked
 import com.gp.posts.listeners.VotePressedListener
-import com.gp.socialapp.database.model.Tag
 import com.gp.socialapp.model.NestedReplyItem
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.model.Reply
+import com.gp.socialapp.model.Tag
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.util.Date
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.util.Date
+
 
 
 @AndroidEntryPoint
@@ -53,7 +51,7 @@ class PostDetailsFragment
     lateinit var recyclerView: RecyclerView
     val viewModel: PostDetailsViewModel by viewModels()
     val args: PostDetailsFragmentArgs by navArgs()
-    lateinit var binding: FragmentPostDetialsBinding
+    lateinit var binding: FragmentPostDetailsBinding
     lateinit var replyEditText: TextInputEditText
     lateinit var replyEditTextLayout: TextInputLayout
     lateinit var replyButton: MaterialButton

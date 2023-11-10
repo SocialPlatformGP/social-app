@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 class SearchResultsFragment : Fragment(){
     private val viewModel: SearchResultsViewModel by viewModels()
     lateinit var binding: FragmentSearchBinding
-    private  val args: SearchFragmentArgs by navArgs()
+    private  val args: SearchResultsFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

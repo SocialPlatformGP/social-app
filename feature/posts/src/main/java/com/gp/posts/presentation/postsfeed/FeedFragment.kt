@@ -31,9 +31,9 @@ import com.gp.posts.listeners.OnFeedOptionsClicked
 import com.gp.posts.listeners.OnMoreOptionClicked
 import com.gp.posts.listeners.OnTagClicked
 import com.gp.posts.listeners.VotesClickedListenerPost
-import com.gp.socialapp.database.model.Tag
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.model.Reply
+import com.gp.socialapp.model.Tag
 import com.gp.socialapp.utils.State
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch

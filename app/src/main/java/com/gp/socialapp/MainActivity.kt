@@ -31,11 +31,10 @@ import dagger.hilt.android.AndroidEntryPoint
 
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
-    lateinit var binding: ActivityMainBinding
+
 class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
-    private val currentUser = FirebaseAuth.getInstance()
     lateinit var drawerLayout: DrawerLayout
+        lateinit var binding: ActivityMainBinding
     lateinit var navView: NavigationView
     lateinit var bottomNavigationView: BottomNavigationView
     lateinit var toolbar: Toolbar

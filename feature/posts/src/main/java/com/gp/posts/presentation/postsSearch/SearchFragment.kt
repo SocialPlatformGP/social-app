@@ -39,7 +39,7 @@ class SearchFragment : Fragment(), OnSuggestedPostClickListener {
     }
 
     fun navigateToFinalResult(query: String?) {
-        val action = suggest_postDirections.actionSuggestPostToSearchFragment2(query!!)
+        val action = SearchFragmentDirections.actionSuggestPostToSearchFragment2(query!!)
         Navigation.findNavController(requireView()).navigate(action)
     }
 
@@ -66,7 +66,7 @@ class SearchFragment : Fragment(), OnSuggestedPostClickListener {
     }
 
     override fun onClick(model: Post) {
-        val action = suggest_postDirections.actionSuggestPostToSearchFragment2(model.title, false)
+        val action = SearchFragmentDirections.actionSuggestPostToSearchFragment2(model.title, false)
         findNavController().navigate(action)
     }
 }
