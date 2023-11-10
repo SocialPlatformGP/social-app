@@ -9,13 +9,9 @@ import com.gp.chat.model.PrivateChats
 import com.gp.chat.model.PrivateChatsNetwork
 import com.gp.chat.model.RecentChat
 import com.gp.socialapp.utils.State
-import com.gp.chat.model.RecentChat
-import com.gp.socialapp.utils.State
 import kotlinx.coroutines.flow.Flow
 
 interface MessageRemoteDataSource {
-    suspend fun sendMessage(chatId: String, message: Message)
-    fun getChatMessages(chatId: String): Flow<List<Message>>
     fun fetchGroupMessages(groupId: String): Flow<List<Message>>
     fun sendGroupMessage(message: Message, recentChat: RecentChat): Flow<State<Nothing>>
     fun insertChat(chat:ChatGroup): Flow<State<String>>

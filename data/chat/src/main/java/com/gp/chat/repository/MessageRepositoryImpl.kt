@@ -5,19 +5,9 @@ import com.gp.chat.model.ChatGroup
 import com.gp.chat.model.ChatUser
 import com.gp.chat.model.Message
 import com.gp.chat.model.RecentChat
-import com.gp.chat.model.NetworkMessage
-import com.gp.chat.model.PrivateChats
-import com.gp.chat.model.PrivateChatsNetwork
-import com.gp.chat.model.RecentChat
 import com.gp.chat.source.remote.MessageRemoteDataSource
 import com.gp.socialapp.utils.State
-import com.gp.socialapp.utils.State
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
 import javax.inject.Inject
 
 class MessageRepositoryImpl @Inject constructor(
@@ -42,8 +32,6 @@ class MessageRepositoryImpl @Inject constructor(
     override fun insertChatToUser(chatId: String, userEmail: String,receiverEmail:String): Flow<State<String>> =
         messageRemoteDataSource.insertChatToUser(chatId, userEmail,receiverEmail)
 
-        return messageRemoteDataSource.getChatMessages(chatId)
-    }
 
     override fun fetchGroupChatMessages(groupId: String): Flow<List<Message>> {
         return messageRemoteDataSource.fetchGroupMessages(groupId)
@@ -64,7 +52,5 @@ class MessageRepositoryImpl @Inject constructor(
 
     override fun updateRecentChat(recentChat: RecentChat, chatId: String): Flow<State<String>> =
         messageRemoteDataSource.updateRecentChat(recentChat, chatId)
-
-
 
 }

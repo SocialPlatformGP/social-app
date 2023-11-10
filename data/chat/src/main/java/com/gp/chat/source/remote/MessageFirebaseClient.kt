@@ -1,34 +1,20 @@
 package com.gp.chat.source.remote
 
+
 import android.util.Log
-import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.getValue
 import com.gp.chat.model.ChatGroup
 import com.gp.chat.model.ChatUser
+import com.gp.chat.util.ChatMapper.toModel
 import com.gp.chat.model.Message
 import com.gp.chat.model.NetworkMessage
-import com.gp.chat.model.RecentChat
-import com.gp.chat.util.ChatMapper.toMessage
-import com.gp.chat.util.ChatMapper.toNetworkMessage
-import com.gp.socialapp.utils.State
-import com.gp.chat.model.NetworkChatGroup
-import com.gp.chat.model.NetworkChatUser
-import com.gp.chat.model.NetworkMessage
 import com.gp.chat.model.NetworkRecentChat
-import com.gp.chat.model.PrivateChats
-import com.gp.chat.model.PrivateChatsNetwork
 import com.gp.chat.model.RecentChat
-import com.gp.chat.util.ChatMapper.toChatUser
 import com.gp.chat.util.ChatMapper.toMap
-import com.gp.chat.util.ChatMapper.toModel
-import com.gp.chat.util.ChatMapper.toNetworkChatGroup
 import com.gp.chat.util.ChatMapper.toNetworkMessage
-import com.gp.chat.util.ChatMapper.toNetworkPrivateChats
-import com.gp.chat.util.ChatMapper.toNetworkRecentChat
 import com.gp.chat.util.ChatMapper.toRecentChat
 import com.gp.socialapp.utils.State
 import kotlinx.coroutines.channels.awaitClose
@@ -113,9 +99,8 @@ override fun getMessages(chatId: String): Flow<State<List<Message>>> = callbackF
     val listener = object : ValueEventListener {
         override fun onDataChange(snapshot: DataSnapshot) {
             val messages = mutableListOf<Message>()
-
             for (messageSnapshot in snapshot.children) {
-                val networkMessage = messageSnapshot.getValue<NetworkMessage>()
+                val networkMessage = messageSnapshot.getValue() as NetworkMessage?
 
                 if (networkMessage != null) {
                     val message = networkMessage.toModel(messageSnapshot.key!!)
@@ -153,8 +138,7 @@ override fun getMessages(chatId: String): Flow<State<List<Message>>> = callbackF
                         val list = mutableListOf<RecentChat>()
                         for(chatId in chatsId){
 
-                            val recentChats = snapshot.child(chatId).
-                            getValue<NetworkRecentChat>()?.toRecentChat(chatId)
+                            val recentChats = (snapshot.child(chatId).getValue() as NetworkRecentChat).toRecentChat(chatId)
                             if(recentChats!=null){
                                 list.add(recentChats)
                             }
@@ -285,10 +269,10 @@ awaitClose()
         }
 
     override fun fetchGroupMessages(groupId: String): Flow<List<Message>> = callbackFlow {
-        val messagesReference = databaseReference.child("messages").child(groupId)
+        val messagesReference = database.reference.child("messages").child(groupId)
         val valueEventListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val messages = snapshot.children.mapNotNull { (it.getValue(NetworkMessage::class.java))?.toMessage(it.key!!, groupId) }
+                val messages = snapshot.children.mapNotNull { (it.getValue(NetworkMessage::class.java))?.toModel(it.key!!) }
                 trySend(messages)
             }
             override fun onCancelled(error: DatabaseError) {
@@ -304,7 +288,7 @@ awaitClose()
     override fun sendGroupMessage(message: Message, recentChat: RecentChat):Flow<State<Nothing>> = callbackFlow {
         Log.d("edrees", "Before Sending")
         trySend(State.Loading)
-        databaseReference.child("messages")
+        database.reference.child("messages")
             .child(message.groupId!!)
             .push().setValue(message.toNetworkMessage())
             .addOnSuccessListener {
@@ -312,7 +296,7 @@ awaitClose()
                 val updates = HashMap<String, Any>()
                 updates["lastMessage"] = recentChat.lastMessage!!
                 updates["timestamp"] = recentChat.timestamp!!
-                databaseReference.child("chats")
+                database.reference.child("chats")
                     .child(message.groupId)
                     .updateChildren(updates)
                     .addOnSuccessListener {
