@@ -16,16 +16,16 @@
         android:layout_height="match_parent"
         android:layout_margin="10dp">
 
-        <!-- TODO: Update blank fragment layout -->
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/container"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <!-- SearchView -->
+
             <SearchView
                 android:id="@+id/suggest_view"
-                android:layout_width="300dp"
+                android:layout_width="290dp"
                 android:layout_height="wrap_content"
                 android:iconifiedByDefault="false"
                 android:queryHint="Search"
@@ -42,16 +42,16 @@
                 android:layout_width="70dp"
                 android:layout_height="wrap_content"
                 android:text="Search"
-                android:textSize="10dp"
+                android:textSize="8dp"
                 android:textColor="#F2F2EB"
-                android:background="#113065"
+                android:background="@drawable/search_button_background"
                 post:layout_constraintEnd_toEndOf="parent"
                 post:layout_constraintTop_toTopOf="parent"
                 post:layout_constraintStart_toEndOf="@id/suggest_view"
                 android:layout_margin="5dp"
                 style="@style/Widget.MaterialComponents.Button" />
 
-            <!-- RecyclerView for Posts -->
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_suggest_posts"
                 android:layout_width="match_parent"

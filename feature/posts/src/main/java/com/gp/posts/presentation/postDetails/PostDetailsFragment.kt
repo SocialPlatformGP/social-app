@@ -243,6 +243,7 @@ class PostDetailsFragment
         popupMenu.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.item_delete -> {
+                    findNavController().navigate(R.id.action_postDetialsFragment_to_feedFragment)
                     viewModel.deleteReply(reply)
                     true
                 }

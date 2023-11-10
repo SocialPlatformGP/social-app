@@ -3,12 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/post_nav_graph"
-    app:startDestination="@id/createPostFragment">
+    app:startDestination="@id/feedFragment">
 
     <fragment
         android:id="@+id/createPostFragment"
         android:name="com.gp.posts.presentation.createpost.CreatePostFragment"
-        android:label="CreatePostFragment" >
+        android:label="Create Post">
         <action
             android:id="@+id/action_createPostFragment_to_feedFragment"
             app:destination="@id/feedFragment" />
@@ -16,7 +16,7 @@
     <fragment
         android:id="@+id/feedFragment"
         android:name="com.gp.posts.presentation.postsfeed.FeedFragment"
-        android:label="FeedFragment" >
+        android:label="Feed Posts">
         <action
             android:id="@+id/action_feedFragment_to_createPostFragment"
             app:destination="@id/createPostFragment" />
@@ -30,7 +30,7 @@
     <fragment
         android:id="@+id/postDetailsFragment"
         android:name="com.gp.posts.presentation.postDetails.PostDetailsFragment"
-        android:label="fragment_post_details"
+        android:label="Post Details"
         tools:layout="@layout/fragment_post_detials">
         <action
             android:id="@+id/action_postDetialsFragment_to_feedFragment"
@@ -41,11 +41,14 @@
         <action
             android:id="@+id/action_postDetialsFragment_to_editPostFragment"
             app:destination="@id/editPostFragment" />
+        <action
+            android:id="@+id/action_postDetailsFragment_to_suggest_post"
+            app:destination="@id/suggest_post" />
     </fragment>
     <fragment
         android:id="@+id/editPostFragment"
         android:name="com.gp.posts.presentation.editPostContent.EditPostFragment"
-        android:label="EditPostFragment" >
+        android:label="Edit Post">
         <action
             android:id="@+id/action_editPostFragment_to_feedFragment"
             app:destination="@id/feedFragment" />
@@ -56,13 +59,20 @@
     <fragment
         android:id="@+id/suggest_post"
         android:name="com.gp.posts.suggest_post"
-        android:label="suggest_post" >
+        android:label="suggestion post">
         <action
             android:id="@+id/action_suggest_post_to_searchFragment2"
             app:destination="@id/searchFragment2" />
         <action
             android:id="@+id/action_suggest_post_to_feedFragment"
             app:popUpTo="@id/feedFragment" />
+        <action
+            android:id="@+id/action_suggest_post_to_suggestDeatails"
+            app:destination="@id/suggestDeatails" >
+        </action>
+        <action
+            android:id="@+id/action_suggest_post_to_postDetailsFragment"
+            app:destination="@id/postDetailsFragment" />
     </fragment>
     <argument
         android:name="search_query"
@@ -70,13 +80,22 @@
     <fragment
         android:id="@+id/searchFragment2"
         android:name="com.gp.posts.presentation.postsSearch.SearchFragment"
-        android:label="SearchFragment" >
+        android:label="Search Results">
         <argument
             android:name="Search_query"
-            app:argType="string"
-            android:defaultValue='" "' />
+            android:defaultValue='" "'
+            app:argType="string" />
         <action
             android:id="@+id/action_searchFragment2_to_suggest_post"
             app:popUpTo="@id/suggest_post" />
+    </fragment>
+    <fragment
+        android:id="@+id/suggestDeatails"
+        android:name="com.gp.posts.suggestDeatails"
+        android:label="Post_details"
+        tools:layout="@layout/fragment_suggest_deatails" >
+        <argument
+            android:name="model"
+            app:argType="com.gp.socialapp.model.Post" />
     </fragment>
 </navigation>

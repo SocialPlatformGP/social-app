@@ -96,27 +96,27 @@ fun setVisabilityRecycler(view: View, params: StateWIthLifeCycle) {
     }
 }
 @BindingAdapter("posts:imageUrl")
-fun setProfilePicture(view: ImageView, picUrl: String?) {
+fun ImageView.setProfilePicture( picUrl: String?) {
     if (picUrl != null) {
-        Glide.with(view.context)
+        Glide.with(this.context)
             .load(picUrl)
             .placeholder(R.drawable.ic_person_24)
             .apply(RequestOptions.circleCropTransform())
-            .into(view)
+            .into(this)
     } else {
-        view.setImageResource(R.drawable.ic_person_24)
+        this.setImageResource(R.drawable.ic_person_24)
     }
 }
 @OptIn(DelicateCoroutinesApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @BindingAdapter("posts:timeTillNow")
-fun setTimeTillNow(view: TextView, time: String?) {
-    view.text = ToTimeTaken.calculateTimeDifference(time!!)
+fun TextView.setTimeTillNow( time: String?) {
+    this.text = ToTimeTaken.calculateTimeDifference(time!!)
     val job = GlobalScope.launch(Dispatchers.Default) {
         repeat(60) {
             delay(60000)
             withContext(Dispatchers.Main) {
-                view.text = ToTimeTaken.calculateTimeDifference(time!!)
+                text = ToTimeTaken.calculateTimeDifference(time!!)
             }
         }
     }

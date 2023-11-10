@@ -10,6 +10,7 @@ interface PostLocalDataSource {
     suspend fun deletePost(post: Post)
      fun searchPostsByTitle(searchText: String): Flow<List<PostEntity>>
     fun getPostById(id: String): Flow<PostEntity>
+    fun deleteAllPosts()
 
 
 }

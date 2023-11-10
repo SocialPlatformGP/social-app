@@ -43,6 +43,7 @@ class PostRepositoryImpl @Inject constructor(
         if (networkStatus.isOnline()) {
             val posts = postRemoteSource.fetchPosts()
             repositoryScope.launch {
+                postLocalSource.deleteAllPosts()
                 posts.collect {
                     it.forEach { post ->
                         insertLocalPost(post.toEntity())
@@ -99,6 +100,11 @@ class PostRepositoryImpl @Inject constructor(
            return postLocalSource.getPostById(id).toModel()
         }
     }
+
+    override fun deleteAllPosts() {
+
+    }
+
 
     override suspend fun incrementReplyCounter(postId: String) = postRemoteSource.incrementReplyCounter(postId)
 
