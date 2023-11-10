@@ -34,7 +34,7 @@
         android:id="@+id/postDetailsFragment"
         android:name="com.gp.posts.presentation.postDetails.PostDetailsFragment"
         android:label="Post Details"
-        tools:layout="@layout/fragment_post_detials">
+        tools:layout="@layout/fragment_post_details">
         <action
             android:id="@+id/action_postDetialsFragment_to_feedFragment"
             app:destination="@id/feedFragment" />
@@ -58,7 +58,7 @@
     </fragment>
     <fragment
         android:id="@+id/suggest_post"
-        android:name="com.gp.posts.suggest_post"
+        android:name="com.gp.posts.SearchFragment"
         android:label="suggestion post">
         <action
             android:id="@+id/action_suggest_post_to_searchFragment2"
@@ -66,10 +66,6 @@
         <action
             android:id="@+id/action_suggest_post_to_feedFragment"
             app:popUpTo="@id/feedFragment" />
-        <action
-            android:id="@+id/action_suggest_post_to_suggestDeatails"
-            app:destination="@id/suggestDeatails" >
-        </action>
         <action
             android:id="@+id/action_suggest_post_to_postDetailsFragment"
             app:destination="@id/postDetailsFragment" />
@@ -79,7 +75,7 @@
         app:argType="string" />
     <fragment
         android:id="@+id/searchFragment2"
-        android:name="com.gp.posts.presentation.postsSearch.SearchFragment"
+        android:name="com.gp.posts.presentation.postsSearch.SearchResultsFragment"
         android:label="Search Results">
         <argument
             android:name="Search_query"
@@ -92,15 +88,5 @@
             android:name="isTag"
             app:argType="boolean"
             android:defaultValue="false" />
-            app:destination="@id/suggest_post" />
-    </fragment>
-    <fragment
-        android:id="@+id/suggestDeatails"
-        android:name="com.gp.posts.suggestDeatails"
-        android:label="Post_details"
-        tools:layout="@layout/fragment_suggest_deatails" >
-        <argument
-            android:name="model"
-            app:argType="com.gp.socialapp.model.Post" />
     </fragment>
 </navigation>

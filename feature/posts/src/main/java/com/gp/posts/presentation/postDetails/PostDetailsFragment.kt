@@ -40,8 +40,6 @@ import com.gp.socialapp.model.Reply
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
-import java.time.ZoneId
 import java.util.Date
 
 
@@ -67,7 +65,7 @@ class PostDetailsFragment
         viewModel.getRepliesById(args.post.id)
         // Inflate the layout for this fragment
          binding =
-            DataBindingUtil.inflate(inflater, R.layout.fragment_post_detials, container, false)
+            DataBindingUtil.inflate(inflater, R.layout.fragment_post_details, container, false)
         viewModel.getPost(args.post)
         lifecycleScope.launch {
             viewModel.currentPost.flowWithLifecycle(lifecycle).collect {

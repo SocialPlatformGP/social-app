@@ -95,7 +95,7 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
     override fun onQueryTextSubmit(query: String?): Boolean {
         val currentFragment= navHostFragment.childFragmentManager.fragments[0]
-        if(currentFragment is com.gp.posts.suggest_post){
+        if(currentFragment is com.gp.posts.SearchFragment){
             currentFragment.navigateToFinalResult(query)
 
         }
@@ -105,10 +105,10 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
     override fun onQueryTextChange(newText: String?): Boolean {
         val currentFragment= navHostFragment.childFragmentManager.fragments[0]
         when(currentFragment){
-            is com.gp.posts.suggest_post->{
+            is com.gp.posts.SearchFragment->{
                 currentFragment.updateSearchQuery(newText)
             }
-            is com.gp.posts.presentation.postsSearch.SearchFragment->{
+            is com.gp.posts.presentation.postsSearch.SearchResultsFragment->{
                 currentFragment.backToSuggest(newText)
 
 
