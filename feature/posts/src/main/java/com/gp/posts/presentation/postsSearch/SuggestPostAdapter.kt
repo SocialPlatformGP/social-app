@@ -8,9 +8,10 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.gp.posts.R
 import com.gp.posts.databinding.SuggestItemBinding
+import com.gp.posts.listeners.OnSuggestedPostClickListener
 import com.gp.socialapp.model.Post
 
-class SuggestPostAdapter(private var onClickListener: OnClickListener): ListAdapter<Post, SuggestPostAdapter.SuggestViewHolder>(
+class SuggestPostAdapter(private var onClickListener: OnSuggestedPostClickListener): ListAdapter<Post, SuggestPostAdapter.SuggestViewHolder>(
     PostDiffUtil()
 ) {
 
@@ -53,8 +54,4 @@ class SuggestPostAdapter(private var onClickListener: OnClickListener): ListAdap
           onClickListener.onClick(post)
         }
     }
-}
-
-interface OnClickListener {
-    fun onClick( model: Post)
 }

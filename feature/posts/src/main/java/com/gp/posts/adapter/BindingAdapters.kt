@@ -23,6 +23,7 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.firebase.auth.FirebaseAuth
 import com.gp.posts.R
+import com.gp.posts.listeners.OnTagClicked
 import com.gp.socialapp.database.model.Tag
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.utils.State
@@ -141,12 +142,12 @@ fun setDownVoteImage(view: MaterialButton, downVoteList: List<String>) {
     }
 }
 
-@BindingAdapter(value = ["posts:tags", "posts:tagsContext"], requireAll = true)
-fun setTags(view: ChipGroup, tags: List<Tag>, context: Context) {
+@BindingAdapter(value = ["posts:tags", "posts:tagsContext", "posts:onTagClick"], requireAll = true)
+fun setTags(view: ChipGroup, tags: List<Tag>, context: Context, onTagClick: OnTagClicked) {
     if (view.childCount==0) {
-        tags.forEach {
-            val label = it.label
-            val color = Color.parseColor(it.hexColor)
+        tags.forEach {tag ->
+            val label = tag.label
+            val color = Color.parseColor(tag.hexColor)
             val chip = Chip(context)
             chip.text = label
             chip.textSize = 11f
@@ -156,6 +157,9 @@ fun setTags(view: ChipGroup, tags: List<Tag>, context: Context) {
                 .toBuilder()
                 .setAllCornerSizes(64f) // Set corner radius to make chips oval-shaped
                 .build()
+            chip.setOnClickListener{
+                onTagClick.onTagClicked(tag)
+            }
             view.addView(chip)
 
         }

@@ -26,6 +26,9 @@
         <action
             android:id="@+id/action_feedFragment_to_editPostFragment"
             app:destination="@id/editPostFragment" />
+        <action
+            android:id="@+id/action_feedFragment_to_searchFragment2"
+            app:destination="@id/searchFragment2" />
     </fragment>
     <fragment
         android:id="@+id/postDetailsFragment"
@@ -41,9 +44,6 @@
         <action
             android:id="@+id/action_postDetialsFragment_to_editPostFragment"
             app:destination="@id/editPostFragment" />
-        <action
-            android:id="@+id/action_postDetailsFragment_to_suggest_post"
-            app:destination="@id/suggest_post" />
     </fragment>
     <fragment
         android:id="@+id/editPostFragment"
@@ -87,6 +87,11 @@
             app:argType="string" />
         <action
             android:id="@+id/action_searchFragment2_to_suggest_post"
+            app:popUpTo="@id/suggest_post" />
+        <argument
+            android:name="isTag"
+            app:argType="boolean"
+            android:defaultValue="false" />
             app:destination="@id/suggest_post" />
     </fragment>
     <fragment

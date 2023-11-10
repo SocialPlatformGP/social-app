@@ -49,8 +49,13 @@ class SearchFragment : Fragment(){
                 adapter.submitList(it)
             }
         }
-        viewModel.searchPosts(args.SearchQuery)
-        binding.searchView.text="Search Results for : "+ args.SearchQuery
+        if(args.isTag){
+            viewModel.searchPostsByTag(args.SearchQuery)
+            binding.searchView.text="Search Results for Tag: "+args.SearchQuery
+        } else {
+            viewModel.searchPostsByTitle(args.SearchQuery)
+            binding.searchView.text="Search Results for: "+args.SearchQuery
+        }
 
     }
 }

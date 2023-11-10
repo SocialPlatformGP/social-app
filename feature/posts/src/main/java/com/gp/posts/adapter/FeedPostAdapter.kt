@@ -13,6 +13,7 @@ import com.google.android.material.chip.Chip
 import com.gp.posts.R
 import com.gp.posts.databinding.ItemPostBinding
 import com.gp.posts.listeners.OnMoreOptionClicked
+import com.gp.posts.listeners.OnTagClicked
 import com.gp.posts.listeners.VotesClickedListener
 import com.gp.socialapp.database.model.PostEntity
 import com.gp.socialapp.model.Post
@@ -20,6 +21,7 @@ import com.gp.socialapp.model.Post
 class FeedPostAdapter(
     val onMoreOptionClicked: OnMoreOptionClicked,
     val onPostClicked: VotesClickedListener,
+    val onTagClicked: OnTagClicked,
     val context: Context
 ) : ListAdapter<Post, FeedPostAdapter.PostViewHolder>(PostDiffUtil()) {
 
@@ -45,7 +47,6 @@ class FeedPostAdapter(
         binding.imgAddComment.setOnClickListener {
             onPostClicked.onPostClicked(binding.postitem!!)
         }
-
         return PostViewHolder(binding)
     }
 
@@ -60,6 +61,7 @@ class FeedPostAdapter(
         fun bind(post: Post) {
             binding.postitem = post
             binding.context = context
+            binding.onTagClick = onTagClicked
             binding.executePendingBindings()
         }
     }
