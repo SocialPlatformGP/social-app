@@ -30,7 +30,7 @@ class ChatAdapter(var onItemClickListener: OnRecentChatClicked) : ListAdapter<Re
                     chatId = chat.id,
                     receiverName = chat.receiverName,
                     senderName = chat.senderName,
-                    isPrivateChat = chat.isPrivateChat
+                    isPrivateChat = chat.privateChat
                 )
             }
         }

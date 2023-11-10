@@ -95,7 +95,7 @@ class PrivateChatViewModel @Inject constructor(
                 lastMessage = currentMessage.value.message,
                 timestamp = Date().toString(),
                 title = "private chat",
-                isPrivateChat = true,
+                privateChat = true,
                 receiverName = receiverEmail,
                 senderName = senderEmail,
 

@@ -1,6 +1,7 @@
 package com.gp.chat.presentation.home
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -70,6 +71,7 @@ class ChatHome : Fragment(),OnRecentChatClicked {
         receiverImage: String,
         isPrivateChat: Boolean
     ) {
+        Log.d("ChatHome","onRecentChatClicked ${chatId + receiverName + senderName + receiverImage + isPrivateChat}")
         val action = if(isPrivateChat){
             ChatHomeDirections.actionChatHomeToPrivateChatFragment(
                 chatId=chatId,

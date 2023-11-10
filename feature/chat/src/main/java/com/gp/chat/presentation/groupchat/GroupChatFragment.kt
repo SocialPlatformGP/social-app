@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.navArgs
 import com.gp.chat.R
 import com.gp.chat.adapter.GroupMessageAdapter
 import com.gp.chat.databinding.FragmentGroupChatBinding
@@ -21,7 +22,7 @@ import kotlinx.coroutines.launch
 class GroupChatFragment : Fragment() {
     private val viewModel: GroupChatViewModel by viewModels()
     private lateinit var binding: FragmentGroupChatBinding
-    private val GROUP_ID = "test_group_id"
+    private val args :GroupChatFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,9 +46,9 @@ class GroupChatFragment : Fragment() {
                 Log.d("edrees", "after submit")
             }
         }
-        viewModel.fetchGroupChatMessages(GROUP_ID)
+        viewModel.fetchGroupChatMessages(args.groupId)
     }
     fun onSendMessageClick(){
-        viewModel.onSendMessage(GROUP_ID)
+        viewModel.onSendMessage(args.groupId)
     }
 }

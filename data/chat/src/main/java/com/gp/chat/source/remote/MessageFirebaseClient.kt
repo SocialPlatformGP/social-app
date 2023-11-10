@@ -104,7 +104,7 @@ override fun getMessages(chatId: String): Flow<State<List<Message>>> = callbackF
         override fun onDataChange(snapshot: DataSnapshot) {
             val messages = mutableListOf<Message>()
             for (messageSnapshot in snapshot.children) {
-                val networkMessage = messageSnapshot.getValue() as NetworkMessage?
+                val networkMessage = messageSnapshot.getValue(NetworkMessage::class.java)
                 if (networkMessage != null) {
                     val message = networkMessage.toModel(messageSnapshot.key!!)
                     messages.add(message)
@@ -141,7 +141,11 @@ override fun getMessages(chatId: String): Flow<State<List<Message>>> = callbackF
                         val list = mutableListOf<RecentChat>()
                         for(chatId in chatsId){
 
-                            val recentChats = (snapshot.child(chatId).getValue() as NetworkRecentChat).toRecentChat(chatId)
+                            val recentChats = (snapshot.child(chatId).getValue(NetworkRecentChat::class.java)?.toRecentChat(chatId))
+                            Log.d("testo", "onDataChange1: ${snapshot.child(chatId)}")
+                            Log.d("testo", "onDataChange2: ${snapshot.child(chatId).getValue(NetworkRecentChat::class.java)}")
+
+                            Log.d("testo", "onDataChange: $recentChats")
                             if(recentChats!=null){
                                 list.add(recentChats)
                             }
@@ -329,7 +333,7 @@ awaitClose()
                         .setValue(recentChat)
                         .addOnSuccessListener {
                             val userGroupData = hashMapOf<String, Any>()
-                            for (userId in group.members!!.keys) {
+                            for (userId in group.members.keys) {
                                 userGroupData["$CHAT_USER/${RemoveSpecialChar.removeSpecialCharacters(userId)}/$GROUP/${chatKey}"] = true
                             }
                             val updateResult = database.reference.updateChildren(userGroupData).addOnSuccessListener {

@@ -73,7 +73,7 @@ class MessageRepositoryImpl @Inject constructor(
             title = name,
             senderName = "N/A",
             receiverName = "N/A",
-            isPrivateChat = false,
+            privateChat = false,
             picUrl = avatarLink
         )
         return messageRemoteDataSource.createGroupChat(group, recentChat)
