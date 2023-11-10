@@ -67,13 +67,18 @@ class ChatHome : Fragment(),OnRecentChatClicked {
         chatId: String,
         receiverName: String,
         senderName: String,
-        receiverImage: String
+        receiverImage: String,
+        isPrivateChat: Boolean
     ) {
-        val action = ChatHomeDirections.actionChatHomeToPrivateChatFragment(
-            chatId=chatId,
-            senderEmail = senderName,
-            receiverEmail = receiverName,
-        )
+        val action = if(isPrivateChat){
+            ChatHomeDirections.actionChatHomeToPrivateChatFragment(
+                chatId=chatId,
+                senderEmail = senderName,
+                receiverEmail = receiverName,
+            )
+        } else {
+        ChatHomeDirections.actionChatHomeToGroupChatFragment(chatId)
+        }
         findNavController().navigate(action)
     }
 

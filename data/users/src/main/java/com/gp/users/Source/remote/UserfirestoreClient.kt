@@ -73,22 +73,6 @@ class UserfirestoreClient @Inject constructor(val firestore: FirebaseFirestore) 
         return result
     }
 
-    override suspend fun fetchAllUsers() = callbackFlow {
-        val listener = firestore.collection("users").addSnapshotListener { data, error ->
-            if (error != null) {
-                close(error)
-                return@addSnapshotListener
-            }
-            if (data != null) {
-                val result = mutableListOf<UserEntity>()
-                for (document in data.documents) {
-                    result.add(document.toObject(UserEntity::class.java)!!)
-                }
-                trySend(result)
-            }
-        }
-        awaitClose { listener.remove() }
-    }
 
 
     override fun deleteUser(user: UserEntity) = callbackFlow<State<Nothing>> {

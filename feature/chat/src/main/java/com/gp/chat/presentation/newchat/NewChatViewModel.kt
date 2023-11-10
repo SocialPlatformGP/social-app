@@ -11,6 +11,7 @@ import com.gp.chat.util.RemoveSpecialChar
 import com.gp.chat.util.RemoveSpecialChar.removeSpecialCharacters
 import com.gp.socialapp.database.model.UserEntity
 import com.gp.socialapp.utils.State
+import com.gp.users.model.User
 import com.gp.users.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -31,16 +32,17 @@ class NewChatViewModel @Inject  constructor(
         getAllUsers()
     }
 
-    private val _users = MutableStateFlow<List<UserEntity>>(emptyList())
-    val users: StateFlow<List<UserEntity>>
+    private val _users = MutableStateFlow<List<User>>(emptyList())
+    val users: StateFlow<List<User>>
         get() = _users
 
     private fun getAllUsers(){
         viewModelScope.launch (Dispatchers.IO) {
-            userRepository.fetchAllUsers().collect{
+            userRepository.fetchUsers().collect{
                 Log.d("TAG", "getAllUsers: $it")
-                _users.value=it
-
+                if(it is State.SuccessWithData) {
+                    _users.value = it.data
+                }
             }
         }
     }

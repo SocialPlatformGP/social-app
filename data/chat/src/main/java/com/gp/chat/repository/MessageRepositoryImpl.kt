@@ -8,8 +8,8 @@ import com.gp.chat.model.NetworkChatGroup
 import com.gp.chat.model.NetworkRecentChat
 import com.gp.chat.model.RecentChat
 import com.gp.chat.source.remote.MessageRemoteDataSource
-import com.gp.chat.source.remote.RemoveSpecialChar
 import com.gp.chat.util.DateUtils.getTimeStamp
+import com.gp.chat.util.RemoveSpecialChar
 import com.gp.socialapp.utils.State
 import kotlinx.coroutines.flow.Flow
 import java.util.Date
@@ -66,7 +66,7 @@ class MessageRepositoryImpl @Inject constructor(
     ): Flow<State<String>> {
         Log.d("viewmodel->repo", "createGroupChat: $name")
         val group = NetworkChatGroup(name = name,
-            members.map{RemoveSpecialChar.removeSpecialCharacters(it)}.associateWith { true })
+            members.map{ RemoveSpecialChar.removeSpecialCharacters(it)}.associateWith { true })
         val recentChat = NetworkRecentChat(
             lastMessage = "\t",
             timestamp = getTimeStamp(Date()),

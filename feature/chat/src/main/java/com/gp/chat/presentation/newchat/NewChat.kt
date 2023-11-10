@@ -3,23 +3,23 @@ package com.gp.chat.presentation.newchat
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.gp.chat.R
 import com.gp.chat.adapter.UsersChatAdapter
 import com.gp.chat.listener.OnItemClickListener
-import com.gp.chat.util.RemoveSpecialChar
 import com.gp.chat.util.RemoveSpecialChar.removeSpecialCharacters
 import com.gp.socialapp.database.model.UserEntity
 import com.gp.socialapp.utils.State
@@ -35,8 +35,7 @@ class NewChat : Fragment(), OnItemClickListener {
     private val senderEmail = removeSpecialCharacters(Firebase.auth.currentUser?.email!!)
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
 
         // Inflate the layout for this fragment
@@ -56,7 +55,11 @@ class NewChat : Fragment(), OnItemClickListener {
                 usersChatAdapter.submitList(it)
             }
         }
-
+        val button = view.findViewById<MaterialButton>(R.id.create_group_button)
+        button.setOnClickListener {
+            val action = NewChatDirections.actionNewChatToCreateGroupChatFragment()
+            findNavController().navigate(action)
+        }
 
     }
 

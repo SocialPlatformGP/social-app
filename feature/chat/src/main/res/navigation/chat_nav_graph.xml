@@ -31,6 +31,9 @@
         <action
             android:id="@+id/action_chatHome_to_privateChatFragment"
             app:destination="@id/privateChatFragment" />
+        <action
+            android:id="@+id/action_chatHome_to_groupChatFragment"
+            app:destination="@id/groupChatFragment" />
     </fragment>
     <fragment
         android:id="@+id/newChat"
@@ -41,6 +44,9 @@
             app:destination="@id/privateChatFragment"
             app:popUpTo="@id/chatHome"
             app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_newChat_to_createGroupChatFragment"
+            app:destination="@id/createGroupChatFragment" />
     </fragment>
         android:label="PrivateChatFragment" />
     <fragment

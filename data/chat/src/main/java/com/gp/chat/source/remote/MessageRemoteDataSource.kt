@@ -8,7 +8,6 @@ import com.gp.chat.model.NetworkRecentChat
 import com.gp.chat.model.PrivateChats
 import com.gp.chat.model.PrivateChatsNetwork
 import com.gp.chat.model.NetworkChatGroup
-import com.gp.chat.model.NetworkRecentChat
 import com.gp.chat.model.RecentChat
 import com.gp.socialapp.utils.State
 import kotlinx.coroutines.flow.Flow
