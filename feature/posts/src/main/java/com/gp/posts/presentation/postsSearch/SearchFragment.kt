@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gp.posts.R
@@ -32,13 +33,16 @@ class SearchFragment : Fragment(){
         binding.lifecycleOwner = this
         return binding.root
     }
+    fun backToSuggest(query: String?) {
+        findNavController().popBackStack()
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val recyclerView = binding.rvSearchPosts
         val adapter = SearchResultAdapter()
         recyclerView.adapter = adapter
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.layoutManager= LinearLayoutManager(requireContext())
         lifecycleScope.launch {
             viewModel.searchResult.flowWithLifecycle(lifecycle).collect {
                 binding.rvSearchPosts.visibility = View.VISIBLE
@@ -54,8 +58,4 @@ class SearchFragment : Fragment(){
         }
 
     }
-
 }
-
-
-

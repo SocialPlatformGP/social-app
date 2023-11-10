@@ -1,5 +1,6 @@
 package com.gp.posts
 
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -12,10 +13,18 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.button.MaterialButton
+import com.gp.posts.adapter.FeedPostAdapter
 import com.gp.posts.adapter.SuggestPostAdapter
+import com.gp.posts.databinding.FragmentSearchBinding
 import com.gp.posts.databinding.FragmentSuggestPostBinding
+import com.gp.posts.listeners.OnMoreOptionClicked
+import com.gp.posts.listeners.VotesClickedListener
 import com.gp.posts.presentation.postsSearch.SearchViewModel
+import com.gp.socialapp.database.model.PostEntity
+import com.gp.socialapp.database.model.ReplyEntity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -36,6 +45,23 @@ class suggest_post : Fragment() {
     lateinit var btnSearch: Button
     var searchText :String=""
 
+
+
+    fun updateSearchQuery(query: String?) {
+        searchText=query!!
+
+        if(query.isNullOrEmpty()){
+            binding.rvSuggestPosts.visibility = View.GONE
+        }
+        else{
+            binding.rvSuggestPosts.visibility = View.VISIBLE
+            viewModel.searchPosts(query)
+        }
+    }
+    fun navigateToFinalResult(query: String?) {
+        val action=suggest_postDirections.actionSuggestPostToSearchFragment2(query!!)
+        Navigation.findNavController(requireView()).navigate(action)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -68,26 +94,8 @@ class suggest_post : Fragment() {
 
             }
         }
-        val searchView =binding.suggestView
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener,
-            android.widget.SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                searchText=query!!
-                return true
-            }
 
-            override fun onQueryTextChange(newText: String?): Boolean {
-                searchText=newText!!
 
-                if(newText.isNullOrEmpty()){
-                    binding.rvSuggestPosts.visibility = View.GONE
-                    return true
-                }
-                else{
-                    binding.rvSuggestPosts.visibility = View.VISIBLE
-                    viewModel.searchPostsByTitle(newText)
-                    return true
-                }}
-        })
+
     }
     }

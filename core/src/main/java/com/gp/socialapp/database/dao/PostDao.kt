@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PostDao {
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPost(vararg post: PostEntity)
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
@@ -27,5 +27,7 @@ interface PostDao {
 
     @Query("SELECT * FROM posts WHERE title LIKE '%' || :searchText || '%' ")
     fun searchPostsByTitle(searchText: String): Flow<List<PostEntity>>
+    @Query("DELETE FROM posts")
+    fun deleteAllPosts()
 
 }

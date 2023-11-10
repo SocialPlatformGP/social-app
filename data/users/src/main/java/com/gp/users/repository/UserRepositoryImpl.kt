@@ -24,6 +24,7 @@ class UserRepositoryImpl @Inject constructor(private val userLocalSource: UserLo
     }
 
     override suspend fun getAllLocalUsers(): Flow<List<UserEntity>> {
+        deleteAllUsers()
         return userLocalSource.getAllUsers()
     }
     override fun createNetworkUser(user: NetworkUser) = userRemoteSource.createUser(user)
@@ -33,4 +34,7 @@ class UserRepositoryImpl @Inject constructor(private val userLocalSource: UserLo
     override fun deleteNetworkUser(user: UserEntity) = userRemoteSource.deleteUser(user)
     override suspend fun fetchUser(email: String): State<NetworkUser> = userRemoteSource.fetchUser(email)
     override suspend fun getUserById(email: String) = userLocalSource.getUserById(email)
+    override fun deleteAllUsers() {
+        userLocalSource.deleteAllUsers()
+    }
 }
