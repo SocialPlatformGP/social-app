@@ -14,4 +14,15 @@ object UserMapper {
         return NetworkUser(userFirstName,userLastName,userPassword,userProfilePictureURL,userEmail,
             userPhoneNumber, userBirthdate, userBio, userCreatedAt)
     }
+    fun NetworkUser.toModel(): User {
+        return User(
+            firstName = userFirstName,
+            lastName = userLastName,
+            profilePictureURL = userProfilePictureURL,
+            phoneNumber = userPhoneNumber,
+            email = userEmail,
+            birthdate =userBirthdate,
+            bio = userBio
+        )
+    }
 }

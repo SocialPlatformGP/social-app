@@ -96,15 +96,15 @@ fun setVisabilityRecycler(view: View, params: StateWIthLifeCycle) {
     }
 }
 @BindingAdapter("posts:imageUrl")
-fun setProfilePicture(view: ImageView, picUrl: String?) {
+fun ImageView.setProfilePicture( picUrl: String?) {
     if (picUrl != null) {
-        Glide.with(view.context)
+        Glide.with(this.context)
             .load(picUrl)
             .placeholder(R.drawable.ic_person_24)
             .apply(RequestOptions.circleCropTransform())
-            .into(view)
+            .into(this)
     } else {
-        view.setImageResource(R.drawable.ic_person_24)
+        this.setImageResource(R.drawable.ic_person_24)
     }
 }
 @OptIn(DelicateCoroutinesApi::class)
