@@ -14,6 +14,10 @@
             name="context"
             type="android.content.Context" />
 
+        <variable
+            name="onTagClick"
+            type="com.gp.posts.listeners.OnTagClicked" />
+
 
         <variable
             name="viewModel"
@@ -77,8 +81,8 @@
 
                         <TextView
                             android:id="@+id/textView"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="0dp"
+                            android:layout_height="10dp"
                             android:layout_marginStart="8dp"
                             android:text="@{postitem.userName}"
                             android:textColor="#5E5B5C"
@@ -142,7 +146,8 @@
                                 android:layout_height="wrap_content"
                                 posts:chipSpacingHorizontal= "4dp"
                                 posts:tags="@{postitem.tags}"
-                                posts:tagsContext="@{context}"/>
+                                posts:tagsContext="@{context}"
+                                posts:onTagClick="@{onTagClick}"/>
 
                         </com.google.android.flexbox.FlexboxLayout>
 

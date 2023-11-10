@@ -62,7 +62,7 @@ class CreatePostViewModel @Inject constructor (
                 val state =
                     postRepository.createPost(Post(
                         userPfp = pfpLink,//todo: change to user pfp
-                        userName= currentUser.value.userFirstName,//todo: change to user name to full name
+                        userName= "${currentUser.value.userFirstName} ${currentUser.value.userLastName}",//todo: change to user name to full name
                         authorEmail = currentUserName!!,
                         publishedAt = Date().toString(),
                         title = title,
