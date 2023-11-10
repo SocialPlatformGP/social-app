@@ -20,9 +20,9 @@ import com.google.android.material.chip.ChipGroup
 import com.google.firebase.auth.FirebaseAuth
 import com.gp.posts.R
 import com.gp.posts.listeners.OnTagClicked
-import com.gp.socialapp.database.model.Tag
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.model.Tag
+import com.gp.socialapp.util.DateUtils
 import com.gp.socialapp.utils.State
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -31,7 +31,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import com.gp.socialapp.util.DateUtils
 
 val currentEmail = FirebaseAuth.getInstance().currentUser?.email
 
@@ -117,67 +116,65 @@ fun TextView.setTimeTillNow( time: String?) {
         }
     }
     job.cancel()
+}
+
+@BindingAdapter("posts:upVoteImage")
+fun setUpVoteImage(view: MaterialButton, upVoteList: List<String>) {
+    if (currentEmail in upVoteList) {
+        view.iconTint = view.context.getColorStateList(R.color.Blue)
+    } else {
+        view.iconTint = view.context.getColorStateList(R.color.Gray)
     }
 }
 
-    @BindingAdapter("posts:upVoteImage")
-    fun setUpVoteImage(view: MaterialButton, upVoteList: List<String>) {
-        if (currentEmail in upVoteList) {
-            view.iconTint = view.context.getColorStateList(R.color.Blue)
-        } else {
-            view.iconTint = view.context.getColorStateList(R.color.Gray)
-        }
+@BindingAdapter("posts:downVoteImage")
+fun setDownVoteImage(view: MaterialButton, downVoteList: List<String>) {
+    if (currentEmail in downVoteList) {
+        view.iconTint = view.context.getColorStateList(R.color.Red)
+    } else {
+        view.iconTint = view.context.getColorStateList(R.color.Gray)
     }
+}
 
-    @BindingAdapter("posts:downVoteImage")
-    fun setDownVoteImage(view: MaterialButton, downVoteList: List<String>) {
-        if (currentEmail in downVoteList) {
-            view.iconTint = view.context.getColorStateList(R.color.Red)
-        } else {
-            view.iconTint = view.context.getColorStateList(R.color.Gray)
-        }
-    }
-
-    @BindingAdapter(
-        value = ["posts:tags", "posts:tagsContext", "posts:onTagClick"],
-        requireAll = true
-    )
-    fun setTags(view: ChipGroup, tags: List<Tag>, context: Context, onTagClick: OnTagClicked) {
-        if (view.childCount == 0) {
-            tags.forEach { tag ->
-                val label = tag.label
-                val color = Color.parseColor(tag.hexColor)
-                val chip = Chip(context)
-                chip.text = label
-                chip.textSize = 11f
-                chip.setChipBackgroundColorResource(android.R.color.transparent)
-                chip.chipBackgroundColor = ColorStateList.valueOf(color)
-                chip.shapeAppearanceModel
-                    .toBuilder()
-                    .setAllCornerSizes(64f) // Set corner radius to make chips oval-shaped
-                    .build()
-                chip.setOnClickListener {
-                    onTagClick.onTagClicked(tag)
-                }
-                view.addView(chip)
-
+@BindingAdapter(
+    value = ["posts:tags", "posts:tagsContext", "posts:onTagClick"],
+    requireAll = true
+)
+fun setTags(view: ChipGroup, tags: List<Tag>, context: Context, onTagClick: OnTagClicked) {
+    if (view.childCount == 0) {
+        tags.forEach { tag ->
+            val label = tag.label
+            val color = Color.parseColor(tag.hexColor)
+            val chip = Chip(context)
+            chip.text = label
+            chip.textSize = 11f
+            chip.setChipBackgroundColorResource(android.R.color.transparent)
+            chip.chipBackgroundColor = ColorStateList.valueOf(color)
+            chip.shapeAppearanceModel
+                .toBuilder()
+                .setAllCornerSizes(64f) // Set corner radius to make chips oval-shaped
+                .build()
+            chip.setOnClickListener {
+                onTagClick.onTagClicked(tag)
             }
+            view.addView(chip)
+
         }
     }
+}
 
-    @BindingAdapter(value = ["posts:formattedNumber", "posts:formattedLabel"], requireAll = true)
-    fun TextView.setFormattedNumberWithLabel(number: Int, label: String) {
-        val suffixes = arrayOf("", "k", "M", "B", "T")
-        var num = number.toDouble()
-        var suffixIndex = 0
+@BindingAdapter(value = ["posts:formattedNumber", "posts:formattedLabel"], requireAll = true)
+fun TextView.setFormattedNumberWithLabel(number: Int, label: String) {
+    val suffixes = arrayOf("", "k", "M", "B", "T")
+    var num = number.toDouble()
+    var suffixIndex = 0
 
-        while (num >= 1000 && suffixIndex < suffixes.size - 1) {
-            num /= 1000
-            suffixIndex++
-        }
-
-        val formattedNumber = String.format("%.1f", num)
-        val formattedText = "$formattedNumber${suffixes[suffixIndex]} $label"
-        text = formattedText
+    while (num >= 1000 && suffixIndex < suffixes.size - 1) {
+        num /= 1000
+        suffixIndex++
     }
+
+    val formattedNumber = String.format("%.1f", num)
+    val formattedText = "$formattedNumber${suffixes[suffixIndex]} $label"
+    text = formattedText
 }
