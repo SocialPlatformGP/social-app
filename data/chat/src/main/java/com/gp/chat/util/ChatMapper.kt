@@ -64,7 +64,7 @@ object ChatMapper {
         title = title,
         senderName = senderName,
         receiverName = receiverName,
-        isPrivateChat = isPrivateChat,
+        privateChat = privateChat,
         picUrl = picUrl
     )
 
@@ -75,7 +75,7 @@ object ChatMapper {
         title = title,
         senderName = senderName,
         receiverName = receiverName,
-        isPrivateChat = isPrivateChat,
+        privateChat = privateChat,
         picUrl = picUrl
     )
 
@@ -95,7 +95,7 @@ object ChatMapper {
         "title" to title,
         "senderName" to senderName,
         "receiverName" to receiverName,
-        "isPrivateChat" to isPrivateChat,
+        "privateChat" to privateChat,
         "picUrl" to picUrl
     )
 

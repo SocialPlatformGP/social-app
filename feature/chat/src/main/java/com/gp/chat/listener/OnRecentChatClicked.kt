@@ -5,6 +5,7 @@ interface OnRecentChatClicked {
         chatId: String,
         receiverName: String,
         senderName: String,
-        receiverImage: String=""
+        receiverImage: String="",
+        isPrivateChat: Boolean
     )
 }

@@ -4,10 +4,15 @@ import android.util.Log
 import com.gp.chat.model.ChatGroup
 import com.gp.chat.model.ChatUser
 import com.gp.chat.model.Message
+import com.gp.chat.model.NetworkChatGroup
+import com.gp.chat.model.NetworkRecentChat
 import com.gp.chat.model.RecentChat
 import com.gp.chat.source.remote.MessageRemoteDataSource
+import com.gp.chat.util.DateUtils.getTimeStamp
+import com.gp.chat.util.RemoveSpecialChar
 import com.gp.socialapp.utils.State
 import kotlinx.coroutines.flow.Flow
+import java.util.Date
 import javax.inject.Inject
 
 class MessageRepositoryImpl @Inject constructor(
@@ -52,5 +57,26 @@ class MessageRepositoryImpl @Inject constructor(
 
     override fun updateRecentChat(recentChat: RecentChat, chatId: String): Flow<State<String>> =
         messageRemoteDataSource.updateRecentChat(recentChat, chatId)
+
+
+    override fun createGroupChat(
+        name: String,
+        avatarLink: String,
+        members: List<String>
+    ): Flow<State<String>> {
+        Log.d("viewmodel->repo", "createGroupChat: $name")
+        val group = NetworkChatGroup(name = name,
+            members.map{ RemoveSpecialChar.removeSpecialCharacters(it)}.associateWith { true })
+        val recentChat = NetworkRecentChat(
+            lastMessage = "\t",
+            timestamp = getTimeStamp(Date()),
+            title = name,
+            senderName = "N/A",
+            receiverName = "N/A",
+            privateChat = false,
+            picUrl = avatarLink
+        )
+        return messageRemoteDataSource.createGroupChat(group, recentChat)
+    }
 
 }

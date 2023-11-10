@@ -1,17 +1,18 @@
 package com.gp.users.repository
 
+import android.util.Log
 import com.gp.socialapp.database.model.UserEntity
 import com.gp.socialapp.utils.State
 import com.gp.users.Source.local.UserLocalDataSource
 import com.gp.users.Source.remote.UserRemoteDataSource
 import com.gp.users.model.NetworkUser
+import com.gp.users.model.User
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class UserRepositoryImpl @Inject constructor(
-    private val userLocalSource: UserLocalDataSource,
-    private val userRemoteSource: UserRemoteDataSource
-) : UserRepository {
+class UserRepositoryImpl @Inject constructor(private val userLocalSource: UserLocalDataSource,
+                                             private val userRemoteSource: UserRemoteDataSource
+) :UserRepository {
     override suspend fun insertLocalUser(userEntity: UserEntity) {
         userLocalSource.insertUser(userEntity)
     }
@@ -39,7 +40,8 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun getUserById(email: String) = userLocalSource.getUserById(email)
 
-    override suspend fun fetchAllUsers(): Flow<List<UserEntity>> {
-        return userRemoteSource.fetchAllUsers()
+    override fun fetchUsers(): Flow<State<List<User>>> {
+        Log.d("TAG", "fetchUsers: Repository")
+        return userRemoteSource.fetchUsers()
     }
 }

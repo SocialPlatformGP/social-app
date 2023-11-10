@@ -5,17 +5,23 @@ import android.util.Log
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
 import com.gp.chat.model.ChatGroup
 import com.gp.chat.model.ChatUser
 import com.gp.chat.util.ChatMapper.toModel
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 import com.gp.chat.model.Message
+import com.gp.chat.model.NetworkChatGroup
 import com.gp.chat.model.NetworkMessage
 import com.gp.chat.model.NetworkRecentChat
 import com.gp.chat.model.RecentChat
 import com.gp.chat.util.ChatMapper.toMap
 import com.gp.chat.util.ChatMapper.toNetworkMessage
 import com.gp.chat.util.ChatMapper.toRecentChat
+import com.gp.chat.util.RemoveSpecialChar
+import com.gp.chat.util.RemoveSpecialChar.restoreOriginalEmail
 import com.gp.socialapp.utils.State
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -25,15 +31,14 @@ class MessageFirebaseClient(
     private val database: FirebaseDatabase
 ) : MessageRemoteDataSource {
 
-    val CHAT = "chats"
-    val RECENT_CHATS = "recentChats"
-    val CHAT_USER = "chatUser"
-    private val PRIVATE_CHAT = "privateChat"
-    val MESSAGES = "messages"
-    val TAG = "MessageFirebaseClient"
-    val RECEIVER_USER = "receiverUsers"
-    val GROUP = "group"
-
+    private val CHAT = "chats"
+    private val RECENT_CHATS = "recentChats"
+    private val CHAT_USER = "chatUsers"
+    private val PRIVATE_CHAT = "privateChats"
+    private val MESSAGES = "messages"
+    private val TAG = "MessageFirebaseClient"
+    private val RECEIVER_USER = "receiverUsers"
+    private val GROUP = "groups"
 
     override fun insertChat(chat: ChatGroup): Flow<State<String>> = callbackFlow {
         val ref = database.reference.child(CHAT).push()
@@ -95,15 +100,16 @@ class MessageFirebaseClient(
     }
 
 override fun getMessages(chatId: String): Flow<State<List<Message>>> = callbackFlow {
-    val ref = database.reference.child("messages").child(chatId)
+    val ref = database.reference.child(MESSAGES).child(chatId)
     val listener = object : ValueEventListener {
         override fun onDataChange(snapshot: DataSnapshot) {
             val messages = mutableListOf<Message>()
             for (messageSnapshot in snapshot.children) {
-                val networkMessage = messageSnapshot.getValue() as NetworkMessage?
-
+                val networkMessage = messageSnapshot.getValue(NetworkMessage::class.java)
                 if (networkMessage != null) {
-                    val message = networkMessage.toModel(messageSnapshot.key!!)
+                    val message = networkMessage.toModel(messageSnapshot.key!!).copy(
+                        senderId = restoreOriginalEmail(networkMessage.senderId)
+                    )
                     messages.add(message)
                 }
             }
@@ -138,7 +144,11 @@ override fun getMessages(chatId: String): Flow<State<List<Message>>> = callbackF
                         val list = mutableListOf<RecentChat>()
                         for(chatId in chatsId){
 
-                            val recentChats = (snapshot.child(chatId).getValue() as NetworkRecentChat).toRecentChat(chatId)
+                            val recentChats = (snapshot.child(chatId).getValue(NetworkRecentChat::class.java)?.toRecentChat(chatId))
+                            Log.d("testo", "onDataChange1: ${snapshot.child(chatId)}")
+                            Log.d("testo", "onDataChange2: ${snapshot.child(chatId).getValue(NetworkRecentChat::class.java)}")
+
+                            Log.d("testo", "onDataChange: $recentChats")
                             if(recentChats!=null){
                                 list.add(recentChats)
                             }
@@ -269,7 +279,7 @@ awaitClose()
         }
 
     override fun fetchGroupMessages(groupId: String): Flow<List<Message>> = callbackFlow {
-        val messagesReference = database.reference.child("messages").child(groupId)
+        val messagesReference = database.reference.child(MESSAGES).child(groupId)
         val valueEventListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val messages = snapshot.children.mapNotNull { (it.getValue(NetworkMessage::class.java))?.toModel(it.key!!) }
@@ -288,15 +298,15 @@ awaitClose()
     override fun sendGroupMessage(message: Message, recentChat: RecentChat):Flow<State<Nothing>> = callbackFlow {
         Log.d("edrees", "Before Sending")
         trySend(State.Loading)
-        database.reference.child("messages")
-            .child(message.groupId!!)
+        database.reference.child(MESSAGES)
+            .child(message.groupId)
             .push().setValue(message.toNetworkMessage())
             .addOnSuccessListener {
                 Log.d("EDREES", "Message Sent")
                 val updates = HashMap<String, Any>()
-                updates["lastMessage"] = recentChat.lastMessage!!
-                updates["timestamp"] = recentChat.timestamp!!
-                database.reference.child("chats")
+                updates["lastMessage"] = recentChat.lastMessage
+                updates["timestamp"] = recentChat.timestamp
+                database.reference.child(CHAT)
                     .child(message.groupId)
                     .updateChildren(updates)
                     .addOnSuccessListener {
@@ -308,6 +318,43 @@ awaitClose()
             }.addOnFailureListener {
                 trySend(State.Error(it.localizedMessage!!))
             }
+        awaitClose()
+    }
+
+    override fun createGroupChat(group: NetworkChatGroup, recentChat: NetworkRecentChat): Flow<State<String>> = callbackFlow{
+        Log.d("EDREES", "Before Sending")
+        try {
+            val chatRef = database.reference.child(CHAT).push()
+            val chatKey = chatRef.key
+            if (chatKey == null) {
+                trySend(State.Error("Failed to generate a chat key"))
+                return@callbackFlow
+            }
+            chatRef.setValue(group)
+                .addOnSuccessListener {
+                    database.reference.child(RECENT_CHATS).child(chatKey)
+                        .setValue(recentChat)
+                        .addOnSuccessListener {
+                            val userGroupData = hashMapOf<String, Any>()
+                            for (userId in group.members.keys) {
+                                userGroupData["$CHAT_USER/${RemoveSpecialChar.removeSpecialCharacters(userId)}/$GROUP/${chatKey}"] = true
+                            }
+                            val updateResult = database.reference.updateChildren(userGroupData).addOnSuccessListener {
+                                trySend(State.SuccessWithData(chatKey))
+                            }.addOnFailureListener {
+                                trySend(State.Error("Failed to update user groups"))
+                            }
+                        }
+                        .addOnFailureListener {
+                            trySend(State.Error(it.localizedMessage ?: "Failed to create recent chat"))
+                        }
+                }
+                .addOnFailureListener {
+                    trySend(State.Error(it.localizedMessage ?: "Failed to create group chat"))
+                }
+        } catch (e: Exception) {
+            trySend(State.Error(e.localizedMessage ?: "An error occurred"))
+        }
         awaitClose()
     }
 }

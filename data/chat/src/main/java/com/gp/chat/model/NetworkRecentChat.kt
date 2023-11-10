@@ -6,6 +6,6 @@ data class NetworkRecentChat(
     val title : String= "",
     val senderName: String= "",
     val receiverName: String= "",
-    val isPrivateChat : Boolean= false,
+    val privateChat : Boolean= false,
     val picUrl : String= "",
 )
