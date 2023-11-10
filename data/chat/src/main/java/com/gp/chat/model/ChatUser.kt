@@ -1,7 +1,7 @@
 package com.gp.chat.model
 
 data class ChatUser(
-    val id : String?= null,
-    val name : String?= null,
-    val groups :Map<String,Boolean>?= null,
+    val id : String="",
+    val name : String="",
+    val groups :Map<String,Boolean> = emptyMap(),
 )
