@@ -1,37 +1,22 @@
 package com.gp.posts.adapter
 
-import android.annotation.SuppressLint
 import android.os.Build
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.annotation.RequiresApi
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.ListAdapter
-import com.google.android.material.button.MaterialButton
 import com.gp.posts.R
 import com.gp.posts.databinding.ItemReplyBinding
 import com.gp.posts.listeners.OnAddReplyClicked
 import com.gp.posts.listeners.OnMoreOptionClicked
 import com.gp.posts.listeners.OnReplyCollapsed
 import com.gp.posts.listeners.VotePressedListener
-import com.gp.posts.listeners.VotesClickedListener
 import com.gp.socialapp.model.NestedReplyItem
-import com.gp.socialapp.util.ToTimeTaken.calculateTimeDifference
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class NestedReplyAdapter(
     private val votesClickedListener: VotePressedListener,

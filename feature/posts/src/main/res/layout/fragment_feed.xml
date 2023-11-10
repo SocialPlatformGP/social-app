@@ -1,55 +1,80 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    >
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:posts="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- New Chat CardView -->
-    <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardBackgroundColor="#ffffff"
-        app:cardElevation="4dp"
-        app:cardCornerRadius="4dp"
-        android:layout_margin="8dp">
+    <data>
+        <variable
+            name="stateWithLifecycle"
+            type="com.gp.posts.adapter.StateWIthLifeCycle" />
+        <variable
+            name="onFeedOptionsClicked"
+            type="com.gp.posts.listeners.OnFeedOptionsClicked" />
+    </data>
 
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="NEW CHAT"
-            android:textSize="20sp" />
-    </androidx.cardview.widget.CardView>
-
-    <!-- New Group Chat CardView -->
-    <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardBackgroundColor="#ffffff"
-        app:cardElevation="4dp"
-        app:cardCornerRadius="4dp"
-        android:layout_margin="8dp">
-
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="NEW GROUP CHAT"
-            android:textSize="20sp" />
-    </androidx.cardview.widget.CardView>
-
-    <!-- RecyclerView CardView -->
-    <androidx.cardview.widget.CardView
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:cardElevation="4dp"
-        app:cardCornerRadius="4dp"
-        android:layout_margin="8dp">
-
-        <androidx.recyclerview.widget.RecyclerView
+        tools:context=".presentation.postsfeed.FeedFragment">
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </androidx.cardview.widget.CardView>
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Feed Options:"
+                    posts:layout_constraintStart_toStartOf="parent"
+                    posts:layout_constraintTop_toTopOf="@id/feed_options_button"
+                    posts:layout_constraintBottom_toBottomOf="@id/feed_options_button" />
+                <com.google.android.material.button.MaterialButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    posts:layout_constraintEnd_toEndOf="parent"
+                    posts:layout_constraintTop_toTopOf="parent"
+                    android:id="@+id/feed_options_button"
+                    style="@style/Widget.Material3.Button.IconButton"
+                    posts:icon="@drawable/baseline_filter_list_24"
+                    android:onClick="@{() -> onFeedOptionsClicked.onFeedOptionClicked()}" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/postsRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                posts:layout_behavior="@string/appbar_scrolling_view_behavior"
+                android:layout_marginStart="8dp"
+                android:clipToPadding="false"
+                android:visibility="visible"
+                android:layout_marginTop="8dp"
+                android:paddingBottom="16dp"
+                android:layout_marginEnd="8dp"
+                android:layout_above="@id/floatingActionButton"
+                android:layout_marginBottom="8dp"
+                posts:visabilityStatusRecycler="@{stateWithLifecycle}"
+                />
+        </LinearLayout>
 
-</LinearLayout>
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/floatingActionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:layout_gravity="bottom|right"
+            android:layout_margin="16dp"
+            posts:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
+            posts:srcCompat="@android:drawable/ic_input_add" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            posts:visabilityStatusLoading="@{stateWithLifecycle}"
+            posts:layout_anchorGravity="center" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>
