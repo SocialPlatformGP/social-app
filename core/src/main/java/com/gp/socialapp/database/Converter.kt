@@ -1,9 +1,9 @@
 package com.gp.socialapp.database
 
+import com.gp.socialapp.database.model.TagEntity
 import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.gp.socialapp.database.model.Tag
 import java.util.Date
 
 class Converter {
@@ -18,12 +18,12 @@ class Converter {
     }
 
     @TypeConverter
-    fun fromTagList(tagList: List<Tag>): String {
+    fun fromTagList(tagList: List<TagEntity>): String {
         return Gson().toJson(tagList)
     }
 
     @TypeConverter
-    fun toTagList(tagListString: String): List<Tag> {
-        return Gson().fromJson(tagListString, object : TypeToken<List<Tag>>() {}.type)
+    fun toTagList(tagListString: String): List<TagEntity> {
+        return Gson().fromJson(tagListString, object : TypeToken<List<TagEntity>>() {}.type)
     }
 }

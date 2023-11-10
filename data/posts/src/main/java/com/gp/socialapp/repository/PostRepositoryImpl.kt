@@ -4,6 +4,7 @@ import android.util.Log
 import com.gp.socialapp.database.model.PostEntity
 import com.gp.socialapp.model.NetworkPost
 import com.gp.socialapp.model.Post
+import com.gp.socialapp.model.Tag
 import com.gp.socialapp.source.local.PostLocalDataSource
 import com.gp.socialapp.source.remote.PostRemoteDataSource
 import com.gp.socialapp.util.PostMapper.toEntity
@@ -109,5 +110,8 @@ class PostRepositoryImpl @Inject constructor(
     override suspend fun incrementReplyCounter(postId: String) = postRemoteSource.incrementReplyCounter(postId)
 
     override suspend fun decrementReplyCounter(postId: String) = postRemoteSource.decrementReplyCounter(postId)
+    override fun getAllTags()=postRemoteSource.getAllTags()
+
+    override suspend fun insertTag(tag: Tag) = postRemoteSource.insertTag(tag)
 
 }

@@ -19,9 +19,5 @@ data class PostEntity(
     val upvoted: String,
     val moderationStatus: String,
     val editStatus: Boolean ,
-    val tags: List<Tag>
-)
-data class Tag(
-    val label: String="",
-    val hexColor: String="#000000",
+    val tags: List<TagEntity>
 )
