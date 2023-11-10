@@ -42,4 +42,9 @@
             app:popUpTo="@id/chatHome"
             app:popUpToInclusive="true" />
     </fragment>
+        android:label="PrivateChatFragment" />
+    <fragment
+        android:id="@+id/groupChatFragment"
+        android:name="com.gp.chat.presentation.groupchat.GroupChatFragment"
+        android:label="GroupChatFragment" />
 </navigation>

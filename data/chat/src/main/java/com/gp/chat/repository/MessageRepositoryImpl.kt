@@ -4,18 +4,10 @@ import android.util.Log
 import com.gp.chat.model.ChatGroup
 import com.gp.chat.model.ChatUser
 import com.gp.chat.model.Message
-import com.gp.chat.model.NetworkMessage
-import com.gp.chat.model.PrivateChats
-import com.gp.chat.model.PrivateChatsNetwork
 import com.gp.chat.model.RecentChat
 import com.gp.chat.source.remote.MessageRemoteDataSource
 import com.gp.socialapp.utils.State
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
 import javax.inject.Inject
 
 class MessageRepositoryImpl @Inject constructor(
@@ -41,6 +33,14 @@ class MessageRepositoryImpl @Inject constructor(
         messageRemoteDataSource.insertChatToUser(chatId, userEmail,receiverEmail)
 
 
+    override fun fetchGroupChatMessages(groupId: String): Flow<List<Message>> {
+        return messageRemoteDataSource.fetchGroupMessages(groupId)
+    }
+
+    override fun sendGroupMessage(message: Message, recentChat: RecentChat): Flow<State<Nothing>> {
+        return messageRemoteDataSource.sendGroupMessage(message, recentChat)
+    }
+
     override fun getUserChats(userEmail: String): Flow<State<ChatUser>> =
         messageRemoteDataSource.getUserChats(userEmail)
 
@@ -52,7 +52,5 @@ class MessageRepositoryImpl @Inject constructor(
 
     override fun updateRecentChat(recentChat: RecentChat, chatId: String): Flow<State<String>> =
         messageRemoteDataSource.updateRecentChat(recentChat, chatId)
-
-
 
 }

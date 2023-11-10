@@ -1,17 +1,17 @@
 package com.gp.chat.repository
 
+
 import com.gp.chat.model.ChatGroup
 import com.gp.chat.model.ChatUser
 import com.gp.chat.model.Message
-import com.gp.chat.model.NetworkMessage
-import com.gp.chat.model.PrivateChats
-import com.gp.chat.model.PrivateChatsNetwork
 import com.gp.chat.model.RecentChat
 import com.gp.socialapp.utils.State
 import kotlinx.coroutines.flow.Flow
 
 interface MessageRepository {
 
+    fun fetchGroupChatMessages(groupId: String): Flow<List<Message>>
+    fun sendGroupMessage(message: Message, recentChat: RecentChat): Flow<State<Nothing>>
     fun insertChat(chat:ChatGroup): Flow<State<String>>
     fun insertRecentChat(recentChat: RecentChat,chatId: String): Flow<State<String>>
     fun sendMessage(message: Message): Flow<State<String>>
