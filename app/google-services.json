@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "248788416128",
+    "firebase_url": "https://social-platform-3e56e-default-rtdb.europe-west1.firebasedatabase.app",
     "project_id": "social-platform-3e56e",
     "storage_bucket": "social-platform-3e56e.appspot.com"
   },
@@ -12,7 +13,20 @@
           "package_name": "com.gp.socialapp"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "248788416128-onkn9cces01mminf9uvvc8b55hc3prlo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gp.socialapp",
+            "certificate_hash": "0babe6e846b2638565cb678b9957b622d88b1d03"
+          }
+        },
+        {
+          "client_id": "248788416128-t9k9umk9qntrd0co983khe0no7m2ho1l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBduATjyHNd7NqgXlXAbpQsWTjUpqG8glM"
@@ -20,7 +34,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "248788416128-t9k9umk9qntrd0co983khe0no7m2ho1l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

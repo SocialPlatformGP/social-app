@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/chat_nav_graph"
+    app:startDestination="@id/chatHome">
+
+    <fragment
+        android:id="@+id/privateChatFragment"
+        android:name="com.gp.chat.presentation.privateChat.PrivateChatFragment"
+        android:label="PrivateChatFragment" >
+        <argument
+            android:name="userEmail"
+            app:argType="string"
+            android:defaultValue='""' />
+    </fragment>
+    <fragment
+        android:id="@+id/chatHome"
+        android:name="com.gp.chat.presentation.home.ChatHome"
+        android:label="ChatHome" >
+        <action
+            android:id="@+id/action_chatHome_to_newChat"
+            app:destination="@id/newChat" />
+        <action
+            android:id="@+id/action_chatHome_to_privateChatFragment"
+            app:destination="@id/privateChatFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/newChat"
+        android:name="com.gp.chat.presentation.newchat.NewChat"
+        android:label="NewChat" >
+        <action
+            android:id="@+id/action_newChat_to_privateChatFragment"
+            app:destination="@id/privateChatFragment" />
+    </fragment>
+</navigation>

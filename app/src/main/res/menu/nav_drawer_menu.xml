@@ -12,7 +12,7 @@
         android:icon="@drawable/baseline_public_24"
         android:title="Posts" />
     <item
-        android:id="@+id/Chat"
+        android:id="@+id/chat_nav_graph"
         android:enabled="true"
         android:icon="@drawable/baseline_chat_24"
         android:title="Chat" />
