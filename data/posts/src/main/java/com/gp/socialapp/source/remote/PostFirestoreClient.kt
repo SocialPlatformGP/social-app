@@ -9,6 +9,7 @@ import com.google.firebase.ktx.Firebase
 import com.gp.socialapp.model.NetworkPost
 import com.gp.socialapp.model.NetworkReply
 import com.gp.socialapp.model.Post
+import com.gp.socialapp.model.Tag
 import com.gp.socialapp.util.PostMapper.toModel
 import com.gp.socialapp.util.PostMapper.toNetworkModel
 import com.gp.socialapp.utils.State
@@ -16,6 +17,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import javax.inject.Inject
+import javax.security.auth.callback.Callback
 
 class PostFirestoreClient@Inject constructor(private val firestore: FirebaseFirestore): PostRemoteDataSource {
     private val ref = firestore.collection("posts")
@@ -90,6 +92,31 @@ class PostFirestoreClient@Inject constructor(private val firestore: FirebaseFire
                 val remotePost = data.toObject(NetworkPost::class.java)!!
                 firestore.collection("posts").document(postId).update("replyCount", remotePost.replyCount -1)
             }
+        }
+    }
+
+    override fun getAllTags()= callbackFlow {
+        val listener=firestore.collection("tags").addSnapshotListener { data, error ->
+            if (error!=null){
+                close(error)
+                return@addSnapshotListener
+            }
+            if (data!=null){
+                val result = mutableListOf<Tag>()
+                for (document in data.documents) {
+                    result.add(document.toObject(Tag::class.java)!!)
+                }
+                trySend(result)
+            }
+        }
+        awaitClose { listener.remove() }
+    }
+
+    override suspend fun insertTag(tag: Tag) {
+        firestore.collection("tags").add(tag).addOnSuccessListener {
+            Log.d("TAG", "Tag Inserted Successfully")
+        }.addOnFailureListener {
+            Log.d("TAG", "Tag Insertion Failed")
         }
     }
 

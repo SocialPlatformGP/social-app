@@ -22,6 +22,9 @@ interface UserRepository {
     fun deleteNetworkUser(user: UserEntity): Flow<State<Nothing>>
     suspend fun  fetchUser(email: String): State<NetworkUser>
     suspend fun getUserById(email:String): UserEntity
+
+    fun deleteAllUsers()
+
     fun fetchUsers(): Flow<State<List<User>>>
 
 }

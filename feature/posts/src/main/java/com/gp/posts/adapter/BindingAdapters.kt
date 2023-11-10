@@ -5,8 +5,6 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Build
 import android.util.Log
-import android.util.TypedValue
-import android.view.ContextThemeWrapper
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -15,28 +13,24 @@ import androidx.databinding.BindingAdapter
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.firebase.auth.FirebaseAuth
 import com.gp.posts.R
-import com.gp.socialapp.database.model.Tag
+import com.gp.posts.listeners.OnTagClicked
 import com.gp.socialapp.model.Post
+import com.gp.socialapp.model.Tag
+import com.gp.socialapp.util.DateUtils
 import com.gp.socialapp.utils.State
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
-import com.gp.socialapp.util.ToTimeTaken
 
 val currentEmail = FirebaseAuth.getInstance().currentUser?.email
 
@@ -110,13 +104,14 @@ fun ImageView.setProfilePicture( picUrl: String?) {
 @OptIn(DelicateCoroutinesApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @BindingAdapter("posts:timeTillNow")
-fun setTimeTillNow(view: TextView, time: String?) {
-    view.text = ToTimeTaken.calculateTimeDifference(time!!)
+fun TextView.setTimeTillNow( time: String?) {
+    text = DateUtils.calculateTimeDifference(time!!)
     val job = GlobalScope.launch(Dispatchers.Default) {
         repeat(60) {
             delay(60000)
             withContext(Dispatchers.Main) {
-                view.text = ToTimeTaken.calculateTimeDifference(time!!)
+                text = DateUtils.calculateTimeDifference(time!!)
+                text = DateUtils.calculateTimeDifference(time!!)
             }
         }
     }
@@ -141,12 +136,15 @@ fun setDownVoteImage(view: MaterialButton, downVoteList: List<String>) {
     }
 }
 
-@BindingAdapter(value = ["posts:tags", "posts:tagsContext"], requireAll = true)
-fun setTags(view: ChipGroup, tags: List<Tag>, context: Context) {
-    if (view.childCount==0) {
-        tags.forEach {
-            val label = it.label
-            val color = Color.parseColor(it.hexColor)
+@BindingAdapter(
+    value = ["posts:tags", "posts:tagsContext", "posts:onTagClick"],
+    requireAll = true
+)
+fun setTags(view: ChipGroup, tags: List<Tag>, context: Context, onTagClick: OnTagClicked) {
+    if (view.childCount == 0) {
+        tags.forEach { tag ->
+            val label = tag.label
+            val color = Color.parseColor(tag.hexColor)
             val chip = Chip(context)
             chip.text = label
             chip.textSize = 11f
@@ -156,6 +154,9 @@ fun setTags(view: ChipGroup, tags: List<Tag>, context: Context) {
                 .toBuilder()
                 .setAllCornerSizes(64f) // Set corner radius to make chips oval-shaped
                 .build()
+            chip.setOnClickListener {
+                onTagClick.onTagClicked(tag)
+            }
             view.addView(chip)
 
         }

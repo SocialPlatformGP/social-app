@@ -1,8 +1,11 @@
 package com.gp.socialapp.util
 
 import com.gp.socialapp.database.model.PostEntity
+import com.gp.socialapp.database.model.TagEntity
 import com.gp.socialapp.model.NetworkPost
 import com.gp.socialapp.model.Post
+import com.gp.socialapp.model.Tag
+import com.gp.socialapp.util.PostMapper.toModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -22,7 +25,7 @@ object PostMapper {
             replyCount = replyCount,
             userName = userName,
             userPfp = userPfp,
-            tags = tags
+            tags = tags.toEntity()
         )
     }
     fun PostEntity.toNetworkModel(): NetworkPost{
@@ -39,7 +42,7 @@ authorEmail = authorEmail,
             replyCount = replyCount,
             userName = userName,
             userPfp = userPfp,
-            tags = tags
+            tags = tags.toModel()
         )
     }
     fun Post.toNetworkModel(): NetworkPost{
@@ -92,7 +95,7 @@ authorEmail = authorEmail,
             replyCount = replyCount,
             userName = userName,
             userPfp = userPfp,
-            tags = tags
+            tags = tags.toEntity()
         )
     }
     fun PostEntity.toModel(): Post{
@@ -107,7 +110,7 @@ authorEmail = authorEmail,
             downvoted = downvoted.split(","),
             moderationStatus = moderationStatus,
             editStatus = editStatus,
-            tags = tags
+            tags = tags.toModel()
         )
     }
 
@@ -118,6 +121,24 @@ authorEmail = authorEmail,
     }
     fun Flow<PostEntity>.toModel(): Flow<Post> {
         return map { it.toModel()}
+    }
+    fun Tag.toEntity(): TagEntity {
+        return TagEntity(
+            label = label,
+            hexColor = hexColor
+        )
+    }
+    fun TagEntity.toModel(): Tag{
+        return Tag(
+            label = label,
+            hexColor = hexColor
+        )
+    }
+    fun List<Tag>.toEntity(): List<TagEntity> {
+        return map { it.toEntity() }
+    }
+    fun List<TagEntity>.toModel(): List<Tag> {
+        return map { it.toModel() }
     }
 
 
