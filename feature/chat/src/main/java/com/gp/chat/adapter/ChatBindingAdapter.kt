@@ -32,10 +32,10 @@ fun TextView.setTitle(chat: RecentChat){
     val currentEmail= removeSpecialCharacters(Firebase.auth.currentUser?.email!!)
     var email = ""
     if (currentEmail==chat.receiverName){
-        email = restoreOriginalEmail(chat.senderName!!)
+        email = restoreOriginalEmail(chat.senderName)
     }
     else{
-         email = restoreOriginalEmail(chat.receiverName!!)
+         email = restoreOriginalEmail(chat.receiverName)
     }
      Firebase.firestore.collection("users").get().addOnSuccessListener {
         for (document in it){

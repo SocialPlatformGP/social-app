@@ -2,10 +2,12 @@ package com.gp.users.Source.remote
 
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QuerySnapshot
 import com.gp.socialapp.database.model.UserEntity
 import com.gp.socialapp.utils.State
 import com.gp.users.model.NetworkUser
 import com.gp.users.model.User
+import com.gp.users.util.UserMapper.toModel
 import com.gp.users.util.UserMapper.toNetworkModel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -61,7 +63,9 @@ class UserfirestoreClient @Inject constructor(val firestore: FirebaseFirestore) 
                     .whereEqualTo("userEmail", email).get().await()
                     .toObjects(NetworkUser::class.java)
                     .first()
+                Log.d("TAG", "fetchUser: $data")
                 State.SuccessWithData(data)
+
             } catch (e: Exception) {
                 Log.d("TAG", "fetchUser: ${e.message}")
                 State.Error(e.message ?: "Unknown Error")
@@ -69,22 +73,6 @@ class UserfirestoreClient @Inject constructor(val firestore: FirebaseFirestore) 
         return result
     }
 
-    override suspend fun fetchAllUsers() = callbackFlow {
-        val listener = firestore.collection("users").addSnapshotListener { data, error ->
-            if (error != null) {
-                close(error)
-                return@addSnapshotListener
-            }
-            if (data != null) {
-                val result = mutableListOf<UserEntity>()
-                for (document in data.documents) {
-                    result.add(document.toObject(UserEntity::class.java)!!)
-                }
-                trySend(result)
-            }
-        }
-        awaitClose { listener.remove() }
-    }
 
 
     override fun deleteUser(user: UserEntity) = callbackFlow<State<Nothing>> {
@@ -107,5 +95,23 @@ class UserfirestoreClient @Inject constructor(val firestore: FirebaseFirestore) 
                 Log.d("TAG", "User Deletion Failed")
             }
         awaitClose()
+    }
+    override fun fetchUsers(): Flow<State<List<User>>> = callbackFlow {
+        val ref = firestore.collection("users")
+        val listener=ref.addSnapshotListener { data, error ->
+            if (error!=null){
+                close(error)
+                return@addSnapshotListener
+            }
+            if (data!=null){
+                val result = mutableListOf<User>()
+                for (document in data.documents) {
+
+                    result.add(document.toObject(NetworkUser::class.java)!!.toModel())
+                }
+                trySend(State.SuccessWithData(result))
+            }
+        }
+        awaitClose { listener.remove() }
     }
 }

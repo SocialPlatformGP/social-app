@@ -14,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.navigation.fragment.navArgs
 import com.gp.chat.R
+import com.gp.chat.adapter.GroupMessageAdapter
 import com.gp.chat.adapter.MessageAdapter
 import com.gp.chat.databinding.FragmentPrivateChatBinding
 import com.gp.chat.listener.MyOpenDocumentContract
@@ -31,7 +32,10 @@ class PrivateChatFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel.ReceiverEmail(args.userEmail)
+        viewModel.setReceiverEmail(args.receiverEmail)
+//        viewModel.setSenderEmail(args.senderEmail)
+        viewModel.setChatId(args.chatId)
+        viewModel.getMessages()
         binding  = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment_private_chat,
@@ -49,7 +53,7 @@ class PrivateChatFragment : Fragment() {
         val manager = LinearLayoutManager(requireContext())
         manager.stackFromEnd = true
         recyclerView.layoutManager = manager
-        val adapter = MessageAdapter()
+        val adapter = GroupMessageAdapter(requireContext())
         adapter.registerAdapterDataObserver(
             MyScrollToBottomObserver(
                 recyclerView,

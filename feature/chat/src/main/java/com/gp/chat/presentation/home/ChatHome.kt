@@ -1,6 +1,7 @@
 package com.gp.chat.presentation.home
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,13 +20,14 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.gp.chat.R
 import com.gp.chat.adapter.ChatAdapter
 import com.gp.chat.listener.OnItemClickListener
+import com.gp.chat.listener.OnRecentChatClicked
 import com.gp.chat.model.Message
 import com.gp.socialapp.database.model.UserEntity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class ChatHome : Fragment(),OnItemClickListener {
+class ChatHome : Fragment(),OnRecentChatClicked {
     lateinit var recyclerView: RecyclerView
     lateinit var chatAdapter: ChatAdapter
     lateinit var floatingActionButton: FloatingActionButton
@@ -40,10 +42,7 @@ class ChatHome : Fragment(),OnItemClickListener {
         return inflater.inflate(R.layout.fragment_chat_home, container, false)
     }
 
-    override fun onResume() {
-        super.onResume()
-        viewModel.getRecentChats()
-    }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -65,8 +64,23 @@ class ChatHome : Fragment(),OnItemClickListener {
         }
     }
 
-    override fun onClick(user: String) {
-        val action = ChatHomeDirections.actionChatHomeToPrivateChatFragment(user)
+    override fun onRecentChatClicked(
+        chatId: String,
+        receiverName: String,
+        senderName: String,
+        receiverImage: String,
+        isPrivateChat: Boolean
+    ) {
+        Log.d("ChatHome","onRecentChatClicked ${chatId + receiverName + senderName + receiverImage + isPrivateChat}")
+        val action = if(isPrivateChat){
+            ChatHomeDirections.actionChatHomeToPrivateChatFragment(
+                chatId=chatId,
+                senderEmail = senderName,
+                receiverEmail = receiverName,
+            )
+        } else {
+        ChatHomeDirections.actionChatHomeToGroupChatFragment(chatId)
+        }
         findNavController().navigate(action)
     }
 

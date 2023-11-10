@@ -12,18 +12,19 @@ import androidx.recyclerview.widget.RecyclerView
 import com.gp.chat.R
 import com.gp.chat.listener.OnItemClickListener
 import com.gp.socialapp.database.model.UserEntity
+import com.gp.users.model.User
 
-class UsersChatAdapter(var onItemClickListener: OnItemClickListener): ListAdapter<UserEntity,UsersChatAdapter.UsersViewHolder>(UserChatDiffUtill) {
+class UsersChatAdapter(var onItemClickListener: OnItemClickListener): ListAdapter<User,UsersChatAdapter.UsersViewHolder>(UserChatDiffUtill) {
 
     inner class UsersViewHolder(item: View):RecyclerView.ViewHolder(item){
         val name=item.findViewById<TextView>(R.id.name)
         val  message=item.findViewById<TextView>(R.id.message)
         val img= item.findViewById<ImageView>(R.id.profileImage)
-        fun bind(userEntity: UserEntity){
-            name.text="${userEntity.userFirstName} ${userEntity.userLastName}"
-            img.setProfilePicture(userEntity.userProfilePictureURL)
+        fun bind(userEntity: User){
+            name.text="${userEntity.firstName} ${userEntity.lastName}"
+            img.setProfilePicture(userEntity.profilePictureURL)
             itemView.setOnClickListener{
-                onItemClickListener.onClick(userEntity.userEmail)
+                onItemClickListener.onClick(userEntity.email)
             }
 
         }
@@ -43,11 +44,11 @@ class UsersChatAdapter(var onItemClickListener: OnItemClickListener): ListAdapte
 
 }
 
-object UserChatDiffUtill :DiffUtil.ItemCallback<UserEntity>(){
-    override fun areItemsTheSame(oldItem: UserEntity, newItem: UserEntity): Boolean {
-        return oldItem.userEmail==newItem.userEmail
+object UserChatDiffUtill :DiffUtil.ItemCallback<User>(){
+    override fun areItemsTheSame(oldItem: User, newItem: User): Boolean {
+        return oldItem.email==newItem.email
     }
-    override fun areContentsTheSame(oldItem: UserEntity, newItem: UserEntity): Boolean {
+    override fun areContentsTheSame(oldItem: User, newItem: User): Boolean {
         return oldItem==newItem
     }
 
