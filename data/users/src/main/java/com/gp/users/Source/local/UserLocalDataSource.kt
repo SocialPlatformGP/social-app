@@ -8,5 +8,6 @@ interface UserLocalDataSource {
     suspend fun getAllUsers(): Flow<List<UserEntity>>
     suspend fun deleteUser(user:UserEntity)
     suspend fun getUserById(email:String): UserEntity
+    fun deleteAllUsers()
 
 }

@@ -11,6 +11,7 @@ interface ReplyRepository {
     suspend fun insertReplies(replies: List<Reply>)
     suspend fun updateReply(replyEntity: Reply)
     suspend fun deleteReply(replyEntity: Reply)
+    fun deleteAllReplies()
 
     ////////////remote////////////
 

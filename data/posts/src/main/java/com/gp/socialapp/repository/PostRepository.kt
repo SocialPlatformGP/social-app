@@ -20,10 +20,10 @@ interface PostRepository {
     suspend fun upVotePost(post: Post)
     suspend fun downVotePost(post: Post)
     fun fetchPostById(id: String): Flow<Post>
+     fun deleteAllPosts()
 
     suspend fun incrementReplyCounter(postId: String)
     suspend fun decrementReplyCounter(postId: String)
-
 
 
 }

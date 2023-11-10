@@ -19,6 +19,7 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.firebase.auth.FirebaseAuth
 import com.gp.posts.R
+import com.gp.posts.listeners.OnTagClicked
 import com.gp.socialapp.database.model.Tag
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.utils.State
@@ -89,20 +90,22 @@ fun setVisabilityRecycler(view: View, params: StateWIthLifeCycle) {
     }
 }
 @BindingAdapter("posts:imageUrl")
-fun setProfilePicture(view: ImageView, picUrl: String?) {
+fun ImageView.setProfilePicture( picUrl: String?) {
     if (picUrl != null) {
-        Glide.with(view.context)
+        Glide.with(this.context)
             .load(picUrl)
             .placeholder(R.drawable.ic_person_24)
             .apply(RequestOptions.circleCropTransform())
-            .into(view)
+            .into(this)
     } else {
-        view.setImageResource(R.drawable.ic_person_24)
+        this.setImageResource(R.drawable.ic_person_24)
     }
 }
 @OptIn(DelicateCoroutinesApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @BindingAdapter("posts:timeTillNow")
+fun TextView.setTimeTillNow( time: String?) {
+    this.text = ToTimeTaken.calculateTimeDifference(time!!)
 fun setTimeTillNow(view: TextView, time: String?) {
     view.text = DateUtils.calculateTimeDifference(time!!)
     val job = GlobalScope.launch(Dispatchers.Default) {
@@ -110,6 +113,7 @@ fun setTimeTillNow(view: TextView, time: String?) {
             delay(60000)
             withContext(Dispatchers.Main) {
                 view.text = DateUtils.calculateTimeDifference(time!!)
+                text = ToTimeTaken.calculateTimeDifference(time!!)
             }
         }
     }
@@ -134,12 +138,12 @@ fun setDownVoteImage(view: MaterialButton, downVoteList: List<String>) {
     }
 }
 
-@BindingAdapter(value = ["posts:tags", "posts:tagsContext"], requireAll = true)
-fun setTags(view: ChipGroup, tags: List<Tag>, context: Context) {
+@BindingAdapter(value = ["posts:tags", "posts:tagsContext", "posts:onTagClick"], requireAll = true)
+fun setTags(view: ChipGroup, tags: List<Tag>, context: Context, onTagClick: OnTagClicked) {
     if (view.childCount==0) {
-        tags.forEach {
-            val label = it.label
-            val color = Color.parseColor(it.hexColor)
+        tags.forEach {tag ->
+            val label = tag.label
+            val color = Color.parseColor(tag.hexColor)
             val chip = Chip(context)
             chip.text = label
             chip.textSize = 11f
@@ -149,6 +153,9 @@ fun setTags(view: ChipGroup, tags: List<Tag>, context: Context) {
                 .toBuilder()
                 .setAllCornerSizes(64f) // Set corner radius to make chips oval-shaped
                 .build()
+            chip.setOnClickListener{
+                onTagClick.onTagClicked(tag)
+            }
             view.addView(chip)
 
         }
