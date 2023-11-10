@@ -43,9 +43,7 @@ class PrivateChatViewModel @Inject constructor(
     fun setReceiverEmail(email: String) {
         receiverEmail = email
     }
-    fun setSenderEmail(senderEmail: String) {
-        this.senderEmail = senderEmail
-    }
+
 
     fun getMessages() {
             viewModelScope.launch {
@@ -70,7 +68,7 @@ class PrivateChatViewModel @Inject constructor(
         } else {
             viewModelScope.launch(Dispatchers.IO) {
                 val message = Message(
-                    senderId = senderEmail,
+                    senderId = currentEmail,
                     groupId = ChatId,
                     message = currentMessage.value.message,
                     timestamp = Date().toString(),

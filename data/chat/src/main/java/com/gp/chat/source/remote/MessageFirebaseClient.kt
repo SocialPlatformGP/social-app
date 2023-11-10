@@ -21,6 +21,7 @@ import com.gp.chat.util.ChatMapper.toMap
 import com.gp.chat.util.ChatMapper.toNetworkMessage
 import com.gp.chat.util.ChatMapper.toRecentChat
 import com.gp.chat.util.RemoveSpecialChar
+import com.gp.chat.util.RemoveSpecialChar.restoreOriginalEmail
 import com.gp.socialapp.utils.State
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -106,7 +107,9 @@ override fun getMessages(chatId: String): Flow<State<List<Message>>> = callbackF
             for (messageSnapshot in snapshot.children) {
                 val networkMessage = messageSnapshot.getValue(NetworkMessage::class.java)
                 if (networkMessage != null) {
-                    val message = networkMessage.toModel(messageSnapshot.key!!)
+                    val message = networkMessage.toModel(messageSnapshot.key!!).copy(
+                        senderId = restoreOriginalEmail(networkMessage.senderId)
+                    )
                     messages.add(message)
                 }
             }

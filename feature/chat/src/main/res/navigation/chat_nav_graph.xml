@@ -42,13 +42,11 @@
         <action
             android:id="@+id/action_newChat_to_privateChatFragment"
             app:destination="@id/privateChatFragment"
-            app:popUpTo="@id/chatHome"
             app:popUpToInclusive="true" />
         <action
             android:id="@+id/action_newChat_to_createGroupChatFragment"
             app:destination="@id/createGroupChatFragment" />
     </fragment>
-        android:label="PrivateChatFragment" />
     <fragment
         android:id="@+id/groupChatFragment"
         android:name="com.gp.chat.presentation.groupchat.GroupChatFragment"
@@ -64,6 +62,7 @@
         android:label="CreateGroupChatFragment" >
         <action
             android:id="@+id/action_createGroupChatFragment_to_groupChatFragment"
+            app:popUpTo="@id/chatHome"
             app:destination="@id/groupChatFragment" />
     </fragment>
 </navigation>
