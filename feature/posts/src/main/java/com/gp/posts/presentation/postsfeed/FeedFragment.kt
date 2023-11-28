@@ -41,6 +41,7 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked, OnFeedOptionsClicked , OnTagClicked{
     lateinit var  binding:FragmentFeedBinding
+    lateinit var  feedAdapter: FeedPostAdapter
     private val viewModel: FeedPostViewModel by viewModels()
     private val currentUser = Firebase.auth.currentUser
 
@@ -63,7 +64,7 @@ class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked,
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val feedAdapter = FeedPostAdapter(this, this, this, requireContext())
+        feedAdapter = FeedPostAdapter(this, this, this, requireContext())
         binding.postsRecyclerView.apply {
             adapter = feedAdapter
             itemAnimator = null
@@ -71,10 +72,17 @@ class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked,
         }
         lifecycleScope.launch {
             viewModel.uiState.flowWithLifecycle(lifecycle).collect { currentState ->
-                if (currentState is State.SuccessWithData) {
-                    Log.d("TAG258", "onViewCreated: ${currentState.data}")
-                    feedAdapter.submitList(currentState.data)
-                    binding.postsRecyclerView.scrollToPosition(0)
+                when (currentState){
+                    is State.SuccessWithData -> {
+                        Log.d("seerde", "onViewCreated: ${currentState.data.map{"${it.title} : ${it.votes}"}}")
+                        feedAdapter.submitList(currentState.data)
+                        feedAdapter.notifyDataSetChanged()
+                    }
+                    is State.Loading -> {
+                        Log.d("seerde", "onViewCreated: Loading")
+                        feedAdapter.submitList(emptyList())
+                    }
+                    else -> Log.d("seerde", "xd?")
                 }
             }
         }
@@ -151,15 +159,21 @@ class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked,
             R.layout.bottom_sheet_feed_options,
             null,
             false)
+
         val bottomSheetDialog = BottomSheetDialog(requireContext())
         bottomSheetDialog.setContentView(bottomSheetBinding.root)
+        setSelectedChip(bottomSheetBinding)
         bottomSheetBinding.sortApplyButton.setOnClickListener {
             when (bottomSheetBinding.sortTypesChipgroup.checkedChipId) {
                 R.id.newest_sort_chip -> {
-                    viewModel.sortPostsByNewest()
+                    if(!viewModel.isSortedByNewest.value){
+                        viewModel.sortPostsByNewest()
+                    }
                 }
                 R.id.popular_sort_chip -> {
-                    viewModel.sortPostsByPopularity()
+                    if(viewModel.isSortedByNewest.value){
+                        viewModel.sortPostsByPopularity()
+                    }
                 }
             }
             bottomSheetDialog.dismiss()
@@ -175,6 +189,16 @@ class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked,
         }
         bottomSheetDialog.show()
     }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun setSelectedChip(bottomSheetBinding: BottomSheetFeedOptionsBinding) {
+        if(viewModel.isSortedByNewest.value){
+            bottomSheetBinding.newestSortChip.isChecked = true
+        }else{
+            bottomSheetBinding.popularSortChip.isChecked = true
+        }
+    }
+
     override fun onTagClicked(tag: Tag) {
         val action = FeedFragmentDirections.actionFeedFragmentToSearchFragment2(tag.label, true)
         findNavController().navigate(action)

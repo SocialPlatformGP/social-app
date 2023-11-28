@@ -17,6 +17,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.Collections
 import javax.inject.Inject
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -30,11 +32,10 @@ class FeedPostViewModel @Inject constructor(
         getAllPosts()
     }
 
-
+    private val _isSortedByNewest = MutableStateFlow(true)
+    val isSortedByNewest = _isSortedByNewest.asStateFlow()
     private val _uiState = MutableStateFlow<State<List<Post>>>(State.Idle)
-    val uiState
-        get() = _uiState.asStateFlow()
-    val isSortedByNewest = MutableStateFlow(true)
+    val uiState = _uiState.asStateFlow()
 
     fun getAllPosts() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -42,8 +43,8 @@ class FeedPostViewModel @Inject constructor(
             repository.getAllLocalPosts().collect { posts ->
                 val sortedPosts = if(isSortedByNewest.value){
                     posts.sortedByDescending { DateUtils.convertStringToDate(it.publishedAt) }
-                } else {
-                    posts.sortedByDescending { PostPopularityUtils.calculateInteractionValue(it.votes, it.replyCount)}
+                }else{
+                    posts.sortedByDescending { PostPopularityUtils.calculateInteractionValue(it.votes, it.replyCount) }
                 }
                 _uiState.value = State.SuccessWithData(sortedPosts)
                 Log.d("TAG258", "New Data: ${sortedPosts}")
@@ -76,22 +77,33 @@ class FeedPostViewModel @Inject constructor(
     }
 
     fun sortPostsByNewest() {
-        viewModelScope.launch{
-            isSortedByNewest.value = true
-            val sortedPosts = (uiState.value as State.SuccessWithData).data
-                .sortedByDescending { DateUtils.convertStringToDate(it.publishedAt) }
-            _uiState.value = State.SuccessWithData(sortedPosts)
-            Log.d("TAG258", "New Data by newest: ${sortedPosts}")
+        viewModelScope.launch {
+            _isSortedByNewest.value = true
+            val posts = (uiState.value as? State.SuccessWithData)?.data ?: return@launch
+            withContext(Dispatchers.Default) {
+                Collections.sort(posts, Post.sortByDate)
+            }
+            withContext(Dispatchers.Main) {
+                _uiState.value = State.Loading
+                _uiState.value = State.SuccessWithData(posts)
+            }
+            Log.d("TAG258", "New Data by Newest: ${(uiState.value as? State.SuccessWithData<List<Post>>)?.data?.map{"${it.title} : ${it.votes}"} ?: emptyList()}")
         }
     }
 
     fun sortPostsByPopularity() {
-        viewModelScope.launch{
-            isSortedByNewest.value = false
-            val sortedPosts = (uiState.value as State.SuccessWithData).data
-                .sortedByDescending { PostPopularityUtils.calculateInteractionValue(it.votes, it.replyCount)}
-            _uiState.value = State.SuccessWithData(sortedPosts)
-            Log.d("TAG258", "New Data by popular: ${sortedPosts}")
+        viewModelScope.launch {
+            _isSortedByNewest.value = false
+            val posts = (uiState.value as? State.SuccessWithData)?.data ?: return@launch
+
+            withContext(Dispatchers.Default) {
+                Collections.sort(posts, Post.sortByVotes)
+            }
+            withContext(Dispatchers.Main) {
+                _uiState.value = State.Loading
+                _uiState.value = State.SuccessWithData(posts)
+            }
+            Log.d("TAG258", "New Data by most popular: ${(uiState.value as? State.SuccessWithData<List<Post>>)?.data?.map{"${it.title} : ${it.votes}"} ?: emptyList()}")
         }
     }
 }
