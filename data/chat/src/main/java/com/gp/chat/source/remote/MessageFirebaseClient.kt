@@ -306,7 +306,7 @@ awaitClose()
                 val updates = HashMap<String, Any>()
                 updates["lastMessage"] = recentChat.lastMessage
                 updates["timestamp"] = recentChat.timestamp
-                database.reference.child(CHAT)
+                database.reference.child(RECENT_CHATS)
                     .child(message.groupId)
                     .updateChildren(updates)
                     .addOnSuccessListener {
