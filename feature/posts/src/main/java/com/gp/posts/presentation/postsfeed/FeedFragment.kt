@@ -44,7 +44,6 @@ class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked,
     private val viewModel: FeedPostViewModel by viewModels()
     private val currentUser = Firebase.auth.currentUser
 
-
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -152,7 +151,14 @@ class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked,
             null,
             false)
         val bottomSheetDialog = BottomSheetDialog(requireContext())
+        viewModel.tags.forEach {
+            val chip: Chip = layoutInflater.inflate(R.layout.item_tag_filter_chip, null, false) as Chip
+            chip.text = it
+            chip.isChecked = viewModel.selectedTagFilters.value.contains(it)
+            bottomSheetBinding.tagsFilterChipgroup.addView(chip)
+        }
         bottomSheetDialog.setContentView(bottomSheetBinding.root)
+        val filters = mutableListOf<String>()
         bottomSheetBinding.sortApplyButton.setOnClickListener {
             when (bottomSheetBinding.sortTypesChipgroup.checkedChipId) {
                 R.id.newest_sort_chip -> {
@@ -162,6 +168,13 @@ class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked,
                     viewModel.sortPostsByPopularity()
                 }
             }
+            bottomSheetBinding.tagsFilterChipgroup.children.forEach { chip->
+                if((chip as Chip).isChecked) {
+                    filters.add(chip.text.toString())
+                }
+            }
+            viewModel.updateTagFilters(filters)
+            Log.d("edrees", filters.joinToString(", "))
             bottomSheetDialog.dismiss()
         }
         bottomSheetDialog.setOnShowListener {

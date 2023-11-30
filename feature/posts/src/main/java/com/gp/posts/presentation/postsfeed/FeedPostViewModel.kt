@@ -26,6 +26,11 @@ class FeedPostViewModel @Inject constructor(
     val replyRepository: ReplyRepository,
     val userRepository: UserRepository
 ) : ViewModel() {
+    private val _tags = mutableSetOf<String>()
+    val tags: Set<String> = _tags
+    private val unfilteredPosts = mutableListOf<Post>()
+    private val _selectedTagFilters = MutableStateFlow<List<String>>(emptyList())
+    val selectedTagFilters = _selectedTagFilters.asStateFlow()
     init {
         getAllPosts()
     }
@@ -40,11 +45,15 @@ class FeedPostViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.value = State.Loading
             repository.getAllLocalPosts().collect { posts ->
+                posts.forEach { post ->
+                    _tags.addAll(post.tags.map{it.label})
+                }
                 val sortedPosts = if(isSortedByNewest.value){
                     posts.sortedByDescending { DateUtils.convertStringToDate(it.publishedAt) }
                 } else {
                     posts.sortedByDescending { PostPopularityUtils.calculateInteractionValue(it.votes, it.replyCount)}
                 }
+                unfilteredPosts.addAll(sortedPosts)
                 _uiState.value = State.SuccessWithData(sortedPosts)
                 Log.d("TAG258", "New Data: ${sortedPosts}")
             }
@@ -80,6 +89,8 @@ class FeedPostViewModel @Inject constructor(
             isSortedByNewest.value = true
             val sortedPosts = (uiState.value as State.SuccessWithData).data
                 .sortedByDescending { DateUtils.convertStringToDate(it.publishedAt) }
+            unfilteredPosts.clear()
+            unfilteredPosts.addAll(sortedPosts)
             _uiState.value = State.SuccessWithData(sortedPosts)
             Log.d("TAG258", "New Data by newest: ${sortedPosts}")
         }
@@ -90,8 +101,20 @@ class FeedPostViewModel @Inject constructor(
             isSortedByNewest.value = false
             val sortedPosts = (uiState.value as State.SuccessWithData).data
                 .sortedByDescending { PostPopularityUtils.calculateInteractionValue(it.votes, it.replyCount)}
+            unfilteredPosts.clear()
+            unfilteredPosts.addAll(sortedPosts)
             _uiState.value = State.SuccessWithData(sortedPosts)
             Log.d("TAG258", "New Data by popular: ${sortedPosts}")
+        }
+    }
+    fun updateTagFilters(newFilters: List<String>){
+        _selectedTagFilters.value = newFilters
+        if(newFilters.isEmpty()){
+            _uiState.value = State.SuccessWithData(unfilteredPosts)
+            return
+        } else {
+            val filteredPosts = unfilteredPosts.filter { it.tags.any { tag -> newFilters.contains(tag.label) } }
+            _uiState.value = State.SuccessWithData(filteredPosts)
         }
     }
 }
