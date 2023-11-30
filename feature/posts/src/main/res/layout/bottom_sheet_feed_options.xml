@@ -63,7 +63,7 @@
                     android:id="@+id/sort_types_chipgroup"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    posts:selectionRequired="false"
+                    posts:selectionRequired="true"
                     posts:singleSelection="true">
 
                     <com.google.android.material.chip.Chip

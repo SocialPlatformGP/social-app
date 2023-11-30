@@ -31,7 +31,7 @@ class FeedPostViewModel @Inject constructor(
     private val _tags = mutableSetOf<String>()
     val tags: Set<String> = _tags
     private val unfilteredPosts = mutableListOf<Post>()
-    private val _selectedTagFilters = MutableStateFlow<List<String>>(emptyList())
+    private val _selectedTagFilters = MutableStateFlow<Set<String>>(emptySet())
     val selectedTagFilters = _selectedTagFilters.asStateFlow()
     init {
         getAllPosts()
@@ -49,14 +49,22 @@ class FeedPostViewModel @Inject constructor(
                 posts.forEach { post ->
                     _tags.addAll(post.tags.map{it.label})
                 }
-                val sortedPosts = if(isSortedByNewest.value){
-                    posts.sortedByDescending { DateUtils.convertStringToDate(it.publishedAt) }
-                }else{
-                    posts.sortedByDescending { PostPopularityUtils.calculateInteractionValue(it.votes, it.replyCount) }
+                val filteredPosts = if (selectedTagFilters.value.isNotEmpty()) {
+                    posts.filter { post ->
+                        post.tags.map { it.label }.intersect(selectedTagFilters.value).isNotEmpty()
+                    }
+                } else {
+                    posts
                 }
-                unfilteredPosts.addAll(sortedPosts)
-                _uiState.value = State.SuccessWithData(sortedPosts)
-                Log.d("TAG258", "New Data: ${sortedPosts}")
+                val sortedPosts = if (isSortedByNewest.value) {
+                    filteredPosts.sortedByDescending { DateUtils.convertStringToDate(it.publishedAt) }
+                } else {
+                    filteredPosts.sortedByDescending { PostPopularityUtils.calculateInteractionValue(it.votes, it.replyCount) }
+                }
+                withContext(Dispatchers.Main) {
+                    _uiState.value = State.SuccessWithData(sortedPosts)
+                    Log.d("TAG258", "New Data: ${sortedPosts}")
+                }
             }
         }
     }
@@ -86,43 +94,45 @@ class FeedPostViewModel @Inject constructor(
     }
 
     fun sortPostsByNewest() {
-        viewModelScope.launch {
-            _isSortedByNewest.value = true
-            val posts = (uiState.value as? State.SuccessWithData)?.data ?: return@launch
-            withContext(Dispatchers.Default) {
-                Collections.sort(posts, Post.sortByDate)
-            }
-            withContext(Dispatchers.Main) {
-                _uiState.value = State.Loading
-                _uiState.value = State.SuccessWithData(posts)
-            }
-            Log.d("TAG258", "New Data by Newest: ${(uiState.value as? State.SuccessWithData<List<Post>>)?.data?.map{"${it.title} : ${it.votes}"} ?: emptyList()}")
-        }
+//        viewModelScope.launch {
+//            _isSortedByNewest.value = true
+//            val posts = (uiState.value as? State.SuccessWithData)?.data ?: return@launch
+//            withContext(Dispatchers.Default) {
+//                Collections.sort(posts, Post.sortByDate)
+//            }
+//            withContext(Dispatchers.Main) {
+//                _uiState.value = State.Loading
+//                _uiState.value = State.SuccessWithData(posts)
+//            }
+//            unfilteredPosts.clear()
+//            unfilteredPosts.addAll(posts)
+//            Log.d("TAG258", "New Data by Newest: ${(uiState.value as? State.SuccessWithData<List<Post>>)?.data?.map{"${it.title} : ${it.votes}"} ?: emptyList()}")
+//        }
+        _isSortedByNewest.value = true
+        getAllPosts()
     }
 
     fun sortPostsByPopularity() {
-        viewModelScope.launch {
-            _isSortedByNewest.value = false
-            val posts = (uiState.value as? State.SuccessWithData)?.data ?: return@launch
-
-            withContext(Dispatchers.Default) {
-                Collections.sort(posts, Post.sortByVotes)
-            }
-            withContext(Dispatchers.Main) {
-                _uiState.value = State.Loading
-                _uiState.value = State.SuccessWithData(posts)
-            }
-            Log.d("TAG258", "New Data by most popular: ${(uiState.value as? State.SuccessWithData<List<Post>>)?.data?.map{"${it.title} : ${it.votes}"} ?: emptyList()}")
-        }
+//        viewModelScope.launch {
+//            _isSortedByNewest.value = false
+//            val posts = (uiState.value as? State.SuccessWithData)?.data ?: return@launch
+//
+//            withContext(Dispatchers.Default) {
+//                Collections.sort(posts, Post.sortByVotes)
+//            }
+//            withContext(Dispatchers.Main) {
+//                _uiState.value = State.Loading
+//                _uiState.value = State.SuccessWithData(posts)
+//            }
+//            unfilteredPosts.clear()
+//            unfilteredPosts.addAll(posts)
+//            Log.d("TAG258", "New Data by most popular: ${(uiState.value as? State.SuccessWithData<List<Post>>)?.data?.map{"${it.title} : ${it.votes}"} ?: emptyList()}")
+//        }
+        _isSortedByNewest.value = false
+        getAllPosts()
     }
     fun updateTagFilters(newFilters: List<String>){
-        _selectedTagFilters.value = newFilters
-        if(newFilters.isEmpty()){
-            _uiState.value = State.SuccessWithData(unfilteredPosts)
-            return
-        } else {
-            val filteredPosts = unfilteredPosts.filter { it.tags.any { tag -> newFilters.contains(tag.label) } }
-            _uiState.value = State.SuccessWithData(filteredPosts)
-        }
+        _selectedTagFilters.value = newFilters.toSet()
+        getAllPosts()
     }
 }
