@@ -44,4 +44,6 @@ class UserRepositoryImpl @Inject constructor(private val userLocalSource: UserLo
         Log.d("TAG", "fetchUsers: Repository")
         return userRemoteSource.fetchUsers()
     }
+
+    override fun getCurrentUserEmail() = userRemoteSource.getCurrentUserEmail()
 }

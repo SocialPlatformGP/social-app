@@ -12,4 +12,5 @@ interface UserRemoteDataSource {
     fun deleteUser(user: UserEntity): Flow<State<Nothing>>
     suspend fun  fetchUser(email: String): State<NetworkUser>
     fun fetchUsers(): Flow<State<List<User>>>
+    fun getCurrentUserEmail(): String
 }

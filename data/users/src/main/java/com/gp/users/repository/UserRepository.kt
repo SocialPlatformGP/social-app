@@ -23,5 +23,5 @@ interface UserRepository {
     suspend fun  fetchUser(email: String): State<NetworkUser>
     suspend fun getUserById(email:String): UserEntity
     fun fetchUsers(): Flow<State<List<User>>>
-
+    fun getCurrentUserEmail(): String
 }

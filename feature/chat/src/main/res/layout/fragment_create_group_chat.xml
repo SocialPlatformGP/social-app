@@ -82,45 +82,33 @@
             android:layout_margin="16dp"
             android:hint="Members"
             chat:layout_constraintStart_toStartOf="parent"
+            chat:layout_constraintEnd_toEndOf="parent"
             chat:layout_constraintTop_toBottomOf="@id/group_name_textfield">
 
-            <HorizontalScrollView
-                android:id="@+id/horizontal_scroll_view"
+            <com.google.android.flexbox.FlexboxLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:scrollbars="none">
+                android:id="@+id/members_layout"
+                android:padding="8dp"
+                chat:flexWrap="wrap"
+                chat:alignContent="stretch" >
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chipGroup"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    tools:layout_editor_absoluteX="8dp"
-                    tools:layout_editor_absoluteY="503dp">
+                    chat:members="@{viewmodel.uiState.selectedMembers}"
+                    chat:membersContext="@{fragment.requireContext()}"
+                    chat:onMembersChange="@{onMembersChangeListener}"
+                    chat:chipSpacingHorizontal = "8dp"/>
 
-                    <com.google.android.material.chip.ChipGroup
-                        android:id="@+id/chipGroup"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        chat:layout_constraintBottom_toBottomOf="@+id/search_textinput"
-                        chat:layout_constraintEnd_toStartOf="@+id/search_textinput"
-                        chat:layout_constraintStart_toStartOf="parent"
-                        chat:layout_constraintTop_toTopOf="@+id/search_textinput"
-                        chat:members="@{viewmodel.uiState.selectedMembers}"
-                        chat:membersContext="@{fragment.requireContext()}"
-                        chat:onMembersChange="@{onMembersChangeListener}" />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/search_textinput"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:hint="Add Members"/>
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/search_textinput"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:hint="Add Members"
-                        chat:layout_constraintBottom_toBottomOf="parent"
-                        chat:layout_constraintEnd_toEndOf="parent"
-                        chat:layout_constraintStart_toEndOf="@+id/chipGroup"
-                        chat:layout_constraintTop_toTopOf="parent" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-            </HorizontalScrollView>
+            </com.google.android.flexbox.FlexboxLayout>
         </com.google.android.material.textfield.TextInputLayout>
 
         <androidx.recyclerview.widget.RecyclerView

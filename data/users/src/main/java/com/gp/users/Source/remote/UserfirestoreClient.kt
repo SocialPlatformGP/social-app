@@ -1,6 +1,7 @@
 package com.gp.users.Source.remote
 
 import android.util.Log
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
 import com.gp.socialapp.database.model.UserEntity
@@ -10,13 +11,15 @@ import com.gp.users.model.User
 import com.gp.users.util.UserMapper.toModel
 import com.gp.users.util.UserMapper.toNetworkModel
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.channels.onFailure
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
-class UserfirestoreClient @Inject constructor(val firestore: FirebaseFirestore) :
+class UserfirestoreClient @Inject constructor(val firestore: FirebaseFirestore,
+    val auth: FirebaseAuth) :
     UserRemoteDataSource {
     override fun createUser(user: NetworkUser) = callbackFlow {
         trySend(State.Loading)
@@ -106,7 +109,6 @@ class UserfirestoreClient @Inject constructor(val firestore: FirebaseFirestore) 
             if (data!=null){
                 val result = mutableListOf<User>()
                 for (document in data.documents) {
-
                     result.add(document.toObject(NetworkUser::class.java)!!.toModel())
                 }
                 trySend(State.SuccessWithData(result))
@@ -114,4 +116,6 @@ class UserfirestoreClient @Inject constructor(val firestore: FirebaseFirestore) 
         }
         awaitClose { listener.remove() }
     }
+
+    override fun getCurrentUserEmail(): String = auth.currentUser?.email!!
 }
