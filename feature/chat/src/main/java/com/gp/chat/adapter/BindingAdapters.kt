@@ -2,6 +2,7 @@ package com.gp.chat.adapter
 
 import android.content.Context
 import android.graphics.drawable.Drawable
+import android.widget.Button
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide

@@ -45,32 +45,34 @@ class GroupChatViewModel @Inject constructor (
     }
 
     fun onSendMessage(groupId: String) {
-        val message = Message(
-            id = "",
-            groupId = groupId,
-            message = currentMessageState.value.message,
-            messageDate = SimpleDateFormat("MMMM dd, yyyy").format(Date()),
-            senderId = currentUser.value.userEmail,
-            senderName = currentUser.value.userFirstName + currentUser.value.userLastName,
-            senderPfpURL = currentUser.value.userProfilePictureURL,
-            timestamp = getTimeStamp(Date())
-        )
-        val recentChat = RecentChat(
-            lastMessage = "${currentUser.value.userFirstName}: ${currentMessageState.value.message}",
-            timestamp = message.timestamp
-        )
-        viewModelScope.launch (Dispatchers.IO){
-            messageRepo.sendGroupMessage(message, recentChat).collect{
-                when(it){
-                    is State.Success -> {
-                        currentMessageState.value = MessageState()
-                        Log.d("seerde", "Success")
-                    }
-                    is State.Error -> {
-                        Log.d("seerde", "Error: ${it.message}")
-                    }
-                    else -> {
-                        Log.d("seerde", "Loading")
+        if(currentMessageState.value.message.isNotBlank()){
+            val message = Message(
+                id = "",
+                groupId = groupId,
+                message = currentMessageState.value.message,
+                messageDate = SimpleDateFormat("MMMM dd, yyyy").format(Date()),
+                senderId = currentUser.value.userEmail,
+                senderName = currentUser.value.userFirstName + currentUser.value.userLastName,
+                senderPfpURL = currentUser.value.userProfilePictureURL,
+                timestamp = getTimeStamp(Date())
+            )
+            val recentChat = RecentChat(
+                lastMessage = "${currentUser.value.userFirstName}: ${currentMessageState.value.message}",
+                timestamp = message.timestamp
+            )
+            viewModelScope.launch (Dispatchers.IO){
+                messageRepo.sendGroupMessage(message, recentChat).collect{
+                    when(it){
+                        is State.Success -> {
+                            currentMessageState.value = MessageState()
+                            Log.d("seerde", "Success")
+                        }
+                        is State.Error -> {
+                            Log.d("seerde", "Error: ${it.message}")
+                        }
+                        else -> {
+                            Log.d("seerde", "Loading")
+                        }
                     }
                 }
             }
