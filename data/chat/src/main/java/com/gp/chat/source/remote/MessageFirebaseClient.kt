@@ -99,41 +99,39 @@ class MessageFirebaseClient(
 
     }
 
-override fun getMessages(chatId: String): Flow<State<List<Message>>> = callbackFlow {
-    val ref = database.reference.child(MESSAGES).child(chatId)
-    val listener = object : ValueEventListener {
-        override fun onDataChange(snapshot: DataSnapshot) {
-            val messages = mutableListOf<Message>()
-            for (messageSnapshot in snapshot.children) {
-                val networkMessage = messageSnapshot.getValue(NetworkMessage::class.java)
-                if (networkMessage != null) {
-                    val message = networkMessage.toModel(messageSnapshot.key!!).copy(
-                        senderId = restoreOriginalEmail(networkMessage.senderId)
-                    )
-                    messages.add(message)
+    override fun getMessages(chatId: String): Flow<State<List<Message>>> = callbackFlow {
+        val ref = database.reference.child(MESSAGES).child(chatId)
+        val listener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val messages = mutableListOf<Message>()
+                for (messageSnapshot in snapshot.children) {
+                    val networkMessage = messageSnapshot.getValue(NetworkMessage::class.java)
+                    if (networkMessage != null) {
+                        val message = networkMessage.toModel(messageSnapshot.key!!).copy(
+                            senderId = restoreOriginalEmail(networkMessage.senderId)
+                        )
+                        messages.add(message)
+                    }
+                }
+
+                if (messages.isNotEmpty()) {
+                    trySend(State.SuccessWithData(messages))
+                } else {
+                    trySend(State.Error("No messages found"))
                 }
             }
 
-            if (messages.isNotEmpty()) {
-                trySend(State.SuccessWithData(messages))
-            } else {
-                trySend(State.Error("No messages found"))
+            override fun onCancelled(error: DatabaseError) {
+                trySend(State.Error(error.message))
             }
         }
 
-        override fun onCancelled(error: DatabaseError) {
-            trySend(State.Error(error.message))
+        ref.addValueEventListener(listener)
+
+        awaitClose {
+            ref.removeEventListener(listener)
         }
     }
-
-    ref.addValueEventListener(listener)
-
-    awaitClose {
-        ref.removeEventListener(listener)
-    }
-}
-
-
 
     override fun getRecentChats(chatsId: List<String>): Flow<State<List<RecentChat>>> =
         callbackFlow {
@@ -169,7 +167,6 @@ override fun getMessages(chatId: String): Flow<State<List<Message>>> = callbackF
             }
 
         }
-
 
     override fun insertChatToUser(chatId: String, userEmail: String,receiverEmail:String): Flow<State<String>> =
         callbackFlow {
@@ -336,8 +333,8 @@ awaitClose()
                         .setValue(recentChat)
                         .addOnSuccessListener {
                             val userGroupData = hashMapOf<String, Any>()
-                            for (userId in group.members.keys) {
-                                userGroupData["$CHAT_USER/${RemoveSpecialChar.removeSpecialCharacters(userId)}/$GROUP/${chatKey}"] = true
+                            for (user in group.members.entries) {
+                                userGroupData["$CHAT_USER/${RemoveSpecialChar.removeSpecialCharacters(user.key)}/$GROUP/${chatKey}"] = user.value
                             }
                             val updateResult = database.reference.updateChildren(userGroupData).addOnSuccessListener {
                                 trySend(State.SuccessWithData(chatKey))

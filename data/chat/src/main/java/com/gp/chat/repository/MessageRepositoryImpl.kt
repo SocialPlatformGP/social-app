@@ -62,11 +62,13 @@ class MessageRepositoryImpl @Inject constructor(
     override fun createGroupChat(
         name: String,
         avatarLink: String,
-        members: List<String>
+        members: List<String>,
+        currentUserEmail: String
     ): Flow<State<String>> {
         Log.d("viewmodel->repo", "createGroupChat: $name")
+        val membersMap = members.map{ RemoveSpecialChar.removeSpecialCharacters(it)}.associateWith { false } + mapOf(RemoveSpecialChar.removeSpecialCharacters(currentUserEmail) to true)
         val group = NetworkChatGroup(name = name,
-            members.map{ RemoveSpecialChar.removeSpecialCharacters(it)}.associateWith { true })
+            membersMap)
         val recentChat = NetworkRecentChat(
             lastMessage = "\t",
             timestamp = getTimeStamp(Date()),
