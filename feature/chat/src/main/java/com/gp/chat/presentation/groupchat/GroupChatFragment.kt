@@ -5,15 +5,18 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.gp.chat.R
 import com.gp.chat.adapter.GroupMessageAdapter
 import com.gp.chat.databinding.FragmentGroupChatBinding
+import com.gp.chat.listener.MyScrollToBottomObserver
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -38,12 +41,30 @@ class GroupChatFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val adapter = GroupMessageAdapter(requireContext())
+        val manager = LinearLayoutManager(requireContext())
+        manager.stackFromEnd = true
+        binding.recyclerGchat.layoutManager = manager
+        adapter.registerAdapterDataObserver(
+            MyScrollToBottomObserver(
+                binding.recyclerGchat,
+                adapter,
+                manager
+            )
+        )
         binding.recyclerGchat.adapter = adapter
+
         lifecycleScope.launch {
             viewModel.chatMessagesFlow.flowWithLifecycle(lifecycle).collectLatest {
                 Log.d("edrees", "before submit")
                 adapter.submitList(it)
                 Log.d("edrees", "after submit")
+                binding.recyclerGchat.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
+                    override fun onPreDraw(): Boolean {
+                        binding.recyclerGchat.viewTreeObserver.removeOnPreDrawListener(this)
+                        binding.recyclerGchat.scrollToPosition(adapter.itemCount - 1)
+                        return true
+                    }
+                })
             }
         }
         viewModel.fetchGroupChatMessages(args.groupId)
