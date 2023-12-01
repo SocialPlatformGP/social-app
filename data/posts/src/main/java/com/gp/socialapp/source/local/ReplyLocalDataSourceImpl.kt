@@ -26,7 +26,7 @@ class ReplyLocalDataSourceImpl @Inject constructor(
 
     override suspend fun deleteReplies(replies: List<Reply>) = replyDao.deleteReplies(replies.map { it.toEntity() })
 
-    override suspend fun deleteAllReplies() = replyDao.deleteAllReplies()
+    override  fun deleteAllReplies() = replyDao.deleteAllReplies()
 
 
     override fun getAllReplies(): Flow<List<ReplyEntity>> = replyDao.getAllReplies()

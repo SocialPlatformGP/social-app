@@ -11,7 +11,8 @@ data class NetworkUser(
     val userPhoneNumber: String,
     val userBirthdate: Date,
     val userBio: String,
-    val userCreatedAt: Date
+    val userCreatedAt: Date,
+    val administration: Boolean=false
     ){
     constructor():this("","","","","","",Date(),"",Date())
 }

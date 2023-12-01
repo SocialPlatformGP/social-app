@@ -27,29 +27,31 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.gp.posts.R
 import com.gp.posts.adapter.NestedReplyAdapter
-import com.gp.posts.databinding.FragmentPostDetialsBinding
+import com.gp.posts.databinding.FragmentPostDetailsBinding
 import com.gp.posts.listeners.OnAddReplyClicked
 import com.gp.posts.listeners.OnMoreOptionClicked
 import com.gp.posts.listeners.OnReplyCollapsed
+import com.gp.posts.listeners.OnTagClicked
 import com.gp.posts.listeners.VotePressedListener
 import com.gp.socialapp.model.NestedReplyItem
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.model.Reply
+import com.gp.socialapp.model.Tag
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
-import java.time.ZoneId
+import java.util.Date
+
 
 
 @AndroidEntryPoint
 class PostDetailsFragment
-    : Fragment(), OnAddReplyClicked,VotePressedListener,OnMoreOptionClicked, OnReplyCollapsed {
+    : Fragment(), OnAddReplyClicked,VotePressedListener,OnMoreOptionClicked, OnReplyCollapsed,OnTagClicked {
     lateinit var replyAdapter: NestedReplyAdapter
     lateinit var recyclerView: RecyclerView
     val viewModel: PostDetailsViewModel by viewModels()
     val args: PostDetailsFragmentArgs by navArgs()
-    lateinit var binding: FragmentPostDetialsBinding
+    lateinit var binding: FragmentPostDetailsBinding
     lateinit var replyEditText: TextInputEditText
     lateinit var replyEditTextLayout: TextInputLayout
     lateinit var replyButton: MaterialButton
@@ -64,13 +66,14 @@ class PostDetailsFragment
         viewModel.getRepliesById(args.post.id)
         // Inflate the layout for this fragment
          binding =
-            DataBindingUtil.inflate(inflater, R.layout.fragment_post_detials, container, false)
+            DataBindingUtil.inflate(inflater, R.layout.fragment_post_details, container, false)
         viewModel.getPost(args.post)
         lifecycleScope.launch {
             viewModel.currentPost.flowWithLifecycle(lifecycle).collect {
                 binding.viewModel = viewModel
                 binding.postitem = it
                 binding.context = requireContext()
+                binding.onTagClick = this@PostDetailsFragment
             }
         }
 
@@ -148,7 +151,7 @@ class PostDetailsFragment
                     parentReplyId = null,
                     depth = 0,
                     content = replyEditText.text.toString(),
-                    createdAt =LocalDateTime.now(ZoneId.of("UTC")).toString(),
+                    createdAt =Date().toString(),
                     authorEmail = currentUser?.email.toString()
                 )
             )
@@ -175,7 +178,7 @@ class PostDetailsFragment
                     parentReplyId = currentReply.id,
                     depth = currentReply.depth.plus(1),
                     content = replyEditText.text.toString(),
-                    createdAt = LocalDateTime.now(ZoneId.of("UTC")).toString(),
+                    createdAt = Date().toString(),
                     authorEmail = currentUser?.email.toString()
                 )
             )
@@ -242,6 +245,7 @@ class PostDetailsFragment
         popupMenu.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.item_delete -> {
+                    findNavController().navigate(R.id.action_postDetialsFragment_to_feedFragment)
                     viewModel.deleteReply(reply)
                     true
                 }
@@ -289,6 +293,11 @@ class PostDetailsFragment
             viewModel.collapsedReplies.add(reply.id)
         }
         Log.d("zarea in fragment",viewModel.collapsedReplies.toString())
+    }
+
+    override fun onTagClicked(tag: Tag) {
+        val action = PostDetailsFragmentDirections.actionPostDetailsFragmentToSearchFragment2(tag.label, true)
+        findNavController().navigate(action)
     }
 
 

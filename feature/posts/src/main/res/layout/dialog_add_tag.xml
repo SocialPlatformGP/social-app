@@ -12,19 +12,21 @@
         android:layout_height="match_parent"
         android:paddingBottom="24dp">
         <!--    Label Input-->
+
         <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
             android:id="@+id/label_text_field"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
             android:layout_marginTop="16dp"
-            android:hint="@string/tag_label"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            android:hint="@string/tag_label">
 
-            <com.google.android.material.textfield.TextInputEditText
+            <AutoCompleteTextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text" />
+                android:inputType="textAutoComplete" />
+
         </com.google.android.material.textfield.TextInputLayout>
         <!--    Color Picker-->
         <com.google.android.material.textfield.TextInputLayout
