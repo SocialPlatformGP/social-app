@@ -1,6 +1,6 @@
 package com.gp.posts.presentation.createpost
 
-import com.gp.socialapp.database.model.Tag
+import com.gp.socialapp.model.Tag
 import com.gp.socialapp.utils.State
 
 data class CreatePostUIState(

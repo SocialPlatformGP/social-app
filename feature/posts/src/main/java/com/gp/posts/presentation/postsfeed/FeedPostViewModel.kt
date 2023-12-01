@@ -5,25 +5,18 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gp.socialapp.database.model.PostEntity
-import com.gp.socialapp.model.NetworkReply
 import com.gp.socialapp.model.Post
-import com.gp.socialapp.model.Reply
 import com.gp.socialapp.repository.PostRepository
 import com.gp.socialapp.repository.ReplyRepository
+import com.gp.socialapp.util.PostPopularityUtils
+import com.gp.socialapp.util.DateUtils
 import com.gp.socialapp.utils.State
-import com.gp.users.model.NetworkUser
 import com.gp.users.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.count
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
 import javax.inject.Inject
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -41,12 +34,19 @@ class FeedPostViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<State<List<Post>>>(State.Idle)
     val uiState
         get() = _uiState.asStateFlow()
+    val isSortedByNewest = MutableStateFlow(true)
 
     fun getAllPosts() {
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.value = State.Loading
             repository.getAllLocalPosts().collect { posts ->
-                _uiState.value = State.SuccessWithData(posts)
+                val sortedPosts = if(isSortedByNewest.value){
+                    posts.sortedByDescending { DateUtils.convertStringToDate(it.publishedAt) }
+                } else {
+                    posts.sortedByDescending { PostPopularityUtils.calculateInteractionValue(it.votes, it.replyCount)}
+                }
+                _uiState.value = State.SuccessWithData(sortedPosts)
+                Log.d("TAG258", "New Data: ${sortedPosts}")
             }
         }
     }
@@ -75,5 +75,23 @@ class FeedPostViewModel @Inject constructor(
         }
     }
 
+    fun sortPostsByNewest() {
+        viewModelScope.launch{
+            isSortedByNewest.value = true
+            val sortedPosts = (uiState.value as State.SuccessWithData).data
+                .sortedByDescending { DateUtils.convertStringToDate(it.publishedAt) }
+            _uiState.value = State.SuccessWithData(sortedPosts)
+            Log.d("TAG258", "New Data by newest: ${sortedPosts}")
+        }
+    }
 
+    fun sortPostsByPopularity() {
+        viewModelScope.launch{
+            isSortedByNewest.value = false
+            val sortedPosts = (uiState.value as State.SuccessWithData).data
+                .sortedByDescending { PostPopularityUtils.calculateInteractionValue(it.votes, it.replyCount)}
+            _uiState.value = State.SuccessWithData(sortedPosts)
+            Log.d("TAG258", "New Data by popular: ${sortedPosts}")
+        }
+    }
 }

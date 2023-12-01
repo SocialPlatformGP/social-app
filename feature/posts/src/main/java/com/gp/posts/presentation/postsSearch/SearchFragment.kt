@@ -1,57 +1,72 @@
-package com.gp.posts.presentation.postsSearch
+package com.gp.posts
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.navArgs
+import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.gp.posts.R
-import com.gp.posts.adapter.SearchResultAdapter
-import com.gp.posts.databinding.FragmentSearchBinding
+import com.gp.posts.adapter.SearchAdapter
+import com.gp.posts.databinding.FragmentSuggestPostBinding
+import com.gp.posts.listeners.OnSuggestedPostClickListener
+import com.gp.posts.presentation.postsSearch.SearchResultsViewModel
+import com.gp.socialapp.model.Post
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class SearchFragment : Fragment(){
-    private val viewModel: SearchViewModel by viewModels()
-    lateinit var binding: FragmentSearchBinding
-    private  val args: SearchFragmentArgs by navArgs()
+class SearchFragment : Fragment(), OnSuggestedPostClickListener {
+    private val viewModel: SearchResultsViewModel by viewModels()
+    lateinit var binding: FragmentSuggestPostBinding
+    var searchText: String = ""
+
+
+    fun updateSearchQuery(query: String?) {
+        searchText = query!!
+
+        if (query.isNullOrEmpty()) {
+            binding.rvSuggestPosts.visibility = View.GONE
+        } else {
+            binding.rvSuggestPosts.visibility = View.VISIBLE
+            viewModel.searchPostsByTitle(query)
+        }
+    }
+
+    fun navigateToFinalResult(query: String?) {
+        val action = SearchFragmentDirections.actionSuggestPostToSearchFragment2(query!!)
+        Navigation.findNavController(requireView()).navigate(action)
+    }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        // Inflate the layout for this fragment
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_search, container, false)
-        binding.lifecycleOwner = this
+        binding =
+            DataBindingUtil.inflate(inflater, R.layout.fragment_suggest_post, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val recyclerView = binding.rvSearchPosts
-        val adapter = SearchResultAdapter()
+        val recyclerView = binding.rvSuggestPosts
+        val adapter = SearchAdapter(this)
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         lifecycleScope.launch {
             viewModel.searchResult.flowWithLifecycle(lifecycle).collect {
-                binding.rvSearchPosts.visibility = View.VISIBLE
+                binding.rvSuggestPosts.visibility = View.VISIBLE
                 adapter.submitList(it)
             }
         }
-        viewModel.searchPosts(args.SearchQuery)
-        binding.searchView.text="Search Results for: "+args.SearchQuery
-
     }
 
+    override fun onClick(model: Post) {
+        val action = SearchFragmentDirections.actionSuggestPostToSearchFragment2(model.title, false)
+        findNavController().navigate(action)
+    }
 }
-
-
-

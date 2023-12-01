@@ -7,11 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.gp.posts.R
-import com.gp.posts.databinding.ItemPostBinding
 import com.gp.posts.databinding.SearchItemBinding
-import com.gp.posts.listeners.OnMoreOptionClicked
-import com.gp.posts.listeners.VotesClickedListener
-import com.gp.socialapp.database.model.PostEntity
 import com.gp.socialapp.model.Post
 
 class SearchResultAdapter : ListAdapter<Post, SearchResultAdapter.SearchResultViewHolder>(PostDiffUtil()) {

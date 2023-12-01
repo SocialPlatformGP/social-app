@@ -10,8 +10,10 @@ import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
+import com.google.firebase.ktx.Firebase
 import com.gp.chat.R
 import com.gp.chat.listener.OnGroupMembersChangeListener
+import com.gp.chat.model.RecentChat
 import com.gp.users.model.User
 
 @BindingAdapter("chat:imageUrl")

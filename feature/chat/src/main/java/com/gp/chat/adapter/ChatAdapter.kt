@@ -1,10 +1,18 @@
 package com.gp.chat.adapter
 
 
+import android.content.Context
+import android.system.Os.remove
+import android.view.ContextMenu
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView.OnItemLongClickListener
 import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.widget.PopupMenu
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -22,9 +30,20 @@ import com.gp.chat.util.RemoveSpecialChar.removeSpecialCharacters
 class ChatAdapter(var onItemClickListener: OnRecentChatClicked) : ListAdapter<RecentChat,ChatAdapter.ChatViewHolder>(DiffUtilCallBack) {
 
     inner class ChatViewHolder(val binding:ChatitemBinding):RecyclerView.ViewHolder(binding.root){
+
+
+
         fun bind(chat: RecentChat){
             binding.chat=chat
             binding.executePendingBindings()
+
+            itemView.setOnLongClickListener {
+                if (!chat.privateChat){
+                    createPopUpMenu(itemView,chat)
+                }
+                true
+            }
+
             itemView.setOnClickListener{
                 onItemClickListener.onRecentChatClicked(
                     chatId = chat.id,
@@ -49,9 +68,26 @@ class ChatAdapter(var onItemClickListener: OnRecentChatClicked) : ListAdapter<Re
     override fun onBindViewHolder(holder: ChatViewHolder, position: Int) {
         val item=getItem(position)
         holder.bind(item)
-
     }
-}
+
+    fun createPopUpMenu(item:View,chat:RecentChat){
+
+        val chatId=chat.id
+        val popupMenu = PopupMenu(item.context,item)
+        popupMenu.menuInflater.inflate(R.menu.leavegroup,popupMenu.menu)
+
+        popupMenu.setOnMenuItemClickListener{
+           onItemClickListener.leaveGroup(chatId)
+            true
+        }
+        popupMenu.show()
+    }
+        }
+
+
+
+
+
 object DiffUtilCallBack: DiffUtil.ItemCallback<RecentChat>(){
     override fun areItemsTheSame(oldItem: RecentChat, newItem: RecentChat): Boolean {
         return oldItem.id==newItem.id

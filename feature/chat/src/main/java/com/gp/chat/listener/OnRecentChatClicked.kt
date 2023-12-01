@@ -8,4 +8,8 @@ interface OnRecentChatClicked {
         receiverImage: String="",
         isPrivateChat: Boolean
     )
+
+    fun leaveGroup(groupId:String)
+
+
 }

@@ -2,6 +2,8 @@ package com.gp.chat.source.remote
 
 
 import android.util.Log
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -21,6 +23,7 @@ import com.gp.chat.util.ChatMapper.toMap
 import com.gp.chat.util.ChatMapper.toNetworkMessage
 import com.gp.chat.util.ChatMapper.toRecentChat
 import com.gp.chat.util.RemoveSpecialChar
+import com.gp.chat.util.RemoveSpecialChar.removeSpecialCharacters
 import com.gp.chat.util.RemoveSpecialChar.restoreOriginalEmail
 import com.gp.socialapp.utils.State
 import kotlinx.coroutines.channels.awaitClose
@@ -107,7 +110,7 @@ override fun getMessages(chatId: String): Flow<State<List<Message>>> = callbackF
             for (messageSnapshot in snapshot.children) {
                 val networkMessage = messageSnapshot.getValue(NetworkMessage::class.java)
                 if (networkMessage != null) {
-                    val message = networkMessage.toModel(messageSnapshot.key!!).copy(
+                    val message = networkMessage.toModel(messageSnapshot.key!!,chatId).copy(
                         senderId = restoreOriginalEmail(networkMessage.senderId)
                     )
                     messages.add(message)
@@ -278,11 +281,64 @@ awaitClose()
 
         }
 
+    override fun deleteMessage(messageId: String, chatId: String) {
+        val messageReference = database.reference.child(MESSAGES).child(chatId).child(messageId)
+        Log.d("deleteFun", "mI: $messageId cI:  $chatId")
+        messageReference.removeValue()
+
+            .addOnSuccessListener {
+                println("Message deleted successfully!")
+            }
+            .addOnFailureListener {
+                println("Failed to delete message: ${it.message}")
+            }
+
+    }
+
+    override fun updateMessage(messageId: String, chatId: String, updatedText: String) {
+        val messageReference = database.reference.child(MESSAGES)
+        messageReference.child(chatId).child(messageId).child("message").setValue(updatedText)
+            .addOnSuccessListener {
+                println("Message updated successfully!")
+            }
+            .addOnFailureListener {
+                println("Failed to update message: ${it.message}")
+            }
+    }
+
+    override fun leaveGroup(chatId: String) {
+        val email =Firebase.auth.currentUser?.email!!
+        val userEmail= removeSpecialCharacters(email)
+        Log.d("logF",  email)
+        removeUserFromGroup(chatId)
+        val usersReference=database.reference.child("chats").child(chatId).child("members")
+        usersReference.child(userEmail).removeValue().addOnSuccessListener {
+                println("Left the group successfully!")
+            }
+            .addOnFailureListener {
+                println("Failed to leave the group: ${it.message}")
+            }
+    }
+
+
+     private fun removeUserFromGroup(groupId: String) {
+        val email =Firebase.auth.currentUser?.email!!
+        val userEmail= removeSpecialCharacters(email)
+        database.reference.child("chatUsers")
+            .child(userEmail).child(GROUP).child(groupId).removeValue()
+            .addOnSuccessListener {
+                println("Removed user from the group successfully!")
+            }
+            .addOnFailureListener {
+                println("Failed to remove user from the group: ${it.message}")
+            }
+    }
+
     override fun fetchGroupMessages(groupId: String): Flow<List<Message>> = callbackFlow {
         val messagesReference = database.reference.child(MESSAGES).child(groupId)
         val valueEventListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val messages = snapshot.children.mapNotNull { (it.getValue(NetworkMessage::class.java))?.toModel(it.key!!) }
+                val messages = snapshot.children.mapNotNull { (it.getValue(NetworkMessage::class.java))?.toModel(it.key!!,groupId) }
                 trySend(messages)
             }
             override fun onCancelled(error: DatabaseError) {

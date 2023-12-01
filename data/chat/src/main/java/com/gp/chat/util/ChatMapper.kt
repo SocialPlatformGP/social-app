@@ -46,8 +46,9 @@ object ChatMapper {
         senderPfpURL = senderPfpURL
     )
 
-    fun NetworkMessage.toModel(id: String) = Message(
+    fun NetworkMessage.toModel(id: String,groupId:String) = Message(
         id = id,
+        groupId=groupId,
         senderId = senderId,
         message = message,
         timestamp = timestamp,
@@ -79,8 +80,6 @@ object ChatMapper {
         picUrl = picUrl
     )
 
-    fun Flow<List<NetworkMessage>>.toMessageFlow(id: String) =
-        map { list -> list.map { it.toModel(id) } }
 
     fun PrivateChats.toNetworkPrivateChats() = PrivateChatsNetwork(
         reciverUsers = reciverUsers,

@@ -40,15 +40,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/img"
+                    chat:imageUrl="@{chat.picUrl}"
                     chat:layout_constraintBottom_toBottomOf="parent"
                     chat:layout_constraintHorizontal_bias="0.0"
                     chat:layout_constraintStart_toStartOf="parent"
                     chat:layout_constraintTop_toTopOf="parent"
                     chat:layout_constraintVertical_bias="0.0"
-                    chat:strokeColor="#168836"
-                    chat:strokeWidth="3dp"
-                    tools:src="@drawable/img" />
+                    chat:strokeColor="#3E9AC3"
+                    chat:strokeWidth="6dp"
+                    />
 
             </FrameLayout>
 
@@ -84,12 +84,15 @@
                 android:id="@+id/timestamp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="218dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:text="2:30 PM"
+                android:layout_marginEnd="16dp"
+                android:text="@{chat.timestamp}"
                 android:textSize="12sp"
+                chat:layout_constraintBottom_toBottomOf="parent"
                 chat:layout_constraintEnd_toEndOf="parent"
-                chat:layout_constraintTop_toTopOf="parent" />
+                chat:layout_constraintStart_toEndOf="@+id/profileImageContainer"
+                chat:layout_constraintTop_toBottomOf="@+id/message" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>

@@ -23,4 +23,7 @@ interface MessageRepository {
     fun insertPrivateChat(sender:String,receiver:String,chatId: String): Flow<State<String>>
     fun haveChatWithUser(userEmail: String, otherUserEmail: String): Flow<State<String>>
     fun updateRecentChat(recentChat: RecentChat, chatId: String): Flow<State<String>>
+    fun deleteMessage(messageId: String,chatId: String)
+    fun updateMessage(messageId: String,chatId: String, updatedText: String)
+    fun leaveGroup(chatId: String)
 }

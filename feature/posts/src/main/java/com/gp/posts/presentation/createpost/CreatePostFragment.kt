@@ -12,6 +12,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
@@ -28,7 +30,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.gp.posts.R
 import com.gp.posts.databinding.DialogAddTagBinding
 import com.gp.posts.databinding.FragmentCreatePostBinding
-import com.gp.socialapp.database.model.Tag
+import com.gp.socialapp.model.Tag
 import com.gp.socialapp.utils.State
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -53,9 +55,11 @@ class CreatePostFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         addCancelPressedCollector()
-        //TODO("implement visiblity option dropdown menu")
+
     }
+
     fun onPostClick(){
+        viewModel.insertNewTags(getAllTags())
         viewModel.uiState.value.tags = getAllTags()
         addCreatedStateCollector()
         viewModel.onCreatePost()
@@ -93,14 +97,25 @@ class CreatePostFragment : Fragment() {
             false
         )
         val labelEditText = addTagBinding.labelTextField
+        val labelMenu = addTagBinding.labelTextField.editText as? AutoCompleteTextView
         val colorEditText = addTagBinding.colorField
         val addButton = addTagBinding.addButton
         val cancelButton = addTagBinding.cancelButton
-
+        val tags = viewModel.tags.value
         val dialog = MaterialAlertDialogBuilder(requireContext())
             .setTitle("Add Tag")
             .setView(addTagBinding.root)
             .create()
+
+                val adapter = ArrayAdapter(requireContext(), R.layout.list_item, tags.map { it.label })
+                (labelMenu)?.setAdapter(adapter)
+                labelMenu?.setOnItemClickListener { parent, view, position, id ->
+                    val tag = tags[position]
+                    labelEditText.editText?.setText(tag.label)
+                    colorEditText.boxBackgroundColor = Color.parseColor(tag.hexColor)
+                    colorEditText.editText?.setTextColor(Color.BLACK)
+                    colorEditText.editText?.setText(tag.hexColor)
+                }
 
         colorEditText.editText?.setOnClickListener {
             Log.d("edrees", "ColorEditText clicked")
@@ -112,10 +127,12 @@ class CreatePostFragment : Fragment() {
             }
         }
 
+
         addButton.setOnClickListener {
-            val label = labelEditText.editText?.text
-            if (label.isNullOrBlank()) {
-                labelEditText.error = "Label is Required!"
+
+            val label = labelMenu?.text.toString()
+            if (label.isBlank()) {
+                labelEditText?.error = "Label is Required!"
                 labelEditText.editText!!.addTextChangedListener(object : TextWatcher {
                     override fun beforeTextChanged(
                         s: CharSequence?,
@@ -133,7 +150,9 @@ class CreatePostFragment : Fragment() {
                         labelEditText.error = null
                     }
 
-                    override fun afterTextChanged(s: Editable?) {}
+                    override fun afterTextChanged(s: Editable?) {
+
+                    }
                 })
             } else {
                 val color = colorEditText.boxBackgroundColor

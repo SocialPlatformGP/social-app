@@ -3,6 +3,7 @@ package com.gp.socialapp.repository
 import com.gp.socialapp.database.model.PostEntity
 import com.gp.socialapp.model.NetworkPost
 import com.gp.socialapp.model.Post
+import com.gp.socialapp.model.Tag
 import com.gp.socialapp.utils.State
 import kotlinx.coroutines.flow.Flow
 
@@ -20,10 +21,11 @@ interface PostRepository {
     suspend fun upVotePost(post: Post)
     suspend fun downVotePost(post: Post)
     fun fetchPostById(id: String): Flow<Post>
+     fun deleteAllPosts()
 
     suspend fun incrementReplyCounter(postId: String)
     suspend fun decrementReplyCounter(postId: String)
-
-
+    fun getAllTags(): Flow<List<Tag>>
+    suspend fun insertTag(tag: Tag)
 
 }
