@@ -117,9 +117,11 @@ class GroupMessageAdapter(private val context: Context, private val messageClick
         popupMenu.setOnMenuItemClickListener{ item ->
             when(item.itemId) {
                 R.id.menu_item_update->{
+
                     messageClickListener.updateMessage(messageId,message.groupId,message.message)
 
                 }
+
                 R.id.menu_item_delete->{
 
                     messageClickListener.deleteMessage(messageId,message.groupId)

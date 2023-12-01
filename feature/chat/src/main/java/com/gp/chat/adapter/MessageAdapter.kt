@@ -45,8 +45,10 @@ class MessageAdapter() : ListAdapter<Message, MessageAdapter.MessageViewHolder>(
                 p1: View?,
                 p2: ContextMenu.ContextMenuInfo?
             ) {
+
                 menu?.add(Menu.NONE, R.id.menu_item_delete, Menu.NONE, "Delete")
                 menu?.add(Menu.NONE, R.id.menu_item_update, Menu.NONE, "Update")
+
             }
 
             override fun onLongClick(p0: View?): Boolean {
@@ -77,6 +79,7 @@ class MessageAdapter() : ListAdapter<Message, MessageAdapter.MessageViewHolder>(
     override fun getItemCount(): Int {
         return currentList.size
     }
+
     override fun getItemViewType(position: Int): Int {
         val message = getItem(position)
         return if (message.senderId == removeSpecialCharacters(Firebase.auth.currentUser?.email!!)) {
@@ -85,6 +88,7 @@ class MessageAdapter() : ListAdapter<Message, MessageAdapter.MessageViewHolder>(
             VIEW_TYPE_RECEIVED
         }
     }
+
     companion object{
         const val VIEW_TYPE_SENT = 1
         const val VIEW_TYPE_RECEIVED = 2

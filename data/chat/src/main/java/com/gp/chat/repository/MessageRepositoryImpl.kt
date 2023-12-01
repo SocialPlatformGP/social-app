@@ -66,6 +66,10 @@ class MessageRepositoryImpl @Inject constructor(
         messageRemoteDataSource.updateMessage(messageId,chatId,updatedText)
     }
 
+    override fun leaveGroup(chatId: String) {
+        messageRemoteDataSource.leaveGroup(chatId)
+    }
+
 
     override fun createGroupChat(
         name: String,

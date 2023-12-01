@@ -26,6 +26,7 @@ fun ImageView.setProfilePicture(picUrl: String?) {
         this.setImageResource(R.drawable.ic_person_24)
     }
 }
+
 @BindingAdapter("chat:imageUrl")
 fun ImageView.setChatPicture(picUrl: String?) {
     if (picUrl != null) {
@@ -38,6 +39,7 @@ fun ImageView.setChatPicture(picUrl: String?) {
         this.setImageResource(R.drawable.ic_person_24)
     }
 }
+
 @SuppressLint("SetTextI18n")
 @BindingAdapter("chat:setTitle")
 fun TextView.setTitle(chat: RecentChat){

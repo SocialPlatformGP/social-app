@@ -36,9 +36,13 @@ class ChatAdapter(var onItemClickListener: OnRecentChatClicked) : ListAdapter<Re
         fun bind(chat: RecentChat){
             binding.chat=chat
             binding.executePendingBindings()
+
             itemView.setOnLongClickListener {
-                createPopUpMenu(itemView,chat)
-                true }
+                if (!chat.privateChat){
+                    createPopUpMenu(itemView,chat)
+                }
+                true
+            }
 
             itemView.setOnClickListener{
                 onItemClickListener.onRecentChatClicked(
@@ -67,18 +71,13 @@ class ChatAdapter(var onItemClickListener: OnRecentChatClicked) : ListAdapter<Re
     }
 
     fun createPopUpMenu(item:View,chat:RecentChat){
+
         val chatId=chat.id
         val popupMenu = PopupMenu(item.context,item)
-        popupMenu.menuInflater.inflate(R.menu.message_option,popupMenu.menu)
-        popupMenu.setOnMenuItemClickListener{ item ->
-            when(item.itemId) {
-                R.id.menu_item_update->{
+        popupMenu.menuInflater.inflate(R.menu.leavegroup,popupMenu.menu)
 
-                }
-                R.id.menu_item_delete->{
-
-                }
-            }
+        popupMenu.setOnMenuItemClickListener{
+           onItemClickListener.leaveGroup(chatId)
             true
         }
         popupMenu.show()
@@ -97,6 +96,5 @@ object DiffUtilCallBack: DiffUtil.ItemCallback<RecentChat>(){
     override fun areContentsTheSame(oldItem: RecentChat, newItem: RecentChat): Boolean {
         return oldItem==newItem
     }
-
 
 }

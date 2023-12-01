@@ -1,10 +1,13 @@
 package com.gp.chat.presentation.groupchat
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
+import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -40,6 +43,7 @@ class GroupChatFragment : Fragment() ,OnMessageClickListener{
         super.onViewCreated(view, savedInstanceState)
         val adapter = GroupMessageAdapter(requireContext(),this)
         binding.recyclerGchat.adapter = adapter
+
         lifecycleScope.launch {
             viewModel.chatMessagesFlow.flowWithLifecycle(lifecycle).collectLatest {
                 Log.d("edrees", "before submit")
@@ -58,6 +62,25 @@ class GroupChatFragment : Fragment() ,OnMessageClickListener{
     }
 
     override fun updateMessage(messageId: String, chatId: String,body:String) {
-        viewModel.updateMessage(messageId,chatId,"")
+        val editText = EditText(requireContext())
+        val dialogBuilder = AlertDialog.Builder(requireContext())
+        editText.text.append(body)
+
+        // Set up the dialog properties
+        dialogBuilder.setTitle("Edit Message Body")
+            .setMessage("Edit your message:")
+            .setCancelable(true)
+            .setView(editText)
+            .setPositiveButton("Save") { dialogInterface: DialogInterface, i: Int ->
+                viewModel.updateMessage(messageId,chatId,editText.text.toString())
+                Log.d("TAGf", "updateMessage: ${editText.text.toString()}")
+            }
+            .setNegativeButton("Cancel") { dialogInterface: DialogInterface, i: Int ->
+                dialogInterface.dismiss()
+            }
+
+        val alertDialog = dialogBuilder.create()
+        alertDialog.show()
+
     }
 }

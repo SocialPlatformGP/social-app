@@ -2,6 +2,8 @@ package com.gp.chat.source.remote
 
 
 import android.util.Log
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -21,6 +23,7 @@ import com.gp.chat.util.ChatMapper.toMap
 import com.gp.chat.util.ChatMapper.toNetworkMessage
 import com.gp.chat.util.ChatMapper.toRecentChat
 import com.gp.chat.util.RemoveSpecialChar
+import com.gp.chat.util.RemoveSpecialChar.removeSpecialCharacters
 import com.gp.chat.util.RemoveSpecialChar.restoreOriginalEmail
 import com.gp.socialapp.utils.State
 import kotlinx.coroutines.channels.awaitClose
@@ -301,13 +304,15 @@ awaitClose()
             .addOnFailureListener {
                 println("Failed to update message: ${it.message}")
             }
-
     }
 
-    override fun leaveGroup(userId: String) {
-        val usersReference=database.reference
-        usersReference.child(userId).child("groupId").setValue(null)
-            .addOnSuccessListener {
+    override fun leaveGroup(chatId: String) {
+        val email =Firebase.auth.currentUser?.email!!
+        val userEmail= removeSpecialCharacters(email)
+        Log.d("logF",  email)
+        removeUserFromGroup(chatId)
+        val usersReference=database.reference.child("chats").child(chatId).child("members")
+        usersReference.child(userEmail).removeValue().addOnSuccessListener {
                 println("Left the group successfully!")
             }
             .addOnFailureListener {
@@ -316,9 +321,11 @@ awaitClose()
     }
 
 
-    override fun removeUserFromGroup(userId: String, groupId: String) {
-        val groupsReference = database.reference.child("")
-        groupsReference.child(groupId).child("").child(userId).removeValue()
+     private fun removeUserFromGroup(groupId: String) {
+        val email =Firebase.auth.currentUser?.email!!
+        val userEmail= removeSpecialCharacters(email)
+        database.reference.child("chatUsers")
+            .child(userEmail).child(GROUP).child(groupId).removeValue()
             .addOnSuccessListener {
                 println("Removed user from the group successfully!")
             }

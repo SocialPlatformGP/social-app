@@ -27,8 +27,7 @@ interface MessageRemoteDataSource {
     fun updateRecentChat(recentChat: RecentChat, chatId: String): Flow<State<String>>
     fun deleteMessage(messageId: String,chatId: String)
     fun updateMessage(messageId: String,chatId: String, updatedText: String)
-    fun leaveGroup(userId: String)
-    fun removeUserFromGroup(userId: String, groupId: String)
+    fun leaveGroup(chatId: String)
 
     fun createGroupChat(group: NetworkChatGroup, recentChat: NetworkRecentChat): Flow<State<String>>
 }
