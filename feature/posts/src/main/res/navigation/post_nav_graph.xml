@@ -12,6 +12,10 @@
         <action
             android:id="@+id/action_createPostFragment_to_feedFragment"
             app:destination="@id/mainFeedFragment2" />
+        <argument
+            android:name="type"
+            app:argType="string"
+            android:defaultValue="all" />
     </fragment>
 
     <fragment

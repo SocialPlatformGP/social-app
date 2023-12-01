@@ -25,7 +25,8 @@ object PostMapper {
             replyCount = replyCount,
             userName = userName,
             userPfp = userPfp,
-            tags = tags.toEntity()
+            tags = tags.toEntity(),
+            type = type
         )
     }
     fun PostEntity.toNetworkModel(): NetworkPost{
@@ -42,7 +43,8 @@ authorEmail = authorEmail,
             replyCount = replyCount,
             userName = userName,
             userPfp = userPfp,
-            tags = tags.toModel()
+            tags = tags.toModel(),
+            type = type
         )
     }
     fun Post.toNetworkModel(): NetworkPost{
@@ -59,7 +61,8 @@ authorEmail = authorEmail,
             downvoted = downvoted,
             moderationStatus = moderationStatus,
             editStatus = editStatus,
-            tags = tags
+            tags = tags,
+            type = type
         )
     }
     fun NetworkPost.toModel(id: String): Post{
@@ -77,7 +80,8 @@ authorEmail = authorEmail,
             downvoted = downvoted,
             moderationStatus = moderationStatus,
             editStatus = editStatus,
-            tags = tags
+            tags = tags,
+            type = type
         )
     }
     fun Post.toEntity(): PostEntity{
@@ -95,7 +99,8 @@ authorEmail = authorEmail,
             replyCount = replyCount,
             userName = userName,
             userPfp = userPfp,
-            tags = tags.toEntity()
+            tags = tags.toEntity(),
+            type = type
         )
     }
     fun PostEntity.toModel(): Post{
@@ -110,7 +115,8 @@ authorEmail = authorEmail,
             downvoted = downvoted.split(","),
             moderationStatus = moderationStatus,
             editStatus = editStatus,
-            tags = tags.toModel()
+            tags = tags.toModel(),
+            type = type,
         )
     }
 

@@ -14,5 +14,6 @@ data class NetworkPost (
     val upvoted: List<String> = emptyList(),
     val moderationStatus: String = "submitted",
     val editStatus: Boolean = false,
-    val tags: List<Tag> = emptyList()
+    val tags: List<Tag> = emptyList(),
+    val type: String = "all",
 )

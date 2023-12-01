@@ -37,7 +37,9 @@ import com.gp.socialapp.model.Tag
 import com.gp.socialapp.utils.State
 import com.gp.users.model.User
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+
 @AndroidEntryPoint
 class VipFeedFragment : Fragment(), VotesClickedListenerPost, OnMoreOptionClicked,
     OnFeedOptionsClicked, OnTagClicked {
@@ -60,6 +62,7 @@ class VipFeedFragment : Fragment(), VotesClickedListenerPost, OnMoreOptionClicke
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel.getUserById(currentUser?.email!!)
 
         val feedAdapter = FeedPostAdapter(this, this, this, requireContext())
         binding.postsRecyclerView.apply {
@@ -71,20 +74,27 @@ class VipFeedFragment : Fragment(), VotesClickedListenerPost, OnMoreOptionClicke
             viewModel.uiState.flowWithLifecycle(lifecycle).collect { currentState ->
                 if (currentState is State.SuccessWithData) {
                     Log.d("TAG258", "onViewCreated: ${currentState.data}")
-                    feedAdapter.submitList(currentState.data)
+                    val vipData = currentState.data.filter { it.type == "vip" }
+                    feedAdapter.submitList(vipData)
                     binding.postsRecyclerView.scrollToPosition(0)
                 }
             }
         }
-        if(viewModel.currentUser.administration){
-            binding.floatingActionButton.visibility=View.VISIBLE
-            binding.floatingActionButton.setOnClickListener {
-                findNavController().navigate(R.id.mainFeedFragment2_to_createPostFragment)
-            }
+        lifecycleScope.launch {
+            viewModel.currentUser.collect {
+                if (it.administration) {
+                    binding.floatingActionButton.visibility = View.VISIBLE
+                    binding.floatingActionButton.setOnClickListener {
+                        val action = MainFeedFragmentDirections.mainFeedFragment2ToCreatePostFragment("vip")
+                        findNavController().navigate(action)
+                    }
 
-        }else{
-            binding.floatingActionButton.visibility=View.GONE
+                } else {
+                    binding.floatingActionButton.visibility = View.GONE
+                }
+            }
         }
+
     }
 
 
@@ -154,7 +164,8 @@ class VipFeedFragment : Fragment(), VotesClickedListenerPost, OnMoreOptionClicke
             LayoutInflater.from(requireContext()),
             R.layout.bottom_sheet_feed_options,
             null,
-            false)
+            false
+        )
         val bottomSheetDialog = BottomSheetDialog(requireContext())
         bottomSheetDialog.setContentView(bottomSheetBinding.root)
         bottomSheetBinding.sortApplyButton.setOnClickListener {
@@ -162,6 +173,7 @@ class VipFeedFragment : Fragment(), VotesClickedListenerPost, OnMoreOptionClicke
                 R.id.newest_sort_chip -> {
                     viewModel.sortPostsByNewest()
                 }
+
                 R.id.popular_sort_chip -> {
                     viewModel.sortPostsByPopularity()
                 }
@@ -172,12 +184,14 @@ class VipFeedFragment : Fragment(), VotesClickedListenerPost, OnMoreOptionClicke
             val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetBinding.bottomSheet)
             bottomSheetBehavior.isHideable = false
             val bottomSheetParent = bottomSheetBinding.bottomSheetParent
-            BottomSheetBehavior.from(bottomSheetParent.parent as View).peekHeight = bottomSheetParent.height
+            BottomSheetBehavior.from(bottomSheetParent.parent as View).peekHeight =
+                bottomSheetParent.height
             bottomSheetBehavior.peekHeight = bottomSheetParent.height
             bottomSheetParent.parent.requestLayout()
         }
         bottomSheetDialog.show()
     }
+
     override fun onTagClicked(tag: Tag) {
         val action = MainFeedFragmentDirections.mainFeedFragment2ToSearchFragment2(tag.label, true)
         findNavController().navigate(action)

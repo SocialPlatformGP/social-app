@@ -41,8 +41,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked, OnFeedOptionsClicked , OnTagClicked{
-    lateinit var  binding:FragmentFeedBinding
+class FeedFragment : Fragment(), VotesClickedListenerPost, OnMoreOptionClicked,
+    OnFeedOptionsClicked, OnTagClicked {
+    lateinit var binding: FragmentFeedBinding
     private val viewModel: FeedPostViewModel by viewModels()
     private val currentUser = Firebase.auth.currentUser
 
@@ -54,8 +55,8 @@ class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked,
 
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_feed, container, false)
         binding.stateWithLifecycle = StateWIthLifeCycle(viewModel.uiState, lifecycle = lifecycle)
-        binding = DataBindingUtil.inflate(inflater,R.layout.fragment_feed,container,false)
-        binding.stateWithLifecycle= StateWIthLifeCycle(viewModel.uiState, lifecycle = lifecycle)
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_feed, container, false)
+        binding.stateWithLifecycle = StateWIthLifeCycle(viewModel.uiState, lifecycle = lifecycle)
         binding.onFeedOptionsClicked = this
         return binding.root
     }
@@ -75,14 +76,16 @@ class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked,
             viewModel.uiState.flowWithLifecycle(lifecycle).collect { currentState ->
                 if (currentState is State.SuccessWithData) {
                     Log.d("TAG258", "onViewCreated: ${currentState.data}")
-                    feedAdapter.submitList(currentState.data)
+                    val vipData = currentState.data.filter { it.type != "vip" }
+                    feedAdapter.submitList(vipData)
                     binding.postsRecyclerView.scrollToPosition(0)
                 }
             }
         }
 
-        view.findViewById<FloatingActionButton?>(R.id.floatingActionButton).setOnClickListener {
-            findNavController().navigate(R.id.mainFeedFragment2_to_createPostFragment)
+        binding.floatingActionButton.setOnClickListener {
+            val action = MainFeedFragmentDirections.mainFeedFragment2ToCreatePostFragment("all")
+            findNavController().navigate(action)
         }
     }
 
@@ -152,7 +155,8 @@ class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked,
             LayoutInflater.from(requireContext()),
             R.layout.bottom_sheet_feed_options,
             null,
-            false)
+            false
+        )
         val bottomSheetDialog = BottomSheetDialog(requireContext())
         bottomSheetDialog.setContentView(bottomSheetBinding.root)
         bottomSheetBinding.sortApplyButton.setOnClickListener {
@@ -160,6 +164,7 @@ class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked,
                 R.id.newest_sort_chip -> {
                     viewModel.sortPostsByNewest()
                 }
+
                 R.id.popular_sort_chip -> {
                     viewModel.sortPostsByPopularity()
                 }
@@ -177,6 +182,7 @@ class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked,
         }
         bottomSheetDialog.show()
     }
+
     override fun onTagClicked(tag: Tag) {
         val action = MainFeedFragmentDirections.mainFeedFragment2ToSearchFragment2(tag.label, true)
         findNavController().navigate(action)

@@ -67,7 +67,8 @@ class CreatePostViewModel @Inject constructor (
                         publishedAt = Date().toString(),
                         title = title,
                         body = body,
-                        tags = tags
+                        tags = tags,
+                        type = type
                     ))
                 state.collect{newState ->
                     uiState.value = uiState.value.copy(createdState = newState)
@@ -92,5 +93,8 @@ class CreatePostViewModel @Inject constructor (
                else-> {}
            }
         }
+    }
+    fun setType(type: String){
+        uiState.value = uiState.value.copy(type = type)
     }
 }

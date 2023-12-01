@@ -29,9 +29,8 @@ class VipFeedViewModel @Inject constructor(
 ) : ViewModel() {
       init {
         getAllPosts()
-        getUserById(Firebase.auth.currentUser?.email!!)
     }
-    var currentUser: NetworkUser = NetworkUser()
+    var currentUser = MutableStateFlow(NetworkUser())
 
     private val _uiState = MutableStateFlow<State<List<Post>>>(State.Idle)
     val uiState
@@ -101,7 +100,7 @@ class VipFeedViewModel @Inject constructor(
            val temp = userRepository.fetchUser(userId)
             when(temp){
                 is State.SuccessWithData -> {
-                    currentUser = temp.data
+                    currentUser.value = temp.data
                 }
                 else->{}
             }
