@@ -26,25 +26,41 @@ fun ImageView.setProfilePicture(picUrl: String?) {
         this.setImageResource(R.drawable.ic_person_24)
     }
 }
+@BindingAdapter("chat:imageUrl")
+fun ImageView.setChatPicture(picUrl: String?) {
+    if (picUrl != null) {
+        Glide.with(this.context)
+            .load(picUrl)
+            .placeholder(R.drawable.ic_person_24)
+            .apply(RequestOptions.circleCropTransform())
+            .into(this)
+    } else {
+        this.setImageResource(R.drawable.ic_person_24)
+    }
+}
 @SuppressLint("SetTextI18n")
 @BindingAdapter("chat:setTitle")
 fun TextView.setTitle(chat: RecentChat){
-    val currentEmail= removeSpecialCharacters(Firebase.auth.currentUser?.email!!)
-    var email = ""
-    if (currentEmail==chat.receiverName){
-        email = restoreOriginalEmail(chat.senderName)
-    }
-    else{
-         email = restoreOriginalEmail(chat.receiverName)
-    }
-     Firebase.firestore.collection("users").get().addOnSuccessListener {
-        for (document in it){
-            if (document.data["userEmail"]==email){
-                text=document.data["userFirstName"].toString()+" "+document.data["userLastName"].toString()
+    if(chat.privateChat) {
+        val currentEmail = removeSpecialCharacters(Firebase.auth.currentUser?.email!!)
+        var email = ""
+        if (currentEmail == chat.receiverName) {
+            email = restoreOriginalEmail(chat.senderName)
+        } else {
+            email = restoreOriginalEmail(chat.receiverName)
+        }
+        Firebase.firestore.collection("users").get().addOnSuccessListener {
+            for (document in it) {
+                if (document.data["userEmail"] == email) {
+                    text =
+                        document.data["userFirstName"].toString() + " " + document.data["userLastName"].toString()
+
+                }
 
             }
-
         }
     }
+    else
+        text=chat.title
 
 }

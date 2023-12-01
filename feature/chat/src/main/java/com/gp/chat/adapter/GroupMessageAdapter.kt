@@ -1,9 +1,11 @@
 package com.gp.chat.adapter
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.PopupMenu
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.DiffUtil
@@ -11,19 +13,30 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.gp.chat.R
 import com.gp.chat.databinding.ItemReceivedMessageBinding
 import com.gp.chat.databinding.ItemSentMessageBinding
+import com.gp.chat.listener.OnMessageClickListener
 import com.gp.chat.model.Message
+import com.gp.chat.presentation.groupchat.GroupChatFragment
 
-class GroupMessageAdapter(private val context: Context) :
+class GroupMessageAdapter(private val context: Context, private val messageClickListener: OnMessageClickListener) :
     ListAdapter<Message, GroupMessageAdapter.GroupMessageViewHolder>(GroupMessageDiffCallback()) {
     inner class GroupMessageViewHolder(val binding: ViewDataBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(message: Message) {
+
             if (binding is ItemSentMessageBinding) {
                 binding.messageItem = message
             } else if (binding is ItemReceivedMessageBinding) {
                 binding.messageItem = message
+            }
+
+            itemView.setOnLongClickListener{
+                if(message.senderId==Firebase.auth.currentUser?.email){
+                    createPopUpMenu(itemView,message)
+                }
+                 true
             }
         }
     }
@@ -96,7 +109,29 @@ class GroupMessageAdapter(private val context: Context) :
         layoutParams.topMargin = newTopMarginInPixels
         view.layoutParams = layoutParams
     }
+    fun createPopUpMenu(item:View,message: Message){
+        Log.d("deleteFun", "createPopUpMenu: $message ")
+        val messageId=message.id
+        val popupMenu = PopupMenu(item.context,item)
+        popupMenu.menuInflater.inflate(R.menu.message_option,popupMenu.menu)
+        popupMenu.setOnMenuItemClickListener{ item ->
+            when(item.itemId) {
+                R.id.menu_item_update->{
+                    messageClickListener.updateMessage(messageId,message.groupId,message.message)
+
+                }
+                R.id.menu_item_delete->{
+
+                    messageClickListener.deleteMessage(messageId,message.groupId)
+                }
+            }
+            true
+        }
+        popupMenu.show()
+    }
+
 }
+
 
 class GroupMessageDiffCallback : DiffUtil.ItemCallback<Message>() {
     override fun areItemsTheSame(oldItem: Message, newItem: Message): Boolean {

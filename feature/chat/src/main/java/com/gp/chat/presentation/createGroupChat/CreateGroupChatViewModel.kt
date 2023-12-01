@@ -62,6 +62,12 @@ class CreateGroupChatViewModel @Inject constructor(
             }
         }
     }
+    fun deleteMessage(messageId: String, chatId: String){
+        chatRepo.deleteMessage(messageId, chatId)
+    }
+    fun updateMessage(messageId: String, chatId: String,updatedText:String){
+        chatRepo.updateMessage(messageId, chatId,updatedText)
+    }
 
     fun createGroup() = chatRepo.createGroupChat(name = uiState.value.name,
         avatarLink = URL,

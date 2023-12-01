@@ -107,7 +107,7 @@ override fun getMessages(chatId: String): Flow<State<List<Message>>> = callbackF
             for (messageSnapshot in snapshot.children) {
                 val networkMessage = messageSnapshot.getValue(NetworkMessage::class.java)
                 if (networkMessage != null) {
-                    val message = networkMessage.toModel(messageSnapshot.key!!).copy(
+                    val message = networkMessage.toModel(messageSnapshot.key!!,chatId).copy(
                         senderId = restoreOriginalEmail(networkMessage.senderId)
                     )
                     messages.add(message)
@@ -278,11 +278,60 @@ awaitClose()
 
         }
 
+    override fun deleteMessage(messageId: String, chatId: String) {
+        val messageReference = database.reference.child(MESSAGES).child(chatId).child(messageId)
+        Log.d("deleteFun", "mI: $messageId cI:  $chatId")
+        messageReference.removeValue()
+
+            .addOnSuccessListener {
+                println("Message deleted successfully!")
+            }
+            .addOnFailureListener {
+                println("Failed to delete message: ${it.message}")
+            }
+
+    }
+
+    override fun updateMessage(messageId: String, chatId: String, updatedText: String) {
+        val messageReference = database.reference.child(MESSAGES)
+        messageReference.child(messageId).child(chatId).setValue(updatedText)
+            .addOnSuccessListener {
+                println("Message updated successfully!")
+            }
+            .addOnFailureListener {
+                println("Failed to update message: ${it.message}")
+            }
+
+    }
+
+    override fun leaveGroup(userId: String) {
+        val usersReference=database.reference
+        usersReference.child(userId).child("groupId").setValue(null)
+            .addOnSuccessListener {
+                println("Left the group successfully!")
+            }
+            .addOnFailureListener {
+                println("Failed to leave the group: ${it.message}")
+            }
+    }
+
+
+    override fun removeUserFromGroup(userId: String, groupId: String) {
+        val groupsReference = database.reference.child("")
+        groupsReference.child(groupId).child("").child(userId).removeValue()
+            .addOnSuccessListener {
+                println("Removed user from the group successfully!")
+            }
+            .addOnFailureListener {
+                println("Failed to remove user from the group: ${it.message}")
+            }
+    }
+
     override fun fetchGroupMessages(groupId: String): Flow<List<Message>> = callbackFlow {
         val messagesReference = database.reference.child(MESSAGES).child(groupId)
         val valueEventListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val messages = snapshot.children.mapNotNull { (it.getValue(NetworkMessage::class.java))?.toModel(it.key!!) }
+                val messages = snapshot.children.mapNotNull { (it.getValue(NetworkMessage::class.java))?.toModel(it.key!!,groupId) }
                 trySend(messages)
             }
             override fun onCancelled(error: DatabaseError) {

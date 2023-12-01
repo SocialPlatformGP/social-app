@@ -25,6 +25,10 @@ interface MessageRemoteDataSource {
     fun insertPrivateChat(sender:String,receiver:String,chatId: String): Flow<State<String>>
     fun haveChatWithUser(userEmail: String, otherUserEmail: String): Flow<State<String>>
     fun updateRecentChat(recentChat: RecentChat, chatId: String): Flow<State<String>>
+    fun deleteMessage(messageId: String,chatId: String)
+    fun updateMessage(messageId: String,chatId: String, updatedText: String)
+    fun leaveGroup(userId: String)
+    fun removeUserFromGroup(userId: String, groupId: String)
 
     fun createGroupChat(group: NetworkChatGroup, recentChat: NetworkRecentChat): Flow<State<String>>
 }

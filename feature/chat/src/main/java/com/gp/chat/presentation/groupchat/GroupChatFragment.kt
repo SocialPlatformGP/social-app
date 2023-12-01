@@ -14,12 +14,13 @@ import androidx.navigation.fragment.navArgs
 import com.gp.chat.R
 import com.gp.chat.adapter.GroupMessageAdapter
 import com.gp.chat.databinding.FragmentGroupChatBinding
+import com.gp.chat.listener.OnMessageClickListener
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class GroupChatFragment : Fragment() {
+class GroupChatFragment : Fragment() ,OnMessageClickListener{
     private val viewModel: GroupChatViewModel by viewModels()
     private lateinit var binding: FragmentGroupChatBinding
     private val args :GroupChatFragmentArgs by navArgs()
@@ -37,7 +38,7 @@ class GroupChatFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val adapter = GroupMessageAdapter(requireContext())
+        val adapter = GroupMessageAdapter(requireContext(),this)
         binding.recyclerGchat.adapter = adapter
         lifecycleScope.launch {
             viewModel.chatMessagesFlow.flowWithLifecycle(lifecycle).collectLatest {
@@ -50,5 +51,13 @@ class GroupChatFragment : Fragment() {
     }
     fun onSendMessageClick(){
         viewModel.onSendMessage(args.groupId)
+    }
+
+    override fun deleteMessage(messageId: String, chatId: String) {
+        viewModel.deleteMessage(messageId,chatId)
+    }
+
+    override fun updateMessage(messageId: String, chatId: String) {
+        viewModel.updateMessage(messageId,chatId,"")
     }
 }

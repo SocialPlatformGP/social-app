@@ -1,6 +1,10 @@
 package com.gp.chat.adapter
 
+import android.util.Log
+import android.view.ContextMenu
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.DiffUtil
@@ -8,6 +12,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.gp.chat.R
 import com.gp.chat.databinding.ItemMessageRecieveBinding
 import com.gp.chat.databinding.ItemMessageSendBinding
 import com.gp.chat.model.Message
@@ -18,14 +23,38 @@ import com.gp.chat.util.ToSimpleTimeFormat
 
 class MessageAdapter() : ListAdapter<Message, MessageAdapter.MessageViewHolder>(MessageDiffCallback()){
 
-        inner class MessageViewHolder(private val binding: ViewDataBinding) :RecyclerView.ViewHolder(binding.root){
+        inner class MessageViewHolder(private val binding: ViewDataBinding) :RecyclerView.ViewHolder(binding.root),
+            View.OnCreateContextMenuListener, View.OnLongClickListener{
+
+            init {
+                itemView.setOnCreateContextMenuListener(this)
+                itemView.setOnLongClickListener(this)
+            }
+
             fun bind(message: Message){
                 if (binding is ItemMessageSendBinding){
                     binding.message = message
                 }else if (binding is ItemMessageRecieveBinding){
                     binding.message = message
                 }
+
             }
+
+            override fun onCreateContextMenu(
+                menu: ContextMenu?,
+                p1: View?,
+                p2: ContextMenu.ContextMenuInfo?
+            ) {
+                menu?.add(Menu.NONE, R.id.menu_item_delete, Menu.NONE, "Delete")
+                menu?.add(Menu.NONE, R.id.menu_item_update, Menu.NONE, "Update")
+            }
+
+            override fun onLongClick(p0: View?): Boolean {
+                p0?.showContextMenu()
+                Log.d("mowaleed  ", "onLongClick: ")
+                return true
+            }
+
         }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder {
