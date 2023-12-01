@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:chat="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="fragment"
+            type="com.gp.chat.presentation.groupdetails.GroupDetailsFragment" />
+        <variable
+            name="viewmodel"
+            type="com.gp.chat.presentation.groupdetails.GroupDetailsViewModel"/>
+
+    </data>
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
+        tools:context=".presentation.groupdetails.GroupDetailsFragment">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/h_guideline1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                chat:layout_constraintGuide_percent="0.05" />
+
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/group_avatar_imageview"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_marginTop="20dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/group_avatar_placeholder"
+                chat:layout_constraintEnd_toEndOf="parent"
+                chat:layout_constraintStart_toStartOf="parent"
+                chat:layout_constraintTop_toBottomOf="@id/h_guideline1"
+                chat:shapeAppearanceOverlay="@style/circleImageView" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/edit_image_button"
+                style="@style/Widget.Material3.Button.IconButton.Filled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="@{() -> fragment.onEditPictureClick()}"
+                chat:icon="@drawable/baseline_edit_24"
+                chat:layout_constraintBottom_toBottomOf="@id/group_avatar_imageview"
+                chat:layout_constraintEnd_toEndOf="@id/group_avatar_imageview" />
+
+            <TextView
+                android:id="@+id/group_name_textfield"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:layout_margin="16dp"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="Group Name"
+                chat:layout_constraintStart_toStartOf="parent"
+                chat:layout_constraintTop_toBottomOf="@id/group_avatar_imageview"/>
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:id="@+id/divider1"
+                android:layout_margin="8dp"
+                chat:layout_constraintTop_toBottomOf="@id/group_name_textfield"
+                chat:layout_constraintStart_toStartOf="parent"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/group_members_header"
+                android:orientation="horizontal"
+                chat:layout_constraintTop_toBottomOf="@id/divider1"
+                chat:layout_constraintStart_toStartOf="parent"
+                android:padding="8dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Group Members"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{viewmodel.users.size() > 0 ? viewmodel.users.size() + ` Members` : `No Members`}"
+                    android:gravity="end"
+                    android:layout_weight="1"/>
+            </LinearLayout>
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="8dp"
+                android:id="@+id/group_members_recyclerview"
+                chat:layout_constraintTop_toBottomOf="@id/group_members_header"
+                chat:layout_constraintStart_toStartOf="parent"
+                android:scrollbars="vertical"
+                chat:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</layout>

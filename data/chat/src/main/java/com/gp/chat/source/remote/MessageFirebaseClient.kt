@@ -4,28 +4,30 @@ package com.gp.chat.source.remote
 import android.util.Log
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.gp.chat.model.ChatGroup
 import com.gp.chat.model.ChatUser
-import com.gp.chat.util.ChatMapper.toModel
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
 import com.gp.chat.model.Message
 import com.gp.chat.model.NetworkChatGroup
 import com.gp.chat.model.NetworkMessage
 import com.gp.chat.model.NetworkRecentChat
 import com.gp.chat.model.RecentChat
 import com.gp.chat.util.ChatMapper.toMap
+import com.gp.chat.util.ChatMapper.toModel
 import com.gp.chat.util.ChatMapper.toNetworkMessage
 import com.gp.chat.util.ChatMapper.toRecentChat
 import com.gp.chat.util.RemoveSpecialChar
+import com.gp.chat.util.RemoveSpecialChar.removeSpecialCharacters
 import com.gp.chat.util.RemoveSpecialChar.restoreOriginalEmail
 import com.gp.socialapp.utils.State
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 class MessageFirebaseClient(
     private val database: FirebaseDatabase
@@ -354,4 +356,36 @@ awaitClose()
         }
         awaitClose()
     }
+
+    override fun getGroupMembersEmails(groupId: String): Flow<State<List<String>>> = callbackFlow {
+        trySend(State.Loading)
+        val membersReference = database.getReference("$CHAT/$groupId/members")
+
+        try {
+            val membersSnapshot = withContext(Dispatchers.IO) {
+                membersReference.get().await()
+            }
+            val userEmails = membersSnapshot.children.map { restoreOriginalEmail(it.key ?: "")}
+            trySend(State.SuccessWithData(userEmails))
+        } catch (e: Exception) {
+            trySend(State.Error(e.localizedMessage ?: "An error occurred"))
+        }
+        awaitClose()
+    }
+
+    override fun removeMemberFromGroup(groupId: String, memberEmail: String): Flow<State<String>> = callbackFlow{
+        val groupMembersRef = database.getReference("$CHAT/$groupId/members")
+        val userGroupsRef = database.getReference("$CHAT_USER/${
+            removeSpecialCharacters( memberEmail)}/groups")
+        try {
+            groupMembersRef.child(removeSpecialCharacters( memberEmail)).removeValue()
+            userGroupsRef.child(groupId).removeValue()
+            trySend(State.Success)
+        } catch (e: Exception) {
+            trySend(State.Error("Error removing user from the group: ${e.message}"))
+        } finally {
+            awaitClose()
+        }
+    }
+
 }

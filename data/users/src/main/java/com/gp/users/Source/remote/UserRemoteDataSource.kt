@@ -13,4 +13,5 @@ interface UserRemoteDataSource {
     suspend fun  fetchUser(email: String): State<NetworkUser>
     fun fetchUsers(): Flow<State<List<User>>>
     fun getCurrentUserEmail(): String
+    fun getUsersByEmails(emails: List<String>): Flow<State<List<User>>>
 }
