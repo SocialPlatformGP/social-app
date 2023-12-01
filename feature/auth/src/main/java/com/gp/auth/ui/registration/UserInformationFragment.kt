@@ -23,6 +23,8 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseUser
 import com.gp.auth.R
 import com.gp.auth.databinding.FragmentUserInformationBinding
+import com.gp.auth.util.Validator
+import com.gp.auth.util.Validator.PhoneNumberValidator
 import com.gp.socialapp.utils.State
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -105,9 +107,55 @@ class UserInformationFragment : Fragment() {
     }
 
     private fun validateInputs() =
-        validateEmptyFields()
-//                && validatePhoneNumber() && validateBirthDate()
-//                && validateFirstName() && validateLastName()
+        validateEmptyFields() && validatePhoneNumber() && validateFirstName() && validateLastName()
+
+    private fun validateLastName(): Boolean {
+        with(viewModel.uiState.value){
+            if(lastName.length >= 3){
+                return true
+            }
+            else{
+                binding.lastNameTextField.error = "Last name is very short"
+                binding.lastNameTextField.editText?.addTextChangedListener {
+                    binding.lastNameTextField.error = null
+                }
+                return false
+            }
+        }
+
+    }
+
+    private fun validateFirstName(): Boolean {
+        with(viewModel.uiState.value){
+            if(firstName.length >= 3){
+                return true
+            }
+            else{
+                binding.firstNameTextField.error = "First name is very short"
+                binding.firstNameTextField.editText?.addTextChangedListener {
+                    binding.firstNameTextField.error = null
+                }
+                return false
+            }
+        }
+
+    }
+
+
+
+    private fun validatePhoneNumber(): Boolean {
+        with(viewModel.uiState.value) {
+            if (PhoneNumberValidator.validateAll(phoneNumber)) {
+                return true
+            } else {
+                binding.phonenumberTextField.error = "Phone number is invalid"
+                binding.phonenumberTextField.editText?.addTextChangedListener {
+                    binding.phonenumberTextField.error = null
+                }
+                return false
+            }
+        }
+    }
 
     private fun validateEmptyFields(): Boolean {
         with(viewModel.uiState.value){

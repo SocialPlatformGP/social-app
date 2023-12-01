@@ -71,8 +71,7 @@ class RegistrationFragment : Fragment() {
         }
     }
 
-    private fun validateInput() =
-        validateEmptyFields() && validateEmailField() && validatePasswordField()
+    private fun validateInput() = validateEmptyFields() && validateEmailField() && validatePasswordField()
 
     private fun validatePasswordField(): Boolean {
         return if(com.gp.auth.util.Validator.PasswordValidator.validateAll(viewModel.registrationUiState.value.password)) {
