@@ -77,11 +77,13 @@ class VipFeedFragment : Fragment(), VotesClickedListenerPost, OnMoreOptionClicke
             }
         }
         if(viewModel.currentUser.administration){
-            view.findViewById<FloatingActionButton?>(R.id.floatingActionButton).setOnClickListener {
+            binding.floatingActionButton.visibility=View.VISIBLE
+            binding.floatingActionButton.setOnClickListener {
                 findNavController().navigate(R.id.mainFeedFragment2_to_createPostFragment)
             }
+
         }else{
-            view.findViewById<FloatingActionButton?>(R.id.floatingActionButton).visibility=View.GONE
+            binding.floatingActionButton.visibility=View.GONE
         }
     }
 
