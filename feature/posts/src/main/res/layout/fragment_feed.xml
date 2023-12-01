@@ -27,6 +27,7 @@
                     android:layout_height="wrap_content"
                     android:text="Feed Options:"
                     posts:layout_constraintStart_toStartOf="parent"
+                    android:layout_marginStart="16dp"
                     posts:layout_constraintTop_toTopOf="@id/feed_options_button"
                     posts:layout_constraintBottom_toBottomOf="@id/feed_options_button" />
                 <com.google.android.material.button.MaterialButton

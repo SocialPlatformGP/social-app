@@ -18,4 +18,9 @@ data class Post(
     val editStatus: Boolean = false,
     val tags: List<Tag> = emptyList(),
     val type: String = "all",
-):Serializable
+):Serializable{
+    companion object{
+        val sortByVotes = compareByDescending<Post>{PostPopularityUtils.calculateInteractionValue(it.votes, it.replyCount)}
+        val sortByDate = compareByDescending<Post>{convertStringToDate(it.publishedAt)}
+    }
+}
