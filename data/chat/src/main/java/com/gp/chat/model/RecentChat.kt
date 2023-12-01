@@ -8,5 +8,5 @@ data class RecentChat(
     val senderName: String= "",
     val receiverName: String= "",
     val privateChat : Boolean= false,
-    val picUrl : String="" ,
+    val picUrl : String=""
 )

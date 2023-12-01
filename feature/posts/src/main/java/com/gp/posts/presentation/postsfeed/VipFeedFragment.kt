@@ -1,15 +1,13 @@
 package com.gp.posts.presentation.postsfeed
 
-import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.PopupMenu
 import androidx.annotation.RequiresApi
-import androidx.core.view.children
+import androidx.appcompat.widget.PopupMenu
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -20,15 +18,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.chip.Chip
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.gp.posts.R
 import com.gp.posts.adapter.FeedPostAdapter
 import com.gp.posts.adapter.StateWIthLifeCycle
 import com.gp.posts.databinding.BottomSheetFeedOptionsBinding
-import com.gp.posts.databinding.FragmentFeedBinding
+import com.gp.posts.databinding.FragmentVipFeedBinding
 import com.gp.posts.listeners.OnFeedOptionsClicked
 import com.gp.posts.listeners.OnMoreOptionClicked
 import com.gp.posts.listeners.OnTagClicked
@@ -41,30 +37,30 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked, OnFeedOptionsClicked , OnTagClicked{
-    lateinit var  binding:FragmentFeedBinding
-    lateinit var  feedAdapter: FeedPostAdapter
-    private val viewModel: FeedPostViewModel by viewModels()
+class VipFeedFragment : Fragment(), VotesClickedListenerPost, OnMoreOptionClicked,
+    OnFeedOptionsClicked, OnTagClicked {
+    lateinit var binding: FragmentVipFeedBinding
+    private val viewModel: VipFeedViewModel by viewModels()
     private val currentUser = Firebase.auth.currentUser
-
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View {
-
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_feed, container, false)
+        binding =
+            DataBindingUtil.inflate(layoutInflater, R.layout.fragment_vip_feed, container, false)
         binding.stateWithLifecycle = StateWIthLifeCycle(viewModel.uiState, lifecycle = lifecycle)
         binding.onFeedOptionsClicked = this
         return binding.root
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    @SuppressLint("SuspiciousIndentation")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel.getUserById(currentUser?.email!!)
 
-        feedAdapter = FeedPostAdapter(this, this, this, requireContext())
+        val feedAdapter = FeedPostAdapter(this, this, this, requireContext())
         binding.postsRecyclerView.apply {
             adapter = feedAdapter
             itemAnimator = null
@@ -72,32 +68,31 @@ class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked,
         }
         lifecycleScope.launch {
             viewModel.uiState.flowWithLifecycle(lifecycle).collect { currentState ->
-                when (currentState) {
-                    is State.SuccessWithData -> {
-                        Log.d(
-                            "seerde",
-                            "onViewCreated: ${currentState.data.map { "${it.title} : ${it.votes}" }}"
-                        )
-                        val vipData = currentState.data.filter { it.type != "vip" }
-                        feedAdapter.submitList(vipData)
-                        feedAdapter.notifyDataSetChanged()
-                    }
-
-                    is State.Loading -> {
-                        Log.d("seerde", "onViewCreated: Loading")
-                        feedAdapter.submitList(emptyList())
-                    }
-
-                    else -> Log.d("seerde", "xd?")
+                if (currentState is State.SuccessWithData) {
+                    Log.d("TAG258", "onViewCreated: ${currentState.data}")
+                    val vipData = currentState.data.filter { it.type == "vip" }
+                    feedAdapter.submitList(vipData)
+                    binding.postsRecyclerView.scrollToPosition(0)
                 }
             }
+        }
+        lifecycleScope.launch {
+            viewModel.currentUser.collect {
+                if (it.administration) {
+                    binding.floatingActionButton.visibility = View.VISIBLE
+                    binding.floatingActionButton.setOnClickListener {
+                        val action = MainFeedFragmentDirections.mainFeedFragment2ToCreatePostFragment("vip")
+                        findNavController().navigate(action)
+                    }
 
-            binding.floatingActionButton.setOnClickListener {
-                val action = MainFeedFragmentDirections.mainFeedFragment2ToCreatePostFragment("all")
-                findNavController().navigate(action)
+                } else {
+                    binding.floatingActionButton.visibility = View.GONE
+                }
             }
         }
+
     }
+
 
     override fun onPostClicked(post: Post) {
         val action = MainFeedFragmentDirections.mainFeedFragment2ToPostDetialsFragment(post)
@@ -168,35 +163,17 @@ class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked,
             false
         )
         val bottomSheetDialog = BottomSheetDialog(requireContext())
-        viewModel.tags.forEach {
-            val chip: Chip = layoutInflater.inflate(R.layout.item_tag_filter_chip, null, false) as Chip
-            chip.text = it
-            chip.isChecked = viewModel.selectedTagFilters.value.contains(it)
-            bottomSheetBinding.tagsFilterChipgroup.addView(chip)
-        }
         bottomSheetDialog.setContentView(bottomSheetBinding.root)
-        setSelectedChip(bottomSheetBinding)
-        val filters = mutableListOf<String>()
         bottomSheetBinding.sortApplyButton.setOnClickListener {
             when (bottomSheetBinding.sortTypesChipgroup.checkedChipId) {
                 R.id.newest_sort_chip -> {
-                    if(!viewModel.isSortedByNewest.value){
-                        viewModel.sortPostsByNewest()
-                    }
+                    viewModel.sortPostsByNewest()
                 }
+
                 R.id.popular_sort_chip -> {
-                    if(viewModel.isSortedByNewest.value){
-                        viewModel.sortPostsByPopularity()
-                    }
+                    viewModel.sortPostsByPopularity()
                 }
             }
-            bottomSheetBinding.tagsFilterChipgroup.children.forEach { chip->
-                if((chip as Chip).isChecked) {
-                    filters.add(chip.text.toString())
-                }
-            }
-            viewModel.updateTagFilters(filters)
-            Log.d("edrees", filters.joinToString(", "))
             bottomSheetDialog.dismiss()
         }
         bottomSheetDialog.setOnShowListener {
@@ -209,15 +186,6 @@ class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked,
             bottomSheetParent.parent.requestLayout()
         }
         bottomSheetDialog.show()
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun setSelectedChip(bottomSheetBinding: BottomSheetFeedOptionsBinding) {
-        if(viewModel.isSortedByNewest.value){
-            bottomSheetBinding.newestSortChip.isChecked = true
-        }else{
-            bottomSheetBinding.popularSortChip.isChecked = true
-        }
     }
 
     override fun onTagClicked(tag: Tag) {

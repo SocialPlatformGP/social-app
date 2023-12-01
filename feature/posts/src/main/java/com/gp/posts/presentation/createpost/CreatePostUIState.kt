@@ -9,5 +9,6 @@ data class CreatePostUIState(
     var body: String = "",
     var createdState: State<Nothing> = State.Idle,
     var cancelPressed: Boolean = false,
-    var tags: List<Tag> = emptyList()
+    var tags: List<Tag> = emptyList(),
+    var type: String = "all",
 )

@@ -78,4 +78,7 @@ class HomeViewModel @Inject constructor(
         }
 
     }
+    fun leaveGroup(chatId: String){
+        messageRepository.leaveGroup(chatId)
+    }
 }

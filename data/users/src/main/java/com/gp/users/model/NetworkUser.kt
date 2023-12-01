@@ -12,7 +12,7 @@ data class NetworkUser(
     val userBirthdate: Date,
     val userBio: String,
     val userCreatedAt: Date,
-    val administration: Boolean=false
+    val administration: Boolean=false,
     ){
     constructor():this("","","","","","",Date(),"",Date())
 }
