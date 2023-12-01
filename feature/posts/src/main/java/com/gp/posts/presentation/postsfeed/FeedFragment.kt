@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.chip.Chip
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -54,8 +55,6 @@ class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked,
 
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_feed, container, false)
         binding.stateWithLifecycle = StateWIthLifeCycle(viewModel.uiState, lifecycle = lifecycle)
-        binding = DataBindingUtil.inflate(inflater,R.layout.fragment_feed,container,false)
-        binding.stateWithLifecycle= StateWIthLifeCycle(viewModel.uiState, lifecycle = lifecycle)
         binding.onFeedOptionsClicked = this
         return binding.root
     }
@@ -73,29 +72,30 @@ class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked,
         }
         lifecycleScope.launch {
             viewModel.uiState.flowWithLifecycle(lifecycle).collect { currentState ->
-                when (currentState){
+                when (currentState) {
                     is State.SuccessWithData -> {
-                        Log.d("seerde", "onViewCreated: ${currentState.data.map{"${it.title} : ${it.votes}"}}")
-                        feedAdapter.submitList(currentState.data)
+                        Log.d(
+                            "seerde",
+                            "onViewCreated: ${currentState.data.map { "${it.title} : ${it.votes}" }}"
+                        )
+                        val vipData = currentState.data.filter { it.type != "vip" }
+                        feedAdapter.submitList(vipData)
                         feedAdapter.notifyDataSetChanged()
                     }
+
                     is State.Loading -> {
                         Log.d("seerde", "onViewCreated: Loading")
                         feedAdapter.submitList(emptyList())
                     }
+
                     else -> Log.d("seerde", "xd?")
-                if (currentState is State.SuccessWithData) {
-                    Log.d("TAG258", "onViewCreated: ${currentState.data}")
-                    val vipData = currentState.data.filter { it.type != "vip" }
-                    feedAdapter.submitList(vipData)
-                    binding.postsRecyclerView.scrollToPosition(0)
                 }
             }
-        }
 
-        binding.floatingActionButton.setOnClickListener {
-            val action = MainFeedFragmentDirections.mainFeedFragment2ToCreatePostFragment("all")
-            findNavController().navigate(action)
+            binding.floatingActionButton.setOnClickListener {
+                val action = MainFeedFragmentDirections.mainFeedFragment2ToCreatePostFragment("all")
+                findNavController().navigate(action)
+            }
         }
     }
 
