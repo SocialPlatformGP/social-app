@@ -30,4 +30,6 @@ interface MessageRemoteDataSource {
     fun leaveGroup(chatId: String)
 
     fun createGroupChat(group: NetworkChatGroup, recentChat: NetworkRecentChat): Flow<State<String>>
+    fun getGroupMembersEmails(groupId: String): Flow<State<List<String>>>
+    fun removeMemberFromGroup(groupId: String, memberEmail: String): Flow<State<String>>
 }

@@ -12,7 +12,7 @@ interface MessageRepository {
 
     fun fetchGroupChatMessages(groupId: String): Flow<List<Message>>
     fun sendGroupMessage(message: Message, recentChat: RecentChat): Flow<State<Nothing>>
-    fun createGroupChat(name: String, avatarLink: String, members: List<String>): Flow<State<String>>
+    fun createGroupChat(name: String, avatarLink: String, members: List<String>, currentUserEmail: String): Flow<State<String>>
     fun insertChat(chat:ChatGroup): Flow<State<String>>
     fun insertRecentChat(recentChat: RecentChat,chatId: String): Flow<State<String>>
     fun sendMessage(message: Message): Flow<State<String>>
@@ -26,4 +26,6 @@ interface MessageRepository {
     fun deleteMessage(messageId: String,chatId: String)
     fun updateMessage(messageId: String,chatId: String, updatedText: String)
     fun leaveGroup(chatId: String)
+    fun getGroupMembersEmails(groupId: String): Flow<State<List<String>>>
+    fun removeMemberFromGroup(groupId: String, memberEmail: String): Flow<State<String>>
 }

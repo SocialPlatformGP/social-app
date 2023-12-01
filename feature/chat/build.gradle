@@ -80,6 +80,9 @@ dependencies {
     //Glide
     implementation 'com.github.bumptech.glide:glide:5.0.0-rc01'
 
+    //Flex-box layout
+    implementation 'com.google.android.flexbox:flexbox:3.0.0'
+
     //Circle Imageview
     implementation 'de.hdodenhof:circleimageview:2.2.0'
 
