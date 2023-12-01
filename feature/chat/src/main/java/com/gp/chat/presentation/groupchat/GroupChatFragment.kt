@@ -57,7 +57,7 @@ class GroupChatFragment : Fragment() ,OnMessageClickListener{
         viewModel.deleteMessage(messageId,chatId)
     }
 
-    override fun updateMessage(messageId: String, chatId: String) {
+    override fun updateMessage(messageId: String, chatId: String,body:String) {
         viewModel.updateMessage(messageId,chatId,"")
     }
 }

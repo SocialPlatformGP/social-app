@@ -294,7 +294,7 @@ awaitClose()
 
     override fun updateMessage(messageId: String, chatId: String, updatedText: String) {
         val messageReference = database.reference.child(MESSAGES)
-        messageReference.child(messageId).child(chatId).setValue(updatedText)
+        messageReference.child(chatId).child(messageId).child("message").setValue(updatedText)
             .addOnSuccessListener {
                 println("Message updated successfully!")
             }
