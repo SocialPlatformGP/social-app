@@ -5,7 +5,6 @@ import com.gp.socialapp.database.model.TagEntity
 import com.gp.socialapp.model.NetworkPost
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.model.Tag
-import com.gp.socialapp.util.PostMapper.toModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
