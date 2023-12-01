@@ -36,7 +36,7 @@ class GroupMessageAdapter(private val context: Context, private val messageClick
                 if(message.senderId==Firebase.auth.currentUser?.email){
                     createPopUpMenu(itemView,message)
                 }
-                 true
+                true
             }
         }
     }
@@ -65,7 +65,7 @@ class GroupMessageAdapter(private val context: Context, private val messageClick
                 (holder.binding as ItemReceivedMessageBinding).receivedMessageUserpfp.visibility = View.INVISIBLE
                 holder.binding.receivedMessageUsernameTextview.visibility = View.GONE
                 setTopMargin(holder.binding.root as ConstraintLayout
-                , 0)
+                    , 0)
             }
             if(previousItem.senderId == item.senderId && isCurrentUser(item)){
                 setTopMargin((holder.binding as ItemSentMessageBinding).root as ConstraintLayout

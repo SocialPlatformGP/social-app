@@ -2,13 +2,13 @@ package com.gp.chat.source.remote
 
 
 import android.util.Log
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.ktx.Firebase
 import com.gp.chat.model.ChatGroup
 import com.gp.chat.model.ChatUser
 import com.gp.chat.model.Message
@@ -305,7 +305,7 @@ awaitClose()
     }
 
     override fun leaveGroup(chatId: String) {
-        val email =Firebase.auth.currentUser?.email!!
+        val email = Firebase.auth.currentUser?.email!!
         val userEmail= removeSpecialCharacters(email)
         Log.d("logF",  email)
         removeUserFromGroup(chatId)
@@ -320,7 +320,7 @@ awaitClose()
 
 
      private fun removeUserFromGroup(groupId: String) {
-        val email =Firebase.auth.currentUser?.email!!
+        val email = Firebase.auth.currentUser?.email!!
         val userEmail= removeSpecialCharacters(email)
         database.reference.child("chatUsers")
             .child(userEmail).child(GROUP).child(groupId).removeValue()

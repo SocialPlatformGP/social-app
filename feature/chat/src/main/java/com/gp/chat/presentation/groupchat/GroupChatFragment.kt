@@ -44,7 +44,7 @@ class GroupChatFragment : Fragment() ,OnMessageClickListener{
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val adapter = GroupMessageAdapter(requireContext(),this)
+        val adapter = GroupMessageAdapter(requireContext(), this)
         val manager = LinearLayoutManager(requireContext())
         manager.stackFromEnd = true
         binding.recyclerGchat.layoutManager = manager
