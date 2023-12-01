@@ -20,7 +20,7 @@ class UserInformationViewModel @Inject constructor(private val userRepo: UserRep
             with(uiState.value) {
                 val networkFlow =
                     userRepo.createNetworkUser(NetworkUser(firstName, lastName, password, pfpLink, email,
-                        phoneNumber, birthDate, bio, Date()))
+                        phoneNumber, birthDate, bio, Date(),administration = false))
                 networkFlow.collect{state ->
                     uiState.value = uiState.value.copy(createdState = state)
                 }
