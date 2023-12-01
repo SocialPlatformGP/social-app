@@ -8,9 +8,11 @@ import com.gp.socialapp.utils.State
 import com.gp.users.model.User
 import com.gp.users.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -21,6 +23,7 @@ class CreateGroupChatViewModel @Inject constructor(
     val uiState = MutableStateFlow(CreateGroupChatUiState())
     private val _users = MutableStateFlow(emptyList<User>())
     val users = _users.asStateFlow()
+    private val currentUserEmail = userRepo.getCurrentUserEmail()
     private val URL =
         "https://www.schoolbag.edu.sg/images/default-source/story-images/entry-to-polytechnic-via-the-pfp-a-student-s-perspective/pfp-(1).jpg"
 
@@ -42,13 +45,14 @@ class CreateGroupChatViewModel @Inject constructor(
     }
 
     fun getListOfUsers() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             Log.d("EDREES", "GetListOfUsers Called")
+            Log.d("EDREES", "Before fetchUsers()")
             userRepo.fetchUsers().collect {
                 when (it) {
                     is State.SuccessWithData -> {
-                        _users.value = it.data
-                        Log.d("EDREES", "User: ${it.data.map { it.email }}")
+                        _users.value = it.data.filter { it.email != currentUserEmail }
+                        Log.d("EDREES", "User: ${_users.value.map { it.email }}")
                     }
 
                     is State.Error -> {
@@ -56,14 +60,16 @@ class CreateGroupChatViewModel @Inject constructor(
                     }
 
                     else -> {
-                        Log.d("Edrees", "Loading: ${it is State.Loading}")
+                        Log.d("Edrees", "Loading from all users: ${it is State.Loading}")
                     }
                 }
             }
+            Log.d("EDREES", "After fetchUsers()")
         }
     }
 
+
     fun createGroup() = chatRepo.createGroupChat(name = uiState.value.name,
         avatarLink = URL,
-        members = uiState.value.selectedMembers.map { it.email })
+        members = uiState.value.selectedMembers.map { it.email }, currentUserEmail)
 }

@@ -65,4 +65,16 @@
             app:popUpTo="@id/chatHome"
             app:destination="@id/groupChatFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/groupDetailsFragment"
+        android:name="com.gp.chat.presentation.groupdetails.GroupDetailsFragment"
+        android:label="GroupDetailsFragment" >
+        <argument
+            android:name="isAdmin"
+            app:argType="boolean"
+            android:defaultValue="false" />
+        <argument
+            android:name="group_id"
+            app:argType="string" />
+    </fragment>
 </navigation>

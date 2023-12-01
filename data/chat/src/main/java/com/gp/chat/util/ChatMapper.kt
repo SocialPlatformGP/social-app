@@ -48,7 +48,7 @@ object ChatMapper {
 
     fun NetworkMessage.toModel(id: String,groupId:String) = Message(
         id = id,
-        groupId = groupId,
+        groupId=groupId,
         senderId = senderId,
         message = message,
         timestamp = timestamp,

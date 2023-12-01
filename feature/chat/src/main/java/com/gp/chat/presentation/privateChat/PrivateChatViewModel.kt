@@ -115,5 +115,11 @@ class PrivateChatViewModel @Inject constructor(
 
 
 
+fun deleteMessage(messageId: String, chatId: String){
+    messageRepository.deleteMessage(messageId, chatId)
+}
+    fun updateMessage(messageId: String, chatId: String,updatedText:String){
+        messageRepository.updateMessage(messageId, chatId,updatedText)
+    }
 
 }

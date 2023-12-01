@@ -2,30 +2,34 @@ package com.gp.chat.source.remote
 
 
 import android.util.Log
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.ktx.Firebase
 import com.gp.chat.model.ChatGroup
 import com.gp.chat.model.ChatUser
-import com.gp.chat.util.ChatMapper.toModel
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
 import com.gp.chat.model.Message
 import com.gp.chat.model.NetworkChatGroup
 import com.gp.chat.model.NetworkMessage
 import com.gp.chat.model.NetworkRecentChat
 import com.gp.chat.model.RecentChat
 import com.gp.chat.util.ChatMapper.toMap
+import com.gp.chat.util.ChatMapper.toModel
 import com.gp.chat.util.ChatMapper.toNetworkMessage
 import com.gp.chat.util.ChatMapper.toRecentChat
 import com.gp.chat.util.RemoveSpecialChar
+import com.gp.chat.util.RemoveSpecialChar.removeSpecialCharacters
 import com.gp.chat.util.RemoveSpecialChar.restoreOriginalEmail
 import com.gp.socialapp.utils.State
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 class MessageFirebaseClient(
     private val database: FirebaseDatabase
@@ -114,26 +118,24 @@ override fun getMessages(chatId: String): Flow<State<List<Message>>> = callbackF
                 }
             }
 
-            if (messages.isNotEmpty()) {
-                trySend(State.SuccessWithData(messages))
-            } else {
-                trySend(State.Error("No messages found"))
+                if (messages.isNotEmpty()) {
+                    trySend(State.SuccessWithData(messages))
+                } else {
+                    trySend(State.Error("No messages found"))
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                trySend(State.Error(error.message))
             }
         }
 
-        override fun onCancelled(error: DatabaseError) {
-            trySend(State.Error(error.message))
+        ref.addValueEventListener(listener)
+
+        awaitClose {
+            ref.removeEventListener(listener)
         }
     }
-
-    ref.addValueEventListener(listener)
-
-    awaitClose {
-        ref.removeEventListener(listener)
-    }
-}
-
-
 
     override fun getRecentChats(chatsId: List<String>): Flow<State<List<RecentChat>>> =
         callbackFlow {
@@ -169,7 +171,6 @@ override fun getMessages(chatId: String): Flow<State<List<Message>>> = callbackF
             }
 
         }
-
 
     override fun insertChatToUser(chatId: String, userEmail: String,receiverEmail:String): Flow<State<String>> =
         callbackFlow {
@@ -278,6 +279,59 @@ awaitClose()
 
         }
 
+    override fun deleteMessage(messageId: String, chatId: String) {
+        val messageReference = database.reference.child(MESSAGES).child(chatId).child(messageId)
+        Log.d("deleteFun", "mI: $messageId cI:  $chatId")
+        messageReference.removeValue()
+
+            .addOnSuccessListener {
+                println("Message deleted successfully!")
+            }
+            .addOnFailureListener {
+                println("Failed to delete message: ${it.message}")
+            }
+
+    }
+
+    override fun updateMessage(messageId: String, chatId: String, updatedText: String) {
+        val messageReference = database.reference.child(MESSAGES)
+        messageReference.child(chatId).child(messageId).child("message").setValue(updatedText)
+            .addOnSuccessListener {
+                println("Message updated successfully!")
+            }
+            .addOnFailureListener {
+                println("Failed to update message: ${it.message}")
+            }
+    }
+
+    override fun leaveGroup(chatId: String) {
+        val email = Firebase.auth.currentUser?.email!!
+        val userEmail= removeSpecialCharacters(email)
+        Log.d("logF",  email)
+        removeUserFromGroup(chatId)
+        val usersReference=database.reference.child("chats").child(chatId).child("members")
+        usersReference.child(userEmail).removeValue().addOnSuccessListener {
+                println("Left the group successfully!")
+            }
+            .addOnFailureListener {
+                println("Failed to leave the group: ${it.message}")
+            }
+    }
+
+
+     private fun removeUserFromGroup(groupId: String) {
+        val email = Firebase.auth.currentUser?.email!!
+        val userEmail= removeSpecialCharacters(email)
+        database.reference.child("chatUsers")
+            .child(userEmail).child(GROUP).child(groupId).removeValue()
+            .addOnSuccessListener {
+                println("Removed user from the group successfully!")
+            }
+            .addOnFailureListener {
+                println("Failed to remove user from the group: ${it.message}")
+            }
+    }
+
     override fun fetchGroupMessages(groupId: String): Flow<List<Message>> = callbackFlow {
         val messagesReference = database.reference.child(MESSAGES).child(groupId)
         val valueEventListener = object : ValueEventListener {
@@ -306,7 +360,7 @@ awaitClose()
                 val updates = HashMap<String, Any>()
                 updates["lastMessage"] = recentChat.lastMessage
                 updates["timestamp"] = recentChat.timestamp
-                database.reference.child(CHAT)
+                database.reference.child(RECENT_CHATS)
                     .child(message.groupId)
                     .updateChildren(updates)
                     .addOnSuccessListener {
@@ -336,8 +390,8 @@ awaitClose()
                         .setValue(recentChat)
                         .addOnSuccessListener {
                             val userGroupData = hashMapOf<String, Any>()
-                            for (userId in group.members.keys) {
-                                userGroupData["$CHAT_USER/${RemoveSpecialChar.removeSpecialCharacters(userId)}/$GROUP/${chatKey}"] = true
+                            for (user in group.members.entries) {
+                                userGroupData["$CHAT_USER/${RemoveSpecialChar.removeSpecialCharacters(user.key)}/$GROUP/${chatKey}"] = user.value
                             }
                             val updateResult = database.reference.updateChildren(userGroupData).addOnSuccessListener {
                                 trySend(State.SuccessWithData(chatKey))
@@ -357,4 +411,36 @@ awaitClose()
         }
         awaitClose()
     }
+
+    override fun getGroupMembersEmails(groupId: String): Flow<State<List<String>>> = callbackFlow {
+        trySend(State.Loading)
+        val membersReference = database.getReference("$CHAT/$groupId/members")
+
+        try {
+            val membersSnapshot = withContext(Dispatchers.IO) {
+                membersReference.get().await()
+            }
+            val userEmails = membersSnapshot.children.map { restoreOriginalEmail(it.key ?: "")}
+            trySend(State.SuccessWithData(userEmails))
+        } catch (e: Exception) {
+            trySend(State.Error(e.localizedMessage ?: "An error occurred"))
+        }
+        awaitClose()
+    }
+
+    override fun removeMemberFromGroup(groupId: String, memberEmail: String): Flow<State<String>> = callbackFlow{
+        val groupMembersRef = database.getReference("$CHAT/$groupId/members")
+        val userGroupsRef = database.getReference("$CHAT_USER/${
+            removeSpecialCharacters( memberEmail)}/groups")
+        try {
+            groupMembersRef.child(removeSpecialCharacters( memberEmail)).removeValue()
+            userGroupsRef.child(groupId).removeValue()
+            trySend(State.Success)
+        } catch (e: Exception) {
+            trySend(State.Error("Error removing user from the group: ${e.message}"))
+        } finally {
+            awaitClose()
+        }
+    }
+
 }

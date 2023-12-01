@@ -23,6 +23,7 @@
             android:id="@+id/chatListRecyclerView"
             android:layout_width="match_parent"
             android:orientation="vertical"
+            android:background="?attr/selectableItemBackground"
             tools:listitem="@layout/chatitem"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             android:layout_height="match_parent" />

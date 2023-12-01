@@ -58,15 +58,37 @@ class MessageRepositoryImpl @Inject constructor(
     override fun updateRecentChat(recentChat: RecentChat, chatId: String): Flow<State<String>> =
         messageRemoteDataSource.updateRecentChat(recentChat, chatId)
 
+    override fun deleteMessage(messageId: String, chatId: String) {
+        messageRemoteDataSource.deleteMessage(messageId,chatId)
+    }
+
+    override fun updateMessage(messageId: String, chatId: String, updatedText: String) {
+        messageRemoteDataSource.updateMessage(messageId,chatId,updatedText)
+    }
+
+    override fun leaveGroup(chatId: String) {
+        messageRemoteDataSource.leaveGroup(chatId)
+    }
+
+    override fun getGroupMembersEmails(groupId: String): Flow<State<List<String>>> {
+        return messageRemoteDataSource.getGroupMembersEmails(groupId)
+    }
+
+    override fun removeMemberFromGroup(groupId: String, memberEmail: String): Flow<State<String>> {
+        return messageRemoteDataSource.removeMemberFromGroup(groupId, memberEmail)
+    }
+
 
     override fun createGroupChat(
         name: String,
         avatarLink: String,
-        members: List<String>
+        members: List<String>,
+        currentUserEmail: String
     ): Flow<State<String>> {
         Log.d("viewmodel->repo", "createGroupChat: $name")
+        val membersMap = members.map{ RemoveSpecialChar.removeSpecialCharacters(it)}.associateWith { false } + mapOf(RemoveSpecialChar.removeSpecialCharacters(currentUserEmail) to true)
         val group = NetworkChatGroup(name = name,
-            members.map{ RemoveSpecialChar.removeSpecialCharacters(it)}.associateWith { true })
+            membersMap)
         val recentChat = NetworkRecentChat(
             lastMessage = "\t",
             timestamp = getTimeStamp(Date()),
