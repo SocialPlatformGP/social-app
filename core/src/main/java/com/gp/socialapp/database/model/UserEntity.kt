@@ -15,7 +15,9 @@ data class UserEntity(
     val userEmail: String,
     val userPhoneNumber: String,
     val userBio: String,
-    val userCreatedAt: Date
+    val userCreatedAt: Date,
+    val administration: String="",
+
 ):Serializable
 {
     constructor():this("","","","",Date(),"","","",Date())

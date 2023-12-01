@@ -1,7 +1,5 @@
 package com.gp.posts.presentation.createpost
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.ktx.auth
@@ -17,9 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
 import java.util.Date
 import javax.inject.Inject
 
@@ -67,7 +63,8 @@ class CreatePostViewModel @Inject constructor (
                         publishedAt = Date().toString(),
                         title = title,
                         body = body,
-                        tags = tags
+                        tags = tags,
+                        type = type
                     ))
                 state.collect{newState ->
                     uiState.value = uiState.value.copy(createdState = newState)
@@ -92,5 +89,8 @@ class CreatePostViewModel @Inject constructor (
                else-> {}
            }
         }
+    }
+    fun setType(type: String){
+        uiState.value = uiState.value.copy(type = type)
     }
 }

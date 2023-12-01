@@ -107,7 +107,7 @@ override fun getMessages(chatId: String): Flow<State<List<Message>>> = callbackF
             for (messageSnapshot in snapshot.children) {
                 val networkMessage = messageSnapshot.getValue(NetworkMessage::class.java)
                 if (networkMessage != null) {
-                    val message = networkMessage.toModel(messageSnapshot.key!!).copy(
+                    val message = networkMessage.toModel(messageSnapshot.key!!,chatId).copy(
                         senderId = restoreOriginalEmail(networkMessage.senderId)
                     )
                     messages.add(message)
@@ -282,7 +282,7 @@ awaitClose()
         val messagesReference = database.reference.child(MESSAGES).child(groupId)
         val valueEventListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val messages = snapshot.children.mapNotNull { (it.getValue(NetworkMessage::class.java))?.toModel(it.key!!) }
+                val messages = snapshot.children.mapNotNull { (it.getValue(NetworkMessage::class.java))?.toModel(it.key!!,groupId) }
                 trySend(messages)
             }
             override fun onCancelled(error: DatabaseError) {
