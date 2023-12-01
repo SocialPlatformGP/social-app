@@ -141,6 +141,7 @@ fun setDownVoteImage(view: MaterialButton, downVoteList: List<String>) {
     requireAll = true
 )
 fun setTags(view: ChipGroup, tags: List<Tag>, context: Context, onTagClick: OnTagClicked) {
+    view.removeAllViews()
     if (view.childCount == 0) {
         tags.forEach { tag ->
             val label = tag.label

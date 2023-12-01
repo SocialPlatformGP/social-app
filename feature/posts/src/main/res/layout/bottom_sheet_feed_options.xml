@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:posts="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
     <data>
         <variable
@@ -20,15 +20,15 @@
             android:layout_height="wrap_content"
             android:paddingHorizontal="24dp"
             android:paddingBottom="16dp"
-            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+            posts:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
             <com.google.android.material.bottomsheet.BottomSheetDragHandleView
                 android:id="@+id/drag_handle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                posts:layout_constraintEnd_toEndOf="parent"
+                posts:layout_constraintStart_toStartOf="parent"
+                posts:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/sort_title_textview"
@@ -36,9 +36,9 @@
                 android:layout_height="wrap_content"
                 android:text="@string/sort_options"
                 android:textAppearance="?textAppearanceTitleLarge"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/drag_handle" />
+                posts:layout_constraintEnd_toEndOf="parent"
+                posts:layout_constraintStart_toStartOf="parent"
+                posts:layout_constraintTop_toBottomOf="@id/drag_handle" />
 
             <TextView
                 android:id="@+id/sort_by_textview"
@@ -47,24 +47,24 @@
                 android:layout_marginTop="12dp"
                 android:text="@string/sort_by"
                 android:textAppearance="?textAppearanceLabelLarge"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/sort_title_textview" />
+                posts:layout_constraintStart_toStartOf="parent"
+                posts:layout_constraintTop_toBottomOf="@id/sort_title_textview" />
 
             <HorizontalScrollView
                 android:id="@+id/sort_options_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/sort_by_textview">
+                posts:layout_constraintEnd_toEndOf="parent"
+                posts:layout_constraintStart_toStartOf="parent"
+                posts:layout_constraintTop_toBottomOf="@id/sort_by_textview" >
 
                 <com.google.android.material.chip.ChipGroup
                     android:id="@+id/sort_types_chipgroup"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:selectionRequired="false"
-                    app:singleSelection="true">
+                    posts:selectionRequired="true"
+                    posts:singleSelection="true">
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/newest_sort_chip"
@@ -85,13 +85,52 @@
             </HorizontalScrollView>
 
             <com.google.android.material.divider.MaterialDivider
-                android:id="@+id/filter_divider"
+                android:id="@+id/filter_divider1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/sort_options_layout" />
+                posts:layout_constraintEnd_toEndOf="parent"
+                posts:layout_constraintStart_toStartOf="parent"
+                posts:layout_constraintTop_toBottomOf="@id/sort_options_layout" />
+
+            <TextView
+                android:id="@+id/tags_filter_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="@string/tags_filter"
+                android:textAppearance="?textAppearanceLabelLarge"
+                posts:layout_constraintStart_toStartOf="parent"
+                posts:layout_constraintTop_toBottomOf="@id/filter_divider1" />
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:id="@+id/tags_filter_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                posts:layout_constraintEnd_toEndOf="parent"
+                posts:layout_constraintStart_toStartOf="parent"
+                posts:layout_constraintTop_toBottomOf="@id/tags_filter_textview"
+                posts:flexWrap="wrap"
+                posts:alignContent="stretch" >
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/tags_filter_chipgroup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    posts:selectionRequired="false"
+                    posts:singleSelection="false"/>
+
+            </com.google.android.flexbox.FlexboxLayout>
+
+            <com.google.android.material.divider.MaterialDivider
+                android:id="@+id/filter_divider2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                posts:layout_constraintEnd_toEndOf="parent"
+                posts:layout_constraintStart_toStartOf="parent"
+                posts:layout_constraintTop_toBottomOf="@id/tags_filter_layout" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/sort_apply_button"
@@ -101,8 +140,8 @@
                 android:layout_marginHorizontal="8dp"
                 android:layout_marginTop="16dp"
                 android:text="@string/apply"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/filter_divider" />
+                posts:layout_constraintEnd_toEndOf="parent"
+                posts:layout_constraintTop_toBottomOf="@id/filter_divider2" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
