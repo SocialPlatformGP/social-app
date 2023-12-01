@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.net.Uri
+import android.util.Log
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.databinding.DataBindingUtil
@@ -64,6 +65,7 @@ class PrivateChatFragment : Fragment() {
         recyclerView.adapter = adapter
         lifecycleScope.launch {
             viewModel.messages.flowWithLifecycle(lifecycle).collect{
+                Log.d("TAGo", "onViewCreated: ${it}")
                 adapter.submitList(it)
                 recyclerView.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
                     override fun onPreDraw(): Boolean {

@@ -1,21 +1,19 @@
 package com.gp.posts.presentation.postsfeed
 
-import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.PopupMenu
 import androidx.annotation.RequiresApi
+import androidx.appcompat.widget.PopupMenu
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -28,7 +26,7 @@ import com.gp.posts.R
 import com.gp.posts.adapter.FeedPostAdapter
 import com.gp.posts.adapter.StateWIthLifeCycle
 import com.gp.posts.databinding.BottomSheetFeedOptionsBinding
-import com.gp.posts.databinding.FragmentFeedBinding
+import com.gp.posts.databinding.FragmentVipFeedBinding
 import com.gp.posts.listeners.OnFeedOptionsClicked
 import com.gp.posts.listeners.OnMoreOptionClicked
 import com.gp.posts.listeners.OnTagClicked
@@ -37,31 +35,29 @@ import com.gp.socialapp.model.Post
 import com.gp.socialapp.model.Reply
 import com.gp.socialapp.model.Tag
 import com.gp.socialapp.utils.State
+import com.gp.users.model.User
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-
 @AndroidEntryPoint
-class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked, OnFeedOptionsClicked , OnTagClicked{
-    lateinit var  binding:FragmentFeedBinding
-    private val viewModel: FeedPostViewModel by viewModels()
+class VipFeedFragment : Fragment(), VotesClickedListenerPost, OnMoreOptionClicked,
+    OnFeedOptionsClicked, OnTagClicked {
+    lateinit var binding: FragmentVipFeedBinding
+    private val viewModel: VipFeedViewModel by viewModels()
     private val currentUser = Firebase.auth.currentUser
-
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View {
-
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_feed, container, false)
+        binding =
+            DataBindingUtil.inflate(layoutInflater, R.layout.fragment_vip_feed, container, false)
         binding.stateWithLifecycle = StateWIthLifeCycle(viewModel.uiState, lifecycle = lifecycle)
-        binding = DataBindingUtil.inflate(inflater,R.layout.fragment_feed,container,false)
-        binding.stateWithLifecycle= StateWIthLifeCycle(viewModel.uiState, lifecycle = lifecycle)
         binding.onFeedOptionsClicked = this
         return binding.root
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    @SuppressLint("SuspiciousIndentation")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -80,11 +76,15 @@ class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked,
                 }
             }
         }
-
-        view.findViewById<FloatingActionButton?>(R.id.floatingActionButton).setOnClickListener {
-            findNavController().navigate(R.id.mainFeedFragment2_to_createPostFragment)
+        if(viewModel.currentUser.administration){
+            view.findViewById<FloatingActionButton?>(R.id.floatingActionButton).setOnClickListener {
+                findNavController().navigate(R.id.mainFeedFragment2_to_createPostFragment)
+            }
+        }else{
+            view.findViewById<FloatingActionButton?>(R.id.floatingActionButton).visibility=View.GONE
         }
     }
+
 
     override fun onPostClicked(post: Post) {
         val action = MainFeedFragmentDirections.mainFeedFragment2ToPostDetialsFragment(post)
@@ -170,8 +170,7 @@ class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked,
             val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetBinding.bottomSheet)
             bottomSheetBehavior.isHideable = false
             val bottomSheetParent = bottomSheetBinding.bottomSheetParent
-            BottomSheetBehavior.from(bottomSheetParent.parent as View).peekHeight =
-                bottomSheetParent.height
+            BottomSheetBehavior.from(bottomSheetParent.parent as View).peekHeight = bottomSheetParent.height
             bottomSheetBehavior.peekHeight = bottomSheetParent.height
             bottomSheetParent.parent.requestLayout()
         }

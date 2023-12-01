@@ -5,6 +5,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.gp.posts.presentation.postsfeed.FeedFragment
+import com.gp.posts.presentation.postsfeed.VipFeedFragment
 
 private const val NUM_TABS = 2
 
@@ -14,15 +15,16 @@ class ViewPagerAdapter(
 ) : FragmentStateAdapter(fm, lifecycle) {
     override fun getItemCount() = NUM_TABS
 
-    override fun createFragment(position: Int) =
+    override fun createFragment(position: Int): Fragment =
         when (position) {
             0 -> {
                 // First Fragment
-                FeedFragment()
+                VipFeedFragment()
+
             }
 
             else -> {
-                // First Fragment
+                // Second Fragment
                 FeedFragment()
             }
         }
