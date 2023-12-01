@@ -19,5 +19,6 @@ data class PostEntity(
     val upvoted: String,
     val moderationStatus: String,
     val editStatus: Boolean ,
-    val tags: List<TagEntity>
+    val tags: List<TagEntity>,
+    val type: String,
 )

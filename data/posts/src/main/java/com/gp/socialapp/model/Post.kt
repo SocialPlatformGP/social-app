@@ -1,7 +1,5 @@
 package com.gp.socialapp.model
 
-import com.gp.socialapp.util.DateUtils.convertStringToDate
-import com.gp.socialapp.util.PostPopularityUtils
 import java.io.Serializable
 
 data class Post(
@@ -18,7 +16,8 @@ data class Post(
     val upvoted: List<String> = emptyList(),
     val moderationStatus: String = "submitted",
     val editStatus: Boolean = false,
-    val tags: List<Tag> = emptyList()
+    val tags: List<Tag> = emptyList(),
+    val type: String = "all",
 ):Serializable{
     companion object{
         val sortByVotes = compareByDescending<Post>{PostPopularityUtils.calculateInteractionValue(it.votes, it.replyCount)}
