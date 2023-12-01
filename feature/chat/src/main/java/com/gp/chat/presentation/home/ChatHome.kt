@@ -84,6 +84,10 @@ class ChatHome : Fragment(),OnRecentChatClicked {
         findNavController().navigate(action)
     }
 
+    override fun leaveGroup(groupId: String) {
+        viewModel.leaveGroup(groupId)
+    }
+
 
 }
 

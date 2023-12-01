@@ -6,15 +6,16 @@
     <data>
         <variable
             name="viewModel"
-            type="com.gp.posts.presentation.postsSearch.SearchViewModel" />
+            type="com.gp.posts.presentation.postsSearch.SearchResultsViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:padding="8dp">
 
-        <!-- SearchView -->
+
         <TextView
             android:id="@+id/search_view"
             android:layout_width="match_parent"
@@ -22,9 +23,11 @@
             post:layout_constraintEnd_toEndOf="parent"
             post:layout_constraintStart_toStartOf="parent"
             post:layout_constraintTop_toTopOf="parent"
+            android:textStyle="bold"
+            android:textSize="14dp"
        />
 
-        <!-- RecyclerView for Posts -->
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_search_posts"
             android:layout_width="match_parent"
@@ -33,7 +36,7 @@
             post:layout_constraintBottom_toBottomOf="parent"
             post:layout_constraintTop_toBottomOf="@+id/search_view"
             post:layout_constraintVertical_bias="0.0"
-            tools:layout_editor_absoluteX="0dp" />
+            tools:layout_editor_absoluteX="-61dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

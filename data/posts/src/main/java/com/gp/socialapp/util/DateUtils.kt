@@ -1,14 +1,12 @@
 package com.gp.socialapp.util;
 
-import android.os.Build;
-import androidx.annotation.RequiresApi;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-object ToTimeTaken {
+object DateUtils {
 
     fun calculateTimeDifference(inputDateTimeString: String): String {
         if (inputDateTimeString.isBlank()) return ""
@@ -43,5 +41,10 @@ object ToTimeTaken {
                 return "Invalid Date Format"
             }
         }
+    }
+    fun convertStringToDate(dateString: String): Date {
+        val format = SimpleDateFormat("EEE MMM dd HH:mm:ss 'GMT'XXX yyyy", Locale.US)
+        format.timeZone = TimeZone.getTimeZone("GMT")
+        return format.parse(dateString)?:Date()
     }
 }

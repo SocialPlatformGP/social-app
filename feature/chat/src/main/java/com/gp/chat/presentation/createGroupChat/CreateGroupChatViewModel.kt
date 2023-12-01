@@ -68,6 +68,7 @@ class CreateGroupChatViewModel @Inject constructor(
         }
     }
 
+
     fun createGroup() = chatRepo.createGroupChat(name = uiState.value.name,
         avatarLink = URL,
         members = uiState.value.selectedMembers.map { it.email }, currentUserEmail)

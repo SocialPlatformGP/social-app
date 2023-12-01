@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.gp.socialapp.model.Post
+import com.gp.socialapp.model.Tag
 import com.gp.socialapp.repository.PostRepository
 import com.gp.socialapp.utils.State
 import com.gp.users.model.NetworkUser
@@ -16,6 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.util.Date
@@ -29,19 +31,38 @@ class CreatePostViewModel @Inject constructor (
     val uiState = MutableStateFlow(CreatePostUIState())
     private val pfpLink = "https://clipart-library.com/data_images/6103.png"
     private val currentUserName = Firebase.auth.currentUser?.email
+    private val channelTags = MutableStateFlow(emptyList<Tag>())
+    val tags = channelTags.asStateFlow()
+
     init{
         uiState.value.userProfilePicURL = pfpLink
         getCurrentUser()
+        getChannelTags()
+
     }
     private val currentUser= MutableStateFlow(NetworkUser())
 
+    fun getChannelTags(){
+        viewModelScope.launch {
+            postRepository.getAllTags().collect{
+                channelTags.value = it
+            }
+        }
+    }
+    fun insertNewTags(tags: List<Tag>){
+        viewModelScope.launch {
+            tags.forEach {
+                postRepository.insertTag(it)
+            }
+        }
+    }
     fun onCreatePost(){
         viewModelScope.launch {
             with(uiState.value) {
                 val state =
                     postRepository.createPost(Post(
                         userPfp = pfpLink,//todo: change to user pfp
-                        userName= currentUser.value.userFirstName,//todo: change to user name to full name
+                        userName= "${currentUser.value.userFirstName} ${currentUser.value.userLastName}",//todo: change to user name to full name
                         authorEmail = currentUserName!!,
                         publishedAt = Date().toString(),
                         title = title,

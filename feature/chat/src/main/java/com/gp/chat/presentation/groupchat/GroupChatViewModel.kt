@@ -78,6 +78,12 @@ class GroupChatViewModel @Inject constructor (
             }
         }
     }
+    fun deleteMessage(messageId: String, chatId: String){
+        messageRepo.deleteMessage(messageId, chatId)
+    }
+    fun updateMessage(messageId: String, chatId: String,updatedText:String){
+        messageRepo.updateMessage(messageId, chatId,updatedText)
+    }
     fun getCurrentUser() {
         val currentUserId = Firebase.auth.currentUser?.email!!
         viewModelScope.launch (Dispatchers.IO) {
@@ -89,4 +95,5 @@ class GroupChatViewModel @Inject constructor (
             }
         }
     }
+
 }

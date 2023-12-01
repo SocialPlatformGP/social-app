@@ -1,10 +1,13 @@
 package com.gp.chat.presentation.groupchat
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
+import androidx.appcompat.app.AlertDialog
 import android.view.ViewTreeObserver
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -16,13 +19,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.gp.chat.R
 import com.gp.chat.adapter.GroupMessageAdapter
 import com.gp.chat.databinding.FragmentGroupChatBinding
+import com.gp.chat.listener.OnMessageClickListener
 import com.gp.chat.listener.MyScrollToBottomObserver
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class GroupChatFragment : Fragment() {
+class GroupChatFragment : Fragment() ,OnMessageClickListener{
     private val viewModel: GroupChatViewModel by viewModels()
     private lateinit var binding: FragmentGroupChatBinding
     private val args :GroupChatFragmentArgs by navArgs()
@@ -40,7 +44,7 @@ class GroupChatFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val adapter = GroupMessageAdapter(requireContext())
+        val adapter = GroupMessageAdapter(requireContext(),this)
         val manager = LinearLayoutManager(requireContext())
         manager.stackFromEnd = true
         binding.recyclerGchat.layoutManager = manager
@@ -52,7 +56,6 @@ class GroupChatFragment : Fragment() {
             )
         )
         binding.recyclerGchat.adapter = adapter
-
         lifecycleScope.launch {
             viewModel.chatMessagesFlow.flowWithLifecycle(lifecycle).collectLatest {
                 Log.d("edrees", "before submit")
@@ -71,5 +74,32 @@ class GroupChatFragment : Fragment() {
     }
     fun onSendMessageClick(){
         viewModel.onSendMessage(args.groupId)
+    }
+
+    override fun deleteMessage(messageId: String, chatId: String) {
+        viewModel.deleteMessage(messageId,chatId)
+    }
+
+    override fun updateMessage(messageId: String, chatId: String,body:String) {
+        val editText = EditText(requireContext())
+        val dialogBuilder = AlertDialog.Builder(requireContext())
+        editText.text.append(body)
+
+        // Set up the dialog properties
+        dialogBuilder.setTitle("Edit Message Body")
+            .setMessage("Edit your message:")
+            .setCancelable(true)
+            .setView(editText)
+            .setPositiveButton("Save") { dialogInterface: DialogInterface, i: Int ->
+                viewModel.updateMessage(messageId,chatId,editText.text.toString())
+                Log.d("TAGf", "updateMessage: ${editText.text.toString()}")
+            }
+            .setNegativeButton("Cancel") { dialogInterface: DialogInterface, i: Int ->
+                dialogInterface.dismiss()
+            }
+
+        val alertDialog = dialogBuilder.create()
+        alertDialog.show()
+
     }
 }

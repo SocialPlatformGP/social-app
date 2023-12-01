@@ -8,7 +8,7 @@
 
         <variable
             name="viewModel"
-            type="com.gp.posts.presentation.postsSearch.SearchViewModel" />
+            type="com.gp.posts.presentation.postsSearch.SearchResultsViewModel" />
     </data>
 
     <androidx.cardview.widget.CardView
@@ -23,33 +23,6 @@
             android:layout_height="match_parent">
 
             <!-- SearchView -->
-            <SearchView
-                android:id="@+id/suggest_view"
-                android:layout_width="300dp"
-                android:layout_height="wrap_content"
-                android:iconifiedByDefault="false"
-                android:queryHint="Search"
-                post:iconifiedByDefault="false"
-                post:layout_behavior="@string/appbar_scrolling_view_behavior"
-                post:layout_constraintEnd_toStartOf="@id/btn_search"
-                post:layout_constraintStart_toStartOf="parent"
-                post:layout_constraintTop_toTopOf="parent"
-                android:layout_margin="5dp"
-                post:theme="@style/Widget.AppCompat.SearchView" />
-
-            <Button
-                android:id="@+id/btn_search"
-                android:layout_width="70dp"
-                android:layout_height="wrap_content"
-                android:text="Search"
-                android:textSize="10dp"
-                android:textColor="#F2F2EB"
-                android:background="#113065"
-                post:layout_constraintEnd_toEndOf="parent"
-                post:layout_constraintTop_toTopOf="parent"
-                post:layout_constraintStart_toEndOf="@id/suggest_view"
-                android:layout_margin="5dp"
-                style="@style/Widget.MaterialComponents.Button" />
 
             <!-- RecyclerView for Posts -->
             <androidx.recyclerview.widget.RecyclerView
@@ -58,7 +31,9 @@
                 android:layout_height="0dp"
                 post:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 post:layout_constraintBottom_toBottomOf="parent"
-                post:layout_constraintTop_toBottomOf="@+id/suggest_view" />
+                post:layout_constraintEnd_toEndOf="parent"
+                post:layout_constraintStart_toStartOf="parent"
+                post:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
