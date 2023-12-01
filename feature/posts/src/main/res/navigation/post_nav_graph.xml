@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/post_nav_graph"
-    app:startDestination="@id/feedFragment">
+    app:startDestination="@id/mainFeedFragment2">
 
     <fragment
         android:id="@+id/createPostFragment"
@@ -11,25 +11,9 @@
         android:label="Create Post">
         <action
             android:id="@+id/action_createPostFragment_to_feedFragment"
-            app:destination="@id/feedFragment" />
+            app:destination="@id/mainFeedFragment2" />
     </fragment>
-    <fragment
-        android:id="@+id/feedFragment"
-        android:name="com.gp.posts.presentation.postsfeed.FeedFragment"
-        android:label="Feed Posts">
-        <action
-            android:id="@+id/action_feedFragment_to_createPostFragment"
-            app:destination="@id/createPostFragment" />
-        <action
-            android:id="@+id/action_feedFragment_to_postDetialsFragment"
-            app:destination="@id/postDetailsFragment" />
-        <action
-            android:id="@+id/action_feedFragment_to_editPostFragment"
-            app:destination="@id/editPostFragment" />
-        <action
-            android:id="@+id/action_feedFragment_to_searchFragment2"
-            app:destination="@id/searchFragment2" />
-    </fragment>
+
     <fragment
         android:id="@+id/postDetailsFragment"
         android:name="com.gp.posts.presentation.postDetails.PostDetailsFragment"
@@ -37,7 +21,7 @@
         tools:layout="@layout/fragment_post_details">
         <action
             android:id="@+id/action_postDetialsFragment_to_feedFragment"
-            app:destination="@id/feedFragment" />
+            app:destination="@id/mainFeedFragment2" />
         <argument
             android:name="post"
             app:argType="com.gp.socialapp.model.Post" />
@@ -54,7 +38,7 @@
         android:label="Edit Post">
         <action
             android:id="@+id/action_editPostFragment_to_feedFragment"
-            app:destination="@id/feedFragment" />
+            app:destination="@id/mainFeedFragment2" />
         <argument
             android:name="post"
             app:argType="com.gp.socialapp.model.Post" />
@@ -68,7 +52,7 @@
             app:destination="@id/searchFragment2" />
         <action
             android:id="@+id/action_suggest_post_to_feedFragment"
-            app:popUpTo="@id/feedFragment" />
+            app:popUpTo="@id/mainFeedFragment2" />
         <action
             android:id="@+id/action_suggest_post_to_postDetailsFragment"
             app:destination="@id/postDetailsFragment" />
@@ -91,5 +75,22 @@
             android:name="isTag"
             app:argType="boolean"
             android:defaultValue="false" />
+    </fragment>
+    <fragment
+        android:id="@+id/mainFeedFragment2"
+        android:name="com.gp.posts.presentation.postsfeed.MainFeedFragment"
+        android:label="MainFeedFragment" >
+        <action
+            android:id="@+id/mainFeedFragment2_to_createPostFragment"
+            app:destination="@id/createPostFragment" />
+        <action
+            android:id="@+id/mainFeedFragment2_to_postDetialsFragment"
+            app:destination="@id/postDetailsFragment" />
+        <action
+            android:id="@+id/mainFeedFragment2_to_editPostFragment"
+            app:destination="@id/editPostFragment" />
+        <action
+            android:id="@+id/mainFeedFragment2_to_searchFragment2"
+            app:destination="@id/searchFragment2" />
     </fragment>
 </navigation>

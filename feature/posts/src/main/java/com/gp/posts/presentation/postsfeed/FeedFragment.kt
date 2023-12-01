@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -80,12 +81,12 @@ class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked,
         }
 
         view.findViewById<FloatingActionButton?>(R.id.floatingActionButton).setOnClickListener {
-            findNavController().navigate(R.id.action_feedFragment_to_createPostFragment)
+            findNavController().navigate(R.id.mainFeedFragment2_to_createPostFragment)
         }
     }
 
     override fun onPostClicked(post: Post) {
-        val action = FeedFragmentDirections.actionFeedFragmentToPostDetialsFragment(post)
+        val action = MainFeedFragmentDirections.mainFeedFragment2ToPostDetialsFragment(post)
         findNavController().navigate(action)
     }
 
@@ -128,7 +129,7 @@ class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked,
 
                 R.id.item_edit -> {
                     val action =
-                        FeedFragmentDirections.actionFeedFragmentToEditPostFragment(postitem)
+                        MainFeedFragmentDirections.mainFeedFragment2ToEditPostFragment(postitem)
                     findNavController().navigate(action)
                     true
                 }
@@ -176,7 +177,7 @@ class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked,
         bottomSheetDialog.show()
     }
     override fun onTagClicked(tag: Tag) {
-        val action = FeedFragmentDirections.actionFeedFragmentToSearchFragment2(tag.label, true)
+        val action = MainFeedFragmentDirections.mainFeedFragment2ToSearchFragment2(tag.label, true)
         findNavController().navigate(action)
     }
 
