@@ -1,5 +1,6 @@
 package com.gp.chat.util
 
+import androidx.core.net.toUri
 import com.gp.chat.model.ChatGroup
 import com.gp.chat.model.ChatUser
 import com.gp.chat.model.Message
@@ -43,7 +44,10 @@ object ChatMapper {
         timestamp = timestamp,
         messageDate = messageDate,
         senderName = senderName,
-        senderPfpURL = senderPfpURL
+        senderPfpURL = senderPfpURL,
+        fileURI = fileURI.toString(),
+        fileType = fileType,
+        fileNames = fileNames
     )
 
     fun NetworkMessage.toModel(id: String,groupId:String) = Message(
@@ -54,7 +58,10 @@ object ChatMapper {
         timestamp = timestamp,
         messageDate = messageDate,
         senderName = senderName,
-        senderPfpURL = senderPfpURL
+        senderPfpURL = senderPfpURL,
+        fileURI = fileURI.toUri(),
+        fileType = fileType,
+        fileNames = fileNames
     )
 
 

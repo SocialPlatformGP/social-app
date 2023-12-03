@@ -1,6 +1,8 @@
 package com.gp.chat.repository
 
 
+import android.net.Uri
+import com.google.firebase.auth.FirebaseUser
 import com.gp.chat.model.ChatGroup
 import com.gp.chat.model.ChatUser
 import com.gp.chat.model.Message
@@ -15,7 +17,7 @@ interface MessageRepository {
     fun createGroupChat(name: String, avatarLink: String, members: List<String>, currentUserEmail: String): Flow<State<String>>
     fun insertChat(chat:ChatGroup): Flow<State<String>>
     fun insertRecentChat(recentChat: RecentChat,chatId: String): Flow<State<String>>
-    fun sendMessage(message: Message): Flow<State<String>>
+    fun sendMessage(message: Message, currentUser: FirebaseUser?): Flow<State<String>>
     fun getMessages(chatId: String): Flow<State<List<Message>>>
     fun getRecentChats(chatId: List<String>): Flow<State<List<RecentChat>>>
     fun insertChatToUser(chatId:String,userEmail: String,receiverEmail:String): Flow<State<String>>
@@ -28,4 +30,5 @@ interface MessageRepository {
     fun leaveGroup(chatId: String)
     fun getGroupMembersEmails(groupId: String): Flow<State<List<String>>>
     fun removeMemberFromGroup(groupId: String, memberEmail: String): Flow<State<String>>
+
 }

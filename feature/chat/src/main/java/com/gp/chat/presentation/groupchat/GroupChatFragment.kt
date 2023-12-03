@@ -21,12 +21,13 @@ import com.gp.chat.adapter.GroupMessageAdapter
 import com.gp.chat.databinding.FragmentGroupChatBinding
 import com.gp.chat.listener.OnMessageClickListener
 import com.gp.chat.listener.MyScrollToBottomObserver
+import com.gp.chat.listener.OnFileClickListener
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class GroupChatFragment : Fragment() ,OnMessageClickListener{
+class GroupChatFragment : Fragment() ,OnMessageClickListener, OnFileClickListener{
     private val viewModel: GroupChatViewModel by viewModels()
     private lateinit var binding: FragmentGroupChatBinding
     private val args :GroupChatFragmentArgs by navArgs()
@@ -44,7 +45,7 @@ class GroupChatFragment : Fragment() ,OnMessageClickListener{
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val adapter = GroupMessageAdapter(requireContext(), this)
+        val adapter = GroupMessageAdapter("",this,this)
         val manager = LinearLayoutManager(requireContext())
         manager.stackFromEnd = true
         binding.recyclerGchat.layoutManager = manager
@@ -101,5 +102,9 @@ class GroupChatFragment : Fragment() ,OnMessageClickListener{
         val alertDialog = dialogBuilder.create()
         alertDialog.show()
 
+    }
+
+    override fun onFileClick(fileURL: String, fileType: String) {
+        TODO("Not yet implemented")
     }
 }

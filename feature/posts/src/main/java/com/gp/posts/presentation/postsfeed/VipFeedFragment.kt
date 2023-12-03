@@ -48,6 +48,7 @@ class VipFeedFragment : Fragment(), VotesClickedListenerPost, OnMoreOptionClicke
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        viewModel.getAllPosts()
         binding =
             DataBindingUtil.inflate(layoutInflater, R.layout.fragment_vip_feed, container, false)
         binding.stateWithLifecycle = StateWIthLifeCycle(viewModel.uiState, lifecycle = lifecycle)

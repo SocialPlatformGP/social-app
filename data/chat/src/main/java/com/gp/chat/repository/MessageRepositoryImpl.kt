@@ -1,6 +1,8 @@
 package com.gp.chat.repository
 
+import android.net.Uri
 import android.util.Log
+import com.google.firebase.auth.FirebaseUser
 import com.gp.chat.model.ChatGroup
 import com.gp.chat.model.ChatUser
 import com.gp.chat.model.Message
@@ -25,8 +27,8 @@ class MessageRepositoryImpl @Inject constructor(
     override fun insertRecentChat(recentChat: RecentChat, chatId: String): Flow<State<String>> =
         messageRemoteDataSource.insertRecentChat(recentChat, chatId)
 
-    override fun sendMessage(message: Message): Flow<State<String>> =
-        messageRemoteDataSource.sendMessage(message)
+    override fun sendMessage(message: Message, currentUser: FirebaseUser?): Flow<State<String>> =
+        messageRemoteDataSource.sendMessage(message, currentUser)
 
     override fun getMessages(chatId: String): Flow<State<List<Message>>> =
         messageRemoteDataSource.getMessages(chatId)
@@ -77,6 +79,8 @@ class MessageRepositoryImpl @Inject constructor(
     override fun removeMemberFromGroup(groupId: String, memberEmail: String): Flow<State<String>> {
         return messageRemoteDataSource.removeMemberFromGroup(groupId, memberEmail)
     }
+
+
 
 
     override fun createGroupChat(

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp">
+
+        <ImageView
+            android:id="@+id/messageImageView"
+            android:layout_width="150dp"
+            android:layout_height="75dp"
+            android:layout_marginStart="8dp"
+            android:adjustViewBounds="true"
+            android:padding="10dp"
+            android:scaleType="fitCenter"
+            app:layout_constraintStart_toEndOf="@id/messengerImageView"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:srcCompat="@drawable/pdf_placeholder" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraintLayout2"
+            android:layout_width="150dp"
+            android:layout_height="75dp"
+            app:layout_constraintEnd_toEndOf="@+id/messageImageView"
+            app:layout_constraintStart_toStartOf="@+id/messageImageView"
+            app:layout_constraintTop_toBottomOf="@+id/messageImageView">
+
+            <TextView
+                android:id="@+id/fileNameTextView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="start|top"
+                android:maxLines="2"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/messengerTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="10dp"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/messengerImageView"
+            app:layout_constraintTop_toBottomOf="@+id/constraintLayout2"
+            tools:text="FirstName LastName" />
+
+        <ImageView
+            android:id="@+id/messengerImageView"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/baseline_account_circle_24"
+            app:layout_constraintBottom_toBottomOf="@+id/messengerTextView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/messengerTextView" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
+

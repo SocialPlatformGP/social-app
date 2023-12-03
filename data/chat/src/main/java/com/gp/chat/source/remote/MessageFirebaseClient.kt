@@ -1,7 +1,9 @@
 package com.gp.chat.source.remote
 
 
+import android.net.Uri
 import android.util.Log
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -9,6 +11,8 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.StorageReference
+import com.google.firebase.storage.ktx.storage
 import com.gp.chat.model.ChatGroup
 import com.gp.chat.model.ChatUser
 import com.gp.chat.model.Message
@@ -30,6 +34,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.util.Date
+import java.util.UUID
 
 class MessageFirebaseClient(
     private val database: FirebaseDatabase
@@ -90,20 +96,59 @@ class MessageFirebaseClient(
             }
         }
 
-    override fun sendMessage(message: Message): Flow<State<String>> = callbackFlow {
-        database.reference.child(MESSAGES).child(message.groupId).push().setValue(message.toNetworkMessage())
-            .addOnSuccessListener {
-                trySend(State.SuccessWithData("success"))
-            }
-            .addOnFailureListener {
-                trySend(State.Error(it.message!!))
-            }
+    override fun sendMessage(message: Message, user: FirebaseUser?): Flow<State<String>> = callbackFlow {
+         database.reference.child(MESSAGES).child(message.groupId).push().setValue(
+             message.toNetworkMessage(),
+                DatabaseReference.CompletionListener { error, ref ->
+                    if (error == null) {
+                        if(message.fileType !="text"){
+                            val key = ref.key
+                            val storageRef = Firebase.storage
+                                .getReference(user!!.uid)
+                                .child(key!!)
+                                .child(message.fileURI.lastPathSegment!!)
+                            putImageInStorage(storageRef, message,key)
+                            trySend(State.SuccessWithData(ref.key!!))
+                        }
+                        else {
+                            trySend(State.SuccessWithData(ref.key!!))
+                        }
+                    } else {
+                        trySend(State.Error(error.message))
+                    }
+                }
+         )
+
         awaitClose ()
 
 
     }
 
-override fun getMessages(chatId: String): Flow<State<List<Message>>> = callbackFlow {
+    private fun putImageInStorage(storageRef: StorageReference, message: Message, key: String) {
+        storageRef.putFile(message.fileURI)
+            .addOnSuccessListener {taskSnapshot ->
+                taskSnapshot.metadata!!.reference!!.downloadUrl
+                    .addOnSuccessListener { uri ->
+                        val message = message.copy(
+                            fileURI = uri,
+                            id = key
+                        )
+
+                        database.reference.child(MESSAGES).child(message.groupId).child(key).setValue(
+                            message.toNetworkMessage()
+                        ).addOnSuccessListener {
+                            Log.d(TAG, "putImageInStorage: ")
+                        }.addOnFailureListener {
+                            Log.d(TAG, "putImageInStorage: ")
+                        }
+
+                }
+
+            }
+
+    }
+
+    override fun getMessages(chatId: String): Flow<State<List<Message>>> = callbackFlow {
     val ref = database.reference.child(MESSAGES).child(chatId)
     val listener = object : ValueEventListener {
         override fun onDataChange(snapshot: DataSnapshot) {
@@ -442,5 +487,6 @@ awaitClose()
             awaitClose()
         }
     }
+
 
 }
