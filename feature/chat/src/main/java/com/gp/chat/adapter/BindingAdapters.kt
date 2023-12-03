@@ -2,6 +2,7 @@ package com.gp.chat.adapter
 
 import android.content.Context
 import android.graphics.drawable.Drawable
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
@@ -34,7 +35,7 @@ fun setSelectedMembers(view: ChipGroup, selectedMembers: List<User>, context: Co
     view.removeAllViews()
     if (view.childCount==0) {
         selectedMembers.forEach {user ->
-            val label = "${user.firstName} ${user.lastName}"
+            val label = user.firstName
             val chip = Chip(context)
             chip.text = label
             chip.textSize = 14f
@@ -52,6 +53,7 @@ fun setSelectedMembers(view: ChipGroup, selectedMembers: List<User>, context: Co
             chip.isCloseIconVisible = true
             chip.setOnCloseIconClickListener {
                 view.removeView(chip)
+                Log.d("seerde", "close icon clicked while selected in binding adapter")
                 onGroupMembersChangeListener.onRemoveGroupMember(user)
             }
             chip.shapeAppearanceModel

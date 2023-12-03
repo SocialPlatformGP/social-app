@@ -31,7 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            chat:layout_constraintGuide_percent="0.1" />
+            chat:layout_constraintGuide_percent="0.02" />
 
 
         <com.google.android.material.imageview.ShapeableImageView
@@ -73,44 +73,44 @@
                 android:text="@={viewmodel.uiState.name}" />
         </com.google.android.material.textfield.TextInputLayout>
 
+<!--        <com.google.android.flexbox.FlexboxLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:id="@+id/members_layout"-->
+<!--            android:padding="8dp"-->
+<!--            chat:flexWrap="wrap"-->
+<!--            chat:alignContent="stretch"-->
+<!--            chat:layout_constraintStart_toStartOf="parent"-->
+<!--            chat:layout_constraintEnd_toEndOf="parent"-->
+<!--            chat:layout_constraintTop_toBottomOf="@id/group_name_textfield" >-->
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/group_members_layout"
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+<!--            <com.google.android.material.chip.ChipGroup-->
+<!--                android:id="@+id/chipGroup"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                chat:members="@{viewmodel.uiState.selectedMembers}"-->
+<!--                chat:membersContext="@{fragment.requireContext()}"-->
+<!--                chat:onMembersChange="@{onMembersChangeListener}"-->
+<!--                chat:chipSpacingHorizontal = "8dp"/>-->
+
+<!--        </com.google.android.flexbox.FlexboxLayout>-->
+        <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:hint="Members"
+            android:id="@+id/members_layout"
+            android:padding="8dp"
             chat:layout_constraintStart_toStartOf="parent"
             chat:layout_constraintEnd_toEndOf="parent"
             chat:layout_constraintTop_toBottomOf="@id/group_name_textfield">
-
-            <com.google.android.flexbox.FlexboxLayout
-                android:layout_width="match_parent"
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroup"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/members_layout"
-                android:padding="8dp"
-                chat:flexWrap="wrap"
-                chat:alignContent="stretch" >
-
-                <com.google.android.material.chip.ChipGroup
-                    android:id="@+id/chipGroup"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    chat:members="@{viewmodel.uiState.selectedMembers}"
-                    chat:membersContext="@{fragment.requireContext()}"
-                    chat:onMembersChange="@{onMembersChangeListener}"
-                    chat:chipSpacingHorizontal = "8dp"/>
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/search_textinput"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:hint="Add Members"/>
-
-            </com.google.android.flexbox.FlexboxLayout>
-        </com.google.android.material.textfield.TextInputLayout>
-
+                chat:members="@{viewmodel.uiState.selectedMembers}"
+                chat:membersContext="@{fragment.requireContext()}"
+                chat:onMembersChange="@{onMembersChangeListener}"
+                chat:chipSpacingHorizontal = "8dp"/>
+        </HorizontalScrollView>
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/users_recyclerview"
             android:layout_width="match_parent"
@@ -118,7 +118,7 @@
             android:scrollbars="vertical"
             chat:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             chat:layout_constraintBottom_toTopOf="@id/create_group_button"
-            chat:layout_constraintTop_toBottomOf="@id/group_members_layout" />
+            chat:layout_constraintTop_toBottomOf="@id/members_layout" />
 
 
         <Button
@@ -131,6 +131,5 @@
             android:textSize="16sp"
             chat:layout_constraintBottom_toBottomOf="parent"
             chat:layout_constraintStart_toStartOf="parent" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
