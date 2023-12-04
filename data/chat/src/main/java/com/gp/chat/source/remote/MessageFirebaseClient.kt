@@ -17,6 +17,7 @@ import com.gp.chat.model.NetworkChatGroup
 import com.gp.chat.model.NetworkMessage
 import com.gp.chat.model.NetworkRecentChat
 import com.gp.chat.model.RecentChat
+import com.gp.chat.util.ChatMapper.toChatGroup
 import com.gp.chat.util.ChatMapper.toMap
 import com.gp.chat.util.ChatMapper.toModel
 import com.gp.chat.util.ChatMapper.toNetworkMessage
@@ -414,20 +415,28 @@ awaitClose()
         awaitClose()
     }
 
-    override fun getGroupMembersEmails(groupId: String): Flow<State<List<String>>> = callbackFlow {
+    override fun getGroupDetails(groupId: String): Flow<State<ChatGroup>> = callbackFlow {
         trySend(State.Loading)
-        val membersReference = database.getReference("$CHAT/$groupId/members")
+        val groupReference = database.reference.child(CHAT).child(groupId)
 
-        try {
-            val membersSnapshot = withContext(Dispatchers.IO) {
-                membersReference.get().await()
+        val valueEventListener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val group = snapshot.getValue(NetworkChatGroup::class.java)?.toChatGroup(groupId)
+                if (group != null) {
+                    trySend(State.SuccessWithData(group))
+                } else {
+                    trySend(State.Error("Group Object is Null"))
+                }
             }
-            val userEmails = membersSnapshot.children.map { restoreOriginalEmail(it.key ?: "")}
-            trySend(State.SuccessWithData(userEmails))
-        } catch (e: Exception) {
-            trySend(State.Error(e.localizedMessage ?: "An error occurred"))
+
+            override fun onCancelled(error: DatabaseError) {
+                trySend(State.Error(error.message))
+            }
         }
-        awaitClose()
+
+        groupReference.addValueEventListener(valueEventListener)
+
+        awaitClose { groupReference.removeEventListener(valueEventListener) }
     }
 
     override fun removeMemberFromGroup(groupId: String, memberEmail: String): Flow<State<String>> = callbackFlow{

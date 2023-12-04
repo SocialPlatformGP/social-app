@@ -31,8 +31,6 @@ class GroupDetailsFragment : Fragment(), OnGroupMemberClicked {
     private val viewModel: GroupDetailsViewModel by viewModels()
     private lateinit var binding: FragmentGroupDetailsBinding
     private val args: GroupDetailsFragmentArgs by navArgs()
-    val isAdmin = true
-    val groupID = "-NkptMdNaTqoWnlJ81jD"
     private val galleryImageResultLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
     ) {
@@ -57,8 +55,7 @@ class GroupDetailsFragment : Fragment(), OnGroupMemberClicked {
                 adapter.submitList(it)
             }
         }
-//        viewModel.getUsersList(args.groupId)
-        viewModel.getUsersList(groupID)
+        viewModel.getUsersList(args.groupId)
         binding.groupMembersRecyclerview.adapter = adapter
     }
 
@@ -68,11 +65,10 @@ class GroupDetailsFragment : Fragment(), OnGroupMemberClicked {
     }
 
     private fun onRemoveGroupMember(user: User) {
-//        viewModel.removeGroupMember(args.groupId, user)
-        viewModel.removeGroupMember(groupID, user)
+        viewModel.removeGroupMember(args.groupId, user)
     }
     fun onEditPictureClick() {
-        if(isAdmin){
+        if(args.isAdmin){
             val items = arrayOf("Take Photo", "Choose Existing Photo")
             MaterialAlertDialogBuilder(requireContext()).setItems(items) { dialog, which ->
                 when (which) {
@@ -97,7 +93,7 @@ class GroupDetailsFragment : Fragment(), OnGroupMemberClicked {
     }
 
     override fun onMemberClicked(user: User) {
-        val items = if(isAdmin) {
+        val items = if(args.isAdmin) {
             arrayOf("View Profile", "Message", "Remove from Group")
         } else {
             arrayOf("View Profile", "Message")
@@ -126,7 +122,7 @@ class GroupDetailsFragment : Fragment(), OnGroupMemberClicked {
         val dialogFragment = AddMembersDialogFragment()
         val bundle = Bundle()
         bundle.putParcelableArrayList("users", ArrayList(viewModel.users.value))
-        bundle.putString("group_id", groupID)
+        bundle.putString("group_id", args.groupId)
         dialogFragment.arguments = bundle
         dialogFragment.show(childFragmentManager, "AddMembersDialogFragment")
     }

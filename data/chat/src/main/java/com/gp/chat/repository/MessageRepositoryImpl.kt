@@ -70,8 +70,8 @@ class MessageRepositoryImpl @Inject constructor(
         messageRemoteDataSource.leaveGroup(chatId)
     }
 
-    override fun getGroupMembersEmails(groupId: String): Flow<State<List<String>>> {
-        return messageRemoteDataSource.getGroupMembersEmails(groupId)
+    override fun getGroupDetails(groupId: String): Flow<State<ChatGroup>> {
+        return messageRemoteDataSource.getGroupDetails(groupId)
     }
 
     override fun removeMemberFromGroup(groupId: String, memberEmail: String): Flow<State<String>> {
@@ -91,8 +91,7 @@ class MessageRepositoryImpl @Inject constructor(
     ): Flow<State<String>> {
         Log.d("viewmodel->repo", "createGroupChat: $name")
         val membersMap = members.map{ RemoveSpecialChar.removeSpecialCharacters(it)}.associateWith { false } + mapOf(RemoveSpecialChar.removeSpecialCharacters(currentUserEmail) to true)
-        val group = NetworkChatGroup(name = name,
-            membersMap)
+        val group = NetworkChatGroup(name, avatarLink, membersMap)
         val recentChat = NetworkRecentChat(
             lastMessage = "\t",
             timestamp = getTimeStamp(Date()),
