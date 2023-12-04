@@ -2,10 +2,11 @@ package com.gp.chat.presentation.privateChat
 
 import android.annotation.SuppressLint
 import android.content.ContentResolver
+import android.content.Context
 import android.content.DialogInterface
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.provider.OpenableColumns
 import android.util.Log
 import android.view.LayoutInflater
@@ -14,39 +15,50 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.webkit.MimeTypeMap
 import android.widget.EditText
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AlertDialog
-import androidx.core.net.toUri
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.navigation.fragment.navArgs
-import com.google.firebase.auth.UserProfileChangeRequest
+import androidx.navigation.ui.AppBarConfiguration
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CircleCrop
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.gp.chat.R
 import com.gp.chat.adapter.GroupMessageAdapter
 import com.gp.chat.databinding.FragmentPrivateChatBinding
-import com.gp.chat.listener.MyOpenDocumentContract
+import com.gp.chat.listener.ImageClickListener
+import com.gp.chat.listener.MyOpenActionContract
 import com.gp.chat.listener.MyScrollToBottomObserver
 import com.gp.chat.listener.OnFileClickListener
 import com.gp.chat.listener.OnMessageClickListener
 import com.gp.chat.utils.FileManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import java.io.File
 import java.util.Locale
 
 @AndroidEntryPoint
-class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListener {
+class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListener,
+    ImageClickListener {
     lateinit var adapter: GroupMessageAdapter
     lateinit var binding: FragmentPrivateChatBinding
     private lateinit var fileManager: FileManager
     private val args: PrivateChatFragmentArgs by navArgs()
     private val viewModel: PrivateChatViewModel by viewModels()
-    private val openDocument = registerForActivityResult(MyOpenDocumentContract()) {
+    private val openDocument = registerForActivityResult(MyOpenActionContract()) {
         it?.let {
             val mimeType = getMimeTypeFromUri(it)
             val fileName = getFileName(it)
@@ -107,9 +119,15 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
     }
 
     private fun initializeViewModel() {
-        viewModel.setReceiverEmail(args.receiverEmail)
-        viewModel.setChatId(args.chatId)
-        viewModel.getMessages()
+        viewModel.setData(
+            args.chatId,
+            args.senderName,
+            args.receiverName,
+            args.senderPic,
+            args.receiverPic
+        )
+
+
     }
 
 
@@ -119,7 +137,11 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
         val manager = LinearLayoutManager(requireContext())
         manager.stackFromEnd = true
         recyclerView.layoutManager = manager
-        adapter = GroupMessageAdapter(Firebase.auth.currentUser!!, this, this)
+        adapter = GroupMessageAdapter(
+            this,
+            this,
+            this
+        )
         adapter.registerAdapterDataObserver(
             MyScrollToBottomObserver(
                 recyclerView,
@@ -127,9 +149,14 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
                 manager
             )
         )
+        //set the title to receiver name
+        val toolbar = requireActivity().findViewById<Toolbar>(R.id.toolbar)
+        toolbar.title = args.receiverName
+
 
         binding.addFileButton.setOnClickListener {
-            openDocument.launch(arrayOf("*/*"))
+            showOptionsDialog()
+
         }
         recyclerView.adapter = adapter
         lifecycleScope.launch {
@@ -145,6 +172,7 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
                 })
             }
         }
+
 
     }
 
@@ -175,10 +203,35 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
 
     }
 
+    private fun showOptionsDialog() {
+        val options = arrayOf("Camera", "Gallery", "File")
+
+        val builder = MaterialAlertDialogBuilder(requireContext())
+        builder.setTitle("Select an option")
+        builder.setItems(options) { dialog, which ->
+            when (which) {
+                0 -> openDocument.launch("camera") // Launch camera
+                1 -> openDocument.launch("gallery") // Launch gallery
+                2 -> openDocument.launch("file") // Launch file picker
+            }
+            dialog.dismiss()
+        }
+        val dialog = builder.create()
+        dialog.show()
+    }
+
     override fun onFileClick(fileURL: String, fileType: String, fileNames: String) {
         fileManager = FileManager(requireContext())
-        fileManager.downloadFile(fileURL,fileNames,fileType)
+        fileManager.downloadFile(fileURL, fileNames, fileType)
 
+    }
+
+    override fun onImageClick(imageUrl: String) {
+        val action =
+            PrivateChatFragmentDirections.actionPrivateChatFragmentToFullScreenImageDialogFragment(
+                imageUrl
+            )
+        findNavController().navigate(action)
     }
 
 

@@ -9,12 +9,14 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.TextView
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.gp.chat.R
@@ -22,9 +24,11 @@ import com.gp.chat.databinding.AudioPlayerBinding
 import com.gp.chat.databinding.ImageMessageBinding
 import com.gp.chat.databinding.MessageBinding
 import com.gp.chat.databinding.PdfPreviewBinding
+import com.gp.chat.listener.ImageClickListener
 import com.gp.chat.listener.OnFileClickListener
 import com.gp.chat.listener.OnMessageClickListener
 import com.gp.chat.model.Message
+import com.gp.chat.utils.FullScreenImageDialogFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -33,11 +37,12 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class GroupMessageAdapter(
-    private val currentUser: FirebaseUser,
     private val messageClickListener: OnMessageClickListener,
-    private val fileClickListener: OnFileClickListener
+    private val fileClickListener: OnFileClickListener,
+    private val imageClickListener: ImageClickListener,
 ) :
     ListAdapter<Message, ViewHolder>(GroupMessageDiffCallback()) {
+    private val currentUser = Firebase.auth.currentUser
     private var mediaPlayer: MediaPlayer? = null
     private var progressBarJob: Job? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -71,7 +76,7 @@ class GroupMessageAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
         holder.itemView.setOnLongClickListener {
-            if (item.senderName == currentUser.displayName) {
+            if (item.senderName == currentUser?.displayName) {
                 createPopUpMenu(holder.itemView, item)
             }
             true
@@ -121,8 +126,7 @@ class GroupMessageAdapter(
         with(getItem(position).fileType) {
             if (contains("text")) {
                 VIEW_TYPE_TEXT
-            }
-            else if (contains("image")) {
+            } else if (contains("image")) {
                 VIEW_TYPE_IMAGE
             } else if (contains("application/pdf")) {
                 VIEW_TYPE_PDF
@@ -137,37 +141,49 @@ class GroupMessageAdapter(
     inner class MessageViewHolder(private val binding: MessageBinding) : ViewHolder(binding.root) {
         fun bind(item: Message) {
             //data
-            binding.messageTextView.text = item.message
-            setTextColor(item.senderName, binding.messengerTextView)
+
             //sender
-            binding.messengerTextView.text = item.senderName ?: ""
-            if (item.senderName == currentUser.displayName) {
-                loadImageIntoView(binding.messengerImageView, currentUser.photoUrl.toString())
+            if (item.senderName == currentUser?.displayName) {
+                binding.senderMessageLayout.visibility = View.VISIBLE
+                binding.receieverMessageLayout.visibility = View.GONE
+                binding.senderMessageTextView.text = item.message
+                binding.senderMessengerTextView.text = item.senderName
+                loadImageIntoView(binding.senderMessengerImageView, item.senderPfpURL)
             } else {
-                loadImageIntoView(binding.messengerImageView, item.senderPfpURL)
+                binding.receieverMessageLayout.visibility = View.VISIBLE
+                binding.senderMessageLayout.visibility = View.GONE
+                binding.receieverMessageTextView.text = item.message
+                binding.receieverMessengerTextView.text = item.senderName
+                loadImageIntoView(binding.receieverMessengerImageView, item.senderPfpURL)
             }
         }
 
-        private fun setTextColor(userName: String?, textView: TextView) {
-            if (userName != "" && currentUser.displayName == userName) {
-                textView.setTextColor(android.graphics.Color.BLUE)
-            } else {
-                textView.setTextColor(android.graphics.Color.RED)
-            }
-        }
+
     }
 
     inner class ImageMessageViewHolder(private val binding: ImageMessageBinding) :
         ViewHolder(binding.root) {
         fun bind(item: Message) {
-            //data
-            loadImageIntoView(binding.messageImageView, item.fileURI.toString(), false)
-            //sender
-            binding.messengerTextView.text = item.senderName ?: ""
-            if (item.senderName == currentUser.displayName) {
-                loadImageIntoView(binding.messengerImageView, currentUser.photoUrl.toString())
+            if (item.senderName == currentUser?.displayName) {
+                binding.senderMessageLayout.visibility = View.VISIBLE
+                binding.receiverMessageLayout.visibility = View.GONE
+                loadImageIntoView(binding.senderMessageImageView, item.fileURI.toString(), false)
+                binding.senderMessengerTextView.text = item.senderName ?: ""
+                loadImageIntoView(binding.senderMessengerImageView, item.senderPfpURL)
+
+
+
             } else {
-                loadImageIntoView(binding.messengerImageView, item.senderPfpURL)
+                binding.receiverMessageLayout.visibility = View.VISIBLE
+                binding.senderMessageLayout.visibility = View.GONE
+                loadImageIntoView(binding.receiverMessageImageView, item.fileURI.toString(), false)
+                binding.receiverMessengerTextView.text = item.senderName ?: ""
+                loadImageIntoView(binding.receiverMessengerImageView, item.senderPfpURL)
+            }
+
+            //click listener
+            binding.imageMessageLayout.setOnClickListener {
+                imageClickListener.onImageClick(item.fileURI.toString())
             }
         }
     }
@@ -180,7 +196,7 @@ class GroupMessageAdapter(
             binding.fileNameTextView.text = item.fileNames
             //sender
             binding.messengerTextView.text = item.senderName ?: ""
-            if (item.senderName == currentUser.displayName) {
+            if (item.senderName == currentUser?.displayName) {
                 loadImageIntoView(binding.messengerImageView, currentUser.photoUrl.toString())
             } else {
                 loadImageIntoView(binding.messengerImageView, item.senderPfpURL)
@@ -207,7 +223,7 @@ class GroupMessageAdapter(
         fun bind(item: Message) {
             //sender
             binding.messengerTextView.text = item.senderName ?: ""
-            if (item.senderName == currentUser.displayName) {
+            if (item.senderName == currentUser?.displayName) {
                 loadImageIntoView(binding.messengerImageView, currentUser.photoUrl.toString())
             } else {
                 loadImageIntoView(binding.messengerImageView, item.senderPfpURL)

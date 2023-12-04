@@ -7,44 +7,96 @@
 
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp">
+        android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/messageTextView"
-            android:layout_width="wrap_content"
-            android:maxWidth="250dp"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:visibility="gone"
+            tools:visibility="visible"
+            android:id="@+id/sender_message_layout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:padding="10dp"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="@android:color/black"
-            app:layout_constraintStart_toEndOf="@id/messengerImageView"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="This is a message" />
+            android:layout_margin="10dp">
 
-        <TextView
-            android:id="@+id/messengerTextView"
-            android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/sender_messageTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:maxWidth="250dp"
+                android:padding="10dp"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@android:color/black"
+                app:layout_constraintStart_toEndOf="@id/sender_messengerImageView"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="This is a message" />
+
+            <TextView
+                android:id="@+id/sender_messengerTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="10dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                app:layout_constraintStart_toStartOf="@id/sender_messageTextView"
+                app:layout_constraintTop_toBottomOf="@id/sender_messageTextView"
+                tools:text="FirstName LastName" />
+
+            <ImageView
+                android:id="@+id/sender_messengerImageView"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginBottom="16dp"
+                android:src="@drawable/baseline_account_circle_24"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/sender_messageTextView"
+                app:layout_constraintStart_toStartOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:visibility="gone"
+            tools:visibility="visible"
+            android:id="@+id/receiever_message_layout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="10dp"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            app:layout_constraintStart_toStartOf="@id/messageTextView"
-            app:layout_constraintTop_toBottomOf="@id/messageTextView"
-            tools:text="FirstName LastName" />
+            android:layout_margin="10dp">
 
-        <ImageView
-            android:id="@+id/messengerImageView"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:layout_marginBottom="15dp"
-            android:src="@drawable/baseline_account_circle_24"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/messageTextView"
-            app:layout_constraintStart_toStartOf="parent" />
+            <TextView
+                android:id="@+id/receiever_messageTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:maxWidth="250dp"
+                android:padding="10dp"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@android:color/black"
+                app:layout_constraintEnd_toStartOf="@+id/receiever_messengerImageView"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="This is a message" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:id="@+id/receiever_messengerTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="10dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                app:layout_constraintEnd_toEndOf="@+id/receiever_messageTextView"
+                app:layout_constraintTop_toBottomOf="@id/receiever_messageTextView"
+                tools:text="FirstName LastName" />
+
+            <ImageView
+                android:id="@+id/receiever_messengerImageView"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginBottom="16dp"
+                android:src="@drawable/baseline_account_circle_24"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+
 </layout>
 

@@ -25,7 +25,6 @@ class HomeViewModel @Inject constructor(
 
     private val _recentChats = MutableStateFlow<List<RecentChat>>(emptyList())
     val recentChats = _recentChats.asStateFlow()
-    private val chats = mutableListOf("-1")
     init{
         getChatsForUser()
     }
@@ -55,7 +54,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getRecentChats(chatId:List<String>){
+    private fun getRecentChats(chatId:List<String>){
         Log.d("testoVmHome", "getRecentChats: $chatId")
         viewModelScope.launch {
             messageRepository.getRecentChats(chatId).collect{

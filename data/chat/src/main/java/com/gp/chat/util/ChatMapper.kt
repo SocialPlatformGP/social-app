@@ -73,7 +73,8 @@ object ChatMapper {
         senderName = senderName,
         receiverName = receiverName,
         privateChat = privateChat,
-        picUrl = picUrl
+        senderPicUrl = senderPicUrl,
+        receiverPicUrl = receiverPicUrl,
     )
 
     fun NetworkRecentChat.toRecentChat(id: String) = RecentChat(
@@ -84,7 +85,8 @@ object ChatMapper {
         senderName = senderName,
         receiverName = receiverName,
         privateChat = privateChat,
-        picUrl = picUrl
+        senderPicUrl = senderPicUrl,
+        receiverPicUrl = receiverPicUrl,
     )
 
 
@@ -102,7 +104,8 @@ object ChatMapper {
         "senderName" to senderName,
         "receiverName" to receiverName,
         "privateChat" to privateChat,
-        "picUrl" to picUrl
+        "senderPicUrl" to senderPicUrl,
+        "receiverPicUrl" to receiverPicUrl,
     )
 
 

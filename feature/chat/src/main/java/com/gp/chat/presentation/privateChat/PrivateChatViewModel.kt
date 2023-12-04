@@ -13,6 +13,7 @@ import com.gp.chat.model.RecentChat
 import com.gp.chat.repository.MessageRepository
 import com.gp.chat.util.RemoveSpecialChar.removeSpecialCharacters
 import com.gp.socialapp.utils.State
+import com.gp.users.model.NetworkUser
 import com.gp.users.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -31,11 +32,14 @@ class PrivateChatViewModel @Inject constructor(
     init {
         updateUserProfile()
     }
+
     private var currentEmail = removeSpecialCharacters(Firebase.auth.currentUser?.email!!)
     private var ChatId = "-1"
-    private var currentUser = Firebase.auth.currentUser
-    private var receiverEmail = ""
-    private var senderEmail = ""
+    private var senderName = ""
+    private var currentUser =Firebase.auth.currentUser
+    private var receiverName =  ""
+    private var senderPic = ""
+    private var receiverPic = ""
     val currentMessage = MutableStateFlow(MessageState())
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
     val messages = _messages.asStateFlow()
@@ -54,18 +58,27 @@ class PrivateChatViewModel @Inject constructor(
                         )
                     }
                 }
+
                 else -> {}
             }
         }
     }
 
-    fun setChatId(chatId: String) {
-        ChatId = chatId
-        getMessages()
-    }
 
-    fun setReceiverEmail(email: String) {
-        receiverEmail = email
+    fun setData(
+        chatId: String,
+        senderName: String,
+        receiverName: String,
+        senderPic: String,
+        receiverPic: String
+    ) {
+        ChatId = chatId
+        this.senderName = senderName
+        this.receiverName = receiverName
+        this.senderPic = senderPic
+        this.receiverPic = receiverPic
+        getMessages()
+
     }
 
 
@@ -106,8 +119,8 @@ class PrivateChatViewModel @Inject constructor(
                 }
                 val message = Message(
                     senderId = currentEmail,
-                    senderName = currentUser?.displayName ?: "",
-                    senderPfpURL = Firebase.auth.currentUser?.photoUrl.toString(),
+                    senderName = currentUser?.displayName!!,
+                    senderPfpURL = currentUser?.photoUrl.toString(),
                     groupId = ChatId,
                     message = currentMessage.value.message,
                     timestamp = Date().toString(),
@@ -116,12 +129,11 @@ class PrivateChatViewModel @Inject constructor(
                     fileNames = currentMessage.value.fileName ?: ""
                 )
 
-                messageRepository.sendMessage(message, currentUser).collect {
+                messageRepository.sendMessage(message).collect {
                     when (it) {
                         is State.SuccessWithData -> {
                             updateRecent()
                         }
-
                         is State.Error -> {
                             currentMessage.value = currentMessage.value.copy(error = it.message)
                         }
@@ -153,8 +165,10 @@ class PrivateChatViewModel @Inject constructor(
                 timestamp = Date().toString(),
                 title = "private chat",
                 privateChat = true,
-                receiverName = receiverEmail,
-                senderName = senderEmail,
+                receiverName = receiverName,
+                senderName = senderName,
+                receiverPicUrl = receiverPic,
+                senderPicUrl = senderPic,
 
 
                 )

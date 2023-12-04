@@ -102,6 +102,8 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
         when (destination.id){
             com.gp.chat.R.id.privateChatFragment->{
                 hideBottomNav()
+                toolbar.menu.clear()
+
             }
             com.gp.posts.R.id.suggest_post->{
                 hideBottomNav()
@@ -118,6 +120,10 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
             com.gp.posts.R.id.postDetailsFragment->{
                 hideBottomNav()
             }
+            com.gp.chat.R.id.fullScreenImageDialogFragment->{
+                hideBottomNav()
+            }
+
             else->{
                 showBottomNav()
                 appBarLayout.visibility=View.VISIBLE

@@ -49,6 +49,7 @@ class MessageFirebaseClient(
     private val TAG = "MessageFirebaseClient"
     private val RECEIVER_USER = "receiverUsers"
     private val GROUP = "groups"
+    private val currentUser = Firebase.auth.currentUser
 
     override fun insertChat(chat: ChatGroup): Flow<State<String>> = callbackFlow {
         val ref = database.reference.child(CHAT).push()
@@ -96,14 +97,14 @@ class MessageFirebaseClient(
             }
         }
 
-    override fun sendMessage(message: Message, user: FirebaseUser?): Flow<State<String>> = callbackFlow {
+    override fun sendMessage(message: Message): Flow<State<String>> = callbackFlow {
          database.reference.child(MESSAGES).child(message.groupId).push().setValue(
              message.toNetworkMessage()) { error, ref ->
                     if (error == null) {
                         if(message.fileType !="text"){
                             val key = ref.key
                             val storageRef = Firebase.storage
-                                .getReference(user!!.uid)
+                                .getReference(currentUser!!.uid)
                                 .child(key!!)
                                 .child(message.fileURI.lastPathSegment!!)
                             putImageInStorage(storageRef, message,key)

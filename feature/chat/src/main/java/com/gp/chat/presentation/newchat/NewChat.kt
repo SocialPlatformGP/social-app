@@ -24,6 +24,11 @@ import com.gp.chat.util.RemoveSpecialChar.removeSpecialCharacters
 import com.gp.socialapp.database.model.UserEntity
 import com.gp.socialapp.utils.State
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -75,13 +80,29 @@ class NewChat : Fragment(), OnItemClickListener {
 
                     is State.SuccessWithData -> {
                         Toast.makeText(requireContext(), it.data, Toast.LENGTH_SHORT).show()
+
                         if (it.data != "-1") {
-                            val action = NewChatDirections.actionNewChatToPrivateChatFragment(
-                                chatId = it.data,
-                                receiverEmail = removeSpecialCharacters(userEmail),
-                                senderEmail = senderEmail
-                            )
-                            findNavController().navigate(action)
+
+                            lifecycleScope.launch {
+                                newChatViewModel.users.flowWithLifecycle(lifecycle)
+                                    .collect { users ->
+                                        val currentReceiver =
+                                            users.find { user -> user.email == userEmail }
+                                        val currentSender = Firebase.auth.currentUser
+
+                                        val action =
+                                            NewChatDirections.actionNewChatToPrivateChatFragment(
+                                                chatId = it.data,
+                                                receiverName = currentReceiver?.firstName + " " + currentReceiver?.lastName,
+                                                receiverPic = currentReceiver?.profilePictureURL ?: "",
+                                                senderPic = currentSender?.photoUrl.toString(),
+                                                senderName = currentSender?.displayName!!
+                                            )
+                                        findNavController().navigate(action)
+
+                                    }
+                            }
+
 
                         }
 
@@ -90,10 +111,10 @@ class NewChat : Fragment(), OnItemClickListener {
                     is State.Success -> {
                         Toast.makeText(requireContext(), "Success", Toast.LENGTH_SHORT).show()
                     }
-
                     is State.Error -> {
                         Toast.makeText(requireContext(), it.message, Toast.LENGTH_SHORT).show()
                     }
+
 
                     else -> {}
                 }
@@ -101,4 +122,7 @@ class NewChat : Fragment(), OnItemClickListener {
         }
     }
 
+
+
 }
+

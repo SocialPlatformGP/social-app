@@ -34,13 +34,12 @@
 
                 >
 
-                <com.google.android.material.imageview.ShapeableImageView
+                <ImageView
                     android:id="@+id/profileImage"
                     android:padding="4dp"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scaleType="centerCrop"
-                    chat:imageUrl="@{chat.picUrl}"
                     chat:layout_constraintBottom_toBottomOf="parent"
                     chat:layout_constraintHorizontal_bias="0.0"
                     chat:layout_constraintStart_toStartOf="parent"
@@ -48,6 +47,7 @@
                     chat:layout_constraintVertical_bias="0.0"
                     chat:strokeColor="#3E9AC3"
                     chat:strokeWidth="6dp"
+                    tools:srcCompat="@tools:sample/avatars" />
                     />
 
             </FrameLayout>
@@ -59,7 +59,6 @@
                 android:layout_marginStart="12dp"
                 android:ellipsize="end"
                 android:maxLines="1"
-                chat:setTitle="@{chat}"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 chat:layout_constraintBottom_toTopOf="@id/message"

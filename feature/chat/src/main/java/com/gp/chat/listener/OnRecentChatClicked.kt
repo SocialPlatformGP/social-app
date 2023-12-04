@@ -6,7 +6,9 @@ interface OnRecentChatClicked {
         receiverName: String,
         senderName: String,
         receiverImage: String="",
-        isPrivateChat: Boolean
+        isPrivateChat: Boolean,
+        senderPicUrl:String="",
+        receiverPicUrl:String=""
     )
 
     fun leaveGroup(groupId:String)

@@ -15,8 +15,10 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
-class UserfirestoreClient @Inject constructor(val firestore: FirebaseFirestore,
-    val auth: FirebaseAuth) :
+class UserfirestoreClient @Inject constructor(
+    val firestore: FirebaseFirestore,
+    val auth: FirebaseAuth
+) :
     UserRemoteDataSource {
     override fun createUser(user: NetworkUser) = callbackFlow {
         trySend(State.Loading)
@@ -59,7 +61,8 @@ class UserfirestoreClient @Inject constructor(val firestore: FirebaseFirestore,
         try {
             val users = mutableListOf<User>()
             for (userEmail in emails) {
-                val userQuerySnapshot = firestore.collection("users").whereEqualTo("userEmail", userEmail).get().await()
+                val userQuerySnapshot =
+                    firestore.collection("users").whereEqualTo("userEmail", userEmail).get().await()
                 if (!userQuerySnapshot.isEmpty) {
                     val user = userQuerySnapshot.first()
                         .toObject(NetworkUser::class.java)
@@ -93,7 +96,6 @@ class UserfirestoreClient @Inject constructor(val firestore: FirebaseFirestore,
     }
 
 
-
     override fun deleteUser(user: UserEntity) = callbackFlow<State<Nothing>> {
         trySend(State.Loading)
         val querySnapshot = firestore.collection("users")
@@ -115,14 +117,15 @@ class UserfirestoreClient @Inject constructor(val firestore: FirebaseFirestore,
             }
         awaitClose()
     }
+
     override fun fetchUsers(): Flow<State<List<User>>> = callbackFlow {
         val ref = firestore.collection("users")
-        val listener=ref.addSnapshotListener { data, error ->
-            if (error!=null){
+        val listener = ref.addSnapshotListener { data, error ->
+            if (error != null) {
                 close(error)
                 return@addSnapshotListener
             }
-            if (data!=null){
+            if (data != null) {
                 val result = mutableListOf<User>()
                 for (document in data.documents) {
                     result.add(document.toObject(NetworkUser::class.java)!!.toModel())

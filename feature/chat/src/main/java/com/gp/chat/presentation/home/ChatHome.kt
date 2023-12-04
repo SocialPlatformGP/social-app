@@ -27,7 +27,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class ChatHome : Fragment(),OnRecentChatClicked {
+class ChatHome : Fragment(), OnRecentChatClicked {
     lateinit var recyclerView: RecyclerView
     lateinit var chatAdapter: ChatAdapter
     lateinit var floatingActionButton: FloatingActionButton
@@ -43,23 +43,22 @@ class ChatHome : Fragment(),OnRecentChatClicked {
     }
 
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        recyclerView=view.findViewById(R.id.chatListRecyclerView)
-        floatingActionButton=view.findViewById(R.id.fabNewChat)
-        chatAdapter=ChatAdapter(this)
-        recyclerView.adapter=chatAdapter
+        recyclerView = view.findViewById(R.id.chatListRecyclerView)
+        floatingActionButton = view.findViewById(R.id.fabNewChat)
+        chatAdapter = ChatAdapter(this)
+        recyclerView.adapter = chatAdapter
 
         lifecycleScope.launch {
-            viewModel.recentChats.flowWithLifecycle(lifecycle).collect{
+            viewModel.recentChats.flowWithLifecycle(lifecycle).collect {
                 chatAdapter.submitList(it)
             }
         }
 
-        floatingActionButton.setOnClickListener{
-            val action =ChatHomeDirections.actionChatHomeToNewChat()
+        floatingActionButton.setOnClickListener {
+            val action = ChatHomeDirections.actionChatHomeToNewChat()
             findNavController().navigate(action)
         }
     }
@@ -69,17 +68,26 @@ class ChatHome : Fragment(),OnRecentChatClicked {
         receiverName: String,
         senderName: String,
         receiverImage: String,
-        isPrivateChat: Boolean
+        isPrivateChat: Boolean,
+        senderPicUrl: String,
+        receiverPicUrl: String
     ) {
-        Log.d("ChatHome","onRecentChatClicked ${chatId + receiverName + senderName + receiverImage + isPrivateChat}")
-        val action = if(isPrivateChat){
+
+
+        Log.d(
+            "ChatHome",
+            "onRecentChatClicked ${chatId + receiverName + senderName + receiverImage + isPrivateChat}"
+        )
+        val action = if (isPrivateChat) {
             ChatHomeDirections.actionChatHomeToPrivateChatFragment(
-                chatId=chatId,
-                senderEmail = senderName,
-                receiverEmail = receiverName,
+                chatId = chatId,
+                senderName = senderName,
+                receiverName = receiverName,
+                senderPic = senderPicUrl,
+                receiverPic = receiverPicUrl
             )
         } else {
-        ChatHomeDirections.actionChatHomeToGroupChatFragment(chatId)
+            ChatHomeDirections.actionChatHomeToGroupChatFragment(chatId)
         }
         findNavController().navigate(action)
     }

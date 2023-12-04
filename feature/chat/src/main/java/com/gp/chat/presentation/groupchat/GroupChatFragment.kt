@@ -21,6 +21,7 @@ import com.google.firebase.ktx.Firebase
 import com.gp.chat.R
 import com.gp.chat.adapter.GroupMessageAdapter
 import com.gp.chat.databinding.FragmentGroupChatBinding
+import com.gp.chat.listener.ImageClickListener
 import com.gp.chat.listener.OnMessageClickListener
 import com.gp.chat.listener.MyScrollToBottomObserver
 import com.gp.chat.listener.OnFileClickListener
@@ -29,7 +30,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class GroupChatFragment : Fragment() ,OnMessageClickListener, OnFileClickListener{
+class GroupChatFragment : Fragment() ,OnMessageClickListener, OnFileClickListener,ImageClickListener{
     private val viewModel: GroupChatViewModel by viewModels()
     private lateinit var binding: FragmentGroupChatBinding
     private val args :GroupChatFragmentArgs by navArgs()
@@ -47,7 +48,7 @@ class GroupChatFragment : Fragment() ,OnMessageClickListener, OnFileClickListene
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val adapter = GroupMessageAdapter(Firebase.auth.currentUser!!,this,this)
+        val adapter = GroupMessageAdapter(this,this,this)
         val manager = LinearLayoutManager(requireContext())
         manager.stackFromEnd = true
         binding.recyclerGchat.layoutManager = manager
@@ -107,6 +108,10 @@ class GroupChatFragment : Fragment() ,OnMessageClickListener, OnFileClickListene
     }
 
     override fun onFileClick(fileURL: String, fileType: String, fileNames: String) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onImageClick(imageUrl: String) {
         TODO("Not yet implemented")
     }
 }

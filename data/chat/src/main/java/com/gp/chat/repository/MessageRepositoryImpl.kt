@@ -27,8 +27,8 @@ class MessageRepositoryImpl @Inject constructor(
     override fun insertRecentChat(recentChat: RecentChat, chatId: String): Flow<State<String>> =
         messageRemoteDataSource.insertRecentChat(recentChat, chatId)
 
-    override fun sendMessage(message: Message, currentUser: FirebaseUser?): Flow<State<String>> =
-        messageRemoteDataSource.sendMessage(message, currentUser)
+    override fun sendMessage(message: Message): Flow<State<String>> =
+        messageRemoteDataSource.sendMessage(message)
 
     override fun getMessages(chatId: String): Flow<State<List<Message>>> =
         messageRemoteDataSource.getMessages(chatId)
@@ -100,7 +100,7 @@ class MessageRepositoryImpl @Inject constructor(
             senderName = "N/A",
             receiverName = "N/A",
             privateChat = false,
-            picUrl = avatarLink
+            senderPicUrl = avatarLink
         )
         return messageRemoteDataSource.createGroupChat(group, recentChat)
     }
