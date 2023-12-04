@@ -78,6 +78,10 @@ class MessageRepositoryImpl @Inject constructor(
         return messageRemoteDataSource.removeMemberFromGroup(groupId, memberEmail)
     }
 
+    override fun addGroupMembers(groupId: String, usersEmails: List<String>): Flow<State<Nothing>> {
+        return messageRemoteDataSource.addGroupMembers(groupId, usersEmails)
+    }
+
 
     override fun createGroupChat(
         name: String,

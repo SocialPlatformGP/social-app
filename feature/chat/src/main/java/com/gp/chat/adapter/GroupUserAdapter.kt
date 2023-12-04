@@ -27,6 +27,7 @@ class GroupUserAdapter(private val context: Context,private val onAddGroupMember
                 .placeholder(R.drawable.baseline_person_24)
                 .into(binding.memberAvatarImageview)
             binding.memberNameTextview.text = "${user.data.firstName} ${user.data.lastName}"
+            Log.d(TAG, "User name: ${user.data.email}, isSelected: ${user.isSelected}")
             binding.root.setBackgroundColor(
                 if(user.isSelected)
                     context.getColor(R.color.selected_color)

@@ -8,6 +8,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.gp.chat.model.ChatGroup
 import com.gp.chat.model.ChatUser
@@ -30,6 +31,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.util.concurrent.atomic.AtomicInteger
 
 class MessageFirebaseClient(
     private val database: FirebaseDatabase
@@ -443,4 +445,48 @@ awaitClose()
         }
     }
 
+    override fun addGroupMembers(groupId: String, usersEmails: List<String>): Flow<State<Nothing>> = callbackFlow {
+        trySend(State.Loading)
+        val successCounter = AtomicInteger(0)
+
+        fun checkCompletion(counter: Int, totalUpdates: Int) {
+            if (counter == totalUpdates * 2) {
+                trySend(State.Success)
+                close()  // Close the flow when all updates are completed
+            }
+        }
+
+        usersEmails.forEach { userEmail ->
+            database.reference.child(CHAT_USER).child(RemoveSpecialChar.removeSpecialCharacters(userEmail)).child(GROUP).child(groupId)
+                .setValue(false)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        successCounter.incrementAndGet()
+                        checkCompletion(successCounter.get(), usersEmails.size)
+                    } else {
+                        trySend(State.Error("$userEmail update failed"))
+                    }
+                }
+        }
+
+        val groupUpdate = mutableMapOf<String, Any>()
+
+        usersEmails.forEach { userEmail ->
+            val userKey = RemoveSpecialChar.removeSpecialCharacters(userEmail)
+            groupUpdate["$CHAT/$groupId/members/$userKey"] = false
+        }
+
+        database.reference.updateChildren(groupUpdate)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    successCounter.incrementAndGet()
+                    checkCompletion(successCounter.get(), usersEmails.size)
+                } else {
+                    trySend(State.Error("Chat group update failed"))
+                }
+            }
+
+        // Use awaitClose as a cleanup mechanism, but don't close the flow immediately
+        awaitClose { /* cleanup resources if needed */ }
+    }
 }

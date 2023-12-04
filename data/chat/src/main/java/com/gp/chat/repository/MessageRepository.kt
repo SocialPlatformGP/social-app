@@ -1,6 +1,7 @@
 package com.gp.chat.repository
 
 
+import com.google.firebase.firestore.auth.User
 import com.gp.chat.model.ChatGroup
 import com.gp.chat.model.ChatUser
 import com.gp.chat.model.Message
@@ -28,4 +29,5 @@ interface MessageRepository {
     fun leaveGroup(chatId: String)
     fun getGroupMembersEmails(groupId: String): Flow<State<List<String>>>
     fun removeMemberFromGroup(groupId: String, memberEmail: String): Flow<State<String>>
+    fun addGroupMembers(groupId: String, usersEmails: List<String>): Flow<State<Nothing>>
 }

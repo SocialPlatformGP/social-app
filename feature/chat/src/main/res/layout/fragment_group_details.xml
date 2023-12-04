@@ -96,6 +96,15 @@
                 chat:layout_constraintStart_toStartOf="parent"
                 android:scrollbars="vertical"
                 chat:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+            <com.google.android.material.button.MaterialButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                chat:layout_constraintTop_toBottomOf="@id/group_members_recyclerview"
+                chat:layout_constraintStart_toStartOf="parent"
+                chat:layout_constraintEnd_toEndOf="parent"
+                android:gravity="center_horizontal"
+                android:onClick="@{() -> fragment.onAddMembersClicked()}"
+                android:text="Add New Members"/>
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

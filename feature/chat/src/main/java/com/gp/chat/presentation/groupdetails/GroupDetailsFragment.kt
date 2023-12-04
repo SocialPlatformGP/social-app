@@ -21,6 +21,7 @@ import com.gp.chat.adapter.GroupUserAdapter
 import com.gp.chat.databinding.FragmentGroupDetailsBinding
 import com.gp.chat.listener.OnGroupMemberClicked
 import com.gp.chat.listener.OnGroupMembersChangeListener
+import com.gp.chat.presentation.groupdetails.addGroupMembers.AddMembersDialogFragment
 import com.gp.users.model.User
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -30,6 +31,8 @@ class GroupDetailsFragment : Fragment(), OnGroupMemberClicked {
     private val viewModel: GroupDetailsViewModel by viewModels()
     private lateinit var binding: FragmentGroupDetailsBinding
     private val args: GroupDetailsFragmentArgs by navArgs()
+    val isAdmin = true
+    val groupID = "-NkptMdNaTqoWnlJ81jD"
     private val galleryImageResultLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
     ) {
@@ -54,7 +57,8 @@ class GroupDetailsFragment : Fragment(), OnGroupMemberClicked {
                 adapter.submitList(it)
             }
         }
-        viewModel.getUsersList(args.groupId)
+//        viewModel.getUsersList(args.groupId)
+        viewModel.getUsersList(groupID)
         binding.groupMembersRecyclerview.adapter = adapter
     }
 
@@ -64,10 +68,11 @@ class GroupDetailsFragment : Fragment(), OnGroupMemberClicked {
     }
 
     private fun onRemoveGroupMember(user: User) {
-        viewModel.removeGroupMember(args.groupId, user)
+//        viewModel.removeGroupMember(args.groupId, user)
+        viewModel.removeGroupMember(groupID, user)
     }
     fun onEditPictureClick() {
-        if(args.isAdmin){
+        if(isAdmin){
             val items = arrayOf("Take Photo", "Choose Existing Photo")
             MaterialAlertDialogBuilder(requireContext()).setItems(items) { dialog, which ->
                 when (which) {
@@ -92,7 +97,6 @@ class GroupDetailsFragment : Fragment(), OnGroupMemberClicked {
     }
 
     override fun onMemberClicked(user: User) {
-        val isAdmin = args.isAdmin
         val items = if(isAdmin) {
             arrayOf("View Profile", "Message", "Remove from Group")
         } else {
@@ -117,5 +121,13 @@ class GroupDetailsFragment : Fragment(), OnGroupMemberClicked {
                 }
             }
         }.show()
+    }
+    fun onAddMembersClicked(){
+        val dialogFragment = AddMembersDialogFragment()
+        val bundle = Bundle()
+        bundle.putParcelableArrayList("users", ArrayList(viewModel.users.value))
+        bundle.putString("group_id", groupID)
+        dialogFragment.arguments = bundle
+        dialogFragment.show(childFragmentManager, "AddMembersDialogFragment")
     }
 }
