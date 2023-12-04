@@ -30,8 +30,7 @@ class FileManager(private val context: Context) {
             storageDir.mkdirs()
         }
 
-        val newFileName = fileName.replace(" ", "_").replace("-", "_")
-        val destinationFile = File(storageDir, newFileName)
+        val destinationFile = File(storageDir, fileName)
 
         val destinationUri = Uri.fromFile(destinationFile)
         request.setDestinationUri(destinationUri)
@@ -62,16 +61,15 @@ class FileManager(private val context: Context) {
     }
 
 @SuppressLint("Range")
-fun openFileWithMediaStoreUri(destinationUri: Uri, context: Context,fileType: String) {
+fun openFileWithMediaStoreUri(destinationUri: Uri, context: Context, fileType: String) {
     val contentResolver = context.contentResolver
 
-    // Query the MediaStore to get the MediaStore URI for the given file
-    val projection = arrayOf(MediaStore.Files.FileColumns._ID)
-    val selection = "${MediaStore.Files.FileColumns.DATA} = ?"
-    val selectionArgs = arrayOf(destinationUri.path ?: "")
+    val fileName = getFileNameFromUri(destinationUri) ?: ""
+    val selection = "${MediaStore.Files.FileColumns.DISPLAY_NAME} = ?"
+    val selectionArgs = arrayOf(fileName)
     val cursor = contentResolver.query(
         MediaStore.Files.getContentUri("external"),
-        projection,
+        null,
         selection,
         selectionArgs,
         null
@@ -105,6 +103,16 @@ fun openFileWithMediaStoreUri(destinationUri: Uri, context: Context,fileType: St
         }
     }
 }
+
+private fun getFileNameFromUri(uri: Uri): String? {
+    return try {
+        val path = uri.path
+        path?.substring(path.lastIndexOf('/') + 1)
+    } catch (e: Exception) {
+        null
+    }
+}
+
 
 
 
