@@ -16,6 +16,8 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.gp.chat.R
 import com.gp.chat.adapter.GroupMessageAdapter
 import com.gp.chat.databinding.FragmentGroupChatBinding
@@ -45,7 +47,7 @@ class GroupChatFragment : Fragment() ,OnMessageClickListener, OnFileClickListene
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val adapter = GroupMessageAdapter("",this,this)
+        val adapter = GroupMessageAdapter(Firebase.auth.currentUser!!,this,this)
         val manager = LinearLayoutManager(requireContext())
         manager.stackFromEnd = true
         binding.recyclerGchat.layoutManager = manager

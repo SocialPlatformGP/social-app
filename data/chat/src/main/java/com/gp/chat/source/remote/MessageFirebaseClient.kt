@@ -98,8 +98,7 @@ class MessageFirebaseClient(
 
     override fun sendMessage(message: Message, user: FirebaseUser?): Flow<State<String>> = callbackFlow {
          database.reference.child(MESSAGES).child(message.groupId).push().setValue(
-             message.toNetworkMessage(),
-                DatabaseReference.CompletionListener { error, ref ->
+             message.toNetworkMessage()) { error, ref ->
                     if (error == null) {
                         if(message.fileType !="text"){
                             val key = ref.key
@@ -117,7 +116,7 @@ class MessageFirebaseClient(
                         trySend(State.Error(error.message))
                     }
                 }
-         )
+
 
         awaitClose ()
 

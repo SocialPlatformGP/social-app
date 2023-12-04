@@ -119,7 +119,7 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
         val manager = LinearLayoutManager(requireContext())
         manager.stackFromEnd = true
         recyclerView.layoutManager = manager
-        adapter = GroupMessageAdapter(Firebase.auth.currentUser?.displayName!!, this, this)
+        adapter = GroupMessageAdapter(Firebase.auth.currentUser!!, this, this)
         adapter.registerAdapterDataObserver(
             MyScrollToBottomObserver(
                 recyclerView,
@@ -145,14 +145,6 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
                 })
             }
         }
-        //update display name in firebase auth
-
-        Firebase.auth.currentUser?.updateProfile(
-            UserProfileChangeRequest.Builder()
-                .setDisplayName("Zarea")
-                .setPhotoUri("https://i.redd.it/v0caqchbtn741.jpg".toUri())
-                .build()
-        )
 
     }
 

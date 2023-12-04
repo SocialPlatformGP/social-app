@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.gp.chat.R
@@ -32,7 +33,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class GroupMessageAdapter(
-    private val currentUserName: String,
+    private val currentUser: FirebaseUser,
     private val messageClickListener: OnMessageClickListener,
     private val fileClickListener: OnFileClickListener
 ) :
@@ -70,7 +71,7 @@ class GroupMessageAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
         holder.itemView.setOnLongClickListener {
-            if (item.senderName == currentUserName) {
+            if (item.senderName == currentUser.displayName) {
                 createPopUpMenu(holder.itemView, item)
             }
             true
@@ -121,7 +122,7 @@ class GroupMessageAdapter(
             if (contains("text")) {
                 VIEW_TYPE_TEXT
             }
-            if (contains("image")) {
+            else if (contains("image")) {
                 VIEW_TYPE_IMAGE
             } else if (contains("application/pdf")) {
                 VIEW_TYPE_PDF
@@ -135,23 +136,23 @@ class GroupMessageAdapter(
 
     inner class MessageViewHolder(private val binding: MessageBinding) : ViewHolder(binding.root) {
         fun bind(item: Message) {
+            //data
             binding.messageTextView.text = item.message
             setTextColor(item.senderName, binding.messengerTextView)
-
+            //sender
             binding.messengerTextView.text = item.senderName ?: ""
-            if (item.senderPfpURL != "") {
-                loadImageIntoView(binding.messengerImageView, item.senderPfpURL)
+            if (item.senderName == currentUser.displayName) {
+                loadImageIntoView(binding.messengerImageView, currentUser.photoUrl.toString())
             } else {
-                binding.messengerImageView.setImageResource(R.drawable.baseline_account_circle_24)
+                loadImageIntoView(binding.messengerImageView, item.senderPfpURL)
             }
         }
 
         private fun setTextColor(userName: String?, textView: TextView) {
-            if (userName != "" && currentUserName == userName) {
-
-                textView.setTextColor(android.graphics.Color.WHITE)
+            if (userName != "" && currentUser.displayName == userName) {
+                textView.setTextColor(android.graphics.Color.BLUE)
             } else {
-                textView.setTextColor(android.graphics.Color.BLACK)
+                textView.setTextColor(android.graphics.Color.RED)
             }
         }
     }
@@ -159,12 +160,14 @@ class GroupMessageAdapter(
     inner class ImageMessageViewHolder(private val binding: ImageMessageBinding) :
         ViewHolder(binding.root) {
         fun bind(item: Message) {
+            //data
             loadImageIntoView(binding.messageImageView, item.fileURI.toString(), false)
+            //sender
             binding.messengerTextView.text = item.senderName ?: ""
-            if (item.senderName == currentUserName) {
-                loadImageIntoView(binding.messengerImageView, item.senderPfpURL)
+            if (item.senderName == currentUser.displayName) {
+                loadImageIntoView(binding.messengerImageView, currentUser.photoUrl.toString())
             } else {
-                binding.messengerImageView.setImageResource(R.drawable.baseline_account_circle_24)
+                loadImageIntoView(binding.messengerImageView, item.senderPfpURL)
             }
         }
     }
@@ -172,16 +175,23 @@ class GroupMessageAdapter(
     inner class PdfMessageViewHolder(private val binding: PdfPreviewBinding) :
         ViewHolder(binding.root) {
         fun bind(item: Message) {
-            binding.messengerTextView.text = item.senderName ?: ""
+            //data
             binding.messageImageView.setImageResource(R.drawable.pdf_placeholder)
             binding.fileNameTextView.text = item.fileNames
-            if (item.senderName == currentUserName) {
-                loadImageIntoView(binding.messengerImageView, item.senderPfpURL)
+            //sender
+            binding.messengerTextView.text = item.senderName ?: ""
+            if (item.senderName == currentUser.displayName) {
+                loadImageIntoView(binding.messengerImageView, currentUser.photoUrl.toString())
             } else {
-                binding.messengerImageView.setImageResource(R.drawable.baseline_account_circle_24)
+                loadImageIntoView(binding.messengerImageView, item.senderPfpURL)
             }
+            //click listener
             binding.messageImageView.setOnClickListener {
-                fileClickListener.onFileClick(item.fileURI.toString(), item.fileType, item.fileNames)
+                fileClickListener.onFileClick(
+                    item.fileURI.toString(),
+                    item.fileType,
+                    item.fileNames
+                )
             }
         }
     }
@@ -195,7 +205,14 @@ class GroupMessageAdapter(
 
 
         fun bind(item: Message) {
+            //sender
             binding.messengerTextView.text = item.senderName ?: ""
+            if (item.senderName == currentUser.displayName) {
+                loadImageIntoView(binding.messengerImageView, currentUser.photoUrl.toString())
+            } else {
+                loadImageIntoView(binding.messengerImageView, item.senderPfpURL)
+            }
+            //data
             val audioUrl = item.fileURI
 
             binding.playStopButton.setOnClickListener {
@@ -314,6 +331,7 @@ class GroupMessageAdapter(
     }
 
     private fun loadWithGlide(view: ImageView, url: String, isCircular: Boolean = true) {
+        Log.d(TAG, "loadWithGlide: $url")
         Glide.with(view.context).load(url).into(view)
         var requestBuilder = Glide.with(view.context).load(url)
         if (isCircular) {

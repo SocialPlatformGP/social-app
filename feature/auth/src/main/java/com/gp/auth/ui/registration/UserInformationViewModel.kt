@@ -1,7 +1,11 @@
 package com.gp.auth.ui.registration
 
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.gp.users.model.NetworkUser
 import com.gp.users.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -12,18 +16,32 @@ import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
-class UserInformationViewModel @Inject constructor(private val userRepo: UserRepository) : ViewModel() {
+class UserInformationViewModel @Inject constructor(private val userRepo: UserRepository) :
+    ViewModel() {
     val uiState = MutableStateFlow(UserInformationUIState())
     private val pfpLink = "https://clipart-library.com/data_images/6103.png"
-    fun onCompleteAccount(email: String, password: String){
+    fun onCompleteAccount(email: String, password: String) {
         viewModelScope.launch {
             with(uiState.value) {
                 val networkFlow =
-                    userRepo.createNetworkUser(NetworkUser(firstName, lastName, password, pfpLink, email,
-                        phoneNumber, birthDate, bio, Date()))
-                networkFlow.collect{state ->
+                    userRepo.createNetworkUser(
+                        NetworkUser(
+                            firstName, lastName, password, pfpLink, email,
+                            phoneNumber, birthDate, bio, Date()
+                        )
+                    )
+                networkFlow.collect { state ->
                     uiState.value = uiState.value.copy(createdState = state)
                 }
+
+                //update display name in firebase auth
+
+                Firebase.auth.currentUser?.updateProfile(
+                    UserProfileChangeRequest.Builder()
+                        .setDisplayName("$firstName $lastName")
+                        .setPhotoUri(pfpLink.toUri())
+                        .build()
+                )
 
             }
         }

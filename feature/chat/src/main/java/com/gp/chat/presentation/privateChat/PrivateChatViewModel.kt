@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.gp.chat.model.Message
@@ -27,6 +28,9 @@ class PrivateChatViewModel @Inject constructor(
     private val messageRepository: MessageRepository,
     private val userRepository: UserRepository
 ) : ViewModel() {
+    init {
+        updateUserProfile()
+    }
     private var currentEmail = removeSpecialCharacters(Firebase.auth.currentUser?.email!!)
     private var ChatId = "-1"
     private var currentUser = Firebase.auth.currentUser
@@ -35,7 +39,25 @@ class PrivateChatViewModel @Inject constructor(
     val currentMessage = MutableStateFlow(MessageState())
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
     val messages = _messages.asStateFlow()
-
+    private fun updateUserProfile() {
+        //todo for one time only
+        viewModelScope.launch {
+            val state = userRepository.fetchUser(Firebase.auth.currentUser?.email!!)
+            when (state) {
+                is State.SuccessWithData -> {
+                    with(state.data) {
+                        Firebase.auth.currentUser?.updateProfile(
+                            UserProfileChangeRequest.Builder()
+                                .setDisplayName("$userFirstName $userLastName")
+                                .setPhotoUri(userProfilePictureURL.toUri())
+                                .build()
+                        )
+                    }
+                }
+                else -> {}
+            }
+        }
+    }
 
     fun setChatId(chatId: String) {
         ChatId = chatId
@@ -48,72 +70,84 @@ class PrivateChatViewModel @Inject constructor(
 
 
     fun getMessages() {
-            viewModelScope.launch {
-                messageRepository.getMessages(ChatId).collect {
-                    when (it) {
-                        is State.SuccessWithData -> {
-                            _messages.value = it.data
-                            currentMessage.value = currentMessage.value.copy(error = "data loaded")
-                        }
-                        is State.Error -> { currentMessage.value = currentMessage.value.copy(error = it.message) }
-                        is State.Loading -> { currentMessage.value = currentMessage.value.copy(error = " getting messages") }
-                        else -> {}
+        viewModelScope.launch {
+            messageRepository.getMessages(ChatId).collect {
+                when (it) {
+                    is State.SuccessWithData -> {
+                        _messages.value = it.data
+                        currentMessage.value = currentMessage.value.copy(error = "data loaded")
                     }
+
+                    is State.Error -> {
+                        currentMessage.value = currentMessage.value.copy(error = it.message)
+                    }
+
+                    is State.Loading -> {
+                        currentMessage.value =
+                            currentMessage.value.copy(error = " getting messages")
+                    }
+
+                    else -> {}
                 }
             }
+        }
     }
+
     fun sendMessage() {
         Log.d("testo vm", "sendMessage start: ${currentMessage.value.message}")
-        if (currentMessage.value.message.isEmpty() && currentMessage.value.fileTypes=="text") {
+        if (currentMessage.value.message.isEmpty() && currentMessage.value.fileTypes == "text") {
             currentMessage.value = currentMessage.value.copy(error = "message is empty")
             return
         } else {
             viewModelScope.launch(Dispatchers.IO) {
-                if(currentMessage.value.fileTypes!="text"){
-                    currentMessage.value = currentMessage.value.copy(message = currentMessage.value.fileTypes)
+                if (currentMessage.value.fileTypes != "text") {
+                    currentMessage.value =
+                        currentMessage.value.copy(message = currentMessage.value.fileTypes)
                 }
                 val message = Message(
                     senderId = currentEmail,
-                    senderName = currentUser?.displayName?:"",
-                    senderPfpURL = currentUser?.photoUrl.toString(),
+                    senderName = currentUser?.displayName ?: "",
+                    senderPfpURL = Firebase.auth.currentUser?.photoUrl.toString(),
                     groupId = ChatId,
                     message = currentMessage.value.message,
                     timestamp = Date().toString(),
-                    fileURI = currentMessage.value.fileUri?:"".toUri(),
-                    fileType = currentMessage.value.fileTypes?:"", //TODO: change to file type
-                    fileNames = currentMessage.value.fileName?:""
+                    fileURI = currentMessage.value.fileUri ?: "".toUri(),
+                    fileType = currentMessage.value.fileTypes ?: "", //TODO: change to file type
+                    fileNames = currentMessage.value.fileName ?: ""
                 )
 
-                    messageRepository.sendMessage(message,currentUser).collect {
-                        when (it) {
-                            is State.SuccessWithData -> {
-                                updateRecent()
-                            }
-
-                            is State.Error -> {
-                                currentMessage.value = currentMessage.value.copy(error = it.message)
-                            }
-
-                            is State.Loading -> {
-                                currentMessage.value =
-                                    currentMessage.value.copy(error = "sending message")
-                            }
-
-                            else -> {}
+                messageRepository.sendMessage(message, currentUser).collect {
+                    when (it) {
+                        is State.SuccessWithData -> {
+                            updateRecent()
                         }
+
+                        is State.Error -> {
+                            currentMessage.value = currentMessage.value.copy(error = it.message)
+                        }
+
+                        is State.Loading -> {
+                            currentMessage.value =
+                                currentMessage.value.copy(error = "sending message")
+                        }
+
+                        else -> {}
                     }
+                }
 
             }
         }
     }
-    fun sendImage(uri: Uri,type:String,fileName:String){
+
+    fun sendImage(uri: Uri, type: String, fileName: String) {
         currentMessage.value = currentMessage.value.copy(fileName = fileName)
         currentMessage.value = currentMessage.value.copy(fileUri = uri)
         currentMessage.value = currentMessage.value.copy(fileTypes = type)
         sendMessage()
     }
-    private fun updateRecent(){
-        viewModelScope.launch (Dispatchers.IO){
+
+    private fun updateRecent() {
+        viewModelScope.launch(Dispatchers.IO) {
             val recentChat = RecentChat(
                 lastMessage = currentMessage.value.message,
                 timestamp = Date().toString(),
@@ -123,15 +157,23 @@ class PrivateChatViewModel @Inject constructor(
                 senderName = senderEmail,
 
 
-            )
-            messageRepository.updateRecentChat(recentChat,ChatId).collect{
+                )
+            messageRepository.updateRecentChat(recentChat, ChatId).collect {
                 when (it) {
                     is State.SuccessWithData -> {
                         currentMessage.value = currentMessage.value.copy(error = "recent updated")
-                        currentMessage.value = currentMessage.value.copy(error = "recent updated",message = "")
+                        currentMessage.value =
+                            currentMessage.value.copy(error = "recent updated", message = "")
                     }
-                    is State.Error -> { currentMessage.value = currentMessage.value.copy(error = it.message) }
-                    is State.Loading -> { currentMessage.value = currentMessage.value.copy(error = "recent updated") }
+
+                    is State.Error -> {
+                        currentMessage.value = currentMessage.value.copy(error = it.message)
+                    }
+
+                    is State.Loading -> {
+                        currentMessage.value = currentMessage.value.copy(error = "recent updated")
+                    }
+
                     else -> {}
                 }
             }
@@ -139,13 +181,12 @@ class PrivateChatViewModel @Inject constructor(
     }
 
 
+    fun deleteMessage(messageId: String, chatId: String) {
+        messageRepository.deleteMessage(messageId, chatId)
+    }
 
-
-fun deleteMessage(messageId: String, chatId: String){
-    messageRepository.deleteMessage(messageId, chatId)
-}
-    fun updateMessage(messageId: String, chatId: String,updatedText:String){
-        messageRepository.updateMessage(messageId, chatId,updatedText)
+    fun updateMessage(messageId: String, chatId: String, updatedText: String) {
+        messageRepository.updateMessage(messageId, chatId, updatedText)
     }
 
 }
