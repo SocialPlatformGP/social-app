@@ -1,17 +1,7 @@
 package com.gp.chat.adapter
 
-import android.Manifest
-import android.annotation.SuppressLint
-import android.app.Activity
-import android.app.DownloadManager
-import android.content.ActivityNotFoundException
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
-import android.content.pm.PackageManager
 import android.media.MediaPlayer
 import android.net.Uri
-import android.os.Environment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -19,12 +9,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.TextView
-import android.widget.Toast
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.core.content.FileProvider
-import androidx.core.net.toUri
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
@@ -46,7 +30,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import java.io.File
 
 class GroupMessageAdapter(
     private val currentUserName: String,
@@ -198,7 +181,7 @@ class GroupMessageAdapter(
                 binding.messengerImageView.setImageResource(R.drawable.baseline_account_circle_24)
             }
             binding.messageImageView.setOnClickListener {
-                fileClickListener.onFileClick(item.fileURI.toString(), item.fileType)
+                fileClickListener.onFileClick(item.fileURI.toString(), item.fileType, item.fileNames)
             }
         }
     }

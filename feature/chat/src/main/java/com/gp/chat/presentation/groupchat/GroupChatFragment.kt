@@ -104,7 +104,7 @@ class GroupChatFragment : Fragment() ,OnMessageClickListener, OnFileClickListene
 
     }
 
-    override fun onFileClick(fileURL: String, fileType: String) {
+    override fun onFileClick(fileURL: String, fileType: String, fileNames: String) {
         TODO("Not yet implemented")
     }
 }

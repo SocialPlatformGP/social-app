@@ -1,16 +1,8 @@
 package com.gp.chat.presentation.privateChat
 
-import android.Manifest
 import android.annotation.SuppressLint
-import android.app.DownloadManager
-import android.content.BroadcastReceiver
 import android.content.ContentResolver
-import android.content.Context
-import android.content.Context.DOWNLOAD_SERVICE
 import android.content.DialogInterface
-import android.content.Intent
-import android.content.IntentFilter
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -22,15 +14,9 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.webkit.MimeTypeMap
 import android.widget.EditText
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.core.content.ContextCompat.registerReceiver
 import androidx.core.net.toUri
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
@@ -47,22 +33,22 @@ import com.gp.chat.listener.MyOpenDocumentContract
 import com.gp.chat.listener.MyScrollToBottomObserver
 import com.gp.chat.listener.OnFileClickListener
 import com.gp.chat.listener.OnMessageClickListener
-import com.gp.chat.model.Message
+import com.gp.chat.utils.FileManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import java.io.File
 import java.util.Locale
 
 @AndroidEntryPoint
 class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListener {
     lateinit var adapter: GroupMessageAdapter
     lateinit var binding: FragmentPrivateChatBinding
-
+    private lateinit var fileManager: FileManager
     private val args: PrivateChatFragmentArgs by navArgs()
     private val viewModel: PrivateChatViewModel by viewModels()
     private val openDocument = registerForActivityResult(MyOpenDocumentContract()) {
         it?.let {
-            val extension = getFileExtensionFromUri(it)
-            val mimeType = getMimeTypeFromExtension(extension!!)
+            val mimeType = getMimeTypeFromUri(it)
             val fileName = getFileName(it)
             Log.d("TAG", "onViewCreated: $mimeType $fileName")
             viewModel.sendImage(it, mimeType!!, fileName)
@@ -82,28 +68,23 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
         return fileName
     }
 
-    @SuppressLint("Range")
-    private fun getFileExtensionFromUri(uri: Uri): String? {
+    private fun getMimeTypeFromUri(uri: Uri): String? {
         val contentResolver: ContentResolver = requireContext().contentResolver
-        var extension: String? = null
-        val cursor = contentResolver.query(uri, null, null, null, null)
-        cursor?.use {
-            if (it.moveToFirst()) {
-                val displayName = it.getString(it.getColumnIndex(OpenableColumns.DISPLAY_NAME))
-                if (displayName != null) {
-                    val lastDot = displayName.lastIndexOf('.')
-                    if (lastDot >= 0) {
-                        extension = displayName.substring(lastDot + 1)
-                    }
-                }
+        var mimeType: String? = null
+
+        // Try to query the ContentResolver to get the MIME type
+        mimeType = contentResolver.getType(uri)
+
+        if (mimeType == null) {
+            // If ContentResolver couldn't determine the MIME type, try getting it from the file extension
+            val fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri.toString())
+            if (!fileExtension.isNullOrEmpty()) {
+                mimeType = MimeTypeMap.getSingleton()
+                    .getMimeTypeFromExtension(fileExtension.toLowerCase(Locale.US))
             }
         }
-        return extension
-    }
 
-    private fun getMimeTypeFromExtension(fileExtension: String): String? {
-        val mimeTypeMap = MimeTypeMap.getSingleton()
-        return mimeTypeMap.getMimeTypeFromExtension(fileExtension.toLowerCase(Locale("en", "US")))
+        return mimeType
     }
 
 
@@ -202,16 +183,11 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
 
     }
 
-    override fun onFileClick(fileURL: String, fileType: String) {
-        val intent = Intent(Intent.ACTION_VIEW)
-        intent.setDataAndType(fileURL.toUri(), "*/*")
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        startActivity(intent)
+    override fun onFileClick(fileURL: String, fileType: String, fileNames: String) {
+        fileManager = FileManager(requireContext())
+        fileManager.downloadFile(fileURL,fileNames,fileType)
+
     }
-
-
-
-
 
 
 }
