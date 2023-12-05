@@ -43,6 +43,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth-ktx:22.2.0'
     implementation 'com.google.firebase:firebase-firestore-ktx:23.0.3'
     implementation 'com.android.volley:volley:1.2.1'
+    implementation project(':data:material')
     def lifecycle_version = "2.6.2"
     def nav_version = "2.6.0"
     implementation 'androidx.core:core-ktx:1.12.0'

@@ -23,16 +23,15 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.navigation.fragment.navArgs
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.gp.chat.R
 import com.gp.chat.adapter.GroupMessageAdapter
 import com.gp.chat.databinding.FragmentPrivateChatBinding
 import com.gp.chat.listener.ImageClickListener
-import com.gp.chat.utils.MyOpenActionContract
+import com.gp.material.utils.MyOpenActionContract
 import com.gp.chat.utils.MyScrollToBottomObserver
 import com.gp.chat.listener.OnFileClickListener
 import com.gp.chat.listener.OnMessageClickListener
-import com.gp.chat.utils.FileManager
+import com.gp.material.utils.FileManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -42,10 +41,10 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
     ImageClickListener {
     lateinit var adapter: GroupMessageAdapter
     lateinit var binding: FragmentPrivateChatBinding
-    private lateinit var fileManager: FileManager
+    private lateinit var fileManager: com.gp.material.utils.FileManager
     private val args: PrivateChatFragmentArgs by navArgs()
     private val viewModel: PrivateChatViewModel by viewModels()
-    private val openDocument = registerForActivityResult(MyOpenActionContract()) {
+    private val openDocument = registerForActivityResult(com.gp.material.utils.MyOpenActionContract()) {
         it?.let {
             it.forEach {uri->
                 val mimeType = getMimeTypeFromUri(uri)
@@ -196,7 +195,7 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
 
 
     override fun onFileClick(fileURL: String, fileType: String, fileNames: String) {
-        fileManager = FileManager(requireContext())
+        fileManager = com.gp.material.utils.FileManager(requireContext())
         fileManager.downloadFile(fileURL, fileNames, fileType)
 
     }

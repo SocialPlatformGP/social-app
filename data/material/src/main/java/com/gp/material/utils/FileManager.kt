@@ -1,4 +1,4 @@
-package com.gp.chat.utils
+package com.gp.material.utils
 import android.annotation.SuppressLint
 import android.app.DownloadManager
 import android.content.*
@@ -9,7 +9,6 @@ import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.core.content.FileProvider
 import java.io.File
 
 class FileManager(private val context: Context) {

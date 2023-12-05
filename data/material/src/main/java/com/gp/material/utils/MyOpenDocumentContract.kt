@@ -1,4 +1,4 @@
-package com.gp.chat.utils
+package com.gp.material.utils
 
 
 import android.content.Context
