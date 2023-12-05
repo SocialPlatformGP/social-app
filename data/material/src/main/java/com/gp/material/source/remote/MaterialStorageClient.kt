@@ -4,6 +4,7 @@ import android.app.ProgressDialog
 import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
+import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
@@ -20,11 +21,14 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import java.io.File
+import java.io.FileOutputStream
 import java.util.UUID
 
 
 class MaterialStorageClient:MaterialRemoteDataSource{
+
     val storageRef = FirebaseStorage.getInstance().reference
+
     override suspend fun uploadFile(fileLocation: String, file: Uri ,context: Context) {
         val progressDialog = ProgressDialog(context)
         progressDialog.setTitle("Uploading...")
@@ -32,16 +36,14 @@ class MaterialStorageClient:MaterialRemoteDataSource{
         val fileName = UUID.randomUUID().toString()
         val path="$fileLocation/$fileName"
         val fName = getFileName(context.contentResolver,file)
-       // val fileType=fileType
-        val email = Firebase.auth.currentUser?.email!!
-        //val time=System.currentTimeMillis()
+        val userEmail = Firebase.auth.currentUser?.email!!
         val metadata = StorageMetadata.Builder()
-            .setCustomMetadata("fileName", fileName)
+            .setCustomMetadata("id", fileName)
             .setCustomMetadata("path", path)
             .setCustomMetadata("fName", fName)
-            .setCustomMetadata("email", email)
+            .setCustomMetadata("createdBy", userEmail)
             .build()
-        val fileRef: StorageReference = storageRef.child("$fileName/$fName")
+        val fileRef: StorageReference = storageRef.child("Materials/$fName")
         fileRef.putFile(file,metadata).addOnSuccessListener {
             progressDialog.cancel()
 
@@ -82,33 +84,23 @@ class MaterialStorageClient:MaterialRemoteDataSource{
         }
     }
 
-    override suspend fun downloadFile(fileLocation: String) {
-        val fileRef = storageRef.child(fileLocation)
+    override  suspend fun downloadFile(fileLocation: String) {
+        val storage = FirebaseStorage.getInstance()
+        val storageRef = storage.getReferenceFromUrl("<your_bucket>")
+        val islandRef = storageRef.child(fileLocation)
+        val rootPath = File(Environment.getExternalStorageDirectory(), "Materials")
+        if (!rootPath.exists()) {
+            rootPath.mkdirs()
+        }
+        val localFile = File(rootPath, "downloads")
 
-        val localFile = File.createTempFile("downloads", "jpg")
-
-        try {
-            fileRef.getFile(localFile).addOnSuccessListener {
-
-            }.addOnFailureListener { exception ->
-
+        islandRef.getFile(localFile)
+            .addOnSuccessListener { taskSnapshot ->
+                Log.e("firebase", ";local temp file created $localFile")
             }
-        } catch (e: Exception) {
-        }
-    }
-
-    override fun getFiles(fileLocation: String) = callbackFlow<List<Uri>> {
-        val storageRef = FirebaseStorage.getInstance().reference
-        val folderRef = storageRef.child(fileLocation)
-        val task = folderRef.listAll().addOnSuccessListener {
-            Log.d("funGet", "get File success ")
-            close()
-
-        }.addOnFailureListener {
-            Log.d("funGet", "get File failed ")
-            close(it)
-        }
-        awaitClose()
+            .addOnFailureListener { exception ->
+                Log.e("firebase", "local temp file not created $exception")
+            }
     }
 
 

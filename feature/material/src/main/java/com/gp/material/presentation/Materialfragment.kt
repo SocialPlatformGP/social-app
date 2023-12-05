@@ -1,5 +1,6 @@
 package com.gp.material.presentation
 
+import MaterialViewModel
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -22,6 +23,7 @@ class materialfragment : Fragment() {
     private lateinit var binding:FragmentMaterialBinding
     private val PICK_FILE_REQUEST=1
     val material= MaterialStorageClient()
+    val viewModel:MaterialViewModel=MaterialViewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,16 +53,27 @@ class materialfragment : Fragment() {
                 dialog.dismiss()
             }
             val uploadImage=view.findViewById<Button>(R.id.uploadImage)
+            val delete=view.findViewById<Button>(R.id.uploadFile)
+            val download=view.findViewById<Button>(R.id.createNewFolder)
             uploadImage.setOnClickListener{
                 val intentImage=Intent(Intent.ACTION_PICK)
                 intentImage.type="*/*"
                 startActivityForResult(intentImage,PICK_FILE_REQUEST)
             }
+            delete.setOnClickListener{
+               material.deleteFile("Materials/mohamed/waleed")
+            }
+            download.setOnClickListener{
+               viewModel.fetchDataFromFirebaseStorage()
+
+            }
+
             dialog.setCancelable(false)
             dialog.setContentView(view)
             dialog.show()
         }
     }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)

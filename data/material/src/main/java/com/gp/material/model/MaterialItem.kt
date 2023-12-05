@@ -1,12 +1,19 @@
 package com.gp.material.model
 
-import android.net.Uri
-
 data class MaterialItem(
+    val id:String="",
     val path:String="",
-    val type:String="",
+    val fileType: FileType,
     val name:String="",
     val createdBy:String="",
-    val data: Uri,
+    val fileUrl: String="",
     val creationTime:String=""
     )
+enum class FileType {
+    IMAGE,
+    PDF,
+    AUDIO,
+    VIDEO,
+    OTHER
+}
+

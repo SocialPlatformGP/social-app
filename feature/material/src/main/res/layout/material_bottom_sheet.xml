@@ -16,7 +16,7 @@
             android:id="@+id/createNewFolder"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="new Folder"
+            android:text="download"
             android:textStyle="bold"
             android:textColor="#ffffff"
             android:padding="4dp"

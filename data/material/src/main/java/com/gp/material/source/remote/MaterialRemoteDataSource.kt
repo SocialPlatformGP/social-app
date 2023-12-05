@@ -6,8 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface MaterialRemoteDataSource {
     suspend fun uploadFile(fileLocation:String,file:Uri,context: Context)
-    suspend fun downloadFile(fileLocation: String)
-    fun getFiles(fileLocation: String): Flow<List<Uri>>
+    suspend  fun downloadFile(fileLocation: String)
     fun deleteFile(fileLocation: String)
 
 }
