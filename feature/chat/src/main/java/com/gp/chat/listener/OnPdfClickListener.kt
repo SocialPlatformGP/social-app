@@ -1,4 +1,4 @@
-package com.gp.chat.adapter
+package com.gp.chat.listener
 
 interface OnPdfClickListener {
 

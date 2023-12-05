@@ -114,6 +114,7 @@ class MessageFirebaseClient(
                             trySend(State.SuccessWithData(ref.key!!))
                         }
                     } else {
+
                         trySend(State.Error(error.message))
                     }
                 }
@@ -123,6 +124,7 @@ class MessageFirebaseClient(
 
 
     }
+
 
     private fun putImageInStorage(storageRef: StorageReference, message: Message, key: String) {
         storageRef.putFile(message.fileURI)

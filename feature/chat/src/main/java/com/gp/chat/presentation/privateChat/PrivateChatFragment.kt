@@ -2,9 +2,7 @@ package com.gp.chat.presentation.privateChat
 
 import android.annotation.SuppressLint
 import android.content.ContentResolver
-import android.content.Context
 import android.content.DialogInterface
-import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
@@ -15,11 +13,7 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.webkit.MimeTypeMap
 import android.widget.EditText
-import android.widget.ImageView
-import android.widget.TextView
-import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -29,20 +23,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.navigation.fragment.navArgs
-import androidx.navigation.ui.AppBarConfiguration
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.bitmap.CircleCrop
-import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.transition.Transition
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import com.gp.chat.R
 import com.gp.chat.adapter.GroupMessageAdapter
 import com.gp.chat.databinding.FragmentPrivateChatBinding
 import com.gp.chat.listener.ImageClickListener
-import com.gp.chat.listener.MyOpenActionContract
-import com.gp.chat.listener.MyScrollToBottomObserver
+import com.gp.chat.utils.MyOpenActionContract
+import com.gp.chat.utils.MyScrollToBottomObserver
 import com.gp.chat.listener.OnFileClickListener
 import com.gp.chat.listener.OnMessageClickListener
 import com.gp.chat.utils.FileManager
@@ -60,10 +47,13 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
     private val viewModel: PrivateChatViewModel by viewModels()
     private val openDocument = registerForActivityResult(MyOpenActionContract()) {
         it?.let {
-            val mimeType = getMimeTypeFromUri(it)
-            val fileName = getFileName(it)
-            Log.d("TAG", "onViewCreated: $mimeType $fileName")
-            viewModel.sendImage(it, mimeType!!, fileName)
+            it.forEach {uri->
+                val mimeType = getMimeTypeFromUri(uri)
+                val fileName = getFileName(uri)
+                Log.d("TAG", "onViewCreated: $mimeType $fileName")
+                viewModel.sendImage(uri, mimeType!!, fileName)
+            }
+
         }
     }
 
@@ -155,7 +145,7 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
 
 
         binding.addFileButton.setOnClickListener {
-            showOptionsDialog()
+            openDocument.launch("*/*")
 
         }
         recyclerView.adapter = adapter
@@ -203,22 +193,7 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
 
     }
 
-    private fun showOptionsDialog() {
-        val options = arrayOf("Camera", "Gallery", "File")
 
-        val builder = MaterialAlertDialogBuilder(requireContext())
-        builder.setTitle("Select an option")
-        builder.setItems(options) { dialog, which ->
-            when (which) {
-                0 -> openDocument.launch("camera") // Launch camera
-                1 -> openDocument.launch("gallery") // Launch gallery
-                2 -> openDocument.launch("file") // Launch file picker
-            }
-            dialog.dismiss()
-        }
-        val dialog = builder.create()
-        dialog.show()
-    }
 
     override fun onFileClick(fileURL: String, fileType: String, fileNames: String) {
         fileManager = FileManager(requireContext())
