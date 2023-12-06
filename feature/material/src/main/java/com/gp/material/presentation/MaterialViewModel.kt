@@ -12,10 +12,15 @@ import com.gp.material.model.FileType
 import com.gp.material.model.MaterialItem
 import com.gp.material.source.remote.MaterialRemoteDataSource
 import dagger.hilt.android.ViewModelLifecycle
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-
-class MaterialViewModel(val remoteDataSource: MaterialRemoteDataSource) : ViewModel() {
+import javax.inject.Inject
+@HiltViewModel
+class MaterialViewModel @Inject constructor(private val remoteDataSource: MaterialRemoteDataSource) : ViewModel() {
+    init {
+        fetchDataFromFirebaseStorage("materials/image")
+    }
 
     private val storage = Firebase.storage
     private val storageReference: StorageReference = storage.reference
@@ -27,7 +32,7 @@ class MaterialViewModel(val remoteDataSource: MaterialRemoteDataSource) : ViewMo
 
         val fileItems = mutableListOf<MaterialItem>()
 
-        storageReference.child(fileLocation).listAll()
+        storageReference.child("materials/image").listAll()
             .addOnSuccessListener { listResult ->
                 listResult.items.forEach { item ->
                     // Retrieve metadata using getMetadata()

@@ -1,4 +1,4 @@
-package com.gp.chat.adapter
+ package com.gp.chat.adapter
 
 import android.content.Context
 import android.util.Log

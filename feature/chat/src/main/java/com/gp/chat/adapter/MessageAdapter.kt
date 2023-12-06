@@ -23,13 +23,9 @@ import com.gp.chat.util.ToSimpleTimeFormat
 
 class MessageAdapter() : ListAdapter<Message, MessageAdapter.MessageViewHolder>(MessageDiffCallback()){
 
-        inner class MessageViewHolder(private val binding: ViewDataBinding) :RecyclerView.ViewHolder(binding.root),
-            View.OnCreateContextMenuListener, View.OnLongClickListener{
+        inner class MessageViewHolder(private val binding: ViewDataBinding) :RecyclerView.ViewHolder(binding.root){
 
-            init {
-                itemView.setOnCreateContextMenuListener(this)
-                itemView.setOnLongClickListener(this)
-            }
+
 
             fun bind(message: Message){
                 if (binding is ItemMessageSendBinding){
@@ -40,22 +36,7 @@ class MessageAdapter() : ListAdapter<Message, MessageAdapter.MessageViewHolder>(
 
             }
 
-            override fun onCreateContextMenu(
-                menu: ContextMenu?,
-                p1: View?,
-                p2: ContextMenu.ContextMenuInfo?
-            ) {
 
-                menu?.add(Menu.NONE, R.id.menu_item_delete, Menu.NONE, "Delete")
-                menu?.add(Menu.NONE, R.id.menu_item_update, Menu.NONE, "Update")
-
-            }
-
-            override fun onLongClick(p0: View?): Boolean {
-                p0?.showContextMenu()
-                Log.d("mowaleed  ", "onLongClick: ")
-                return true
-            }
 
         }
 

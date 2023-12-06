@@ -23,11 +23,12 @@ import kotlinx.coroutines.tasks.await
 import java.io.File
 import java.io.FileOutputStream
 import java.util.UUID
+import javax.inject.Inject
 
 
-class MaterialStorageClient:MaterialRemoteDataSource{
+class MaterialStorageClient @Inject constructor(private val storage: FirebaseStorage):MaterialRemoteDataSource{
 
-    val storageRef = FirebaseStorage.getInstance().reference
+    val storageRef = storage.reference
 
     override suspend fun uploadFile(fileLocation: String, file: Uri ,context: Context) {
         val progressDialog = ProgressDialog(context)
@@ -43,7 +44,7 @@ class MaterialStorageClient:MaterialRemoteDataSource{
             .setCustomMetadata("fName", fName)
             .setCustomMetadata("createdBy", userEmail)
             .build()
-        val fileRef: StorageReference = storageRef.child("Materials/$fName")
+        val fileRef: StorageReference = storageRef.child("materials/image")
         fileRef.putFile(file,metadata).addOnSuccessListener {
             progressDialog.cancel()
 

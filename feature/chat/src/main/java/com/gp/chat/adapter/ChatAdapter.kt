@@ -27,24 +27,25 @@ import com.gp.chat.listener.OnRecentChatClicked
 import com.gp.chat.model.RecentChat
 import com.gp.chat.util.RemoveSpecialChar.removeSpecialCharacters
 
-class ChatAdapter(var onItemClickListener: OnRecentChatClicked) : ListAdapter<RecentChat,ChatAdapter.ChatViewHolder>(DiffUtilCallBack) {
+class ChatAdapter(private var onItemClickListener: OnRecentChatClicked) :
+    ListAdapter<RecentChat, ChatAdapter.ChatViewHolder>(DiffUtilCallBack) {
 
-    inner class ChatViewHolder(val binding:ChatitemBinding):RecyclerView.ViewHolder(binding.root){
+    inner class ChatViewHolder(val binding: ChatitemBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
 
-
-        fun bind(chat: RecentChat){
-            binding.chat=chat
+        fun bind(chat: RecentChat) {
+            binding.chat = chat
             binding.executePendingBindings()
 
             itemView.setOnLongClickListener {
-                if (!chat.privateChat){
-                    createPopUpMenu(itemView,chat)
+                if (!chat.privateChat) {
+                    createPopUpMenu(itemView, chat)
                 }
                 true
             }
 
-            itemView.setOnClickListener{
+            itemView.setOnClickListener {
                 onItemClickListener.onRecentChatClicked(
                     chatId = chat.id,
                     receiverName = chat.receiverName,
@@ -56,7 +57,7 @@ class ChatAdapter(var onItemClickListener: OnRecentChatClicked) : ListAdapter<Re
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatViewHolder {
-        val  binding=DataBindingUtil.inflate(
+        val binding = DataBindingUtil.inflate(
             LayoutInflater.from(parent.context),
             R.layout.chatitem,
             parent,
@@ -66,35 +67,31 @@ class ChatAdapter(var onItemClickListener: OnRecentChatClicked) : ListAdapter<Re
     }
 
     override fun onBindViewHolder(holder: ChatViewHolder, position: Int) {
-        val item=getItem(position)
+        val item = getItem(position)
         holder.bind(item)
     }
 
-    fun createPopUpMenu(item:View,chat:RecentChat){
+    fun createPopUpMenu(item: View, chat: RecentChat) {
 
-        val chatId=chat.id
-        val popupMenu = PopupMenu(item.context,item)
-        popupMenu.menuInflater.inflate(R.menu.leavegroup,popupMenu.menu)
+        val chatId = chat.id
+        val popupMenu = PopupMenu(item.context, item)
+        popupMenu.menuInflater.inflate(R.menu.leavegroup, popupMenu.menu)
 
-        popupMenu.setOnMenuItemClickListener{
-           onItemClickListener.leaveGroup(chatId)
+        popupMenu.setOnMenuItemClickListener {
+            onItemClickListener.leaveGroup(chatId)
             true
         }
         popupMenu.show()
     }
-        }
+}
 
-
-
-
-
-object DiffUtilCallBack: DiffUtil.ItemCallback<RecentChat>(){
+object DiffUtilCallBack : DiffUtil.ItemCallback<RecentChat>() {
     override fun areItemsTheSame(oldItem: RecentChat, newItem: RecentChat): Boolean {
-        return oldItem.id==newItem.id
+        return oldItem.id == newItem.id
     }
 
     override fun areContentsTheSame(oldItem: RecentChat, newItem: RecentChat): Boolean {
-        return oldItem==newItem
+        return oldItem == newItem
     }
 
 }

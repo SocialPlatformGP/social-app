@@ -2,7 +2,6 @@ package com.gp.material.presentation
 
 import MaterialViewModel
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -10,20 +9,26 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.gp.material.R
+import com.gp.material.adapter.MaterialAdapter
 import com.gp.material.databinding.FragmentMaterialBinding
-import com.gp.material.source.remote.MaterialRemoteDataSource
-import com.gp.material.source.remote.MaterialStorageClient
+import com.gp.material.listener.ClickOnFileClicKListener
+import com.gp.material.model.MaterialItem
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-
-class materialfragment : Fragment() {
+@AndroidEntryPoint
+class materialfragment : Fragment() , ClickOnFileClicKListener{
     private lateinit var binding:FragmentMaterialBinding
     private val PICK_FILE_REQUEST=1
-    val material= MaterialStorageClient()
-    val viewModel:MaterialViewModel=MaterialViewModel()
+    val viewModel:MaterialViewModel  by viewModels()
+    lateinit var  adapter:MaterialAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,6 +48,7 @@ class materialfragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        adapter= MaterialAdapter(this)
         binding.addMaterial.setOnClickListener {
             val dialog = BottomSheetDialog(requireContext())
 
@@ -53,19 +59,15 @@ class materialfragment : Fragment() {
                 dialog.dismiss()
             }
             val uploadImage=view.findViewById<Button>(R.id.uploadImage)
-            val delete=view.findViewById<Button>(R.id.uploadFile)
-            val download=view.findViewById<Button>(R.id.createNewFolder)
             uploadImage.setOnClickListener{
                 val intentImage=Intent(Intent.ACTION_PICK)
                 intentImage.type="*/*"
                 startActivityForResult(intentImage,PICK_FILE_REQUEST)
             }
-            delete.setOnClickListener{
-               material.deleteFile("Materials/mohamed/waleed")
-            }
-            download.setOnClickListener{
-               viewModel.fetchDataFromFirebaseStorage()
-
+            lifecycleScope.launch {
+                viewModel.fileItems.flowWithLifecycle(lifecycle).collect{
+                    adapter.submitList(it)
+                }
             }
 
             dialog.setCancelable(false)
@@ -81,9 +83,25 @@ class materialfragment : Fragment() {
             val selectedFileUri: Uri? = data?.data
             if (selectedFileUri != null) {
                 runBlocking {
-                    material.uploadFile("",selectedFileUri,requireContext())
+                    viewModel.uploadFile("",selectedFileUri,requireContext())
                 }
             }
         }
+    }
+
+    override fun deleteFile(item: MaterialItem) {
+
+    }
+
+    override fun openFile(item: MaterialItem) {
+        TODO("Not yet implemented")
+    }
+
+    override fun downloadFile(item: MaterialItem) {
+        TODO("Not yet implemented")
+    }
+
+    override fun showDetails(item: MaterialItem) {
+        TODO("Not yet implemented")
     }
 }
