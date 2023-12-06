@@ -1,6 +1,8 @@
 package com.gp.chat.presentation.home
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.ktx.auth
@@ -14,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.ZonedDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -55,6 +58,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun getRecentChats(chatId:List<String>){
         Log.d("testoVmHome", "getRecentChats: $chatId")
         viewModelScope.launch {
@@ -62,7 +66,7 @@ class HomeViewModel @Inject constructor(
                 when(it){
                     is State.SuccessWithData->{
                         Log.d("testoVmHome", "getRecentChats: ${it.data}")
-                        _recentChats.value=it.data
+                        _recentChats.value = it.data.sortedByDescending { ZonedDateTime.parse(it.timestamp) }
                     }
                     is State.Error->{
 

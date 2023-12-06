@@ -1,6 +1,8 @@
 package com.gp.chat.presentation.groupchat
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.ktx.auth
@@ -19,7 +21,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -44,17 +50,19 @@ class GroupChatViewModel @Inject constructor (
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun onSendMessage(groupId: String) {
         if(currentMessageState.value.message.isNotBlank()){
+            val currentTime: ZonedDateTime = ZonedDateTime.now()
             val message = Message(
                 id = "",
                 groupId = groupId,
                 message = currentMessageState.value.message,
-                messageDate = SimpleDateFormat("MMMM dd, yyyy").format(Date()),
+                messageDate = DateTimeFormatter.ofPattern("MMM dd, yyyy", Locale.ENGLISH).format(currentTime),
                 senderId = currentUser.value.userEmail,
                 senderName = currentUser.value.userFirstName + currentUser.value.userLastName,
                 senderPfpURL = currentUser.value.userProfilePictureURL,
-                timestamp = getTimeStamp(Date())
+                timestamp = currentTime.toString()
             )
             val recentChat = RecentChat(
                 lastMessage = "${currentUser.value.userFirstName}: ${currentMessageState.value.message}",

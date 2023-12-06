@@ -1,6 +1,8 @@
 package com.gp.chat.presentation.privateChat
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.ktx.auth
@@ -17,7 +19,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 
@@ -60,18 +65,21 @@ class PrivateChatViewModel @Inject constructor(
                 }
             }
     }
+    @RequiresApi(Build.VERSION_CODES.O)
     fun sendMessage() {
         Log.d("testo vm", "sendMessage start: ${currentMessage.value.message}")
         if (currentMessage.value.message.isEmpty()) {
             currentMessage.value = currentMessage.value.copy(error = "message is empty")
             return
         } else {
+            val currentTime: ZonedDateTime = ZonedDateTime.now()
             viewModelScope.launch(Dispatchers.IO) {
                 val message = Message(
                     senderId = currentEmail,
                     groupId = ChatId,
                     message = currentMessage.value.message,
-                    timestamp = Date().toString(),
+                    messageDate = DateTimeFormatter.ofPattern("MMM dd, yyyy", Locale.ENGLISH).format(currentTime),
+                    timestamp = currentTime.toString(),
                 )
                 messageRepository.sendMessage(message).collect{
                     when (it) {
@@ -87,11 +95,12 @@ class PrivateChatViewModel @Inject constructor(
             }
         }
     }
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun updateRecent(){
         viewModelScope.launch (Dispatchers.IO){
             val recentChat = RecentChat(
                 lastMessage = currentMessage.value.message,
-                timestamp = Date().toString(),
+                timestamp = ZonedDateTime.now().toString(),
                 title = "private chat",
                 privateChat = true,
                 receiverName = receiverEmail,

@@ -12,6 +12,7 @@ import com.gp.chat.util.DateUtils.getTimeStamp
 import com.gp.chat.util.RemoveSpecialChar
 import com.gp.socialapp.utils.State
 import kotlinx.coroutines.flow.Flow
+import java.time.ZonedDateTime
 import java.util.Date
 import javax.inject.Inject
 
@@ -86,12 +87,13 @@ class MessageRepositoryImpl @Inject constructor(
         currentUserEmail: String
     ): Flow<State<String>> {
         Log.d("viewmodel->repo", "createGroupChat: $name")
+        val currentTime: ZonedDateTime = ZonedDateTime.now()
         val membersMap = members.map{ RemoveSpecialChar.removeSpecialCharacters(it)}.associateWith { false } + mapOf(RemoveSpecialChar.removeSpecialCharacters(currentUserEmail) to true)
         val group = NetworkChatGroup(name = name,
             membersMap)
         val recentChat = NetworkRecentChat(
             lastMessage = "\t",
-            timestamp = getTimeStamp(Date()),
+            timestamp = currentTime.toString(),
             title = name,
             senderName = "N/A",
             receiverName = "N/A",

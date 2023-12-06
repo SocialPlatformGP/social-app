@@ -1,5 +1,6 @@
 package com.gp.chat.presentation.home
 
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -7,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -25,6 +27,9 @@ import com.gp.chat.model.Message
 import com.gp.socialapp.database.model.UserEntity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @AndroidEntryPoint
 class ChatHome : Fragment(),OnRecentChatClicked {
@@ -44,6 +49,7 @@ class ChatHome : Fragment(),OnRecentChatClicked {
 
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -54,7 +60,8 @@ class ChatHome : Fragment(),OnRecentChatClicked {
 
         lifecycleScope.launch {
             viewModel.recentChats.flowWithLifecycle(lifecycle).collect{
-                chatAdapter.submitList(it)
+                chatAdapter.submitList(it.map{it.copy(timestamp = DateTimeFormatter
+                    .ofPattern("hh:mm", Locale.ENGLISH).format(ZonedDateTime.parse(it.timestamp)))})
             }
         }
 
