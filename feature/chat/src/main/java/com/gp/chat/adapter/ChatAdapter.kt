@@ -41,14 +41,19 @@ class ChatAdapter(var onItemClickListener: OnRecentChatClicked) :
         fun bind(chat: RecentChat) {
             binding.chat = chat
             val currentUser = Firebase.auth.currentUser?.displayName.toString()
-            if (chat.senderName == currentUser) {
-                binding.name.text = chat.receiverName
-                loadWithGlide(binding.profileImage, chat.receiverPicUrl)
+            if(chat.privateChat) {
+                if (chat.senderName == currentUser) {
+                    binding.name.text = chat.receiverName
+                    loadWithGlide(binding.profileImage, chat.receiverPicUrl)
+                } else {
+                    binding.name.text = chat.senderName
+                    loadWithGlide(binding.profileImage, chat.senderPicUrl)
+                }
             } else {
-                binding.name.text = chat.senderName
+                binding.name.text = chat.title
                 loadWithGlide(binding.profileImage, chat.senderPicUrl)
-
             }
+
 
 
             binding.executePendingBindings()

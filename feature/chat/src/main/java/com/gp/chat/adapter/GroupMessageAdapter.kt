@@ -8,27 +8,25 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.PopupMenu
-import android.widget.TextView
-import androidx.fragment.app.FragmentActivity
+import android.widget.Toast
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.gp.chat.R
 import com.gp.chat.databinding.AudioPlayerBinding
+import com.gp.chat.databinding.FileMessageBinding
 import com.gp.chat.databinding.ImageMessageBinding
 import com.gp.chat.databinding.MessageBinding
-import com.gp.chat.databinding.PdfPreviewBinding
 import com.gp.chat.listener.ImageClickListener
 import com.gp.chat.listener.OnFileClickListener
 import com.gp.chat.listener.OnMessageClickListener
 import com.gp.chat.model.Message
-import com.gp.chat.utils.FullScreenImageDialogFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -40,8 +38,9 @@ class GroupMessageAdapter(
     private val messageClickListener: OnMessageClickListener,
     private val fileClickListener: OnFileClickListener,
     private val imageClickListener: ImageClickListener,
+    private val isPrivateChats: Boolean
 ) :
-    ListAdapter<Message, ViewHolder>(GroupMessageDiffCallback()) {
+    ListAdapter<Message,ViewHolder>(MessageDiffCallback()) {
     private val currentUser = Firebase.auth.currentUser
     private var mediaPlayer: MediaPlayer? = null
     private var progressBarJob: Job? = null
@@ -56,9 +55,9 @@ class GroupMessageAdapter(
             val binding = ImageMessageBinding.bind(view)
             ImageMessageViewHolder(binding)
         } else if (viewType == VIEW_TYPE_PDF) {
-            val view = inflater.inflate(R.layout.pdf_preview, parent, false)
-            val binding = PdfPreviewBinding.bind(view)
-            PdfMessageViewHolder(binding)
+            val view = inflater.inflate(R.layout.file_message, parent, false)
+            val binding = FileMessageBinding.bind(view)
+            FileMessageViewHolder(binding)
         } else if (viewType == VIEW_TYPE_AUDIO) {
             val view = inflater.inflate(R.layout.audio_player, parent, false)
             val binding = AudioPlayerBinding.bind(view)
@@ -91,7 +90,7 @@ class GroupMessageAdapter(
                 holder.bind(item)
             }
 
-            is PdfMessageViewHolder -> {
+            is FileMessageViewHolder -> {
                 holder.bind(item)
             }
 
@@ -138,23 +137,41 @@ class GroupMessageAdapter(
         }
 
 
+
+
     inner class MessageViewHolder(private val binding: MessageBinding) : ViewHolder(binding.root) {
         fun bind(item: Message) {
             //data
-
             //sender
-            if (item.senderName == currentUser?.displayName) {
-                binding.senderMessageLayout.visibility = View.VISIBLE
-                binding.receieverMessageLayout.visibility = View.GONE
-                binding.senderMessageTextView.text = item.message
-                binding.senderMessengerTextView.text = item.senderName
-                loadImageIntoView(binding.senderMessengerImageView, item.senderPfpURL)
+            if (item.senderName != currentUser?.displayName) {
+                binding.receieverTextMessageLayout.visibility = View.VISIBLE
+                binding.senderTextMessageLayout.visibility = View.GONE
+                if (item.message.isNotEmpty()) {
+                    binding.receivedMessageTextview.visibility = View.VISIBLE
+                    binding.receivedMessageTextview.text = item.message
+                } else {
+                    binding.receivedMessageTextview.visibility = View.GONE
+                }
+
+                if (!isPrivateChats) {
+                    loadImageIntoView(binding.receivedMessageUserpfp, item.senderPfpURL)
+                    binding.receivedMessageUsernameTextview.text = item.senderName
+                } else {
+                    binding.receivedMessageUserpfp.visibility = View.GONE
+                    binding.receivedMessageUsernameTextview.visibility = View.GONE
+                }
+                binding.receivedMessageTimestamp.text = item.timestamp
+
             } else {
-                binding.receieverMessageLayout.visibility = View.VISIBLE
-                binding.senderMessageLayout.visibility = View.GONE
-                binding.receieverMessageTextView.text = item.message
-                binding.receieverMessengerTextView.text = item.senderName
-                loadImageIntoView(binding.receieverMessengerImageView, item.senderPfpURL)
+                binding.senderTextMessageLayout.visibility = View.VISIBLE
+                binding.receieverTextMessageLayout.visibility = View.GONE
+                if (item.message.isNotEmpty()) {
+                    binding.sentMessageTextview.visibility = View.VISIBLE
+                    binding.sentMessageTextview.text = item.message
+                } else {
+                    binding.sentMessageTextview.visibility = View.GONE
+                }
+                binding.sentMessageTimestamp.text = item.timestamp
             }
         }
 
@@ -164,21 +181,40 @@ class GroupMessageAdapter(
     inner class ImageMessageViewHolder(private val binding: ImageMessageBinding) :
         ViewHolder(binding.root) {
         fun bind(item: Message) {
-            if (item.senderName == currentUser?.displayName) {
-                binding.senderMessageLayout.visibility = View.VISIBLE
-                binding.receiverMessageLayout.visibility = View.GONE
-                loadImageIntoView(binding.senderMessageImageView, item.fileURI.toString(), false)
-                binding.senderMessengerTextView.text = item.senderName ?: ""
-                loadImageIntoView(binding.senderMessengerImageView, item.senderPfpURL)
+            Log.d("MessageAdapter02", "bind: ${item.message}")
 
+            if (item.senderName != currentUser?.displayName) {
+                binding.recieverImageMessageLayout.visibility = View.VISIBLE
+                binding.senderImageMessageLayout.visibility = View.GONE
+                loadImageIntoView(binding.receivedMessageImageview, item.fileURI.toString(), false)
+
+                if (!isPrivateChats) {
+                    loadImageIntoView(binding.receivedMessageUserpfp, item.senderPfpURL)
+                    binding.receivedMessageUsernameTextview.text = item.senderName ?: ""
+                } else {
+                    binding.receivedMessageUserpfp.visibility = View.GONE
+                    binding.receivedMessageUsernameTextview.visibility = View.GONE
+                }
+                if (item.message.isNotEmpty()) {
+                    binding.receivedMessageTextview.visibility = View.VISIBLE
+                    binding.receivedMessageTextview.text = item.message
+                } else {
+                    binding.receivedMessageTextview.visibility = View.GONE
+                }
+                binding.receivedMessageTimestamp.text = item.timestamp
 
 
             } else {
-                binding.receiverMessageLayout.visibility = View.VISIBLE
-                binding.senderMessageLayout.visibility = View.GONE
-                loadImageIntoView(binding.receiverMessageImageView, item.fileURI.toString(), false)
-                binding.receiverMessengerTextView.text = item.senderName ?: ""
-                loadImageIntoView(binding.receiverMessengerImageView, item.senderPfpURL)
+                binding.senderImageMessageLayout.visibility = View.VISIBLE
+                binding.recieverImageMessageLayout.visibility = View.GONE
+                loadImageIntoView(binding.sentMessageImageview, item.fileURI.toString(), false)
+                if (item.message.isNotEmpty()) {
+                    binding.sentMessageTextview.visibility = View.VISIBLE
+                    binding.sentMessageTextview.text = item.message
+                } else {
+                    binding.sentMessageTextview.visibility = View.GONE
+                }
+                binding.sentMessageTimestamp.text = item.timestamp
             }
 
             //click listener
@@ -188,26 +224,57 @@ class GroupMessageAdapter(
         }
     }
 
-    inner class PdfMessageViewHolder(private val binding: PdfPreviewBinding) :
+    inner class FileMessageViewHolder(private val binding: FileMessageBinding) :
         ViewHolder(binding.root) {
         fun bind(item: Message) {
             //data
-            binding.messageImageView.setImageResource(R.drawable.pdf_placeholder)
-            binding.fileNameTextView.text = item.fileNames
-            //sender
-            binding.messengerTextView.text = item.senderName ?: ""
-            if (item.senderName == currentUser?.displayName) {
-                loadImageIntoView(binding.messengerImageView, currentUser.photoUrl.toString())
+            if (item.senderName != currentUser?.displayName) {
+                binding.recieverFileMessageLayout.visibility = View.VISIBLE
+                binding.senderFileMessageLayout.visibility = View.GONE
+                binding.receivedMessageImageview.setImageResource(R.drawable.file_icon)
+
+                if (!isPrivateChats) {
+                    loadImageIntoView(binding.receivedMessageUserpfp, item.senderPfpURL)
+                    binding.receivedMessageUsernameTextview.text = item.senderName ?: ""
+                } else {
+                    binding.receivedMessageUserpfp.visibility = View.GONE
+                    binding.receivedMessageUsernameTextview.visibility = View.GONE
+                }
+                if (item.message.isNotEmpty()) {
+                    binding.receivedMessageTextview.visibility = View.VISIBLE
+                    binding.receivedMessageTextview.text = item.message
+                } else {
+                    binding.receivedMessageTextview.visibility = View.GONE
+                }
+                binding.receivedMessageTimestamp.text = item.timestamp
+                binding.receivedMessageFileName.text = item.fileNames
+
             } else {
-                loadImageIntoView(binding.messengerImageView, item.senderPfpURL)
+                binding.senderFileMessageLayout.visibility = View.VISIBLE
+                binding.recieverFileMessageLayout.visibility = View.GONE
+                binding.sentMessageImageview.setImageResource(R.drawable.file_icon)
+
+                if (item.message.isNotEmpty()) {
+                    binding.sentMessageTextview.visibility = View.VISIBLE
+                    binding.sentMessageTextview.text = item.message
+                } else {
+                    binding.sentMessageTextview.visibility = View.GONE
+                }
+                binding.sentMessageTimestamp.text = item.timestamp
+                binding.sentMessageFileName.text = item.fileNames
             }
             //click listener
-            binding.messageImageView.setOnClickListener {
-                fileClickListener.onFileClick(
-                    item.fileURI.toString(),
-                    item.fileType,
-                    item.fileNames
-                )
+            binding.fileMessageLayout.setOnClickListener {
+                if(item.fileURI.toString().startsWith("content://")){
+                    Toast.makeText(itemView.context, "Uploading not finished", Toast.LENGTH_SHORT).show()
+                }
+                else {
+                    fileClickListener.onFileClick(
+                        item.fileURI.toString(),
+                        item.fileType,
+                        item.fileNames
+                    )
+                }
             }
         }
     }
@@ -364,14 +431,17 @@ class GroupMessageAdapter(
         const val VIEW_TYPE_AUDIO = 4
     }
 }
-
-
-class GroupMessageDiffCallback : DiffUtil.ItemCallback<Message>() {
+class MessageDiffCallback : DiffUtil.ItemCallback<Message>() {
     override fun areItemsTheSame(oldItem: Message, newItem: Message): Boolean {
-        return oldItem.id == newItem.id
+        return false
     }
 
     override fun areContentsTheSame(oldItem: Message, newItem: Message): Boolean {
-        return oldItem == newItem
+        return false
     }
 }
+
+
+
+
+
