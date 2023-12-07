@@ -16,7 +16,7 @@ interface MessageRepository {
     fun sendGroupMessage(message: Message): Flow<State<Nothing>>
     fun createGroupChat(name: String, avatarLink: String, members: List<String>, currentUserEmail: String): Flow<State<String>>
     fun insertChat(chat:ChatGroup): Flow<State<String>>
-    fun insertRecentChat(recentChat: RecentChat,chatId: String): Flow<State<String>>
+    fun insertRecentChat(recentChat: RecentChat,chatId: String)
     fun sendMessage(message: Message): Flow<State<String>>
     fun getMessages(chatId: String): Flow<State<List<Message>>>
     fun getRecentChats(chatId: List<String>): Flow<State<List<RecentChat>>>

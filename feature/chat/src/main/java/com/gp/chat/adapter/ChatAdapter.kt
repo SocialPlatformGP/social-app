@@ -41,6 +41,7 @@ class ChatAdapter(var onItemClickListener: OnRecentChatClicked) :
         fun bind(chat: RecentChat) {
             binding.chat = chat
             val currentUser = Firebase.auth.currentUser?.displayName.toString()
+            Log.d("zarea5", "bind: ${chat.privateChat}")
             if(chat.privateChat) {
                 if (chat.senderName == currentUser) {
                     binding.name.text = chat.receiverName

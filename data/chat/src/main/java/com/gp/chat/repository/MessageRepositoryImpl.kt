@@ -24,7 +24,7 @@ class MessageRepositoryImpl @Inject constructor(
     override fun insertChat(chat: ChatGroup): Flow<State<String>> =
         messageRemoteDataSource.insertChat(chat)
 
-    override fun insertRecentChat(recentChat: RecentChat, chatId: String): Flow<State<String>> =
+    override fun insertRecentChat(recentChat: RecentChat, chatId: String) =
         messageRemoteDataSource.insertRecentChat(recentChat, chatId)
 
     override fun sendMessage(message: Message): Flow<State<String>> =
@@ -93,7 +93,7 @@ class MessageRepositoryImpl @Inject constructor(
         val membersMap = members.map{ RemoveSpecialChar.removeSpecialCharacters(it)}.associateWith { false } + mapOf(RemoveSpecialChar.removeSpecialCharacters(currentUserEmail) to true)
         val group = NetworkChatGroup(name = name, membersMap)
         val recentChat = NetworkRecentChat(
-            lastMessage = "\t",
+            lastMessage = "No messages yet",
             timestamp = getTimeStamp(Date()),
             title = name,
             senderName = "N/A",

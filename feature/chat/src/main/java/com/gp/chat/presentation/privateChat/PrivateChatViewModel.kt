@@ -68,10 +68,27 @@ class PrivateChatViewModel @Inject constructor(
                     is State.SuccessWithData -> {
                         _messages.value = it.data
                         currentMessage.value = currentMessage.value.copy(error = "data loaded")
+
                     }
 
                     is State.Error -> {
                         currentMessage.value = currentMessage.value.copy(error = it.message)
+                        if (it.message == "No messages found") {
+                            Log.d("zarea4","no message found"+it.message)
+                            messageRepository.insertRecentChat(
+                                RecentChat(
+                                    id = "",
+                                    senderName = senderName,
+                                    senderPicUrl = senderPic,
+                                    receiverName = receiverName,
+                                    receiverPicUrl = receiverPic,
+                                    lastMessage = "No messages yet",
+                                    timestamp = getTimeStamp(Date()),
+                                    title = "private chat",
+                                    privateChat = true
+                                ), ChatId
+                            )
+                        }
                     }
 
                     is State.Loading -> {

@@ -24,7 +24,6 @@ class CreateGroupChatViewModel @Inject constructor(
     private val _users = MutableStateFlow(emptyList<User>())
     val users = _users.asStateFlow()
     private val currentUserEmail = userRepo.getCurrentUserEmail()
-    private val URL =""
     init {
         Log.d("EDREES", "Viewmodel Initialized")
         getListOfUsers()
@@ -67,7 +66,8 @@ class CreateGroupChatViewModel @Inject constructor(
     }
 
 
-    fun createGroup() = chatRepo.createGroupChat(name = uiState.value.name,
-        avatarLink = URL,
+    fun createGroup() = chatRepo.createGroupChat(
+        name = uiState.value.name,
+        avatarLink = uiState.value.avatarURL,
         members = uiState.value.selectedMembers.map { it.email }, currentUserEmail)
 }

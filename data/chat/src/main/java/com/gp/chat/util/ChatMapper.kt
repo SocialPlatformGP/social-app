@@ -1,5 +1,6 @@
 package com.gp.chat.util
 
+import android.util.Log
 import androidx.core.net.toUri
 import com.gp.chat.model.ChatGroup
 import com.gp.chat.model.ChatUser
@@ -77,17 +78,23 @@ object ChatMapper {
         receiverPicUrl = receiverPicUrl,
     )
 
-    fun NetworkRecentChat.toRecentChat(id: String) = RecentChat(
-        id = id,
-        lastMessage = lastMessage,
-        timestamp = timestamp,
-        title = title,
-        senderName = senderName,
-        receiverName = receiverName,
-        privateChat = privateChat,
-        senderPicUrl = senderPicUrl,
-        receiverPicUrl = receiverPicUrl,
-    )
+    fun NetworkRecentChat.toRecentChat(id: String) :RecentChat{
+        Log.d("zarea5","toRecentChat"+privateChat)
+       return RecentChat(
+            id = id,
+            lastMessage = lastMessage,
+            timestamp = timestamp,
+            title = title,
+            senderName = senderName,
+            receiverName = receiverName,
+            privateChat = privateChat,
+            senderPicUrl = senderPicUrl,
+            receiverPicUrl = receiverPicUrl,
+        )
+
+
+    }
+
 
 
     fun PrivateChats.toNetworkPrivateChats() = PrivateChatsNetwork(

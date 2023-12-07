@@ -3,6 +3,7 @@ package com.gp.chat.source.remote
 
 import android.net.Uri
 import android.util.Log
+import androidx.core.net.toUri
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
@@ -75,29 +76,19 @@ class MessageFirebaseClient(
         }
     }
 
-    override fun insertRecentChat(recentChat: RecentChat, chatId: String): Flow<State<String>> =
-        callbackFlow {
-            val ref = database.reference.child(RECENT_CHATS).child(chatId).push()
-            ref.setValue(recentChat)
-            val listener = object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    if (snapshot.exists()) {
-                        Log.d(TAG, "onDataChange: $snapshot")
-                        trySend(State.SuccessWithData(ref.key!!))
-                    } else {
-                        trySend(State.Error("error"))
-                    }
-                }
+    override fun insertRecentChat(recentChat: RecentChat, chatId: String) {
+        Log.d("zarea4", "in client start sertRecentChat: $recentChat")
 
-                override fun onCancelled(error: DatabaseError) {
-                    trySend(State.Error(error.message))
+        database.reference.child(RECENT_CHATS).child(chatId)
+            .setValue(recentChat) { error, ref ->
+                if (error == null) {
+                    Log.d("zarea4", "in client sertRecentChat: $recentChat")
+                } else {
+                    Log.d("zarea4", "in client sertRecentChat: $error")
                 }
             }
-            ref.addValueEventListener(listener)
-            awaitClose {
-                ref.removeEventListener(listener)
-            }
-        }
+    }
+
 
     override fun sendMessage(message: Message): Flow<State<String>> = callbackFlow {
         database.reference.child(MESSAGES).child(message.groupId).push().setValue(
@@ -196,19 +187,11 @@ class MessageFirebaseClient(
                     if (snapshot.exists()) {
                         val list = mutableListOf<RecentChat>()
                         for (chatId in chatsId) {
-
                             val recentChats =
-                                (snapshot.child(chatId).getValue(NetworkRecentChat::class.java)
+                                ((snapshot.child(chatId)).getValue(NetworkRecentChat::class.java)
                                     ?.toRecentChat(chatId))
-                            Log.d("testo", "onDataChange1: ${snapshot.child(chatId)}")
-                            Log.d(
-                                "testo",
-                                "onDataChange2: ${
-                                    snapshot.child(chatId).getValue(NetworkRecentChat::class.java)
-                                }"
-                            )
 
-                            Log.d("testo", "onDataChange: $recentChats")
+
                             if (recentChats != null) {
                                 list.add(recentChats)
                             }
@@ -328,8 +311,12 @@ class MessageFirebaseClient(
 
     override fun updateRecentChat(recentChat: RecentChat, chatId: String): Flow<State<String>> =
         callbackFlow {
+            val map = hashMapOf<String, Any>()
+            map["lastMessage"] = recentChat.lastMessage
+            map["timestamp"] = recentChat.timestamp
+
             database.reference.child(RECENT_CHATS).child(chatId).updateChildren(
-                recentChat.toMap()
+                map
             ).addOnCompleteListener {
                 if (it.isSuccessful) {
                     trySend(State.SuccessWithData(chatId))
@@ -452,7 +439,7 @@ class MessageFirebaseClient(
         group: NetworkChatGroup,
         recentChat: NetworkRecentChat
     ): Flow<State<String>> = callbackFlow {
-        Log.d("EDREES", "Before Sending")
+        Log.d("zarea3", "Before Sending ${recentChat.senderPicUrl}")
         try {
             val chatRef = database.reference.child(CHAT).push()
             val chatKey = chatRef.key
@@ -460,37 +447,58 @@ class MessageFirebaseClient(
                 trySend(State.Error("Failed to generate a chat key"))
                 return@callbackFlow
             }
-            chatRef.setValue(group)
+            //**********************************
+            Firebase.storage
+                .getReference(currentUser!!.uid)
+                .child(chatKey)
+                .child(recentChat.senderPicUrl.toUri().lastPathSegment!!)
+                .putFile(recentChat.senderPicUrl.toUri())
                 .addOnSuccessListener {
-                    database.reference.child(RECENT_CHATS).child(chatKey)
-                        .setValue(recentChat)
-                        .addOnSuccessListener {
-                            val userGroupData = hashMapOf<String, Any>()
-                            for (user in group.members.entries) {
-                                userGroupData["$CHAT_USER/${
-                                    RemoveSpecialChar.removeSpecialCharacters(
-                                        user.key
-                                    )
-                                }/$GROUP/${chatKey}"] = user.value
-                            }
-                            val updateResult = database.reference.updateChildren(userGroupData)
+                    it.metadata?.reference?.downloadUrl
+                        ?.addOnSuccessListener { uri ->
+                            Log.d("zarea3", "Image Uploaded ${uri}")
+                            chatRef.setValue(group)
                                 .addOnSuccessListener {
-                                    trySend(State.SuccessWithData(chatKey))
-                                }.addOnFailureListener {
-                                    trySend(State.Error("Failed to update user groups"))
+                                    database.reference.child(RECENT_CHATS).child(chatKey)
+                                        .setValue(recentChat.copy(senderPicUrl = uri.toString()))
+                                        .addOnSuccessListener {
+                                            val userGroupData = hashMapOf<String, Any>()
+                                            for (user in group.members.entries) {
+                                                userGroupData["$CHAT_USER/${
+                                                    removeSpecialCharacters(
+                                                        user.key
+                                                    )
+                                                }/$GROUP/${chatKey}"] = user.value
+                                            }
+                                            val updateResult =
+                                                database.reference.updateChildren(userGroupData)
+                                                    .addOnSuccessListener {
+                                                        trySend(State.SuccessWithData(chatKey))
+                                                    }.addOnFailureListener {
+                                                        trySend(State.Error("Failed to update user groups"))
+                                                    }
+                                        }
+                                        .addOnFailureListener {
+                                            trySend(
+                                                State.Error(
+                                                    it.localizedMessage
+                                                        ?: "Failed to create recent chat"
+                                                )
+                                            )
+                                        }
+                                }
+                                .addOnFailureListener {
+                                    trySend(
+                                        State.Error(
+                                            it.localizedMessage ?: "Failed to create group chat"
+                                        )
+                                    )
                                 }
                         }
-                        .addOnFailureListener {
-                            trySend(
-                                State.Error(
-                                    it.localizedMessage ?: "Failed to create recent chat"
-                                )
-                            )
-                        }
+
                 }
-                .addOnFailureListener {
-                    trySend(State.Error(it.localizedMessage ?: "Failed to create group chat"))
-                }
+            //**********************************
+
         } catch (e: Exception) {
             trySend(State.Error(e.localizedMessage ?: "An error occurred"))
         }

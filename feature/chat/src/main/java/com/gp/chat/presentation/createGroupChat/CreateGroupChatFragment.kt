@@ -33,7 +33,10 @@ class CreateGroupChatFragment : Fragment(), OnGroupMembersChangeListener {
         ActivityResultContracts.GetContent()
     ) {
         binding.groupAvatarImageview.setImageURI(it)
+        Log.d("zarea3", " in fragment result: $it")
         viewModel.uiState.value = viewModel.uiState.value.copy(avatarURL = it.toString())
+        Log.d("zarea3", " in fragment result2: ${viewModel.uiState.value.avatarURL}")
+
     }
 
     override fun onCreateView(
@@ -85,16 +88,16 @@ class CreateGroupChatFragment : Fragment(), OnGroupMembersChangeListener {
     fun onLoadPictureClick() {
         val items = arrayOf("Take Photo", "Choose Existing Photo")
         MaterialAlertDialogBuilder(requireContext()).setItems(items) { dialog, which ->
-                when (which) {
-                    0 -> {
-                        onTakePhotoSelected()
-                    }
-
-                    1 -> {
-                        onChoosePhotoSelected()
-                    }
+            when (which) {
+                0 -> {
+                    onTakePhotoSelected()
                 }
-            }.show()
+
+                1 -> {
+                    onChoosePhotoSelected()
+                }
+            }
+        }.show()
     }
 
     private fun onTakePhotoSelected() {
@@ -129,10 +132,11 @@ class CreateGroupChatFragment : Fragment(), OnGroupMembersChangeListener {
                 viewModel.createGroup().flowWithLifecycle(lifecycle).collectLatest {
                     when (it) {
                         is State.SuccessWithData -> {
+
                             val action =
                                 CreateGroupChatFragmentDirections.actionCreateGroupChatFragmentToGroupChatFragment(
-                                        it.data,viewModel.uiState.value.name,viewModel.uiState.value.avatarURL
-                                    )
+                                    it.data, viewModel.uiState.value.name, viewModel.uiState.value.avatarURL
+                                )
                             findNavController().navigate(action)
                         }
 

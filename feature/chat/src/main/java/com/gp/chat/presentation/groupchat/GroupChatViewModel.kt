@@ -111,8 +111,6 @@ class GroupChatViewModel @Inject constructor(
                     currentMessageState.value.fileName
                 },
                 timestamp = Date().toString(),
-                title = title,
-                senderPicUrl = photoUrl,
             )
             Log.d("zarea2", "calling update recent in vm  $ChatId")
             messageRepo.updateRecentChat(recentChat, ChatId).collect {
