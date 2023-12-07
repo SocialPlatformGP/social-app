@@ -418,7 +418,7 @@ class MessageFirebaseClient(
         }
     }
 
-    override fun sendGroupMessage(message: Message, recentChat: RecentChat): Flow<State<Nothing>> =
+    override fun sendGroupMessage(message: Message): Flow<State<Nothing>> =
         callbackFlow {
             Log.d("edrees", "Before Sending")
             trySend(State.Loading)
