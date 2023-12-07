@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import android.view.ViewTreeObserver
+import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -81,9 +82,8 @@ class GroupChatFragment : Fragment(), OnMessageClickListener, OnFileClickListene
         binding.addFileButton.setOnClickListener {
             openDocument.launch("*/*")
         }
-        //todo add title to toolbar
-        //val toolbar = requireActivity().findViewById<Toolbar>(R.id.toolbar)
-        //toolbar.title = args.groupName
+        val toolbar = requireActivity().findViewById<Toolbar>(R.id.toolbar)
+        toolbar.title = args.title
 
         lifecycleScope.launch {
             viewModel.chatMessagesFlow.flowWithLifecycle(lifecycle).collectLatest {
