@@ -67,12 +67,7 @@ class ChatAdapter(var onItemClickListener: OnRecentChatClicked) :
 
             itemView.setOnClickListener {
                 onItemClickListener.onRecentChatClicked(
-                    chatId = chat.id,
-                    receiverName = chat.receiverName,
-                    senderName = chat.senderName,
-                    isPrivateChat = chat.privateChat,
-                    senderPicUrl = chat.senderPicUrl,
-                    receiverPicUrl = chat.receiverPicUrl
+                    recentChat = chat,
 
                 )
             }

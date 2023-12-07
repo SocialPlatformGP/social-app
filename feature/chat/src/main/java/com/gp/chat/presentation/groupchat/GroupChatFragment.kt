@@ -63,7 +63,7 @@ class GroupChatFragment : Fragment(), OnMessageClickListener, OnFileClickListene
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.setData(args.groupId)
+        viewModel.setData(args.groupId,args.title,args.photoUrl)
         val recyclerView = binding.recyclerMessage
         val adapter = GroupMessageAdapter(this, this, this, false)
         val manager = LinearLayoutManager(requireContext())

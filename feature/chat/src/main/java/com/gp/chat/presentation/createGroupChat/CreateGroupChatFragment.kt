@@ -33,6 +33,7 @@ class CreateGroupChatFragment : Fragment(), OnGroupMembersChangeListener {
         ActivityResultContracts.GetContent()
     ) {
         binding.groupAvatarImageview.setImageURI(it)
+        viewModel.uiState.value = viewModel.uiState.value.copy(avatarURL = it.toString())
     }
 
     override fun onCreateView(
@@ -130,7 +131,7 @@ class CreateGroupChatFragment : Fragment(), OnGroupMembersChangeListener {
                         is State.SuccessWithData -> {
                             val action =
                                 CreateGroupChatFragmentDirections.actionCreateGroupChatFragmentToGroupChatFragment(
-                                        it.data
+                                        it.data,viewModel.uiState.value.name,viewModel.uiState.value.avatarURL
                                     )
                             findNavController().navigate(action)
                         }

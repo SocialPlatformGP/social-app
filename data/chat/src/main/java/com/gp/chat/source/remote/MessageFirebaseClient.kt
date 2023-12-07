@@ -436,20 +436,9 @@ class MessageFirebaseClient(
                                 .child(message.fileURI.lastPathSegment!!)
                             putImageInStorage(storageRef, message, key)
                         } else {
-                            Log.d("EDREES", "Message Sent")
-                            val updates = HashMap<String, Any>()
-                            updates["lastMessage"] = recentChat.lastMessage
-                            updates["timestamp"] = recentChat.timestamp
-                            database.reference.child(RECENT_CHATS)
-                                .child(message.groupId)
-                                .updateChildren(updates)
-                                .addOnSuccessListener {
-                                    Log.d("EDREES", "Recent Sent")
-                                    trySend(State.Success)
-                                }.addOnFailureListener {
-                                    trySend(State.Error(it.localizedMessage!!))
-                                }
+
                         }
+                        trySend(State.Success)
 
                     } else {
                         trySend(State.Error(error.message))

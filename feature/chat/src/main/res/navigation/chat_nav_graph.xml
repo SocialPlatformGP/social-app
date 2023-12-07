@@ -79,6 +79,14 @@
         <action
             android:id="@+id/action_groupChatFragment_to_fullScreenImageDialogFragment"
             app:destination="@id/fullScreenImageDialogFragment" />
+        <argument
+            android:name="title"
+            app:argType="string"
+            android:defaultValue='""' />
+        <argument
+            android:name="photoUrl"
+            app:argType="string"
+            android:defaultValue='""' />
     </fragment>
     <fragment
         android:id="@+id/createGroupChatFragment"

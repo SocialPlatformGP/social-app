@@ -101,7 +101,7 @@ class PrivateChatViewModel @Inject constructor(
                     message = currentMessage.value.message,
                     timestamp = getTimeStamp(Date()),
                     fileURI = currentMessage.value.fileUri ?: "".toUri(),
-                    fileType = currentMessage.value.fileTypes ?: "", //TODO: change to file type
+                    fileType = currentMessage.value.fileTypes ?: "",
                     fileNames = currentMessage.value.fileName ?: ""
                 )
 
