@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.webkit.MimeTypeMap
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
@@ -108,6 +109,7 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
             toolbar.title = args.senderName
 
         }
+
 
         lifecycleScope.launch {
             viewModel.messages.flowWithLifecycle(lifecycle).collect {

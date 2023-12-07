@@ -84,7 +84,14 @@ class GroupChatFragment : Fragment(), OnMessageClickListener, OnFileClickListene
         }
         val toolbar = requireActivity().findViewById<Toolbar>(R.id.toolbar)
         toolbar.title = args.title
-
+        toolbar.setOnClickListener {
+            val action =
+                GroupChatFragmentDirections.actionGroupChatFragmentToGroupDetailsFragment(
+                    args.groupId,
+                )
+            //todo admin or not ????
+            findNavController().navigate(action)
+        }
         lifecycleScope.launch {
             viewModel.chatMessagesFlow.flowWithLifecycle(lifecycle).collectLatest {
                 Log.d("edrees", "before submit")

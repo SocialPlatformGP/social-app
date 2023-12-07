@@ -39,6 +39,9 @@
             app:destination="@id/newChat"
             app:popUpTo="@id/chatHome"
             app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_privateChatFragment_to_groupDetailsFragment"
+            app:destination="@id/groupDetailsFragment" />
     </fragment>
     <fragment
         android:id="@+id/chatHome"
@@ -87,6 +90,9 @@
             android:name="photoUrl"
             app:argType="string"
             android:defaultValue='""' />
+        <action
+            android:id="@+id/action_groupChatFragment_to_groupDetailsFragment"
+            app:destination="@id/groupDetailsFragment" />
     </fragment>
     <fragment
         android:id="@+id/createGroupChatFragment"
