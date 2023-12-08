@@ -1,8 +1,13 @@
 package com.gp.users.Source.remote
 
+import android.net.Uri
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
 import com.gp.socialapp.database.model.UserEntity
 import com.gp.socialapp.utils.State
 import com.gp.users.model.NetworkUser
@@ -13,22 +18,45 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import java.util.Date
 import javax.inject.Inject
 
 class UserfirestoreClient @Inject constructor(
     val firestore: FirebaseFirestore,
-    val auth: FirebaseAuth
+    val auth: FirebaseAuth,
+    val storage: FirebaseStorage
 ) :
     UserRemoteDataSource {
-    override fun createUser(user: NetworkUser) = callbackFlow {
+    override fun createUser(user: NetworkUser, pfpUri: Uri): Flow<State<Nothing>> = callbackFlow {
         trySend(State.Loading)
-        firestore.collection("users").add(user).addOnSuccessListener {
-            trySend(State.Success)
-            Log.d("TAG", "User added Successfully")
-        }.addOnFailureListener {
-            trySend(State.Error("User Creation Failed: ${it.message}"))
-            Log.d("TAG", "User addition Failed")
+        val imageRef = storage.reference.child("USERSPIC/${auth.currentUser?.uid ?: Date().toString()}")
+        imageRef.putFile(pfpUri).addOnSuccessListener { uploadTask ->
+            uploadTask.storage.downloadUrl.addOnSuccessListener { downloadUrl ->
+                val newUser = user.copy(userProfilePictureURL = downloadUrl.toString())
+                firestore.collection("users").add(newUser).addOnSuccessListener { documentReference ->
+                    auth.currentUser?.updateProfile(
+                        UserProfileChangeRequest.Builder()
+                            .setDisplayName("${user.userFirstName} ${user.userLastName}")
+                            .setPhotoUri(downloadUrl)
+                            .build()
+                    )?.addOnCompleteListener { authTask ->
+                        if (authTask.isSuccessful) {
+                            trySend(State.Success)
+                            Log.d("TAG", "User added Successfully")
+                        } else {
+                            trySend(State.Error("User Creation Failed: ${authTask.exception?.message}"))
+                        }
+                    }
+                }.addOnFailureListener { firestoreException ->
+                    trySend(State.Error("User Creation Failed: ${firestoreException.message}"))
+                }
+            }.addOnFailureListener { urlException ->
+                trySend(State.Error("Image URL retrieval failed: ${urlException.message}"))
+            }
+        }.addOnFailureListener { uploadException ->
+            trySend(State.Error("Image upload failed: ${uploadException.message}"))
         }
+
         awaitClose()
     }
 

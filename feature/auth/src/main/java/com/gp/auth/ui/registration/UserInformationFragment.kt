@@ -1,6 +1,9 @@
 package com.gp.auth.ui.registration
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -38,11 +41,15 @@ class UserInformationFragment : Fragment() {
     private val viewModel: UserInformationViewModel by viewModels()
     private lateinit var binding: FragmentUserInformationBinding
     private val args: UserInformationFragmentArgs by navArgs()
+    private val PREFS_FILE_NAME = "shit_fix"
+    private val KEY_BOOLEAN_VALUE = "isUserComplete"
     private val galleryImageResultLauncher =
         registerForActivityResult(
             ActivityResultContracts.GetContent()
         ) {
+            Log.d("seerde", "onActivityResult: $it")
             binding.profilePictureImageview.setImageURI(it)
+            viewModel.uiState.value = viewModel.uiState.value.copy(pfpLocalURI = it?: Uri.EMPTY)
         }
 
     override fun onCreateView(
@@ -202,7 +209,6 @@ class UserInformationFragment : Fragment() {
     }
 
     private fun createAccount() {
-        viewModel.uiState.value.pfp = binding.profilePictureImageview.drawable
         viewModel.onCompleteAccount(args.userEmail, args.userPassword)
         makeSnackbar("Account created successfully")
         lifecycleScope.launch {
@@ -214,6 +220,8 @@ class UserInformationFragment : Fragment() {
                         is State.Success -> {
                             val intent = Intent()
                             intent.setClassName("com.gp.socialapp", "com.gp.socialapp.MainActivity")
+                            Log.d("seerde", "how the fuck did we reach here?")
+                            saveBooleanToSharedPreferences(true)
                             startActivity(intent)
                             activity?.finish()
                         }
@@ -231,4 +239,11 @@ class UserInformationFragment : Fragment() {
 
     private fun makeSnackbar(text: String) =
         Snackbar.make(requireContext(), binding.root, text, Snackbar.LENGTH_SHORT).show()
+    private fun saveBooleanToSharedPreferences(value: Boolean) {
+        val sharedPreferences: SharedPreferences =
+            requireActivity().getSharedPreferences(PREFS_FILE_NAME, Context.MODE_PRIVATE)
+        val editor: SharedPreferences.Editor = sharedPreferences.edit()
+        editor.putBoolean(KEY_BOOLEAN_VALUE, value)
+        editor.apply()
+    }
 }

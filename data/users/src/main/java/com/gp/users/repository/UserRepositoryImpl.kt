@@ -1,5 +1,6 @@
 package com.gp.users.repository
 
+import android.net.Uri
 import android.util.Log
 import com.gp.socialapp.database.model.UserEntity
 import com.gp.socialapp.utils.State
@@ -30,7 +31,7 @@ class UserRepositoryImpl @Inject constructor(private val userLocalSource: UserLo
         return userLocalSource.getAllUsers()
     }
 
-    override fun createNetworkUser(user: NetworkUser) = userRemoteSource.createUser(user)
+    override fun createNetworkUser(user: NetworkUser, pfpURI: Uri) = userRemoteSource.createUser(user, pfpURI)
 
     override fun updateNetworkUser(user: UserEntity) = userRemoteSource.updateUser(user)
 
