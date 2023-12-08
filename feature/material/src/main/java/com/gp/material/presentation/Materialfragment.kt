@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,13 +23,14 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+
 @AndroidEntryPoint
-class materialfragment : Fragment() , ClickOnFileClicKListener{
-    private lateinit var binding:FragmentMaterialBinding
-    private val PICK_FILE_REQUEST=1
-    private val viewModel:MaterialViewModel  by viewModels()
-    private lateinit var  adapter:MaterialAdapter
-    private lateinit var  dialog:BottomSheetDialog
+class materialfragment : Fragment(), ClickOnFileClicKListener {
+    private lateinit var binding: FragmentMaterialBinding
+    private val PICK_FILE_REQUEST = 1
+    private val viewModel: MaterialViewModel by viewModels()
+    private lateinit var adapter: MaterialAdapter
+    private lateinit var dialog: BottomSheetDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,33 +50,48 @@ class materialfragment : Fragment() , ClickOnFileClicKListener{
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        adapter= MaterialAdapter(this)
-        binding.materialListRecyclerView.adapter=adapter
+        viewModel.fetchDataFromFirebaseStorage("materials/")
+        adapter = MaterialAdapter(this)
+        dialog = BottomSheetDialog(requireContext())
+        binding.materialListRecyclerView.adapter = adapter
         val view = layoutInflater.inflate(R.layout.material_bottom_sheet, null)
         val btnClose = view.findViewById<Button>(R.id.close)
         btnClose.setOnClickListener {
             dialog.dismiss()
         }
         binding.addMaterial.setOnClickListener {
-            dialog = BottomSheetDialog(requireContext())
-        }
 
-            val uploadImage=view.findViewById<Button>(R.id.uploadImage)
-            uploadImage.setOnClickListener{
-                val intentImage=Intent(Intent.ACTION_PICK)
-                intentImage.type="*/*"
-                startActivityForResult(intentImage,PICK_FILE_REQUEST)
+            val uploadImage = view.findViewById<Button>(R.id.uploadImage)
+            uploadImage.setOnClickListener {
+                val intentImage = Intent(Intent.ACTION_PICK)
+                intentImage.type = "*/*"
+                startActivityForResult(intentImage, PICK_FILE_REQUEST)
             }
-            lifecycleScope.launch {
-                viewModel.fileItems.flowWithLifecycle(lifecycle).collect{
-                    adapter.submitList(it)
-                }
-            }
+
 
             dialog.setCancelable(false)
             dialog.setContentView(view)
             dialog.show()
         }
+        lifecycleScope.launch {
+            viewModel.fileItems.flowWithLifecycle(lifecycle).collect {
+                Log.d("waleed1", it.toString())
+                adapter.submitList(it)
+            }
+        }
+        /*
+        * if(item.fileType == FileType.Folder){
+        * viewmodel.currentPath = item.path
+        * viewmodel.fetchDataFromFirebaseStorage(item.path)
+        *}else{
+        *  viewmodel.downloadFile(item.path)
+        *  viewmodel.openFile(item.path)
+        * }
+        *
+        * */
+
+
+    }
 
     override fun deleteFile(item: MaterialItem) {
         TODO("Not yet implemented")
@@ -93,14 +110,13 @@ class materialfragment : Fragment() , ClickOnFileClicKListener{
     }
 
 
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == PICK_FILE_REQUEST && resultCode == Activity.RESULT_OK) {
             val selectedFileUri: Uri? = data?.data
             if (selectedFileUri != null) {
                 runBlocking {
-                    viewModel.uploadFile("",selectedFileUri,requireContext())
+                    viewModel.uploadFile("", selectedFileUri, requireContext())
                 }
             }
         }

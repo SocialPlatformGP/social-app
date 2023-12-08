@@ -27,9 +27,7 @@ class VipFeedViewModel @Inject constructor(
     val repository: PostRepository,
     val userRepository: UserRepository
 ) : ViewModel() {
-      init {
-        getAllPosts()
-    }
+
     var currentUser = MutableStateFlow(NetworkUser())
 
     private val _uiState = MutableStateFlow<State<List<Post>>>(State.Idle)

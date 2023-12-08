@@ -3,7 +3,7 @@ package com.gp.material.model
 data class MaterialItem(
     val id:String="",
     val path:String="",
-    val fileType: FileType,
+    val fileType: FileType=FileType.OTHER,
     val name:String="",
     val createdBy:String="",
     val fileUrl: String="",

@@ -30,22 +30,22 @@ class MaterialStorageClient @Inject constructor(private val storage: FirebaseSto
 
     val storageRef = storage.reference
 
-    override suspend fun uploadFile(fileLocation: String, file: Uri ,context: Context) {
+    override suspend fun uploadFile(currentPath: String, file: Uri ,context: Context) {
         val progressDialog = ProgressDialog(context)
         progressDialog.setTitle("Uploading...")
         progressDialog.show()
         val fileName = UUID.randomUUID().toString()
-        val path="$fileLocation/$fileName"
+
         val fName = getFileName(context.contentResolver,file)
         val userEmail = Firebase.auth.currentUser?.email!!
         val metadata = StorageMetadata.Builder()
             .setCustomMetadata("id", fileName)
-            .setCustomMetadata("path", path)
             .setCustomMetadata("fName", fName)
             .setCustomMetadata("createdBy", userEmail)
             .build()
-        val fileRef: StorageReference = storageRef.child("materials/image")
-        fileRef.putFile(file,metadata).addOnSuccessListener {
+        val fileRef: StorageReference = storageRef.child("materials/$currentPath/$fileName")
+        fileRef.putFile(file,metadata)
+            .addOnSuccessListener {
             progressDialog.cancel()
 
         }.addOnFailureListener{

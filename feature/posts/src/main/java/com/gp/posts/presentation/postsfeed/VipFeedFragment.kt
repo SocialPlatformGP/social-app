@@ -59,7 +59,7 @@ class VipFeedFragment : Fragment(), VotesClickedListenerPost, OnMoreOptionClicke
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.getUserById(currentUser?.email!!)
-
+        viewModel.getAllPosts()
         val feedAdapter = FeedPostAdapter(this, this, this, requireContext())
         binding.postsRecyclerView.apply {
             adapter = feedAdapter
