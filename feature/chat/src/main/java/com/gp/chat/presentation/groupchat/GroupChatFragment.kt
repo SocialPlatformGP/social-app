@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import android.view.ViewTreeObserver
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -28,7 +29,6 @@ import com.gp.chat.listener.OnFileClickListener
 import com.gp.material.utils.FileManager
 import com.gp.material.utils.FileUtils.getFileName
 import com.gp.material.utils.FileUtils.getMimeTypeFromUri
-import com.gp.material.utils.MyOpenActionContract
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -40,7 +40,7 @@ class GroupChatFragment : Fragment(), OnMessageClickListener, OnFileClickListene
     private lateinit var binding: FragmentGroupChatBinding
     private val args: GroupChatFragmentArgs by navArgs()
     private lateinit var fileManager: FileManager
-    private val openDocument = registerForActivityResult(MyOpenActionContract()) {
+    private val openDocument = registerForActivityResult(ActivityResultContracts.GetMultipleContents()) {
         it?.let {
             it.forEach { uri ->
                 val mimeType = getMimeTypeFromUri(uri, requireContext())
