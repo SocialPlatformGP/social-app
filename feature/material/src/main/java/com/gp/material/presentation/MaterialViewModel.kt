@@ -28,7 +28,7 @@ class MaterialViewModel @Inject constructor(private val remoteDataSource: Materi
     private val _fileItems = MutableStateFlow<List<MaterialItem>>(emptyList())
     val fileItems: StateFlow<List<MaterialItem>> get() = _fileItems
 
-    fun fetchDataFromFirebaseStorage(fileLocation: String) {
+    private fun fetchDataFromFirebaseStorage(fileLocation: String) {
 
         val fileItems = mutableListOf<MaterialItem>()
 

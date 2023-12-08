@@ -26,8 +26,9 @@ import kotlinx.coroutines.runBlocking
 class materialfragment : Fragment() , ClickOnFileClicKListener{
     private lateinit var binding:FragmentMaterialBinding
     private val PICK_FILE_REQUEST=1
-    val viewModel:MaterialViewModel  by viewModels()
-    lateinit var  adapter:MaterialAdapter
+    private val viewModel:MaterialViewModel  by viewModels()
+    private lateinit var  adapter:MaterialAdapter
+    private lateinit var  dialog:BottomSheetDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,15 +49,16 @@ class materialfragment : Fragment() , ClickOnFileClicKListener{
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         adapter= MaterialAdapter(this)
+        binding.materialListRecyclerView.adapter=adapter
+        val view = layoutInflater.inflate(R.layout.material_bottom_sheet, null)
+        val btnClose = view.findViewById<Button>(R.id.close)
+        btnClose.setOnClickListener {
+            dialog.dismiss()
+        }
         binding.addMaterial.setOnClickListener {
-            val dialog = BottomSheetDialog(requireContext())
+            dialog = BottomSheetDialog(requireContext())
+        }
 
-
-            val view = layoutInflater.inflate(R.layout.material_bottom_sheet, null)
-            val btnClose = view.findViewById<Button>(R.id.close)
-            btnClose.setOnClickListener {
-                dialog.dismiss()
-            }
             val uploadImage=view.findViewById<Button>(R.id.uploadImage)
             uploadImage.setOnClickListener{
                 val intentImage=Intent(Intent.ACTION_PICK)
@@ -73,7 +75,23 @@ class materialfragment : Fragment() , ClickOnFileClicKListener{
             dialog.setContentView(view)
             dialog.show()
         }
+
+    override fun deleteFile(item: MaterialItem) {
+        TODO("Not yet implemented")
     }
+
+    override fun openFile(item: MaterialItem) {
+        TODO("Not yet implemented")
+    }
+
+    override fun downloadFile(item: MaterialItem) {
+        TODO("Not yet implemented")
+    }
+
+    override fun showDetails(item: MaterialItem) {
+        TODO("Not yet implemented")
+    }
+
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -88,16 +106,4 @@ class materialfragment : Fragment() , ClickOnFileClicKListener{
         }
     }
 
-    override fun deleteFile(item: MaterialItem) {
-
-    }
-
-    override fun openFile(item: MaterialItem) {
-    }
-
-    override fun downloadFile(item: MaterialItem) {
-    }
-
-    override fun showDetails(item: MaterialItem) {
-    }
 }
