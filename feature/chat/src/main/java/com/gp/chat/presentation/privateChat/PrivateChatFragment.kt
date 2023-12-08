@@ -54,7 +54,7 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
             it.forEach { uri ->
                 val mimeType = getMimeTypeFromUri(uri, requireContext())
                 val fileName = getFileName(uri, requireContext())
-                Log.d("TAG", "onViewCreated: $mimeType $fileName")
+                Log.d("TAG", "onViewCreated: $mimeType $fileName $uri")
                 viewModel.sendFile(uri, mimeType!!, fileName)
             }
 
