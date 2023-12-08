@@ -4,8 +4,10 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageReference
+import com.google.firebase.storage.component3
 import com.google.firebase.storage.ktx.storage
 import com.gp.material.model.FileType
 import com.gp.material.model.MaterialItem
@@ -13,22 +15,28 @@ import com.gp.material.source.remote.MaterialRemoteDataSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class MaterialViewModel @Inject constructor(private val remoteDataSource: MaterialRemoteDataSource) :
     ViewModel() {
 
-    //VAL CURRENT_PATH
+    var currentPath = "materials"
     private val storageReference: StorageReference = Firebase.storage.reference
 
     private val _fileItems = MutableStateFlow<List<MaterialItem>>(emptyList())
+    private val _folderItems = MutableStateFlow<List<MaterialItem>>(emptyList())
+    val folderItems: StateFlow<List<MaterialItem>> get() = _folderItems
     val fileItems: StateFlow<List<MaterialItem>> get() = _fileItems
 
-    fun fetchDataFromFirebaseStorage(currentPath:String) {
+    fun fetchDataFromFirebaseStorage() {
         val fileItems = mutableListOf<MaterialItem>()
-        storageReference.child(currentPath).listAll()
+
+        storageReference.child("materials/$currentPath").listAll()
             .addOnSuccessListener { listResult ->
+                Log.d("waleed24", listResult.items.toString())
+                Log.d("waleed24", listResult.prefixes.toString())
                 // Process each item asynchronously
                 listResult.items.forEach { item ->
                     item.metadata.addOnSuccessListener { metadata ->
@@ -62,6 +70,28 @@ class MaterialViewModel @Inject constructor(private val remoteDataSource: Materi
                             }
                         }
                     }
+
+                }
+                val folderItems = mutableListOf<MaterialItem>()
+                listResult.prefixes.forEach { prefix ->
+                    // Retrieve metadata attributes
+                    val fileName = prefix.name ?: ""
+                    val path = prefix.path ?: ""
+                    // Use a temporary item to accumulate data
+                    val newItem = MaterialItem(
+                        name = fileName,
+                        path = path,
+                        fileType = FileType.FOLDER
+                    )
+                    folderItems.add(newItem)
+                    Log.d("waleed222", _folderItems.value.toString())
+
+                    // Update the StateFlow value when all items are processed
+                    if (folderItems.size == listResult.prefixes.size) {
+                        _folderItems.value = folderItems
+                        Log.d("waleed2", _folderItems.value.toString())
+                    }
+
                 }
             }
             .addOnFailureListener { exception ->
@@ -69,13 +99,13 @@ class MaterialViewModel @Inject constructor(private val remoteDataSource: Materi
             }
     }
 
-    suspend fun uploadFile(fileLocation: String, file: Uri, context: Context) {
-
-        remoteDataSource.uploadFile(fileLocation, file, context)
-
+    fun uploadFile(fileUri: Uri, context: Context) {
+        viewModelScope.launch {
+            remoteDataSource.uploadFile("materials/$currentPath", fileUri, context)
+        }
     }
 
-     fun deleteFile(fileLocation: String) {
+    fun deleteFile(fileLocation: String) {
         remoteDataSource.deleteFile(fileLocation)
     }
 

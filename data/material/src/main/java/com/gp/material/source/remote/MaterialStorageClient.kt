@@ -35,7 +35,7 @@ class MaterialStorageClient @Inject constructor(private val storage: FirebaseSto
         progressDialog.setTitle("Uploading...")
         progressDialog.show()
         val fileName = UUID.randomUUID().toString()
-        val path ="materials/$currentPath/$fileName"
+        val path ="$currentPath/$fileName"
         val fName = getFileName(context.contentResolver,file)
         val userEmail = Firebase.auth.currentUser?.email!!
         val metadata = StorageMetadata.Builder()
@@ -43,9 +43,9 @@ class MaterialStorageClient @Inject constructor(private val storage: FirebaseSto
             .setCustomMetadata("fName", fName)
             .setCustomMetadata("path",path)
             .setCustomMetadata("createdBy", userEmail)
-
             .build()
-        val fileRef: StorageReference = storageRef.child("materials/$currentPath/$fileName")
+
+        val fileRef: StorageReference = storageRef.child("$currentPath/$fileName")
         fileRef.putFile(file,metadata)
             .addOnSuccessListener {
             progressDialog.cancel()
@@ -110,11 +110,21 @@ class MaterialStorageClient @Inject constructor(private val storage: FirebaseSto
     override fun deleteFile(fileLocation: String) {
         val storageRef = FirebaseStorage.getInstance().reference
         val fileRef = storageRef.child(fileLocation)
-
         fileRef.delete().addOnSuccessListener {
             Log.d("funDelete", "delete File success ")
         }.addOnFailureListener {
             Log.d("funDelete", "delete File failed ")
+        }
+    }
+    fun deleteFolder(folderLocation: String){
+        val storageRef = FirebaseStorage.getInstance().reference
+        val fileRef = storageRef.child(folderLocation)
+        fileRef.listAll().addOnSuccessListener { listResult ->
+            listResult.items.forEach { item ->
+                item.delete()
+            }
+        }.addOnFailureListener {
+            Log.d("funDelete", "delete Folder failed ")
         }
     }
 

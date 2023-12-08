@@ -21,6 +21,7 @@ import com.gp.material.listener.ClickOnFileClicKListener
 import com.gp.material.model.MaterialItem
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
@@ -50,7 +51,7 @@ class materialfragment : Fragment(), ClickOnFileClicKListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.fetchDataFromFirebaseStorage("materials/")
+        viewModel.fetchDataFromFirebaseStorage()
         adapter = MaterialAdapter(this)
         dialog = BottomSheetDialog(requireContext())
         binding.materialListRecyclerView.adapter = adapter
@@ -73,12 +74,16 @@ class materialfragment : Fragment(), ClickOnFileClicKListener {
             dialog.setContentView(view)
             dialog.show()
         }
+
         lifecycleScope.launch {
-            viewModel.fileItems.flowWithLifecycle(lifecycle).collect {
-                Log.d("waleed1", it.toString())
-                adapter.submitList(it)
+            viewModel.folderItems.combine(viewModel.fileItems) { folderItems, fileItems ->
+                folderItems + fileItems
+            }.flowWithLifecycle(lifecycle).collect { it ->
+                Log.d("waleed32", it.toString())
+                adapter.submitList(it.sortedBy { it.creationTime })
             }
         }
+
         /*
         * if(item.fileType == FileType.Folder){
         * viewmodel.currentPath = item.path
@@ -117,7 +122,7 @@ class materialfragment : Fragment(), ClickOnFileClicKListener {
             val selectedFileUri: Uri? = data?.data
             if (selectedFileUri != null) {
                 runBlocking {
-                    viewModel.uploadFile("", selectedFileUri, requireContext())
+                    viewModel.uploadFile(selectedFileUri, requireContext())
                 }
             }
         }
