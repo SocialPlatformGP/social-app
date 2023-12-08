@@ -1,6 +1,5 @@
 package com.gp.material.presentation
 
-import MaterialViewModel
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
@@ -94,14 +93,11 @@ class materialfragment : Fragment() , ClickOnFileClicKListener{
     }
 
     override fun openFile(item: MaterialItem) {
-        TODO("Not yet implemented")
     }
 
     override fun downloadFile(item: MaterialItem) {
-        TODO("Not yet implemented")
     }
 
     override fun showDetails(item: MaterialItem) {
-        TODO("Not yet implemented")
     }
 }

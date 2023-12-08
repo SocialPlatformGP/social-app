@@ -17,7 +17,7 @@ import dagger.hilt.components.SingletonComponent
 @Module
 object RemoteSourceModule {
     @Provides
-    fun provideStorage(): StorageReference = Firebase.storage.reference
+    fun provideStorage(): FirebaseStorage = Firebase.storage
     @Provides
     fun provideMaterialRemoteDataSource(storage: FirebaseStorage): MaterialRemoteDataSource
             = MaterialStorageClient(storage)
