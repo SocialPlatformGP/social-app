@@ -25,39 +25,47 @@ class MaterialViewModel @Inject constructor(private val remoteDataSource: Materi
     private val _fileItems = MutableStateFlow<List<MaterialItem>>(emptyList())
     val fileItems: StateFlow<List<MaterialItem>> get() = _fileItems
 
-    fun fetchDataFromFirebaseStorage(fileLocation: String) {
-
+    fun fetchDataFromFirebaseStorage(currentPath:String) {
         val fileItems = mutableListOf<MaterialItem>()
-
-        storageReference.child(fileLocation).listAll()
+        storageReference.child(currentPath).listAll()
             .addOnSuccessListener { listResult ->
+                // Process each item asynchronously
                 listResult.items.forEach { item ->
-                    var newItem = MaterialItem()
-                    // Retrieve metadata using getMetadata()
                     item.metadata.addOnSuccessListener { metadata ->
                         // Retrieve metadata attributes
                         val fileName = metadata.getCustomMetadata("fName") ?: ""
                         val path = metadata.getCustomMetadata("path") ?: ""
                         val creator = metadata.getCustomMetadata("createdBy") ?: ""
                         val id = metadata.getCustomMetadata("id") ?: ""
-                        newItem = newItem.copy(
+
+                        // Use a temporary item to accumulate data
+                        val newItem = MaterialItem(
                             name = fileName,
                             path = path,
                             createdBy = creator,
                             id = id,
-                            fileType = getFileType(fileName),
+                            fileType = getFileType(fileName)
                         )
-                        metadata.reference?.downloadUrl?.addOnSuccessListener {
-                            newItem = newItem.copy(
-                                fileUrl = it.toString()
-                            )
-                            fileItems.add(newItem)
-                            _fileItems.value = fileItems
-                            Log.d("waleed2", _fileItems.value.toString())
-                        }
 
+                        // Retrieve download URL asynchronously
+                        metadata.reference?.downloadUrl?.addOnSuccessListener { url ->
+                            // Update the URL in the temporary item
+                            val updatedItem = newItem.copy(fileUrl = url.toString())
+
+                            // Add the updated item to the list
+                            fileItems.add(updatedItem)
+
+                            // Update the StateFlow value when all items are processed
+                            if (fileItems.size == listResult.items.size) {
+                                _fileItems.value = fileItems
+                                Log.d("waleed2", _fileItems.value.toString())
+                            }
+                        }
                     }
                 }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("waleed2", "Error fetching data: $exception")
             }
     }
 
@@ -67,7 +75,7 @@ class MaterialViewModel @Inject constructor(private val remoteDataSource: Materi
 
     }
 
-    suspend fun deleteFile(fileLocation: String) {
+     fun deleteFile(fileLocation: String) {
         remoteDataSource.deleteFile(fileLocation)
     }
 

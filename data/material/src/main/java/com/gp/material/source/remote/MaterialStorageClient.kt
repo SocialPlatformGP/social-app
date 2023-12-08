@@ -28,20 +28,22 @@ import javax.inject.Inject
 
 class MaterialStorageClient @Inject constructor(private val storage: FirebaseStorage):MaterialRemoteDataSource{
 
-    val storageRef = storage.reference
+    private val storageRef = storage.reference
 
     override suspend fun uploadFile(currentPath: String, file: Uri ,context: Context) {
         val progressDialog = ProgressDialog(context)
         progressDialog.setTitle("Uploading...")
         progressDialog.show()
         val fileName = UUID.randomUUID().toString()
-
+        val path ="materials/$currentPath/$fileName"
         val fName = getFileName(context.contentResolver,file)
         val userEmail = Firebase.auth.currentUser?.email!!
         val metadata = StorageMetadata.Builder()
             .setCustomMetadata("id", fileName)
             .setCustomMetadata("fName", fName)
+            .setCustomMetadata("path",path)
             .setCustomMetadata("createdBy", userEmail)
+
             .build()
         val fileRef: StorageReference = storageRef.child("materials/$currentPath/$fileName")
         fileRef.putFile(file,metadata)

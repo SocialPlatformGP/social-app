@@ -94,11 +94,12 @@ class materialfragment : Fragment(), ClickOnFileClicKListener {
     }
 
     override fun deleteFile(item: MaterialItem) {
-        TODO("Not yet implemented")
+
+        viewModel.deleteFile(item.path)
     }
 
     override fun openFile(item: MaterialItem) {
-        TODO("Not yet implemented")
+
     }
 
     override fun downloadFile(item: MaterialItem) {
