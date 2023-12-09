@@ -48,7 +48,7 @@ class PostFirestoreClient@Inject constructor(
                 when (it) {
                     is State.SuccessWithData -> {
                         val updatedPost = post.copy(attachments = it.data)
-                        firestore.collection("posts").document(postKey).set(post.toNetworkModel())
+                        firestore.collection("posts").document(postKey).set(updatedPost.toNetworkModel())
                             .addOnSuccessListener {
                                 trySend(State.Success)
                             }.addOnFailureListener {

@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.databinding.BindingAdapter
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
@@ -19,7 +20,10 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.firebase.auth.FirebaseAuth
 import com.gp.posts.R
+import com.gp.posts.listeners.OnFilePreviewClicked
 import com.gp.posts.listeners.OnTagClicked
+import com.gp.socialapp.database.model.MimeType
+import com.gp.socialapp.database.model.PostFile
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.model.Tag
 import com.gp.socialapp.util.DateUtils
@@ -160,6 +164,51 @@ fun setTags(view: ChipGroup, tags: List<Tag>, context: Context, onTagClick: OnTa
             }
             view.addView(chip)
 
+        }
+    }
+}
+
+@BindingAdapter(
+    value = ["posts:files", "posts:filesContext", "posts:onFileClick"],
+    requireAll = true
+)
+fun setFilesPreview(view: ChipGroup, files: List<PostFile>, context: Context, onFilePreviewClick: OnFilePreviewClicked) {
+    view.removeAllViews()
+    if (view.childCount == 0) {
+        files.forEach { file ->
+            val label = file.name
+            val chip = Chip(context)
+            val maxLength = 15
+            val truncatedLabel = if (label.length > maxLength) {
+                label.take(maxLength - 3) + "..."
+            } else {
+                label
+            }
+            chip.text = truncatedLabel
+            chip.isCloseIconVisible = true
+            chip.chipIcon = when(file.type){
+                in listOf(MimeType.IMAGE, MimeType.JPEG, MimeType.PNG, MimeType.GIF
+                , MimeType.TIFF, MimeType.WEBP, MimeType.BMP) ->{
+                    AppCompatResources.getDrawable(context, R.drawable.baseline_image_24)
+                }
+                in listOf(MimeType.VIDEO, MimeType.MKV, MimeType.AVI, MimeType.MP4, MimeType.MOV, MimeType.WMV) -> {
+                    AppCompatResources.getDrawable(context, R.drawable.baseline_filled_video)
+                }
+                in listOf(MimeType.AUDIO, MimeType.MP3, MimeType.AAC, MimeType.WAV, MimeType.OGG, MimeType.FLAC) ->{
+                    AppCompatResources.getDrawable(context, R.drawable.baseline_audio_file_24)
+                }
+                else ->{
+                    AppCompatResources.getDrawable(context, R.drawable.baseline_filled_file)
+                }
+            }
+            chip.setChipBackgroundColorResource(android.R.color.transparent)
+            chip.setOnClickListener {
+                onFilePreviewClick.onFilePreviewClicked(file)
+            }
+            chip.setOnCloseIconClickListener {
+                onFilePreviewClick.onFileRemoveClicked(file)
+            }
+            view.addView(chip)
         }
     }
 }

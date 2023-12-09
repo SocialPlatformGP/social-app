@@ -1,5 +1,7 @@
 package com.gp.posts.presentation.createpost
 
+import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
@@ -13,6 +15,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -32,6 +35,7 @@ import com.gp.material.utils.FileUtils.getFileName
 import com.gp.posts.R
 import com.gp.posts.databinding.DialogAddTagBinding
 import com.gp.posts.databinding.FragmentCreatePostBinding
+import com.gp.posts.listeners.OnFilePreviewClicked
 import com.gp.socialapp.database.model.MimeType
 import com.gp.socialapp.database.model.PostFile
 import com.gp.socialapp.model.Tag
@@ -41,7 +45,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class CreatePostFragment : Fragment() {
+class CreatePostFragment : Fragment(), OnFilePreviewClicked {
     private val viewModel: CreatePostViewModel by viewModels()
     lateinit var binding: FragmentCreatePostBinding
     lateinit var addTagBinding: DialogAddTagBinding
@@ -49,13 +53,17 @@ class CreatePostFragment : Fragment() {
     private val openFileResultLauncher = registerForActivityResult(ActivityResultContracts.GetMultipleContents())
     { list ->
         list.forEach {uri ->
-            viewModel.addFile(
-                PostFile(
-                uri = uri,
-                name = getFileName(uri, requireContext()),
-                type = getEnumMimeTypeFromUri(uri, requireContext())
+            if(viewModel.uiState.value.files.any { it.uri == uri }){
+                makeSnackbar("This File is already added!", Snackbar.LENGTH_LONG)
+            } else {
+                viewModel.addFile(
+                    PostFile(
+                        uri = uri,
+                        name = getFileName(uri, requireContext()),
+                        type = getEnumMimeTypeFromUri(uri, requireContext())
+                    )
                 )
-            )
+            }
         }
     }
     override fun onCreateView(
@@ -67,6 +75,8 @@ class CreatePostFragment : Fragment() {
         binding.lifecycleOwner = this
         binding.viewmodel = viewModel
         binding.fragment = this
+        binding.context = requireContext()
+        binding.onFilePreviewsClicked = this
         return binding.root
     }
 
@@ -107,16 +117,20 @@ class CreatePostFragment : Fragment() {
                             getString(R.string.post_created_successfully),
                             Snackbar.LENGTH_LONG
                         )
+                        hideProgressBar()
                     }
 
                     is State.Error -> {
+                        hideProgressBar()
                         makeSnackbar(
                             (uiState.createdState as State.Error).message,
                             Snackbar.LENGTH_LONG
                         )
                         //TODO("Provide an informative error message to the user")
                     }
-
+                    is State.Loading ->{
+                        showProgressBar()
+                    }
                     else -> {}
                 }
             }
@@ -281,5 +295,27 @@ class CreatePostFragment : Fragment() {
             message,
             duration
         ).show()
+    }
+
+    @SuppressLint("QueryPermissionsNeeded")
+    override fun onFilePreviewClicked(file: PostFile) {
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.setDataAndType(file.uri, file.type.value)
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        if (intent.resolveActivity(requireContext().packageManager) != null) {
+           requireContext().startActivity(intent)
+        } else {
+            makeSnackbar("No app available to open this file format!", Snackbar.LENGTH_SHORT)
+        }
+    }
+
+    override fun onFileRemoveClicked(file: PostFile) {
+        viewModel.removeFile(file)
+    }
+    private fun showProgressBar(){
+        binding.progressIndicator.visibility = View.VISIBLE
+    }
+    private fun hideProgressBar(){
+        binding.progressIndicator.visibility = View.INVISIBLE
     }
 }

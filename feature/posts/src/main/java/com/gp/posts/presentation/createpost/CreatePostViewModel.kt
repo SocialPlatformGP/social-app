@@ -101,4 +101,11 @@ class CreatePostViewModel @Inject constructor (
             uiState.value = uiState.value.copy(files = uiState.value.files + listOf(postFile))
         }
     }
+
+    fun removeFile(file: PostFile) {
+        viewModelScope.launch(Dispatchers.Default) {
+            val newFiles = uiState.value.files.filter { it.uri !=file.uri }
+            uiState.value = uiState.value.copy(files = newFiles)
+        }
+    }
 }
