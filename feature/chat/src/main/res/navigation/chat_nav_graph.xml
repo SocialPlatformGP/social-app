@@ -39,6 +39,12 @@
             app:destination="@id/newChat"
             app:popUpTo="@id/chatHome"
             app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_privateChatFragment_to_groupDetailsFragment"
+            app:destination="@id/groupDetailsFragment" />
+        <action
+            android:id="@+id/action_privateChatFragment_to_cameraPreviewFragment"
+            app:destination="@id/cameraPreviewFragment" />
     </fragment>
     <fragment
         android:id="@+id/chatHome"
@@ -79,6 +85,17 @@
         <action
             android:id="@+id/action_groupChatFragment_to_fullScreenImageDialogFragment"
             app:destination="@id/fullScreenImageDialogFragment" />
+        <argument
+            android:name="title"
+            app:argType="string"
+            android:defaultValue='""' />
+        <argument
+            android:name="photoUrl"
+            app:argType="string"
+            android:defaultValue='""' />
+        <action
+            android:id="@+id/action_groupChatFragment_to_groupDetailsFragment"
+            app:destination="@id/groupDetailsFragment" />
     </fragment>
     <fragment
         android:id="@+id/createGroupChatFragment"
@@ -110,4 +127,30 @@
             app:argType="string"
             android:defaultValue='""' />
     </dialog>
+    <fragment
+        android:id="@+id/cameraPreviewFragment"
+        android:name="com.gp.chat.presentation.CameraPreviewFragment"
+        android:label="CameraPreviewFragment">
+         <argument
+            android:name="senderName"
+            app:argType="string"
+            android:defaultValue='""' />
+        <argument
+            android:name="chatId"
+            app:argType="string"
+            android:defaultValue='""' />
+        <argument
+            android:name="receiverName"
+            app:argType="string"
+            android:defaultValue='""' />
+
+        <argument
+            android:name="senderPic"
+            app:argType="string"
+            android:defaultValue='""' />
+        <argument
+            android:name="receiverPic"
+            app:argType="string"
+            android:defaultValue='""' />
+        </fragment>
 </navigation>

@@ -9,12 +9,12 @@
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/text_message_layout"
+        android:id="@+id/file_message_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/receiever_text_message_layout"
+            android:id="@+id/reciever_file_message_layout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:visibility="gone"
@@ -37,8 +37,9 @@
                 android:id="@+id/received_chatbox_cardview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:maxWidth="250dp"
                 chat:cardBackgroundColor="#eef1f6"
-                chat:cardCornerRadius="12dp"
+                chat:cardCornerRadius="8dp"
                 chat:cardElevation="0dp"
                 chat:cardPreventCornerOverlap="false"
                 chat:cardUseCompatPadding="true"
@@ -49,7 +50,6 @@
                     android:id="@+id/received_chatbox_linearlayout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
                     android:orientation="vertical"
                     android:padding="3dp">
 
@@ -60,7 +60,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="start"
                         android:gravity="start"
-                        android:paddingLeft="12dp"
+                        android:paddingLeft="8dp"
                         android:paddingTop="4dp"
                         android:paddingBottom="4dp"
                         android:textSize="14sp"
@@ -68,6 +68,21 @@
                         chat:layout_constraintTop_toBottomOf="@+id/received_chat_date_textview"
                         tools:text="Username" />
 
+                    <ImageView
+                        android:id="@+id/received_message_imageview"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:adjustViewBounds="true"
+                        android:contentDescription="Message Image"
+                        android:maxWidth="150dp"
+                        android:maxHeight="150dp"
+                        tools:visibility="visible" />
+
+                    <TextView
+                        android:id="@+id/received_message_file_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
 
                     <TextView
                         android:id="@+id/received_message_textview"
@@ -76,7 +91,7 @@
                         android:layout_gravity="start"
                         android:layout_marginBottom="8dp"
                         android:gravity="start"
-                        android:paddingLeft="12dp"
+                        android:paddingLeft="8dp"
                         android:paddingTop="4dp"
                         android:paddingRight="12dp"
                         android:textColor="#000000"
@@ -89,7 +104,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
                         android:gravity="end"
-                        android:paddingRight="12dp"
+                        android:paddingRight="8dp"
                         android:textColor="#C0C0C0"
                         android:textSize="11sp"
                         tools:text="Timestamp" />
@@ -100,7 +115,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/sender_text_message_layout"
+            android:id="@+id/sender_file_message_layout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:visibility="gone"
@@ -108,7 +123,7 @@
             chat:layout_constraintBottom_toBottomOf="parent"
             chat:layout_constraintEnd_toEndOf="parent"
             chat:layout_constraintStart_toStartOf="@+id/guideline3"
-            chat:layout_constraintTop_toBottomOf="@+id/receiever_text_message_layout"
+            chat:layout_constraintTop_toBottomOf="@+id/reciever_file_message_layout"
             tools:visibility="visible">
 
             <androidx.cardview.widget.CardView
@@ -116,6 +131,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
+                android:maxWidth="250dp"
                 chat:cardBackgroundColor="@color/text_box_background"
                 chat:cardCornerRadius="8dp"
 
@@ -133,18 +149,33 @@
                     android:orientation="vertical"
                     android:padding="3dp">
 
+                    <ImageView
+                        android:id="@+id/sent_message_imageview"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:adjustViewBounds="true"
+                        android:contentDescription="Message Image"
+                        android:maxWidth="250dp"
+                        android:maxHeight="250dp"
+                        tools:visibility="visible" />
+
+                    <TextView
+                        android:id="@+id/sent_message_file_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
 
                     <TextView
                         android:id="@+id/sent_message_textview"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="4dp"
-                        android:maxWidth="250dp"
-                        android:paddingEnd="12dp"
-                        android:paddingTop="4dp"
-                        android:gravity="end"
                         android:layout_gravity="end"
+                        android:layout_marginBottom="4dp"
+                        android:gravity="end"
+                        android:maxWidth="250dp"
                         android:paddingStart="12dp"
+                        android:paddingTop="4dp"
+                        android:paddingEnd="8dp"
                         android:textColor="#ffffff"
                         android:textSize="18sp"
                         tools:text="message text" />
@@ -155,7 +186,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="start"
                         android:gravity="start"
-                        android:paddingEnd="12dp"
+                        android:paddingEnd="8dp"
                         android:textColor="#C0C0C0"
                         android:textSize="11sp"
                         tools:text="date time" />
@@ -170,14 +201,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            chat:layout_constraintGuide_percent="0.8" />
+            chat:layout_constraintGuide_percent="0.85" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            chat:layout_constraintGuide_percent="0.2" />
+            chat:layout_constraintGuide_percent="0.15" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

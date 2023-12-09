@@ -11,6 +11,7 @@ import com.google.firebase.ktx.Firebase
 import com.gp.chat.model.Message
 import com.gp.chat.model.RecentChat
 import com.gp.chat.repository.MessageRepository
+import com.gp.chat.util.DateUtils.getTimeStamp
 import com.gp.chat.util.RemoveSpecialChar.removeSpecialCharacters
 import com.gp.socialapp.utils.State
 import com.gp.users.model.NetworkUser
@@ -20,6 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import java.util.Date
 import javax.inject.Inject
 
@@ -29,41 +31,19 @@ class PrivateChatViewModel @Inject constructor(
     private val messageRepository: MessageRepository,
     private val userRepository: UserRepository
 ) : ViewModel() {
-    init {
-        updateUserProfile()
-    }
+
 
     private var currentEmail = removeSpecialCharacters(Firebase.auth.currentUser?.email!!)
     private var ChatId = "-1"
     private var senderName = ""
-    private var currentUser =Firebase.auth.currentUser
-    private var receiverName =  ""
+    private var currentUser = Firebase.auth.currentUser
+    private var receiverName = ""
     private var senderPic = ""
     private var receiverPic = ""
     val currentMessage = MutableStateFlow(MessageState())
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
     val messages = _messages.asStateFlow()
-    private fun updateUserProfile() {
-        //todo for one time only
-        viewModelScope.launch {
-            val state = userRepository.fetchUser(Firebase.auth.currentUser?.email!!)
-            when (state) {
-                is State.SuccessWithData -> {
-                    with(state.data) {
-                        Firebase.auth.currentUser?.updateProfile(
-                            UserProfileChangeRequest.Builder()
-                                .setDisplayName("$userFirstName $userLastName")
-                                .setPhotoUri(userProfilePictureURL.toUri())
-                                .build()
-                        )
-                    }
-                }
-
-                else -> {}
-            }
-        }
-    }
-
+    val uploadState = MutableStateFlow(false)
 
     fun setData(
         chatId: String,
@@ -83,16 +63,33 @@ class PrivateChatViewModel @Inject constructor(
 
 
     fun getMessages() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             messageRepository.getMessages(ChatId).collect {
                 when (it) {
                     is State.SuccessWithData -> {
                         _messages.value = it.data
                         currentMessage.value = currentMessage.value.copy(error = "data loaded")
+
                     }
 
                     is State.Error -> {
                         currentMessage.value = currentMessage.value.copy(error = it.message)
+                        if (it.message == "No messages found") {
+                            Log.d("zarea4","no message found"+it.message)
+                            messageRepository.insertRecentChat(
+                                RecentChat(
+                                    id = "",
+                                    senderName = senderName,
+                                    senderPicUrl = senderPic,
+                                    receiverName = receiverName,
+                                    receiverPicUrl = receiverPic,
+                                    lastMessage = "No messages yet",
+                                    timestamp = getTimeStamp(Date()),
+                                    title = "private chat",
+                                    privateChat = true
+                                ), ChatId
+                            )
+                        }
                     }
 
                     is State.Loading -> {
@@ -107,25 +104,22 @@ class PrivateChatViewModel @Inject constructor(
     }
 
     fun sendMessage() {
-        Log.d("testo vm", "sendMessage start: ${currentMessage.value.message}")
         if (currentMessage.value.message.isEmpty() && currentMessage.value.fileTypes == "text") {
             currentMessage.value = currentMessage.value.copy(error = "message is empty")
             return
         } else {
             viewModelScope.launch(Dispatchers.IO) {
-                if (currentMessage.value.fileTypes != "text") {
-                    currentMessage.value =
-                        currentMessage.value.copy(message = currentMessage.value.fileTypes)
-                }
+
                 val message = Message(
                     senderId = currentEmail,
                     senderName = currentUser?.displayName!!,
                     senderPfpURL = currentUser?.photoUrl.toString(),
                     groupId = ChatId,
+                    messageDate = SimpleDateFormat("MMMM dd, yyyy").format(Date()),
                     message = currentMessage.value.message,
-                    timestamp = Date().toString(),
+                    timestamp = getTimeStamp(Date()),
                     fileURI = currentMessage.value.fileUri ?: "".toUri(),
-                    fileType = currentMessage.value.fileTypes ?: "", //TODO: change to file type
+                    fileType = currentMessage.value.fileTypes ?: "",
                     fileNames = currentMessage.value.fileName ?: ""
                 )
 
@@ -134,6 +128,7 @@ class PrivateChatViewModel @Inject constructor(
                         is State.SuccessWithData -> {
                             updateRecent()
                         }
+
                         is State.Error -> {
                             currentMessage.value = currentMessage.value.copy(error = it.message)
                         }
@@ -151,17 +146,23 @@ class PrivateChatViewModel @Inject constructor(
         }
     }
 
-    fun sendImage(uri: Uri, type: String, fileName: String) {
+    fun sendFile(uri: Uri, type: String, fileName: String) {
         currentMessage.value = currentMessage.value.copy(fileName = fileName)
         currentMessage.value = currentMessage.value.copy(fileUri = uri)
         currentMessage.value = currentMessage.value.copy(fileTypes = type)
         sendMessage()
+        uploadState.value = true
     }
 
     private fun updateRecent() {
         viewModelScope.launch(Dispatchers.IO) {
             val recentChat = RecentChat(
-                lastMessage = currentMessage.value.message,
+                lastMessage =
+                if (currentMessage.value.fileTypes == "text") {
+                    currentMessage.value.message
+                } else {
+                    currentMessage.value.fileName
+                },
                 timestamp = Date().toString(),
                 title = "private chat",
                 privateChat = true,
@@ -176,8 +177,7 @@ class PrivateChatViewModel @Inject constructor(
                 when (it) {
                     is State.SuccessWithData -> {
                         currentMessage.value = currentMessage.value.copy(error = "recent updated")
-                        currentMessage.value =
-                            currentMessage.value.copy(error = "recent updated", message = "")
+                        currentMessage.value = MessageState()
                     }
 
                     is State.Error -> {

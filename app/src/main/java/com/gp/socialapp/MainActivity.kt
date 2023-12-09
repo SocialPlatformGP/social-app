@@ -105,6 +105,11 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
                 toolbar.menu.clear()
 
             }
+            com.gp.chat.R.id.groupChatFragment->{
+                hideBottomNav()
+                toolbar.menu.clear()
+
+            }
             com.gp.posts.R.id.suggest_post->{
                 hideBottomNav()
             }

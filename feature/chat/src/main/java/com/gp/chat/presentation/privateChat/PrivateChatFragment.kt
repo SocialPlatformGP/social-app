@@ -2,9 +2,12 @@ package com.gp.chat.presentation.privateChat
 
 import android.annotation.SuppressLint
 import android.content.ContentResolver
+import android.content.ContentValues
 import android.content.DialogInterface
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.util.Log
 import android.view.LayoutInflater
@@ -13,8 +16,13 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.webkit.MimeTypeMap
 import android.widget.EditText
+import android.widget.Toast
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContract
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
+import androidx.core.net.toUri
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -23,17 +31,22 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.navigation.fragment.navArgs
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.gp.chat.R
 import com.gp.chat.adapter.GroupMessageAdapter
 import com.gp.chat.databinding.FragmentPrivateChatBinding
 import com.gp.chat.listener.ImageClickListener
-import com.gp.material.utils.MyOpenActionContract
 import com.gp.chat.utils.MyScrollToBottomObserver
 import com.gp.chat.listener.OnFileClickListener
 import com.gp.chat.listener.OnMessageClickListener
 import com.gp.material.utils.FileManager
+import com.gp.material.utils.FileUtils.getFileName
+import com.gp.material.utils.FileUtils.getMimeTypeFromUri
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import java.io.File
 import java.util.Locale
 
 @AndroidEntryPoint
@@ -41,52 +54,32 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
     ImageClickListener {
     lateinit var adapter: GroupMessageAdapter
     lateinit var binding: FragmentPrivateChatBinding
-    private lateinit var fileManager: com.gp.material.utils.FileManager
+    private lateinit var fileManager: FileManager
     private val args: PrivateChatFragmentArgs by navArgs()
     private val viewModel: PrivateChatViewModel by viewModels()
-    private val openDocument = registerForActivityResult(com.gp.material.utils.MyOpenActionContract()) {
-        it?.let {
-            it.forEach {uri->
-                val mimeType = getMimeTypeFromUri(uri)
-                val fileName = getFileName(uri)
-                Log.d("TAG", "onViewCreated: $mimeType $fileName")
-                viewModel.sendImage(uri, mimeType!!, fileName)
-            }
+    private var uri: Uri? = Environment.DIRECTORY_DCIM.toUri()
+    private val openDocument =
+        registerForActivityResult(ActivityResultContracts.GetMultipleContents()) {
+            it?.let {
+                it.forEach { uri ->
+                    val mimeType = getMimeTypeFromUri(uri, requireContext())
+                    val fileName = getFileName(uri, requireContext())
+                    Log.d("TAG", "onViewCreated: $mimeType $fileName $uri")
+                    viewModel.sendFile(uri, mimeType!!, fileName)
+                }
 
+            }
+        }
+    private val openImage = registerForActivityResult(ActivityResultContracts.PickVisualMedia())
+    {
+        it?.let { uri ->
+            val mimeType = getMimeTypeFromUri(uri, requireContext())
+            val fileName = getFileName(uri, requireContext())
+            Log.d("TAG", "onViewCreated: $mimeType $fileName $uri")
+            viewModel.sendFile(uri, mimeType!!, fileName)
         }
     }
 
-    @SuppressLint("Range")
-    private fun getFileName(uri: Uri): String {
-        var fileName = ""
-        val cursor = requireContext().contentResolver.query(uri, null, null, null, null)
-        cursor?.use {
-            if (it.moveToFirst()) {
-                val displayName = it.getString(it.getColumnIndex(OpenableColumns.DISPLAY_NAME))
-                fileName = displayName ?: ""
-            }
-        }
-        return fileName
-    }
-
-    private fun getMimeTypeFromUri(uri: Uri): String? {
-        val contentResolver: ContentResolver = requireContext().contentResolver
-        var mimeType: String? = null
-
-        // Try to query the ContentResolver to get the MIME type
-        mimeType = contentResolver.getType(uri)
-
-        if (mimeType == null) {
-            // If ContentResolver couldn't determine the MIME type, try getting it from the file extension
-            val fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri.toString())
-            if (!fileExtension.isNullOrEmpty()) {
-                mimeType = MimeTypeMap.getSingleton()
-                    .getMimeTypeFromExtension(fileExtension.toLowerCase(Locale.US))
-            }
-        }
-
-        return mimeType
-    }
 
 
     override fun onCreateView(
@@ -95,28 +88,12 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
         savedInstanceState: Bundle?
     ): View {
         initializeViewModel()
-        binding = DataBindingUtil.inflate(
-            inflater,
-            R.layout.fragment_private_chat,
-            container,
-            false
-        )
+        binding =
+            DataBindingUtil.inflate(inflater, R.layout.fragment_private_chat, container, false)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
 
         return binding.root
-    }
-
-    private fun initializeViewModel() {
-        viewModel.setData(
-            args.chatId,
-            args.senderName,
-            args.receiverName,
-            args.senderPic,
-            args.receiverPic
-        )
-
-
     }
 
 
@@ -124,13 +101,15 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
         super.onViewCreated(view, savedInstanceState)
         val recyclerView = binding.recyclerMessage
         val manager = LinearLayoutManager(requireContext())
-        manager.stackFromEnd = true
-        recyclerView.layoutManager = manager
+
         adapter = GroupMessageAdapter(
             this,
             this,
-            this
+            this,
+            true
         )
+        manager.stackFromEnd = true
+        recyclerView.layoutManager = manager
         adapter.registerAdapterDataObserver(
             MyScrollToBottomObserver(
                 recyclerView,
@@ -138,16 +117,61 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
                 manager
             )
         )
-        //set the title to receiver name
-        val toolbar = requireActivity().findViewById<Toolbar>(R.id.toolbar)
-        toolbar.title = args.receiverName
-
-
+        recyclerView.adapter = adapter
         binding.addFileButton.setOnClickListener {
-            openDocument.launch("*/*")
+            //showmaterial dialog to choose file or download or camera or gallery or contact  or location or voice
+            val builder = MaterialAlertDialogBuilder(requireContext())
+            builder.setTitle("Choose File")
+            val options = arrayOf("File", "Gallery", "Camera", "Contact", "Location", "Voice")
+            builder.setItems(options) { dialog, which ->
+                when (which) {
+                    0 -> {
+                        openDocument.launch("*/*")
+                    }
+
+                    1 -> {
+                        openImage.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
+                    }
+
+                    2 -> {
+                        val action =
+                            PrivateChatFragmentDirections.actionPrivateChatFragmentToCameraPreviewFragment(
+                                chatId = args.chatId,
+                                senderName = args.senderName,
+                                receiverName = args.receiverName,
+                                senderPic = args.senderPic,
+                                receiverPic = args.receiverPic
+                            )
+                        findNavController().navigate(action)
+                    }
+
+                    3 -> {
+                        Toast.makeText(requireContext(), "Contact", Toast.LENGTH_SHORT).show()
+                    }
+
+                    4 -> {
+                        Toast.makeText(requireContext(), "Location", Toast.LENGTH_SHORT).show()
+                    }
+
+                    5 -> {
+                        Toast.makeText(requireContext(), "Voice", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            builder.show()
 
         }
-        recyclerView.adapter = adapter
+        //set the title to receiver name
+        val toolbar = requireActivity().findViewById<Toolbar>(R.id.toolbar)
+        if (args.senderName == Firebase.auth.currentUser?.displayName) {
+            toolbar.title = args.receiverName
+
+        } else {
+            toolbar.title = args.senderName
+
+        }
+
+
         lifecycleScope.launch {
             viewModel.messages.flowWithLifecycle(lifecycle).collect {
                 adapter.submitList(it)
@@ -193,9 +217,10 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
     }
 
 
-
     override fun onFileClick(fileURL: String, fileType: String, fileNames: String) {
-        fileManager = com.gp.material.utils.FileManager(requireContext())
+        Log.d("TAGRT", "onFileClick: $fileURL $fileType $fileNames")
+
+        fileManager = FileManager(requireContext())
         fileManager.downloadFile(fileURL, fileNames, fileType)
 
     }
@@ -206,6 +231,16 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
                 imageUrl
             )
         findNavController().navigate(action)
+    }
+
+    private fun initializeViewModel() {
+        viewModel.setData(
+            args.chatId,
+            args.senderName,
+            args.receiverName,
+            args.senderPic,
+            args.receiverPic
+        )
     }
 
 

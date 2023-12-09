@@ -106,6 +106,7 @@ class NewChatViewModel @Inject  constructor(
                 chatId
             ).collect {
                 createNewChatState.value = it
+
             }
         }
     }

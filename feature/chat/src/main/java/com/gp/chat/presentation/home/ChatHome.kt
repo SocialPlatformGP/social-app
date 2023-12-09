@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
@@ -17,11 +18,14 @@ import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.gp.chat.R
 import com.gp.chat.adapter.ChatAdapter
 import com.gp.chat.listener.OnItemClickListener
 import com.gp.chat.listener.OnRecentChatClicked
 import com.gp.chat.model.Message
+import com.gp.chat.model.RecentChat
 import com.gp.socialapp.database.model.UserEntity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -45,7 +49,8 @@ class ChatHome : Fragment(), OnRecentChatClicked {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        val toolbar = requireActivity().findViewById<Toolbar>(R.id.toolbar)
+        toolbar.title = Firebase.auth.currentUser?.displayName
         recyclerView = view.findViewById(R.id.chatListRecyclerView)
         floatingActionButton = view.findViewById(R.id.fabNewChat)
         chatAdapter = ChatAdapter(this)
@@ -64,32 +69,29 @@ class ChatHome : Fragment(), OnRecentChatClicked {
     }
 
     override fun onRecentChatClicked(
-        chatId: String,
-        receiverName: String,
-        senderName: String,
-        receiverImage: String,
-        isPrivateChat: Boolean,
-        senderPicUrl: String,
-        receiverPicUrl: String
+        recentChat: RecentChat
     ) {
-
-
-        Log.d(
-            "ChatHome",
-            "onRecentChatClicked ${chatId + receiverName + senderName + receiverImage + isPrivateChat}"
-        )
-        val action = if (isPrivateChat) {
-            ChatHomeDirections.actionChatHomeToPrivateChatFragment(
-                chatId = chatId,
-                senderName = senderName,
-                receiverName = receiverName,
-                senderPic = senderPicUrl,
-                receiverPic = receiverPicUrl
-            )
-        } else {
-            ChatHomeDirections.actionChatHomeToGroupChatFragment(chatId)
+        with(recentChat){
+            val action = if (recentChat.privateChat) {
+                ChatHomeDirections.actionChatHomeToPrivateChatFragment(
+                    chatId = id,
+                    senderName = senderName,
+                    receiverName = receiverName,
+                    senderPic = senderPicUrl,
+                    receiverPic = receiverPicUrl
+                )
+            } else {
+                ChatHomeDirections.actionChatHomeToGroupChatFragment(
+                    id,
+                    title,
+                    senderPicUrl
+                )
+            }
+            findNavController().navigate(action)
         }
-        findNavController().navigate(action)
+
+
+
     }
 
     override fun leaveGroup(groupId: String) {

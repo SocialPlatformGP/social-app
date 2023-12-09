@@ -6,96 +6,78 @@
     <data>
         <import type="android.text.TextUtils" />
         <variable
-            name="viewmodel"
+            name="viewModel"
             type="com.gp.chat.presentation.groupchat.GroupChatViewModel" />
-        <variable
-            name="fragment"
-            type="com.gp.chat.presentation.groupchat.GroupChatFragment" />
-
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/layout_group_chat"
+     <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraintLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fitsSystemWindows="true"
-            android:orientation="vertical"
-            chat:layout_constraintTop_toTopOf="parent">
+            android:layout_height="match_parent">
 
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/group_chat_toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:theme="@style/Widget.AppCompat.Toolbar"
-                chat:popupTheme="@style/Theme.AppCompat.Light">
-
-            </androidx.appcompat.widget.Toolbar>
-        </com.google.android.material.appbar.AppBarLayout>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_gchat"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginBottom="16dp"
-            chat:layout_constrainedHeight="true"
-            chat:layout_constraintBottom_toTopOf="@+id/text_gchat_indicator"
-            chat:layout_constraintTop_toBottomOf="@+id/layout_group_chat" />
-
-        <TextView
-            android:id="@+id/text_gchat_indicator"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:visibility="gone"
-            chat:layout_constraintBottom_toTopOf="@id/view"
-            chat:layout_constraintStart_toStartOf="parent" />
-
-        <View
-            android:id="@+id/view"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#e0e0e0"
-            chat:layout_constraintBottom_toTopOf="@+id/chatbox_layout" />
-
-        <RelativeLayout
-            android:id="@+id/chatbox_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            chat:layout_constraintBottom_toBottomOf="parent"
-            chat:layout_constraintStart_toStartOf="parent">
-
-
-            <EditText
-                android:layout_marginStart="16dp"
-                android:id="@+id/edit_gchat_message"
-                android:layout_width="match_parent"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textInputLayout"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_toStartOf="@+id/button_gchat_send"
-                android:background="@android:color/transparent"
-                android:hint="Enter Message"
-                android:text="@={viewmodel.currentMessageState.message}"
-                android:inputType="text"
-                android:maxLines="6"
-                tools:ignore="Autofill" />
+                android:background="#1E03DAC6"
+                android:paddingBottom="6dp"
+                chat:layout_constraintBottom_toBottomOf="parent"
+                chat:layout_constraintEnd_toEndOf="parent"
+                chat:layout_constraintStart_toStartOf="parent">
 
-            <Button
-                android:id="@+id/button_gchat_send"
-                android:layout_width="64dp"
-                android:layout_height="48dp"
-                android:layout_alignParentEnd="true"
-                style="@style/Widget.Material3.Button.IconButton"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/message_edit_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Message"
+                        android:text="@={viewModel.currentMessageState.message}" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+
+                        <com.google.android.material.button.MaterialButton
+                            style="@style/Widget.Material3.Button.TextButton"
+                            android:id="@+id/add_file_button"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_weight="1.5"
+                            android:foregroundGravity="center"
+                            android:text="@={viewModel.currentMessageState.error}"
+                            chat:icon="@drawable/baseline_add_24" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/message_send_button"
+                            style="@style/Widget.Material3.Button.IconButton.Outlined"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:onClick="@{() -> viewModel.onSendMessage()}"
+                            android:text="send" />
+                    </LinearLayout>
+                </LinearLayout>
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_message"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
                 android:background="?attr/selectableItemBackground"
-                chat:icon="@drawable/baseline_send_24"
-                android:onClick="@{() -> fragment.onSendMessageClick()}"
-                />
-
-        </RelativeLayout>
-
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+                android:layout_marginBottom="2dp"
+                chat:layout_constraintBottom_toTopOf="@+id/textInputLayout"
+                chat:layout_constraintEnd_toEndOf="parent"
+                chat:layout_constraintStart_toStartOf="parent"
+                chat:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
