@@ -144,18 +144,6 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
                             )
                         findNavController().navigate(action)
                     }
-
-                    3 -> {
-                        Toast.makeText(requireContext(), "Contact", Toast.LENGTH_SHORT).show()
-                    }
-
-                    4 -> {
-                        Toast.makeText(requireContext(), "Location", Toast.LENGTH_SHORT).show()
-                    }
-
-                    5 -> {
-                        Toast.makeText(requireContext(), "Voice", Toast.LENGTH_SHORT).show()
-                    }
                 }
             }
             builder.show()
