@@ -43,7 +43,6 @@ class PrivateChatViewModel @Inject constructor(
     val currentMessage = MutableStateFlow(MessageState())
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
     val messages = _messages.asStateFlow()
-    val uploadState = MutableStateFlow(false)
 
     fun setData(
         chatId: String,
@@ -151,7 +150,6 @@ class PrivateChatViewModel @Inject constructor(
         currentMessage.value = currentMessage.value.copy(fileUri = uri)
         currentMessage.value = currentMessage.value.copy(fileTypes = type)
         sendMessage()
-        uploadState.value = true
     }
 
     private fun updateRecent() {

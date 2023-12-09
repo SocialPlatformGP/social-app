@@ -33,6 +33,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.gp.chat.R
 import com.gp.chat.databinding.FragmentCameraPreviewBinding
+import com.gp.chat.presentation.groupchat.GroupChatViewModel
 import com.gp.chat.presentation.privateChat.PrivateChatViewModel
 import com.gp.material.utils.FileUtils.getFileName
 import com.gp.material.utils.FileUtils.getMimeTypeFromUri
@@ -48,7 +49,8 @@ class CameraPreviewFragment : DialogFragment() {
     lateinit var binding: FragmentCameraPreviewBinding
     private var imageCapture: ImageCapture? = null
     private val viewModel: PrivateChatViewModel by viewModels()
-    private val args : CameraPreviewFragmentArgs by navArgs()
+    private val groupViewModel: GroupChatViewModel by viewModels()
+    private val args: CameraPreviewFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -73,13 +75,7 @@ class CameraPreviewFragment : DialogFragment() {
 
         }
         binding.captureButton.setOnClickListener { takePhoto() }
-        lifecycleScope.launch{
-            viewModel.uploadState.flowWithLifecycle(lifecycle).collect {
-                if (it){
-                    findNavController().popBackStack()
-                }
-            }
-        }
+
     }
 
     private fun startCamera() {
@@ -168,7 +164,13 @@ class CameraPreviewFragment : DialogFragment() {
                         val mimeType = getMimeTypeFromUri(output.savedUri!!, requireContext())
                         val fileName = getFileName(output.savedUri!!, requireContext())
                         Log.d("TAGRRR", "onViewCreated: $mimeType $fileName ${output.savedUri}")
-                        viewModel.sendFile(output.savedUri!!, mimeType!!, fileName)
+                        if (args.isPrivateChat) {
+                            viewModel.sendFile(output.savedUri!!, mimeType!!, fileName)
+                        }
+                        else {
+                            groupViewModel.sendFile(output.savedUri!!, mimeType!!, fileName)
+                        }
+                        findNavController().popBackStack()
                     }
                     binding.cancelButton.setOnClickListener {
                         findNavController().popBackStack()
@@ -217,13 +219,22 @@ class CameraPreviewFragment : DialogFragment() {
     }
 
     private fun initializeViewModel() {
-        viewModel.setData(
-            args.chatId,
-            args.senderName,
-            args.receiverName,
-            args.senderPic,
-            args.receiverPic
-        )
+        if (args.isPrivateChat) {
+            viewModel.setData(
+                args.chatId,
+                args.senderName,
+                args.receiverName,
+                args.senderPic,
+                args.receiverPic
+            )
+        } else {
+            groupViewModel.setData(
+                args.chatId,
+                args.senderName,
+                args.senderPic,
+
+                )
+        }
     }
 
 }

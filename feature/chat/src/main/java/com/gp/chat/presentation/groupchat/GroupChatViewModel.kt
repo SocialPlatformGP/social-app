@@ -145,6 +145,7 @@ class GroupChatViewModel @Inject constructor(
         currentMessageState.value = currentMessageState.value.copy(fileUri = uri)
         currentMessageState.value = currentMessageState.value.copy(fileTypes = type)
         onSendMessage()
+
     }
 
     fun deleteMessage(messageId: String, chatId: String) {

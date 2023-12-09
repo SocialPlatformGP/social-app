@@ -50,14 +50,12 @@ import java.io.File
 import java.util.Locale
 
 @AndroidEntryPoint
-class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListener,
-    ImageClickListener {
+class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListener, ImageClickListener {
     lateinit var adapter: GroupMessageAdapter
     lateinit var binding: FragmentPrivateChatBinding
     private lateinit var fileManager: FileManager
     private val args: PrivateChatFragmentArgs by navArgs()
     private val viewModel: PrivateChatViewModel by viewModels()
-    private var uri: Uri? = Environment.DIRECTORY_DCIM.toUri()
     private val openDocument =
         registerForActivityResult(ActivityResultContracts.GetMultipleContents()) {
             it?.let {
@@ -118,11 +116,11 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
             )
         )
         recyclerView.adapter = adapter
+
         binding.addFileButton.setOnClickListener {
-            //showmaterial dialog to choose file or download or camera or gallery or contact  or location or voice
             val builder = MaterialAlertDialogBuilder(requireContext())
             builder.setTitle("Choose File")
-            val options = arrayOf("File", "Gallery", "Camera", "Contact", "Location", "Voice")
+            val options = arrayOf("File", "Gallery", "Camera", "Voice")
             builder.setItems(options) { dialog, which ->
                 when (which) {
                     0 -> {
@@ -140,7 +138,8 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
                                 senderName = args.senderName,
                                 receiverName = args.receiverName,
                                 senderPic = args.senderPic,
-                                receiverPic = args.receiverPic
+                                receiverPic = args.receiverPic,
+                                isPrivateChat = true
                             )
                         findNavController().navigate(action)
                     }

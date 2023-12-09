@@ -96,6 +96,9 @@
         <action
             android:id="@+id/action_groupChatFragment_to_groupDetailsFragment"
             app:destination="@id/groupDetailsFragment" />
+        <action
+            android:id="@+id/action_groupChatFragment_to_cameraPreviewFragment"
+            app:destination="@id/cameraPreviewFragment" />
     </fragment>
     <fragment
         android:id="@+id/createGroupChatFragment"
@@ -152,5 +155,8 @@
             android:name="receiverPic"
             app:argType="string"
             android:defaultValue='""' />
-        </fragment>
+        <argument
+            android:name="isPrivateChat"
+            app:argType="boolean" />
+    </fragment>
 </navigation>

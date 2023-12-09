@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import android.view.ViewTreeObserver
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
@@ -19,6 +20,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.gp.chat.R
 import com.gp.chat.adapter.GroupMessageAdapter
 import com.gp.chat.databinding.FragmentGroupChatBinding
@@ -34,8 +38,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class GroupChatFragment : Fragment(), OnMessageClickListener, OnFileClickListener,
-    ImageClickListener {
+class GroupChatFragment : Fragment(), OnMessageClickListener, OnFileClickListener, ImageClickListener {
     private val viewModel: GroupChatViewModel by viewModels()
     private lateinit var binding: FragmentGroupChatBinding
     private val args: GroupChatFragmentArgs by navArgs()
@@ -51,7 +54,15 @@ class GroupChatFragment : Fragment(), OnMessageClickListener, OnFileClickListene
 
         }
     }
-
+    private val openImage = registerForActivityResult(ActivityResultContracts.PickVisualMedia())
+    {
+        it?.let { uri ->
+            val mimeType = getMimeTypeFromUri(uri, requireContext())
+            val fileName = getFileName(uri, requireContext())
+            Log.d("TAG", "onViewCreated: $mimeType $fileName $uri")
+            viewModel.sendFile(uri, mimeType!!, fileName)
+        }
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -79,9 +90,37 @@ class GroupChatFragment : Fragment(), OnMessageClickListener, OnFileClickListene
             )
         )
         recyclerView.adapter = adapter
+
         binding.addFileButton.setOnClickListener {
-            openDocument.launch("*/*")
+            val builder = MaterialAlertDialogBuilder(requireContext())
+            builder.setTitle("Choose File")
+            val options = arrayOf("File", "Gallery", "Camera", "Voice")
+            builder.setItems(options) { dialog, which ->
+                when (which) {
+                    0 -> {
+                        openDocument.launch("*/*")
+                    }
+
+                    1 -> {
+                        openImage.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
+                    }
+
+                    2 -> {
+                        val action =
+                            GroupChatFragmentDirections.actionGroupChatFragmentToCameraPreviewFragment(
+                                chatId = args.groupId,
+                                senderName = args.title,
+                                senderPic =  args.photoUrl,
+                                isPrivateChat = false
+                            )
+                        findNavController().navigate(action)
+                    }
+                }
+            }
+            builder.show()
+
         }
+
         val toolbar = requireActivity().findViewById<Toolbar>(R.id.toolbar)
         toolbar.title = args.title
         toolbar.setOnClickListener {
