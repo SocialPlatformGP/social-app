@@ -29,7 +29,6 @@ import javax.inject.Inject
 @HiltViewModel
 class PrivateChatViewModel @Inject constructor(
     private val messageRepository: MessageRepository,
-    private val userRepository: UserRepository
 ) : ViewModel() {
 
 
@@ -61,7 +60,7 @@ class PrivateChatViewModel @Inject constructor(
     }
 
 
-    fun getMessages() {
+    private fun getMessages() {
         viewModelScope.launch(Dispatchers.IO) {
             messageRepository.getMessages(ChatId).collect {
                 when (it) {

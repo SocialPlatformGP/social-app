@@ -82,7 +82,8 @@ class VipFeedFragment : Fragment(), VotesClickedListenerPost, OnMoreOptionClicke
                 if (it.administration) {
                     binding.floatingActionButton.visibility = View.VISIBLE
                     binding.floatingActionButton.setOnClickListener {
-                        val action = MainFeedFragmentDirections.mainFeedFragment2ToCreatePostFragment("vip")
+                        Log.d("TAG258", "onViewCreated:vip  ")
+                        val action = MainFeedFragmentDirections.actionMainFeedFragment2ToCreatePostFragment("vip")
                         findNavController().navigate(action)
                     }
 

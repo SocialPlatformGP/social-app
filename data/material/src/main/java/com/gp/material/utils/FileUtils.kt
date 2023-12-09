@@ -5,6 +5,7 @@ import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
+import android.util.Log
 import android.webkit.MimeTypeMap
 import java.util.Locale
 
@@ -23,18 +24,23 @@ object FileUtils {
     }
 
      fun getMimeTypeFromUri(uri: Uri,context: Context): String? {
+         Log.d("zarea15", "getMimeTypeFromUri:$uri ")
         val contentResolver: ContentResolver = context.contentResolver
         var mimeType: String? = null
 
         // Try to query the ContentResolver to get the MIME type
         mimeType = contentResolver.getType(uri)
+         Log.d("zarea151", "getMimeTypeFromUri: $mimeType")
 
         if (mimeType == null) {
             // If ContentResolver couldn't determine the MIME type, try getting it from the file extension
             val fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri.toString())
+                     Log.d("zarea151", "getMimeTypeFromUri: $fileExtension")
+
             if (!fileExtension.isNullOrEmpty()) {
                 mimeType = MimeTypeMap.getSingleton()
                     .getMimeTypeFromExtension(fileExtension.toLowerCase(Locale.US))
+
             }
         }
 

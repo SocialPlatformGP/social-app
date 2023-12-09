@@ -41,9 +41,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked, OnFeedOptionsClicked , OnTagClicked{
-    lateinit var  binding:FragmentFeedBinding
-    lateinit var  feedAdapter: FeedPostAdapter
+class FeedFragment : Fragment(), VotesClickedListenerPost, OnMoreOptionClicked,
+    OnFeedOptionsClicked, OnTagClicked {
+    lateinit var binding: FragmentFeedBinding
+    lateinit var feedAdapter: FeedPostAdapter
     private val viewModel: FeedPostViewModel by viewModels()
     private val currentUser = Firebase.auth.currentUser
 
@@ -92,10 +93,14 @@ class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked,
                 }
             }
 
-            binding.floatingActionButton.setOnClickListener {
-                val action = MainFeedFragmentDirections.mainFeedFragment2ToCreatePostFragment("all")
-                findNavController().navigate(action)
-            }
+
+        }
+        binding.floatingActionButton.setOnClickListener {
+            Log.d("TAG258", "onViewCreated:all  ")
+
+            val action =
+                MainFeedFragmentDirections.actionMainFeedFragment2ToCreatePostFragment("all")
+            findNavController().navigate(action)
         }
     }
 
@@ -169,7 +174,8 @@ class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked,
         )
         val bottomSheetDialog = BottomSheetDialog(requireContext())
         viewModel.tags.forEach {
-            val chip: Chip = layoutInflater.inflate(R.layout.item_tag_filter_chip, null, false) as Chip
+            val chip: Chip =
+                layoutInflater.inflate(R.layout.item_tag_filter_chip, null, false) as Chip
             chip.text = it
             chip.isChecked = viewModel.selectedTagFilters.value.contains(it)
             bottomSheetBinding.tagsFilterChipgroup.addView(chip)
@@ -180,18 +186,19 @@ class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked,
         bottomSheetBinding.sortApplyButton.setOnClickListener {
             when (bottomSheetBinding.sortTypesChipgroup.checkedChipId) {
                 R.id.newest_sort_chip -> {
-                    if(!viewModel.isSortedByNewest.value){
+                    if (!viewModel.isSortedByNewest.value) {
                         viewModel.sortPostsByNewest()
                     }
                 }
+
                 R.id.popular_sort_chip -> {
-                    if(viewModel.isSortedByNewest.value){
+                    if (viewModel.isSortedByNewest.value) {
                         viewModel.sortPostsByPopularity()
                     }
                 }
             }
-            bottomSheetBinding.tagsFilterChipgroup.children.forEach { chip->
-                if((chip as Chip).isChecked) {
+            bottomSheetBinding.tagsFilterChipgroup.children.forEach { chip ->
+                if ((chip as Chip).isChecked) {
                     filters.add(chip.text.toString())
                 }
             }
@@ -213,9 +220,9 @@ class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked,
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setSelectedChip(bottomSheetBinding: BottomSheetFeedOptionsBinding) {
-        if(viewModel.isSortedByNewest.value){
+        if (viewModel.isSortedByNewest.value) {
             bottomSheetBinding.newestSortChip.isChecked = true
-        }else{
+        } else {
             bottomSheetBinding.popularSortChip.isChecked = true
         }
     }

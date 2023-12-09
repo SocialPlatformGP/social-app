@@ -68,7 +68,7 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
 
             }
         }
-    private val openImage = registerForActivityResult(ActivityResultContracts.PickVisualMedia())
+    private val openGallery = registerForActivityResult(ActivityResultContracts.PickVisualMedia())
     {
         it?.let { uri ->
             val mimeType = getMimeTypeFromUri(uri, requireContext())
@@ -128,7 +128,7 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
                     }
 
                     1 -> {
-                        openImage.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
+                        openGallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
                     }
 
                     2 -> {
