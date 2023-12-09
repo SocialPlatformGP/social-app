@@ -21,4 +21,5 @@ data class PostEntity(
     val editStatus: Boolean ,
     val tags: List<TagEntity>,
     val type: String,
+    val attachments: List<PostAttachment>
 )

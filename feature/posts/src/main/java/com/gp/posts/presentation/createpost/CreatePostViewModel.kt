@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.gp.socialapp.database.model.PostFile
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.model.Tag
 import com.gp.socialapp.repository.PostRepository
@@ -64,8 +65,9 @@ class CreatePostViewModel @Inject constructor (
                         title = title,
                         body = body,
                         tags = tags,
-                        type = type
-                    ))
+                        type = type,
+                        attachments = emptyList()
+                    ), uiState.value.files)
                 state.collect{newState ->
                     uiState.value = uiState.value.copy(createdState = newState)
                 }
@@ -92,5 +94,11 @@ class CreatePostViewModel @Inject constructor (
     }
     fun setType(type: String){
         uiState.value = uiState.value.copy(type = type)
+    }
+
+    fun addFile(postFile: PostFile) {
+        viewModelScope.launch{
+            uiState.value = uiState.value.copy(files = uiState.value.files + listOf(postFile))
+        }
     }
 }

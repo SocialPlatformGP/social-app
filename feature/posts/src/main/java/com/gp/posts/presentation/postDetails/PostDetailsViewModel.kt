@@ -27,11 +27,12 @@ class PostDetailsViewModel @Inject constructor(
 
     private val _currentPost = MutableStateFlow(
         Post(
-        authorEmail = "",
-        title = "",
-        body = "",
-        publishedAt = ""
-    )
+            authorEmail = "",
+            title = "",
+            body = "",
+            publishedAt = "",
+            attachments = emptyList()
+        )
     )
     val currentPost get() = _currentPost.asStateFlow()
 

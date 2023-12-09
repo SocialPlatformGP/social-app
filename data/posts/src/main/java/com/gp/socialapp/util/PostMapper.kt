@@ -25,12 +25,14 @@ object PostMapper {
             userName = userName,
             userPfp = userPfp,
             tags = tags.toEntity(),
-            type = type
+            type = type,
+            attachments = attachments
+
         )
     }
     fun PostEntity.toNetworkModel(): NetworkPost{
         return NetworkPost(
-authorEmail = authorEmail,
+            authorEmail = authorEmail,
             publishedAt = publishedAt,
             title = title,
             body = body,
@@ -43,7 +45,8 @@ authorEmail = authorEmail,
             userName = userName,
             userPfp = userPfp,
             tags = tags.toModel(),
-            type = type
+            type = type,
+            attachments = attachments
         )
     }
     fun Post.toNetworkModel(): NetworkPost{
@@ -61,7 +64,8 @@ authorEmail = authorEmail,
             moderationStatus = moderationStatus,
             editStatus = editStatus,
             tags = tags,
-            type = type
+            type = type,
+            attachments = attachments
         )
     }
     fun NetworkPost.toModel(id: String): Post{
@@ -80,7 +84,8 @@ authorEmail = authorEmail,
             moderationStatus = moderationStatus,
             editStatus = editStatus,
             tags = tags,
-            type = type
+            type = type,
+            attachments = attachments
         )
     }
     fun Post.toEntity(): PostEntity{
@@ -99,7 +104,8 @@ authorEmail = authorEmail,
             userName = userName,
             userPfp = userPfp,
             tags = tags.toEntity(),
-            type = type
+            type = type,
+            attachments = attachments
         )
     }
     fun PostEntity.toModel(): Post{
@@ -116,6 +122,7 @@ authorEmail = authorEmail,
             editStatus = editStatus,
             tags = tags.toModel(),
             type = type,
+            attachments = attachments
         )
     }
 
@@ -145,8 +152,5 @@ authorEmail = authorEmail,
     fun List<TagEntity>.toModel(): List<Tag> {
         return map { it.toModel() }
     }
-
-
-
 
 }
