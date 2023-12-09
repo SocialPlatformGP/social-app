@@ -79,17 +79,7 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
             viewModel.sendFile(uri, mimeType!!, fileName)
         }
     }
-    private val openCamera = registerForActivityResult(ActivityResultContracts.TakePicture())
-    {
-        it?.let {  isSuccessful ->
-            if (isSuccessful) {
-                val mimeType = getMimeTypeFromUri(uri!!, requireContext())
-                val fileName = getFileName(uri!!, requireContext())
-                Log.d("TAG", "onViewCreated: $mimeType $fileName $uri")
-                viewModel.sendFile(uri!!, mimeType!!, fileName)
-            }
-        }
-    }
+
 
 
     override fun onCreateView(
@@ -102,41 +92,6 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
             DataBindingUtil.inflate(inflater, R.layout.fragment_private_chat, container, false)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
-                binding.addFileButton.setOnClickListener {
-            //showmaterial dialog to choose file or download or camera or gallery or contact  or location or voice
-            val builder = MaterialAlertDialogBuilder(requireContext())
-            builder.setTitle("Choose File")
-            val options = arrayOf("File", "Gallery", "Camera", "Contact", "Location", "Voice")
-            builder.setItems(options) { dialog, which ->
-                when (which) {
-                    0 -> {
-                        openDocument.launch("*/*")
-                    }
-
-                    1 -> {
-                        openImage.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
-                    }
-
-                    2 -> {
-                        openCamera.launch(uri)
-                    }
-
-                    3 -> {
-                        Toast.makeText(requireContext(), "Contact", Toast.LENGTH_SHORT).show()
-                    }
-
-                    4 -> {
-                        Toast.makeText(requireContext(), "Location", Toast.LENGTH_SHORT).show()
-                    }
-
-                    5 -> {
-                        Toast.makeText(requireContext(), "Voice", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-            builder.show()
-
-        }
 
         return binding.root
     }
@@ -179,7 +134,15 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
                     }
 
                     2 -> {
-                        openCamera.launch(uri)
+                        val action =
+                            PrivateChatFragmentDirections.actionPrivateChatFragmentToCameraPreviewFragment(
+                                chatId = args.chatId,
+                                senderName = args.senderName,
+                                receiverName = args.receiverName,
+                                senderPic = args.senderPic,
+                                receiverPic = args.receiverPic
+                            )
+                        findNavController().navigate(action)
                     }
 
                     3 -> {
