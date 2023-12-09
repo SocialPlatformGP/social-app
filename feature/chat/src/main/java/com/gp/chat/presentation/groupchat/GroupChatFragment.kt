@@ -94,7 +94,7 @@ class GroupChatFragment : Fragment(), OnMessageClickListener, OnFileClickListene
         binding.addFileButton.setOnClickListener {
             val builder = MaterialAlertDialogBuilder(requireContext())
             builder.setTitle("Choose File")
-            val options = arrayOf("File", "Gallery", "Camera", "Voice")
+            val options = arrayOf("File", "Gallery", "Camera")
             builder.setItems(options) { dialog, which ->
                 when (which) {
                     0 -> {

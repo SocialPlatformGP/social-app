@@ -86,11 +86,9 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
         savedInstanceState: Bundle?
     ): View {
         initializeViewModel()
-        binding =
-            DataBindingUtil.inflate(inflater, R.layout.fragment_private_chat, container, false)
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_private_chat, container, false)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
-
         return binding.root
     }
 
@@ -100,40 +98,24 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
         val recyclerView = binding.recyclerMessage
         val manager = LinearLayoutManager(requireContext())
 
-        adapter = GroupMessageAdapter(
-            this,
-            this,
-            this,
-            true
-        )
+        adapter = GroupMessageAdapter(this, this, this, true)
         manager.stackFromEnd = true
         recyclerView.layoutManager = manager
-        adapter.registerAdapterDataObserver(
-            MyScrollToBottomObserver(
-                recyclerView,
-                adapter,
-                manager
-            )
-        )
+        adapter.registerAdapterDataObserver(MyScrollToBottomObserver(recyclerView, adapter, manager))
         recyclerView.adapter = adapter
 
         binding.addFileButton.setOnClickListener {
             val builder = MaterialAlertDialogBuilder(requireContext())
             builder.setTitle("Choose File")
-            val options = arrayOf("File", "Gallery", "Camera", "Voice")
+            val options = arrayOf("File", "Gallery", "Camera")
             builder.setItems(options) { dialog, which ->
                 when (which) {
-                    0 -> {
-                        openDocument.launch("*/*")
-                    }
+                    0 -> { openDocument.launch("*/*") }
 
-                    1 -> {
-                        openGallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
-                    }
+                    1 -> { openGallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)) }
 
                     2 -> {
-                        val action =
-                            PrivateChatFragmentDirections.actionPrivateChatFragmentToCameraPreviewFragment(
+                        val action = PrivateChatFragmentDirections.actionPrivateChatFragmentToCameraPreviewFragment(
                                 chatId = args.chatId,
                                 senderName = args.senderName,
                                 receiverName = args.receiverName,
@@ -162,6 +144,7 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
         lifecycleScope.launch {
             viewModel.messages.flowWithLifecycle(lifecycle).collect {
                 adapter.submitList(it)
+                binding.recyclerMessage.scrollToPosition(adapter.itemCount - 1)
                 recyclerView.viewTreeObserver.addOnPreDrawListener(object :
                     ViewTreeObserver.OnPreDrawListener {
                     override fun onPreDraw(): Boolean {
