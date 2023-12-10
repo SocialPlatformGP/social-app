@@ -38,23 +38,25 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class GroupChatFragment : Fragment(), OnMessageClickListener, OnFileClickListener, ImageClickListener {
+class GroupChatFragment : Fragment(), OnMessageClickListener, OnFileClickListener,
+    ImageClickListener {
     private val viewModel: GroupChatViewModel by viewModels()
     private lateinit var binding: FragmentGroupChatBinding
     private val args: GroupChatFragmentArgs by navArgs()
     private lateinit var fileManager: FileManager
-    private val openDocument = registerForActivityResult(ActivityResultContracts.GetMultipleContents()) {
-        it?.let {
-            it.forEach { uri ->
-                val mimeType = getMimeTypeFromUri(uri, requireContext())
-                val fileName = getFileName(uri, requireContext())
-                Log.d("TAG", "onViewCreated: $mimeType $fileName")
-                viewModel.sendFile(uri, mimeType!!, fileName)
-            }
+    private val openDocument =
+        registerForActivityResult(ActivityResultContracts.GetMultipleContents()) {
+            it?.let {
+                it.forEach { uri ->
+                    val mimeType = getMimeTypeFromUri(uri, requireContext())
+                    val fileName = getFileName(uri, requireContext())
+                    Log.d("TAG", "onViewCreated: $mimeType $fileName")
+                    viewModel.sendFile(uri, mimeType!!, fileName)
+                }
 
+            }
         }
-    }
-    private val openImage = registerForActivityResult(ActivityResultContracts.PickVisualMedia())
+    private val openGallery = registerForActivityResult(ActivityResultContracts.PickVisualMedia())
     {
         it?.let { uri ->
             val mimeType = getMimeTypeFromUri(uri, requireContext())
@@ -63,6 +65,7 @@ class GroupChatFragment : Fragment(), OnMessageClickListener, OnFileClickListene
             viewModel.sendFile(uri, mimeType!!, fileName)
         }
     }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -75,7 +78,7 @@ class GroupChatFragment : Fragment(), OnMessageClickListener, OnFileClickListene
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.setData(args.groupId,args.title,args.photoUrl)
+        viewModel.setData(args.groupId, args.title, args.photoUrl)
         val recyclerView = binding.recyclerMessage
         val adapter = GroupMessageAdapter(this, this, this, false)
         val manager = LinearLayoutManager(requireContext())
@@ -90,35 +93,21 @@ class GroupChatFragment : Fragment(), OnMessageClickListener, OnFileClickListene
             )
         )
         recyclerView.adapter = adapter
-
         binding.addFileButton.setOnClickListener {
-            val builder = MaterialAlertDialogBuilder(requireContext())
-            builder.setTitle("Choose File")
-            val options = arrayOf("File", "Gallery", "Camera")
-            builder.setItems(options) { dialog, which ->
-                when (which) {
-                    0 -> {
-                        openDocument.launch("*/*")
-                    }
-
-                    1 -> {
-                        openImage.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
-                    }
-
-                    2 -> {
-                        val action =
-                            GroupChatFragmentDirections.actionGroupChatFragmentToCameraPreviewFragment(
-                                chatId = args.groupId,
-                                senderName = args.title,
-                                senderPic =  args.photoUrl,
-                                isPrivateChat = false
-                            )
-                        findNavController().navigate(action)
-                    }
-                }
-            }
-            builder.show()
-
+            openDocument.launch("*/*")
+        }
+        binding.addImageButton.setOnClickListener {
+            openGallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
+        }
+        binding.addCameraButton.setOnClickListener {
+            val action =
+                GroupChatFragmentDirections.actionGroupChatFragmentToCameraPreviewFragment(
+                    chatId = args.groupId,
+                    senderName = args.title,
+                    senderPic = args.photoUrl,
+                    isPrivateChat = false
+                )
+            findNavController().navigate(action)
         }
 
         val toolbar = requireActivity().findViewById<Toolbar>(R.id.toolbar)

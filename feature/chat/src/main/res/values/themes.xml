@@ -5,7 +5,7 @@
         <item name="fullscreenTextColor">@color/light_blue_A200</item>
     </style>
 
-    <style name="add_file_button" parent="Widget.Material3.Button.IconButton.Filled">
-        <item name="backgroundTint">@color/md_theme_light_onPrimaryContainer</item>
+    <style name="add_file_button" parent="Widget.Material3.Button.IconButton">
+<!--        <item name="backgroundTint">@color/md_theme_light_onPrimaryContainer</item>-->
     </style>
 </resources>

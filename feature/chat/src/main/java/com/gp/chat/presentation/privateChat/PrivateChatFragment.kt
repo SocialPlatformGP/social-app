@@ -50,7 +50,8 @@ import java.io.File
 import java.util.Locale
 
 @AndroidEntryPoint
-class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListener, ImageClickListener {
+class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListener,
+    ImageClickListener {
     lateinit var adapter: GroupMessageAdapter
     lateinit var binding: FragmentPrivateChatBinding
     private lateinit var fileManager: FileManager
@@ -79,14 +80,14 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
     }
 
 
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         initializeViewModel()
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_private_chat, container, false)
+        binding =
+            DataBindingUtil.inflate(inflater, R.layout.fragment_private_chat, container, false)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         return binding.root
@@ -101,34 +102,32 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
         adapter = GroupMessageAdapter(this, this, this, true)
         manager.stackFromEnd = true
         recyclerView.layoutManager = manager
-        adapter.registerAdapterDataObserver(MyScrollToBottomObserver(recyclerView, adapter, manager))
+        adapter.registerAdapterDataObserver(
+            MyScrollToBottomObserver(
+                recyclerView,
+                adapter,
+                manager
+            )
+        )
         recyclerView.adapter = adapter
 
         binding.addFileButton.setOnClickListener {
-            val builder = MaterialAlertDialogBuilder(requireContext())
-            builder.setTitle("Choose File")
-            val options = arrayOf("File", "Gallery", "Camera")
-            builder.setItems(options) { dialog, which ->
-                when (which) {
-                    0 -> { openDocument.launch("*/*") }
-
-                    1 -> { openGallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)) }
-
-                    2 -> {
-                        val action = PrivateChatFragmentDirections.actionPrivateChatFragmentToCameraPreviewFragment(
-                                chatId = args.chatId,
-                                senderName = args.senderName,
-                                receiverName = args.receiverName,
-                                senderPic = args.senderPic,
-                                receiverPic = args.receiverPic,
-                                isPrivateChat = true
-                            )
-                        findNavController().navigate(action)
-                    }
-                }
-            }
-            builder.show()
-
+            openDocument.launch("*/*")
+        }
+        binding.addImageButton.setOnClickListener {
+            openGallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
+        }
+        binding.addCameraButton.setOnClickListener {
+            val action =
+                PrivateChatFragmentDirections.actionPrivateChatFragmentToCameraPreviewFragment(
+                    chatId = args.chatId,
+                    senderName = args.senderName,
+                    receiverName = args.receiverName,
+                    senderPic = args.senderPic,
+                    receiverPic = args.receiverPic,
+                    isPrivateChat = true
+                )
+            findNavController().navigate(action)
         }
         //set the title to receiver name
         val toolbar = requireActivity().findViewById<Toolbar>(R.id.toolbar)
