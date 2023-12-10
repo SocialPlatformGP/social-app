@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.StorageMetadata
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.component3
 import com.google.firebase.storage.ktx.storage
@@ -22,7 +23,7 @@ import javax.inject.Inject
 class MaterialViewModel @Inject constructor(private val remoteDataSource: MaterialRemoteDataSource) :
     ViewModel() {
 
-    var currentPath = "materials"
+     private var currentPath=""
     private val storageReference: StorageReference = Firebase.storage.reference
 
     private val _fileItems = MutableStateFlow<List<MaterialItem>>(emptyList())
@@ -32,57 +33,31 @@ class MaterialViewModel @Inject constructor(private val remoteDataSource: Materi
 
     fun fetchDataFromFirebaseStorage() {
         val fileItems = mutableListOf<MaterialItem>()
-
-        storageReference.child("materials/$currentPath").listAll()
+       //"materials/$currentPath"
+        if (currentPath==""){
+            currentPath="materials"
+        }
+        storageReference.child(currentPath).listAll()
             .addOnSuccessListener { listResult ->
                 Log.d("waleed24", listResult.items.toString())
                 Log.d("waleed24", listResult.prefixes.toString())
-                // Process each item asynchronously
                 listResult.items.forEach { item ->
                     item.metadata.addOnSuccessListener { metadata ->
-                        // Retrieve metadata attributes
-                        val fileName = metadata.getCustomMetadata("fName") ?: ""
-                        val path = metadata.getCustomMetadata("path") ?: ""
-                        val creator = metadata.getCustomMetadata("createdBy") ?: ""
-                        val id = metadata.getCustomMetadata("id") ?: ""
-
-                        // Use a temporary item to accumulate data
-                        val newItem = MaterialItem(
-                            name = fileName,
-                            path = path,
-                            createdBy = creator,
-                            id = id,
-                            fileType = getFileType(fileName)
-                        )
-
-                        // Retrieve download URL asynchronously
+                        val newItem=createMaterialItemFromMetadata(metadata)
                         metadata.reference?.downloadUrl?.addOnSuccessListener { url ->
-                            // Update the URL in the temporary item
                             val updatedItem = newItem.copy(fileUrl = url.toString())
-
-                            // Add the updated item to the list
                             fileItems.add(updatedItem)
-
-                            // Update the StateFlow value when all items are processed
                             if (fileItems.size == listResult.items.size) {
                                 _fileItems.value = fileItems
                                 Log.d("waleed2", _fileItems.value.toString())
                             }
                         }
                     }
-
                 }
                 val folderItems = mutableListOf<MaterialItem>()
                 listResult.prefixes.forEach { prefix ->
-                    // Retrieve metadata attributes
-                    val fileName = prefix.name ?: ""
-                    val path = prefix.path ?: ""
-                    // Use a temporary item to accumulate data
-                    val newItem = MaterialItem(
-                        name = fileName,
-                        path = path,
-                        fileType = FileType.FOLDER
-                    )
+
+                    val newItem = createMaterialItemFromPrefix(prefix)
                     folderItems.add(newItem)
                     Log.d("waleed222", _folderItems.value.toString())
 
@@ -91,36 +66,70 @@ class MaterialViewModel @Inject constructor(private val remoteDataSource: Materi
                         _folderItems.value = folderItems
                         Log.d("waleed2", _folderItems.value.toString())
                     }
-
                 }
             }
             .addOnFailureListener { exception ->
                 Log.e("waleed2", "Error fetching data: $exception")
             }
     }
+    fun openFolder(path: String) {
+        currentPath = path
+        fetchDataFromFirebaseStorage()
+    }
+    private fun createMaterialItemFromMetadata(metadata: StorageMetadata): MaterialItem {
+        val fileName = metadata.getCustomMetadata("fName") ?: ""
+        val path = metadata.getCustomMetadata("path") ?: ""
+        val creator = metadata.getCustomMetadata("createdBy") ?: ""
+        val id = metadata.getCustomMetadata("id") ?: ""
+        val type = metadata.getCustomMetadata("fileType") ?: ""
+        val time= metadata.getCustomMetadata("time") ?: ""
+
+        return MaterialItem(
+            name = fileName,
+            path = path,
+            createdBy = creator,
+            id = id,
+            fileType = stringToFileType(type),
+            creationTime=time
+        )
+    }
+    fun getCurrentPath():String{
+        return currentPath
+    }
+    private fun stringToFileType(typeString: String): FileType {
+        return try {
+            FileType.valueOf(typeString.toUpperCase())
+        } catch (e: IllegalArgumentException) {
+            // Handle the case when the string does not match any enum value
+            FileType.UnKnown
+        }
+    }
+    private fun createMaterialItemFromPrefix(prefix: StorageReference): MaterialItem {
+        val fileName = prefix.name ?: ""
+        val path = prefix.path ?: ""
+        return MaterialItem(
+            name = fileName,
+            path = path,
+            fileType = FileType.FOLDER
+        )
+    }
 
     fun uploadFile(fileUri: Uri, context: Context) {
         viewModelScope.launch {
-            remoteDataSource.uploadFile("materials/$currentPath", fileUri, context)
+            remoteDataSource.uploadFile(currentPath, fileUri, context)
         }
+    }
+    fun uploadFolder(currentPath:String,name:String){
+        remoteDataSource.uploadFolder(currentPath,name)
     }
 
     fun deleteFile(fileLocation: String) {
         remoteDataSource.deleteFile(fileLocation)
     }
 
-    suspend fun downloadFile(fileLocation: String) {
+    fun downloadFile(fileLocation: String) {
         remoteDataSource.downloadFile(fileLocation)
     }
 
-    private fun getFileType(fileName: String): FileType {
-        val fileExtension = fileName.substringAfterLast('.')
-        return when (fileExtension.toLowerCase()) {
-            "jpg", "jpeg", "png", "gif" -> FileType.IMAGE
-            "pdf" -> FileType.PDF
-            "mp3", "wav", "ogg" -> FileType.AUDIO
-            "mp4", "avi", "mkv" -> FileType.VIDEO
-            else -> FileType.OTHER
-        }
-    }
+
 }

@@ -8,7 +8,6 @@ data class MaterialItem(
     val createdBy:String="",
     val fileUrl: String="",
     val creationTime:String=""
-
     )
 enum class FileType {
     IMAGE,
@@ -16,7 +15,8 @@ enum class FileType {
     AUDIO,
     VIDEO,
     OTHER,
-    FOLDER
+    FOLDER,
+    UnKnown
 
 }
 

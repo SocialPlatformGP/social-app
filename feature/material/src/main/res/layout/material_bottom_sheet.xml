@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -16,60 +17,52 @@
             android:id="@+id/createNewFolder"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="download"
+            android:text="Create Folder"
             android:textStyle="bold"
             android:textColor="#ffffff"
             android:padding="4dp"
             android:background="#11987A"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_margin="5dp"
+            android:layout_margin="10dp"
             />
+
 
         <Button
             android:id="@+id/uploadImage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
+            android:layout_margin="10dp"
             android:layout_marginStart="36dp"
-android:textStyle="bold"
-            android:textColor="#ffffff"
-            android:padding="4dp"
             android:background="#11987A"
+            android:padding="4dp"
             android:text="Upload"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/uploadFile"
-           app:layout_constraintStart_toEndOf="@id/createNewFolder"
-            app:layout_constraintBottom_toTopOf="@id/close"/>
-
-        <Button
-            android:id="@+id/uploadFile"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:layout_marginTop="8dp"
-            android:textStyle="bold"
             android:textColor="#ffffff"
-            android:padding="4dp"
-            android:background="#11987A"
-            android:text="upload File"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@id/close"
+
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintHorizontal_bias="0.962"
+            app:layout_constraintStart_toEndOf="@id/createNewFolder"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.384" />
 
         <Button
             android:id="@+id/close"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="close"
-            android:textStyle="bold"
-            android:textColor="#ffffff"
-            android:padding="4dp"
+            android:layout_margin="10dp"
             android:background="#11987A"
-            android:layout_margin="8dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:padding="4dp"
+            android:text="close"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/createNewFolder"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.536"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/createNewFolder"
+            app:layout_constraintVertical_bias="0.0" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
