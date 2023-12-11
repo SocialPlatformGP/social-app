@@ -92,7 +92,25 @@ class CreatePostFragment : Fragment(), OnFilePreviewClicked {
             viewModel.uiState.flowWithLifecycle(lifecycle).distinctUntilChanged { old, new ->
                 old.files == new.files
             }.collect{
-
+                if(it.files.isEmpty()){
+                    binding.buttonOpenFile.isEnabled = true
+                    binding.buttonOpenImage.isEnabled = true
+                    binding.buttonOpenVideo.isEnabled = true
+                } else if (it.files.first().type in listOf(MimeType.IMAGE, MimeType.JPEG, MimeType.PNG, MimeType.GIF
+                        , MimeType.TIFF, MimeType.WEBP, MimeType.BMP)) {
+                    binding.buttonOpenFile.isEnabled = false
+                    binding.buttonOpenImage.isEnabled = true
+                    binding.buttonOpenVideo.isEnabled = false
+                } else if (it.files.first().type in listOf(MimeType.VIDEO, MimeType.MKV, MimeType.AVI, MimeType.MP4,
+                        MimeType.MOV, MimeType.WMV)) {
+                    binding.buttonOpenFile.isEnabled = false
+                    binding.buttonOpenImage.isEnabled = false
+                    binding.buttonOpenVideo.isEnabled = true
+                } else {
+                    binding.buttonOpenFile.isEnabled = true
+                    binding.buttonOpenImage.isEnabled = false
+                    binding.buttonOpenVideo.isEnabled = false
+                }
             }
         }
     }
@@ -126,7 +144,6 @@ class CreatePostFragment : Fragment(), OnFilePreviewClicked {
                             (uiState.createdState as State.Error).message,
                             Snackbar.LENGTH_LONG
                         )
-                        //TODO("Provide an informative error message to the user")
                     }
                     is State.Loading ->{
                         showProgressBar()

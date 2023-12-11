@@ -26,16 +26,13 @@ class CreatePostViewModel @Inject constructor (
     private val userRepository: UserRepository
 ) : ViewModel() {
     val uiState = MutableStateFlow(CreatePostUIState())
-    private val pfpLink = "https://clipart-library.com/data_images/6103.png"
     private val currentUserName = Firebase.auth.currentUser?.email
     private val channelTags = MutableStateFlow(emptyList<Tag>())
     val tags = channelTags.asStateFlow()
 
     init{
-        uiState.value.userProfilePicURL = pfpLink
         getCurrentUser()
         getChannelTags()
-
     }
     private val currentUser= MutableStateFlow(NetworkUser())
 
@@ -58,8 +55,8 @@ class CreatePostViewModel @Inject constructor (
             with(uiState.value) {
                 val state =
                     postRepository.createPost(Post(
-                        userPfp = pfpLink,//todo: change to user pfp
-                        userName= "${currentUser.value.userFirstName} ${currentUser.value.userLastName}",//todo: change to user name to full name
+                        userPfp = userProfilePicURL,
+                        userName= "${currentUser.value.userFirstName} ${currentUser.value.userLastName}",
                         authorEmail = currentUserName!!,
                         publishedAt = Date().toString(),
                         title = title,
@@ -87,6 +84,7 @@ class CreatePostViewModel @Inject constructor (
            when(userRepository.fetchUser(currentUserName!!)){
                is State.SuccessWithData -> {
                    currentUser.value = (userRepository.fetchUser(currentUserName) as State.SuccessWithData<NetworkUser>).data
+                   uiState.value = uiState.value.copy(userProfilePicURL = currentUser.value.userProfilePictureURL)
                }
                else-> {}
            }
