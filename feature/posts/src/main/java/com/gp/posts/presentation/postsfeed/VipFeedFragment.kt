@@ -21,6 +21,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.gp.material.utils.FileManager
 import com.gp.posts.R
 import com.gp.posts.adapter.FeedPostAdapter
 import com.gp.posts.adapter.StateWIthLifeCycle
@@ -31,6 +32,7 @@ import com.gp.posts.listeners.OnFileClickedListener
 import com.gp.posts.listeners.OnMoreOptionClicked
 import com.gp.posts.listeners.OnTagClicked
 import com.gp.posts.listeners.VotesClickedListenerPost
+import com.gp.socialapp.database.model.MimeType
 import com.gp.socialapp.database.model.PostAttachment
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.model.Reply
@@ -199,11 +201,8 @@ class VipFeedFragment : Fragment(), VotesClickedListenerPost, OnMoreOptionClicke
     }
 
     override fun onFileClicked(attachment: PostAttachment) {
-        Snackbar.make(
-            binding.root,
-            "File ${attachment.name} Clicked",
-            Snackbar.LENGTH_SHORT
-        ).show()
+        val fileManager = FileManager(requireContext())
+        fileManager.downloadFile(attachment.url, attachment.name, MimeType.findByReadableType(attachment.type).value)
     }
 
 

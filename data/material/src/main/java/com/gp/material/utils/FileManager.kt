@@ -12,6 +12,8 @@ import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.content.FileProvider
+import com.gp.material.utils.FileUtils.getMimeTypeFromUri
+import com.gp.socialapp.database.model.MimeType
 import java.io.File
 
 class FileManager(private val context: Context) {
@@ -66,7 +68,11 @@ class FileManager(private val context: Context) {
     @SuppressLint("Range")
     fun openFileWithMediaStoreUri(destinationUri: Uri, context: Context, fileType: String) {
         val contentResolver = context.contentResolver
-
+        val mimeType = if(fileType == MimeType.ALL_FILES.value) {
+            getMimeTypeFromUri(destinationUri, context)
+        } else {
+            fileType
+        }
         val fileName = getFileNameFromUri(destinationUri) ?: ""
         val selection = "${MediaStore.Files.FileColumns.DISPLAY_NAME} = ?"
         val selectionArgs = arrayOf(fileName)
@@ -89,7 +95,7 @@ class FileManager(private val context: Context) {
 
                 // Create an intent to open the file using the obtained MediaStore URI
                 val openIntent = Intent(Intent.ACTION_VIEW)
-                openIntent.setDataAndType(mediaStoreUri, fileType) // Change MIME type if needed
+                openIntent.setDataAndType(mediaStoreUri, mimeType) // Change MIME type if needed
                 openIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 openIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 

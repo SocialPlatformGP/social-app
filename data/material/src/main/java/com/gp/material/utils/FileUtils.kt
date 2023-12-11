@@ -36,7 +36,7 @@ object FileUtils {
         if (mimeType == null) {
             // If ContentResolver couldn't determine the MIME type, try getting it from the file extension
             val fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri.toString())
-                     Log.d("zarea151", "getMimeTypeFromUri: $fileExtension")
+            Log.d("zarea151", "getMimeTypeFromUri: $fileExtension")
 
             if (!fileExtension.isNullOrEmpty()) {
                 mimeType = MimeTypeMap.getSingleton()

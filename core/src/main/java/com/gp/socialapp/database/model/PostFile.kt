@@ -67,7 +67,12 @@ enum class MimeType(val value: String, val readableType: String) {
 
     APK("application/vnd.android.package-archive", "Android Package"),
 
-    ALL_FILES("*/*", "All Files")
+    ALL_FILES("*/*", "All Files");
+    companion object {
+        fun findByReadableType(type: String): MimeType {
+            return values().find { it.readableType == type }?:MimeType.ALL_FILES
+        }
+    }
 }
 data class PostFile(
     val uri: Uri,
