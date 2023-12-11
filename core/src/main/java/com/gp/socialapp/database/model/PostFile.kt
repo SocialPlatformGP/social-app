@@ -6,7 +6,8 @@ import android.net.Uri
 data class PostAttachment(
     val url: String = "",
     val name: String = "",
-    val type: String = ""
+    val type: String = "",
+    val size: Long = 0
 )
 enum class MimeType(val value: String, val readableType: String) {
     IMAGE("image/*", "Image"),

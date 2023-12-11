@@ -75,13 +75,18 @@ class PostFirestoreClient@Inject constructor(
                 val fileName = "${UUID.randomUUID()}_${file.name}"
                 val fileRef = storage.reference.child("posts/$postKey/$fileName")
                 fileRef.putFile(file.uri).addOnSuccessListener {
-                    fileRef.downloadUrl.addOnSuccessListener {
-                        result.add(PostAttachment(
-                            url = it.toString(),
-                            name = file.name,
-                            type = file.type.readableType))
-                        if(result.size == files.size){
-                            trySend(State.SuccessWithData(result))
+                    fileRef.downloadUrl.addOnSuccessListener {url ->
+                        fileRef.metadata.addOnSuccessListener {data ->
+                            result.add(PostAttachment(
+                                url = url.toString(),
+                                name = file.name,
+                                type = file.type.readableType,
+                                size = data.sizeBytes))
+                            if(result.size == files.size){
+                                trySend(State.SuccessWithData(result))
+                            }
+                        }.addOnFailureListener {
+                            trySend(State.Error("Uploading File Failed: ${it.message}"))
                         }
                     }.addOnFailureListener {
                         trySend(State.Error("Uploading File Failed: ${it.message}"))

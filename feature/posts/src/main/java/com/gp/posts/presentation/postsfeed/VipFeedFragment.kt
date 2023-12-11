@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.gp.posts.R
@@ -26,9 +27,11 @@ import com.gp.posts.adapter.StateWIthLifeCycle
 import com.gp.posts.databinding.BottomSheetFeedOptionsBinding
 import com.gp.posts.databinding.FragmentVipFeedBinding
 import com.gp.posts.listeners.OnFeedOptionsClicked
+import com.gp.posts.listeners.OnFileClickedListener
 import com.gp.posts.listeners.OnMoreOptionClicked
 import com.gp.posts.listeners.OnTagClicked
 import com.gp.posts.listeners.VotesClickedListenerPost
+import com.gp.socialapp.database.model.PostAttachment
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.model.Reply
 import com.gp.socialapp.model.Tag
@@ -38,7 +41,7 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class VipFeedFragment : Fragment(), VotesClickedListenerPost, OnMoreOptionClicked,
-    OnFeedOptionsClicked, OnTagClicked {
+    OnFeedOptionsClicked, OnTagClicked, OnFileClickedListener {
     lateinit var binding: FragmentVipFeedBinding
     private val viewModel: VipFeedViewModel by viewModels()
     private val currentUser = Firebase.auth.currentUser
@@ -61,7 +64,7 @@ class VipFeedFragment : Fragment(), VotesClickedListenerPost, OnMoreOptionClicke
         super.onViewCreated(view, savedInstanceState)
         viewModel.getUserById(currentUser?.email!!)
 
-        val feedAdapter = FeedPostAdapter(this, this, this, requireContext())
+        val feedAdapter = FeedPostAdapter(this, this, this, this, requireContext())
         binding.postsRecyclerView.apply {
             adapter = feedAdapter
             itemAnimator = null
@@ -192,6 +195,14 @@ class VipFeedFragment : Fragment(), VotesClickedListenerPost, OnMoreOptionClicke
     override fun onTagClicked(tag: Tag) {
         val action = MainFeedFragmentDirections.mainFeedFragment2ToSearchFragment2(tag.label, true)
         findNavController().navigate(action)
+    }
+
+    override fun onFileClicked(attachment: PostAttachment) {
+        Snackbar.make(
+            binding.root,
+            "File ${attachment.name} Clicked",
+            Snackbar.LENGTH_SHORT
+        ).show()
     }
 
 

@@ -23,6 +23,7 @@ import com.gp.posts.R
 import com.gp.posts.listeners.OnFilePreviewClicked
 import com.gp.posts.listeners.OnTagClicked
 import com.gp.socialapp.database.model.MimeType
+import com.gp.socialapp.database.model.PostAttachment
 import com.gp.socialapp.database.model.PostFile
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.model.Tag
@@ -105,6 +106,18 @@ fun ImageView.setProfilePicture( picUrl: String?) {
         this.setImageResource(R.drawable.ic_person_24)
     }
 }
+@BindingAdapter("posts:imageLink")
+fun ImageView.setImageLink( picUrl: String?) {
+    if (picUrl != null) {
+        Glide.with(this.context)
+            .load(picUrl)
+            .placeholder(R.drawable.gray)
+            .apply(RequestOptions.centerCropTransform())
+            .into(this)
+    } else {
+        this.setImageResource(R.drawable.gray)
+    }
+}
 @OptIn(DelicateCoroutinesApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @BindingAdapter("posts:timeTillNow")
@@ -167,6 +180,19 @@ fun setTags(view: ChipGroup, tags: List<Tag>, context: Context, onTagClick: OnTa
         }
     }
 }
+@BindingAdapter("posts:fileSize")
+fun setFileSize(view: TextView, sizeBytes: Long){
+    val kiloBytes = sizeBytes / 1024.0
+    val megaBytes = kiloBytes / 1024.0
+    val gigaBytes = megaBytes / 1024.0
+
+    view.text = when {
+        gigaBytes >= 1.0 -> String.format("%.2f GB", gigaBytes)
+        megaBytes >= 1.0 -> String.format("%.2f MB", megaBytes)
+        kiloBytes >= 1.0 -> String.format("%.2f KB", kiloBytes)
+        else -> String.format("%d B", sizeBytes)
+    }
+}
 
 @BindingAdapter(
     value = ["posts:files", "posts:filesContext", "posts:onFileClick"],
@@ -211,6 +237,24 @@ fun setFilesPreview(view: ChipGroup, files: List<PostFile>, context: Context, on
             view.addView(chip)
         }
     }
+}
+
+@BindingAdapter(
+    value = ["posts:iconType", "posts:iconContext"],
+    requireAll = true
+)
+fun setFilesIcon(view: ImageView, type: String, context: Context) {
+    view.setImageDrawable(when(type){
+        in listOf(MimeType.VIDEO, MimeType.MKV, MimeType.AVI, MimeType.MP4, MimeType.MOV, MimeType.WMV).map{it.readableType} -> {
+            AppCompatResources.getDrawable(context, R.drawable.baseline_filled_video)
+        }
+        in listOf(MimeType.AUDIO, MimeType.MP3, MimeType.AAC, MimeType.WAV, MimeType.OGG, MimeType.FLAC).map{it.readableType} ->{
+            AppCompatResources.getDrawable(context, R.drawable.baseline_audio_file_24)
+        }
+        else ->{
+            AppCompatResources.getDrawable(context, R.drawable.baseline_filled_file)
+        }
+    })
 }
 
 @BindingAdapter(value = ["posts:formattedNumber", "posts:formattedLabel"], requireAll = true)

@@ -96,6 +96,8 @@ dependencies {
     implementation 'androidx.cardview:cardview:1.0.0'
     //safe args
     apply plugin: "androidx.navigation.safeargs.kotlin"
+    //Dot Indicator
+    implementation("com.tbuonomo:dotsindicator:5.0")
 
 }
 
