@@ -151,4 +151,5 @@ class MaterialAdapter(private val fileClickListener: ClickOnFileClicKListener) :
             return oldItem == newItem
         }
     }
+
 }

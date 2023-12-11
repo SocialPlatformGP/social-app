@@ -20,8 +20,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MaterialViewModel @Inject constructor(private val remoteDataSource: MaterialRemoteDataSource) :
-    ViewModel() {
+class MaterialViewModel @Inject constructor(
+    private val remoteDataSource: MaterialRemoteDataSource
+     ) : ViewModel() {
 
      private var currentPath=""
 
@@ -42,8 +43,6 @@ class MaterialViewModel @Inject constructor(private val remoteDataSource: Materi
         }
         storageReference.child(currentPath).listAll()
             .addOnSuccessListener { listResult ->
-                Log.d("waleed24", listResult.items.toString())
-                Log.d("waleed24", listResult.prefixes.toString())
                 listResult.items.forEach { item ->
                     item.metadata.addOnSuccessListener { metadata ->
                         val newItem=createMaterialItemFromMetadata(metadata)
@@ -51,9 +50,7 @@ class MaterialViewModel @Inject constructor(private val remoteDataSource: Materi
                             val updatedItem = newItem.copy(fileUrl = url.toString())
                             fileItems.add(updatedItem)
                             if (fileItems.size == listResult.items.size) {
-                                _fileItems.value = fileItems
-                                Log.d("waleed2", _fileItems.value.toString())
-                            }
+                                _fileItems.value = fileItems }
                         }
                     }
                 }
@@ -62,9 +59,7 @@ class MaterialViewModel @Inject constructor(private val remoteDataSource: Materi
 
                     val newItem = createMaterialItemFromPrefix(prefix)
                     folderItems.add(newItem)
-                    Log.d("waleed222", _folderItems.value.toString())
 
-                    // Update the StateFlow value when all items are processed
                     if (folderItems.size == listResult.prefixes.size) {
                         _folderItems.value = folderItems
                         Log.d("waleed2", _folderItems.value.toString())
@@ -77,10 +72,12 @@ class MaterialViewModel @Inject constructor(private val remoteDataSource: Materi
     }
 
 
+
     fun openFolder(path: String) {
         currentPath = path
         fetchDataFromFirebaseStorage()
     }
+
 
 
     private fun createMaterialItemFromMetadata(metadata: StorageMetadata): MaterialItem {
@@ -106,6 +103,8 @@ class MaterialViewModel @Inject constructor(private val remoteDataSource: Materi
         _fileItems.value= emptyList()
         _folderItems.value= emptyList()
     }
+
+
     fun getCurrentPath():String{
         return currentPath
     }
@@ -130,36 +129,42 @@ class MaterialViewModel @Inject constructor(private val remoteDataSource: Materi
         )
     }
 
+
+
     fun uploadFile(fileUri: Uri, context: Context) {
         viewModelScope.launch {
             remoteDataSource.uploadFile(currentPath, fileUri, context)
         }
     }
 
+
+
     fun uploadFolder(currentPath:String,name:String){
         remoteDataSource.uploadFolder(currentPath,name)
     }
+
 
     fun deleteFolder(currentPath:String){
         remoteDataSource.deleteFolder(currentPath)
     }
 
+
+
+
     fun deleteFile(fileLocation: String) {
         remoteDataSource.deleteFile(fileLocation)
     }
-    private var onBackPressedCallback: (() -> Unit)? = null
+
 
 
     fun goBack() :Boolean{
-        // Find the last index of "/"
+
         val lastSlashIndex = currentPath.lastIndexOf("/")
 
-        // If there is a "/" in the current path, update to the path without the last folder
         if (lastSlashIndex != -1) {
             currentPath= currentPath.substring(0, lastSlashIndex)
             return true
         } else {
-            // If there is no "/", set the current path to the root
             currentPath = "materials"
             return false
         }

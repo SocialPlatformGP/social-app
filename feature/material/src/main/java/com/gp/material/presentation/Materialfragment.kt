@@ -55,6 +55,8 @@ class materialfragment : Fragment(), ClickOnFileClicKListener {
         }
     }
 
+
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -63,6 +65,8 @@ class materialfragment : Fragment(), ClickOnFileClicKListener {
         val view = binding.root
         return view
     }
+
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -109,6 +113,8 @@ class materialfragment : Fragment(), ClickOnFileClicKListener {
             }
         }
 
+
+
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if(  viewModel.goBack()) {
@@ -116,8 +122,10 @@ class materialfragment : Fragment(), ClickOnFileClicKListener {
                 }
 
                 else{
+
                     findNavController().popBackStack()
                 }
+
 
             }
         })
@@ -159,6 +167,7 @@ class materialfragment : Fragment(), ClickOnFileClicKListener {
     }
 
 
+
     override fun downloadFile(item: MaterialItem) {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(item.fileUrl))
         context?.startActivity(intent)
@@ -172,6 +181,7 @@ class materialfragment : Fragment(), ClickOnFileClicKListener {
         viewModel.clearData()
         viewModel.fetchDataFromFirebaseStorage()
     }
+
 
 
     override fun deleteFolder(folderPath: String) {
