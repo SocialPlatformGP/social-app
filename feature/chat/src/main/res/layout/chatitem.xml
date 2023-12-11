@@ -5,94 +5,85 @@
 
     <data>
 
-            <variable
-                name="chat"
-                type="com.gp.chat.model.RecentChat"/>
+        <variable
+            name="chat"
+            type="com.gp.chat.model.RecentChat" />
 
     </data>
 
-    <androidx.cardview.widget.CardView
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="4dp"
-        chat:cardCornerRadius="8dp"
-        chat:cardElevation="4dp"
-        chat:contentPadding="8dp">
+        android:layout_margin="6dp">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+
+        <ImageView
+            android:id="@+id/profileImage"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:scaleType="centerCrop"
+            chat:layout_constraintStart_toStartOf="parent"
+            chat:layout_constraintTop_toTopOf="parent"
+            tools:srcCompat="@tools:sample/avatars" />
+
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+
+            android:textStyle="bold"
+            chat:layout_constraintEnd_toEndOf="parent"
+            chat:layout_constraintStart_toEndOf="@+id/profileImage"
+            chat:layout_constraintTop_toTopOf="parent"
+            tools:text="name" />
+
+        <TextView
+            android:id="@+id/message"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
+            android:maxLines="1"
+            android:text="@{chat.lastMessage}"
+            android:textColor="#CDC6C6"
+            android:textSize="16sp"
+            chat:layout_constraintEnd_toEndOf="parent"
+            chat:layout_constraintStart_toEndOf="@+id/profileImage"
+            chat:layout_constraintTop_toBottomOf="@+id/name"
+            tools:text="last message" />
+
+        <TextView
+            android:id="@+id/timestamp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
+            android:gravity="start|end"
+            android:maxLines="1"
+            android:text="@{chat.timestamp}"
+            android:textColor="#CFC1C1"
+            android:textSize="12sp"
+            chat:layout_constraintEnd_toEndOf="parent"
+            chat:layout_constraintStart_toEndOf="@+id/profileImage"
+            chat:layout_constraintTop_toBottomOf="@+id/message"
+            tools:text="last date" />
+
+        <com.google.android.material.divider.MaterialDivider
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="2dp"
+            android:layout_marginTop="8dp"
+            chat:dividerColor="#003544"
+            chat:layout_constraintBottom_toBottomOf="parent"
+            chat:layout_constraintEnd_toEndOf="parent"
+            chat:layout_constraintStart_toStartOf="parent"
+            chat:layout_constraintTop_toBottomOf="@id/timestamp" />
 
-            <FrameLayout
-                android:id="@+id/profileImageContainer"
-                android:layout_width="70dp"
-                android:layout_height="70dp"
-                chat:layout_constraintBottom_toBottomOf="parent"
-                chat:layout_constraintStart_toStartOf="parent"
-                chat:layout_constraintTop_toTopOf="parent"
-                chat:layout_constraintVertical_bias="0.0"
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-                >
-
-                <ImageView
-                    android:id="@+id/profileImage"
-                    android:padding="4dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    chat:layout_constraintBottom_toBottomOf="parent"
-                    chat:layout_constraintHorizontal_bias="0.0"
-                    chat:layout_constraintStart_toStartOf="parent"
-                    chat:layout_constraintTop_toTopOf="parent"
-                    chat:layout_constraintVertical_bias="0.0"
-                    chat:strokeColor="#3E9AC3"
-                    chat:strokeWidth="6dp"
-                    tools:srcCompat="@tools:sample/avatars" />
-                    />
-
-            </FrameLayout>
-
-            <TextView
-                android:id="@+id/name"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                chat:layout_constraintBottom_toTopOf="@id/message"
-                chat:layout_constraintStart_toEndOf="@+id/profileImageContainer"
-                chat:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/message"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:maxLines="1"
-                android:layout_marginTop="6dp"
-                android:text="@{chat.lastMessage}"
-                android:textSize="16sp"
-                chat:layout_constraintBottom_toTopOf="@id/timestamp"
-                chat:layout_constraintEnd_toEndOf="parent"
-                chat:layout_constraintStart_toEndOf="@+id/profileImageContainer"
-                chat:layout_constraintTop_toBottomOf="@id/name" />
-
-            <TextView
-                android:id="@+id/timestamp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="218dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"
-                android:text="@{chat.timestamp}"
-                android:textSize="12sp"
-                chat:layout_constraintBottom_toBottomOf="parent"
-                chat:layout_constraintEnd_toEndOf="parent"
-                chat:layout_constraintStart_toEndOf="@+id/profileImageContainer"
-                chat:layout_constraintTop_toBottomOf="@+id/message" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.cardview.widget.CardView>
 </layout>

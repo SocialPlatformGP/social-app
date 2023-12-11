@@ -85,9 +85,6 @@
         android:name="com.gp.posts.presentation.postsfeed.MainFeedFragment"
         android:label="MainFeedFragment" >
         <action
-            android:id="@+id/mainFeedFragment2_to_createPostFragment"
-            app:destination="@id/createPostFragment" />
-        <action
             android:id="@+id/mainFeedFragment2_to_postDetialsFragment"
             app:destination="@id/postDetailsFragment" />
         <action
@@ -96,5 +93,8 @@
         <action
             android:id="@+id/mainFeedFragment2_to_searchFragment2"
             app:destination="@id/searchFragment2" />
+        <action
+            android:id="@+id/action_mainFeedFragment2_to_createPostFragment"
+            app:destination="@id/createPostFragment" />
     </fragment>
 </navigation>

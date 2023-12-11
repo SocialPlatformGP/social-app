@@ -95,10 +95,14 @@ class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked,
                 }
             }
 
-            binding.floatingActionButton.setOnClickListener {
-                val action = MainFeedFragmentDirections.mainFeedFragment2ToCreatePostFragment("all")
-                findNavController().navigate(action)
-            }
+
+        }
+        binding.floatingActionButton.setOnClickListener {
+            Log.d("TAG258", "onViewCreated:all  ")
+
+            val action =
+                MainFeedFragmentDirections.actionMainFeedFragment2ToCreatePostFragment("all")
+            findNavController().navigate(action)
         }
     }
 

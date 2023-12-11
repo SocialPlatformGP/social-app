@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import android.view.ViewTreeObserver
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
@@ -19,6 +20,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.gp.chat.R
 import com.gp.chat.adapter.GroupMessageAdapter
 import com.gp.chat.databinding.FragmentGroupChatBinding
@@ -40,15 +44,25 @@ class GroupChatFragment : Fragment(), OnMessageClickListener, OnFileClickListene
     private lateinit var binding: FragmentGroupChatBinding
     private val args: GroupChatFragmentArgs by navArgs()
     private lateinit var fileManager: FileManager
-    private val openDocument = registerForActivityResult(ActivityResultContracts.GetMultipleContents()) {
-        it?.let {
-            it.forEach { uri ->
-                val mimeType = getMimeTypeFromUri(uri, requireContext())
-                val fileName = getFileName(uri, requireContext())
-                Log.d("TAG", "onViewCreated: $mimeType $fileName")
-                viewModel.sendFile(uri, mimeType!!, fileName)
-            }
+    private val openDocument =
+        registerForActivityResult(ActivityResultContracts.GetMultipleContents()) {
+            it?.let {
+                it.forEach { uri ->
+                    val mimeType = getMimeTypeFromUri(uri, requireContext())
+                    val fileName = getFileName(uri, requireContext())
+                    Log.d("TAG", "onViewCreated: $mimeType $fileName")
+                    viewModel.sendFile(uri, mimeType!!, fileName)
+                }
 
+            }
+        }
+    private val openGallery = registerForActivityResult(ActivityResultContracts.PickVisualMedia())
+    {
+        it?.let { uri ->
+            val mimeType = getMimeTypeFromUri(uri, requireContext())
+            val fileName = getFileName(uri, requireContext())
+            Log.d("TAG", "onViewCreated: $mimeType $fileName $uri")
+            viewModel.sendFile(uri, mimeType!!, fileName)
         }
     }
 
@@ -64,7 +78,7 @@ class GroupChatFragment : Fragment(), OnMessageClickListener, OnFileClickListene
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.setData(args.groupId,args.title,args.photoUrl)
+        viewModel.setData(args.groupId, args.title, args.photoUrl)
         val recyclerView = binding.recyclerMessage
         val adapter = GroupMessageAdapter(this, this, this, false)
         val manager = LinearLayoutManager(requireContext())
@@ -82,6 +96,20 @@ class GroupChatFragment : Fragment(), OnMessageClickListener, OnFileClickListene
         binding.addFileButton.setOnClickListener {
             openDocument.launch("*/*")
         }
+        binding.addImageButton.setOnClickListener {
+            openGallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
+        }
+        binding.addCameraButton.setOnClickListener {
+            val action =
+                GroupChatFragmentDirections.actionGroupChatFragmentToCameraPreviewFragment(
+                    chatId = args.groupId,
+                    senderName = args.title,
+                    senderPic = args.photoUrl,
+                    isPrivateChat = false
+                )
+            findNavController().navigate(action)
+        }
+
         val toolbar = requireActivity().findViewById<Toolbar>(R.id.toolbar)
         toolbar.title = args.title
         toolbar.setOnClickListener {
