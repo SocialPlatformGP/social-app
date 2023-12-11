@@ -7,4 +7,6 @@ interface ClickOnFileClicKListener {
     fun openFile(item: MaterialItem)
     fun downloadFile(item: MaterialItem)
     fun openFolder(path:String)
+    fun deleteFolder(folderPath:String)
+    fun shareLink(item: MaterialItem)
 }

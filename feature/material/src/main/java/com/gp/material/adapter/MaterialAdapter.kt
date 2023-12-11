@@ -27,14 +27,16 @@ class MaterialAdapter(private val fileClickListener: ClickOnFileClicKListener) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: MaterialItem) {
-            // Bind the item to the layout using data binding
+
             binding.material = item
             itemView.setOnLongClickListener {
+                if (item.fileType!=FileType.FOLDER)
                     createPopUpMenu(itemView,item)
+                else
+                    createFolderPopUpMenu(itemView,item)
                 true
             }
 
-            // Set the click listener
             binding.root.setOnClickListener {
                 if(item.fileType==FileType.FOLDER){
                     fileClickListener.openFolder(item.path)
@@ -73,13 +75,32 @@ class MaterialAdapter(private val fileClickListener: ClickOnFileClicKListener) :
                    showDetailsDialog(item.context,file)
                     true
                 }
+                R.id.shareLink -> {
+                   fileClickListener.shareLink(file)
+                    true
+                }
                 else -> false
             }
         }
 
         popupMenu.show()
     }
+    fun createFolderPopUpMenu(item: View, folder: MaterialItem) {
+        val popupMenu = PopupMenu(item.context, item)
+        popupMenu.menuInflater.inflate(R.menu.folder_options, popupMenu.menu)
 
+        popupMenu.setOnMenuItemClickListener { menuItem: MenuItem ->
+            when (menuItem.itemId) {
+                R.id.deleteFile -> {
+                    fileClickListener.deleteFolder(folder.path)
+                    true
+                }
+                else -> false
+            }
+        }
+
+        popupMenu.show()
+    }
     private fun showDetailsDialog(context: Context, item: MaterialItem) {
         val alertDialogBuilder = AlertDialog.Builder(context)
         alertDialogBuilder.setTitle("Details")
@@ -100,13 +121,9 @@ class MaterialAdapter(private val fileClickListener: ClickOnFileClicKListener) :
             context.startActivity(intent)
         }
 
-        alertDialogBuilder.setNegativeButton("Share Link") { _, _ ->
-            val sendIntent = Intent().apply {
-                action = Intent.ACTION_SEND
-                putExtra(Intent.EXTRA_TEXT, item.fileUrl)
-                type = "text/plain"
-            }
-            context.startActivity(Intent.createChooser(sendIntent, null))
+        alertDialogBuilder.setNegativeButton("Copy Link") { _, _ ->
+            copyToClipboard(context, "Link", item.fileUrl)
+            Toast.makeText(context, "Copied", Toast.LENGTH_SHORT).show()
         }
 
         alertDialogBuilder.setNeutralButton("Cancel") { dialog, _ ->
@@ -117,12 +134,12 @@ class MaterialAdapter(private val fileClickListener: ClickOnFileClicKListener) :
         alertDialog.show()
     }
 
-
     private fun copyToClipboard(context: Context, label: String, text: String) {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = android.content.ClipData.newPlainText(label, text)
         clipboard.setPrimaryClip(clip)
     }
+
 
 
     private class MaterialDiffUtil : DiffUtil.ItemCallback<MaterialItem>() {

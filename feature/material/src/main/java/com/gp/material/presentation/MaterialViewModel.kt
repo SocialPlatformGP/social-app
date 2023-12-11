@@ -24,16 +24,19 @@ class MaterialViewModel @Inject constructor(private val remoteDataSource: Materi
     ViewModel() {
 
      private var currentPath=""
+
     private val storageReference: StorageReference = Firebase.storage.reference
 
     private val _fileItems = MutableStateFlow<List<MaterialItem>>(emptyList())
+
     private val _folderItems = MutableStateFlow<List<MaterialItem>>(emptyList())
     val folderItems: StateFlow<List<MaterialItem>> get() = _folderItems
     val fileItems: StateFlow<List<MaterialItem>> get() = _fileItems
 
     fun fetchDataFromFirebaseStorage() {
+
         val fileItems = mutableListOf<MaterialItem>()
-       //"materials/$currentPath"
+
         if (currentPath==""){
             currentPath="materials"
         }
@@ -72,10 +75,14 @@ class MaterialViewModel @Inject constructor(private val remoteDataSource: Materi
                 Log.e("waleed2", "Error fetching data: $exception")
             }
     }
+
+
     fun openFolder(path: String) {
         currentPath = path
         fetchDataFromFirebaseStorage()
     }
+
+
     private fun createMaterialItemFromMetadata(metadata: StorageMetadata): MaterialItem {
         val fileName = metadata.getCustomMetadata("fName") ?: ""
         val path = metadata.getCustomMetadata("path") ?: ""
@@ -93,17 +100,26 @@ class MaterialViewModel @Inject constructor(private val remoteDataSource: Materi
             creationTime=time
         )
     }
+
+
+    fun clearData(){
+        _fileItems.value= emptyList()
+        _folderItems.value= emptyList()
+    }
     fun getCurrentPath():String{
         return currentPath
     }
+
+
     private fun stringToFileType(typeString: String): FileType {
         return try {
             FileType.valueOf(typeString.toUpperCase())
         } catch (e: IllegalArgumentException) {
-            // Handle the case when the string does not match any enum value
             FileType.UnKnown
         }
     }
+
+
     private fun createMaterialItemFromPrefix(prefix: StorageReference): MaterialItem {
         val fileName = prefix.name ?: ""
         val path = prefix.path ?: ""
@@ -119,16 +135,36 @@ class MaterialViewModel @Inject constructor(private val remoteDataSource: Materi
             remoteDataSource.uploadFile(currentPath, fileUri, context)
         }
     }
+
     fun uploadFolder(currentPath:String,name:String){
         remoteDataSource.uploadFolder(currentPath,name)
+    }
+
+    fun deleteFolder(currentPath:String){
+        remoteDataSource.deleteFolder(currentPath)
     }
 
     fun deleteFile(fileLocation: String) {
         remoteDataSource.deleteFile(fileLocation)
     }
+    private var onBackPressedCallback: (() -> Unit)? = null
 
-    fun downloadFile(fileLocation: String) {
-        remoteDataSource.downloadFile(fileLocation)
+
+    fun goBack() :Boolean{
+        // Find the last index of "/"
+        val lastSlashIndex = currentPath.lastIndexOf("/")
+
+        // If there is a "/" in the current path, update to the path without the last folder
+        if (lastSlashIndex != -1) {
+            currentPath= currentPath.substring(0, lastSlashIndex)
+            return true
+        } else {
+            // If there is no "/", set the current path to the root
+            currentPath = "materials"
+            return false
+        }
+
+        fetchDataFromFirebaseStorage()
     }
 
 

@@ -16,11 +16,15 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.OnBackPressedDispatcher
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.gp.material.R
 import com.gp.material.adapter.MaterialAdapter
@@ -62,6 +66,7 @@ class materialfragment : Fragment(), ClickOnFileClicKListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         viewModel.fetchDataFromFirebaseStorage()
         adapter = MaterialAdapter(this)
         dialog = BottomSheetDialog(requireContext())
@@ -71,6 +76,8 @@ class materialfragment : Fragment(), ClickOnFileClicKListener {
         btnClose.setOnClickListener {
             dialog.dismiss()
         }
+
+
         binding.addMaterial.setOnClickListener {
 
             val uploadImage = view.findViewById<Button>(R.id.uploadImage)
@@ -85,6 +92,7 @@ class materialfragment : Fragment(), ClickOnFileClicKListener {
             dialog.setContentView(view)
             dialog.show()
         }
+
         val uploadFolderButton = view.findViewById<Button>(R.id.createNewFolder)
         uploadFolderButton.setOnClickListener {
             openNameDialog()
@@ -101,13 +109,29 @@ class materialfragment : Fragment(), ClickOnFileClicKListener {
             }
         }
 
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if(  viewModel.goBack()) {
+                    viewModel.fetchDataFromFirebaseStorage()
+                }
+
+                else{
+                    findNavController().popBackStack()
+                }
+
+            }
+        })
 
     }
+
+
 
     override fun deleteFile(item: MaterialItem) {
-
         viewModel.deleteFile(item.path)
+        viewModel.fetchDataFromFirebaseStorage()
     }
+
+
 
     override fun openFile(item: MaterialItem) {
 
@@ -122,6 +146,8 @@ class materialfragment : Fragment(), ClickOnFileClicKListener {
         }
     }
 
+
+
     private fun FileType.getMimeType(): String {
         return when (this) {
             FileType.IMAGE -> "image/*"
@@ -133,8 +159,6 @@ class materialfragment : Fragment(), ClickOnFileClicKListener {
     }
 
 
-
-
     override fun downloadFile(item: MaterialItem) {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(item.fileUrl))
         context?.startActivity(intent)
@@ -142,9 +166,31 @@ class materialfragment : Fragment(), ClickOnFileClicKListener {
 
 
 
+
     override fun openFolder(path: String) {
         viewModel.openFolder(path)
+        viewModel.clearData()
+        viewModel.fetchDataFromFirebaseStorage()
     }
+
+
+    override fun deleteFolder(folderPath: String) {
+        viewModel.deleteFolder(folderPath)
+    }
+
+
+
+    override fun shareLink(item: MaterialItem) {
+        val intent=Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, item.fileUrl)
+            type = "*/*"
+        }
+        startActivity(intent)
+    }
+
+
+
     private fun openNameDialog(){
         val builder = AlertDialog.Builder(requireContext())
         builder.setTitle("Enter Your Name")
@@ -179,3 +225,5 @@ class materialfragment : Fragment(), ClickOnFileClicKListener {
     }
 
 }
+
+

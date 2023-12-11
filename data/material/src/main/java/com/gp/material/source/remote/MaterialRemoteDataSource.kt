@@ -9,8 +9,8 @@ import kotlinx.coroutines.flow.Flow
 interface MaterialRemoteDataSource {
     fun uploadFile(fileLocation:String,file:Uri,context: Context)
     fun uploadFolder(fileLocation: String,name:String)
-     fun downloadFile(fileLocation: String)
     fun deleteFile(fileLocation: String)
+    fun deleteFolder(folderPath:String)
     fun getFileTypeFromName(fileName: String): FileType
     fun uploadMaterialItemToDatabase(materialItem: MaterialItem)
 

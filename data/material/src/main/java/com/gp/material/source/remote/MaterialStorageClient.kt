@@ -9,6 +9,7 @@ import android.provider.MediaStore
 import android.util.Log
 import android.view.Window
 import android.widget.ProgressBar
+import com.google.android.gms.tasks.Tasks
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
@@ -19,6 +20,9 @@ import com.google.firebase.storage.StorageReference
 import com.gp.data.material.R
 import com.gp.material.model.FileType
 import com.gp.material.model.MaterialItem
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.util.UUID
@@ -31,11 +35,9 @@ class MaterialStorageClient @Inject constructor(private val storage: FirebaseSto
     private val docExtensions = setOf("doc", "docx")
     private val audioExtensions = setOf("mp3", "wav", "ogg")
     private val videoExtensions = setOf("mp4", "avi", "mkv")
-
     private val storageRef = storage.reference
 
     override fun uploadFile(currentPath: String, file: Uri, context: Context) {
-
 
         val progressDialog = createProgressDialog(context)
         progressDialog.show()
@@ -58,9 +60,10 @@ class MaterialStorageClient @Inject constructor(private val storage: FirebaseSto
     }
 
     private fun createProgressDialog(context: Context): Dialog {
+
         val dialog = Dialog(context)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog.setContentView(R.layout.progress_dialog_layout) // Replace with your custom layout or use a built-in layout
+        dialog.setContentView(R.layout.progress_dialog_layout)
 
         val progressBar: ProgressBar = dialog.findViewById(R.id.progressBar)
         progressBar.isIndeterminate = true
@@ -102,23 +105,20 @@ class MaterialStorageClient @Inject constructor(private val storage: FirebaseSto
 
     override fun uploadFolder(currentPath: String, name: String) {
         val folderId = UUID.randomUUID().toString()
-        val folderPath = "$currentPath/$name/" // Use the provided name for the folder
+        val folderPath = "$currentPath/$name/"
         val userEmail = Firebase.auth.currentUser?.email!!
 
-        // Create an empty placeholder file for the folder
-        val placeholderFileName = ".placeholder" // Use a name that won't interfere with actual files
+
+        val placeholderFileName = ".placeholder"
         val placeholderFilePath = "$folderPath$placeholderFileName"
         val placeholderFileRef: StorageReference = storageRef.child(placeholderFilePath)
-
-        // Set metadata for the placeholder file (can be empty or with minimal information)
         val placeholderMetadata = createFolderMetadata(folderId, name, folderPath, userEmail)
 
-        // Upload the empty placeholder file
         placeholderFileRef.putBytes(ByteArray(0), placeholderMetadata)
             .addOnSuccessListener {
             }
             .addOnFailureListener {
-                // Handle upload failure if needed
+
             }
     }
 
@@ -130,6 +130,26 @@ class MaterialStorageClient @Inject constructor(private val storage: FirebaseSto
             .setCustomMetadata("createdBy", createdBy)
             .build()
     }
+    override fun deleteFolder(folderPath: String) {
+        val folderRef: StorageReference = storageRef.child(folderPath)
+
+        folderRef.listAll()
+            .addOnSuccessListener { listResult ->
+                val deleteFileTasks = listResult.items.map { it.delete() }
+                val deleteFolderTask = folderRef.delete()
+
+                Tasks.whenAllComplete(deleteFileTasks + deleteFolderTask)
+                    .addOnSuccessListener {
+
+                    }
+                    .addOnFailureListener { exception ->
+                    }
+            }
+            .addOnFailureListener { exception ->
+
+            }
+    }
+
 
 
     private fun getFileName(
@@ -158,10 +178,7 @@ class MaterialStorageClient @Inject constructor(private val storage: FirebaseSto
     override fun getFileTypeFromName(fileName: String): FileType {
         val lowercaseFileName = fileName.toLowerCase()
 
-        // Get the file extension
         val fileExtension = lowercaseFileName.substringAfterLast('.', "")
-
-        // Determine the file type based on the extension
         return when {
             imageExtensions.contains(fileExtension) -> FileType.IMAGE
             pdfExtensions.contains(fileExtension) -> FileType.PDF
@@ -172,24 +189,6 @@ class MaterialStorageClient @Inject constructor(private val storage: FirebaseSto
         }
     }
 
-    override  fun downloadFile(fileLocation: String) {
-        val storage = FirebaseStorage.getInstance()
-        val storageRef = storage.getReferenceFromUrl("<your_bucket>")
-        val islandRef = storageRef.child(fileLocation)
-        val rootPath = File(Environment.getExternalStorageDirectory(), "Materials")
-        if (!rootPath.exists()) {
-            rootPath.mkdirs()
-        }
-        val localFile = File(rootPath, "downloads")
-
-        islandRef.getFile(localFile)
-            .addOnSuccessListener { taskSnapshot ->
-                Log.e("firebase", ";local temp file created $localFile")
-            }
-            .addOnFailureListener { exception ->
-                Log.e("firebase", "local temp file not created $exception")
-            }
-    }
 
 
     override fun deleteFile(fileLocation: String) {
@@ -203,17 +202,10 @@ class MaterialStorageClient @Inject constructor(private val storage: FirebaseSto
     }
 
     override fun uploadMaterialItemToDatabase(materialItem: MaterialItem) {
-        // Get a reference to the location where you want to store the MaterialItem object
         val databaseReference: DatabaseReference = FirebaseDatabase.getInstance().reference
         val materialItemRef = databaseReference.child("materialItems").child(materialItem.id)
-
-        // Convert the MaterialItem object to a Map
         val materialItemMap = mapOf(
-            "name" to materialItem.name,
-            "path" to materialItem.path,
-            "createdBy" to materialItem.createdBy,
-            "id" to materialItem.id,
-            "fileType" to materialItem.fileType,
+            "name" to materialItem.name
         )
         materialItemRef.setValue(materialItemMap)
             .addOnSuccessListener {
@@ -222,4 +214,7 @@ class MaterialStorageClient @Inject constructor(private val storage: FirebaseSto
                 Log.e("YourActivity", "Error uploading MaterialItem: $exception")
             }
         }
-    }
+
+
+
+}

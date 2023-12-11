@@ -7,6 +7,10 @@
         android:id="@+id/downloadFile"
         android:title="Download File" />
     <item
+        android:id="@+id/shareLink"
+        android:title="Share Link"/>
+    <item
         android:id="@+id/fileDetails"
         android:title="File Details" />
+
 </menu>
