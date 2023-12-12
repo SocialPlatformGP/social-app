@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:material="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="material"
+            type="com.gp.material.model.MaterialItem" />
+
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        material:cardCornerRadius="8dp"
+        material:cardElevation="4dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/fileImage"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="16dp"
+                android:layout_margin="8dp"
+                material:imageUrl="@{material}"
+                material:layout_constraintBottom_toBottomOf="parent"
+                material:layout_constraintStart_toStartOf="parent"
+                material:layout_constraintTop_toTopOf="parent"
+                material:layout_constraintVertical_bias="1.0" />
+
+            <TextView
+                android:id="@+id/fileName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="@{material.name}"
+                android:textStyle="bold"
+                material:layout_constraintBottom_toBottomOf="parent"
+                material:layout_constraintStart_toEndOf="@id/fileImage"
+                material:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+</layout>
