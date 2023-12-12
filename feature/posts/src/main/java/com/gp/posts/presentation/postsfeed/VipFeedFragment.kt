@@ -78,7 +78,6 @@ class VipFeedFragment : Fragment(), VotesClickedListenerPost, OnMoreOptionClicke
                     Log.d("TAG258", "onViewCreated: ${currentState.data}")
                     val vipData = currentState.data.filter { it.type == "vip" }
                     feedAdapter.submitList(vipData)
-                    binding.postsRecyclerView.scrollToPosition(0)
                 }
             }
         }

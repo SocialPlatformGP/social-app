@@ -85,7 +85,6 @@ class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked,
                         )
                         val vipData = currentState.data.filter { it.type != "vip" }
                         feedAdapter.submitList(vipData)
-                        feedAdapter.notifyDataSetChanged()
                     }
 
                     is State.Loading -> {
