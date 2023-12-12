@@ -110,7 +110,11 @@ class FeedPostAdapter(
         private fun bindImageAttachments(attachments: List<PostAttachment>) {
             binding.mediaRecyclerview.visibility = View.GONE
             binding.mediaViewpager.visibility = View.VISIBLE
-            binding.springDotsIndicator.visibility = View.VISIBLE
+            if(attachments.size > 1){
+                binding.springDotsIndicator.visibility = View.VISIBLE
+            } else {
+                binding.springDotsIndicator.visibility = View.GONE
+            }
             binding.mediaViewpager.adapter =  ImageAttachmentAdapter(attachments)
             binding.mediaViewpager.orientation = ViewPager2.ORIENTATION_HORIZONTAL
             binding.springDotsIndicator.attachTo(binding.mediaViewpager)
