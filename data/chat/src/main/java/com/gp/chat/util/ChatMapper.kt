@@ -19,12 +19,14 @@ object ChatMapper {
 
     fun ChatGroup.toNetworkChatGroup() = NetworkChatGroup(
         name = name,
+        picURL = picURL,
         members = members
     )
 
     fun NetworkChatGroup.toChatGroup(id: String) = ChatGroup(
         id = id,
         name = name,
+        picURL = picURL,
         members = members
     )
 

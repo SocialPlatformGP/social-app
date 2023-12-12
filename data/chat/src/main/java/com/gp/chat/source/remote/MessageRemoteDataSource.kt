@@ -5,10 +5,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.gp.chat.model.ChatGroup
 import com.gp.chat.model.ChatUser
 import com.gp.chat.model.Message
-import com.gp.chat.model.NetworkMessage
 import com.gp.chat.model.NetworkRecentChat
-import com.gp.chat.model.PrivateChats
-import com.gp.chat.model.PrivateChatsNetwork
 import com.gp.chat.model.NetworkChatGroup
 import com.gp.chat.model.RecentChat
 import com.gp.socialapp.utils.State
@@ -32,7 +29,8 @@ interface MessageRemoteDataSource {
     fun leaveGroup(chatId: String)
 
     fun createGroupChat(group: NetworkChatGroup, recentChat: NetworkRecentChat): Flow<State<String>>
-    fun getGroupMembersEmails(groupId: String): Flow<State<List<String>>>
+    fun getGroupDetails(groupId: String): Flow<State<ChatGroup>>
     fun removeMemberFromGroup(groupId: String, memberEmail: String): Flow<State<String>>
+    fun addGroupMembers(groupId: String, usersEmails: List<String>): Flow<State<Nothing>>
 //    fun sendMessageWithFile(message: Message, fileUri: Uri, chatId: String)
 }
