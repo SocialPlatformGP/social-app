@@ -14,6 +14,7 @@ import com.gp.chat.util.DateUtils.getTimeStamp
 import com.gp.chat.util.RemoveSpecialChar
 import com.gp.socialapp.utils.State
 import kotlinx.coroutines.flow.Flow
+import java.time.ZonedDateTime
 import java.util.Date
 import javax.inject.Inject
 
@@ -36,22 +37,30 @@ class MessageRepositoryImpl @Inject constructor(
     override fun getRecentChats(chatId: List<String>): Flow<State<List<RecentChat>>> =
         messageRemoteDataSource.getRecentChats(chatId)
 
-    override fun insertChatToUser(chatId: String, userEmail: String,receiverEmail:String): Flow<State<String>> =
-        messageRemoteDataSource.insertChatToUser(chatId, userEmail,receiverEmail)
+    override fun insertChatToUser(
+        chatId: String,
+        userEmail: String,
+        receiverEmail: String
+    ): Flow<State<String>> =
+        messageRemoteDataSource.insertChatToUser(chatId, userEmail, receiverEmail)
 
 
     override fun fetchGroupChatMessages(groupId: String): Flow<List<Message>> {
         return messageRemoteDataSource.fetchGroupMessages(groupId)
     }
 
-    override fun sendGroupMessage(message: Message): Flow<State<Nothing>> {
-        return messageRemoteDataSource.sendGroupMessage(message)
+    override fun sendGroupMessage(message: Message, recentChat: RecentChat): Flow<State<Nothing>> {
+        return messageRemoteDataSource.sendGroupMessage(message, recentChat)
     }
 
     override fun getUserChats(userEmail: String): Flow<State<ChatUser>> =
         messageRemoteDataSource.getUserChats(userEmail)
 
-    override fun insertPrivateChat(sender: String, receiver: String, chatId: String): Flow<State<String>> =
+    override fun insertPrivateChat(
+        sender: String,
+        receiver: String,
+        chatId: String
+    ): Flow<State<String>> =
         messageRemoteDataSource.insertPrivateChat(sender, receiver, chatId)
 
     override fun haveChatWithUser(userEmail: String, otherUserEmail: String): Flow<State<String>> =
@@ -61,11 +70,11 @@ class MessageRepositoryImpl @Inject constructor(
         messageRemoteDataSource.updateRecentChat(recentChat, chatId)
 
     override fun deleteMessage(messageId: String, chatId: String) {
-        messageRemoteDataSource.deleteMessage(messageId,chatId)
+        messageRemoteDataSource.deleteMessage(messageId, chatId)
     }
 
     override fun updateMessage(messageId: String, chatId: String, updatedText: String) {
-        messageRemoteDataSource.updateMessage(messageId,chatId,updatedText)
+        messageRemoteDataSource.updateMessage(messageId, chatId, updatedText)
     }
 
     override fun leaveGroup(chatId: String) {
@@ -85,8 +94,6 @@ class MessageRepositoryImpl @Inject constructor(
     }
 
 
-
-
     override fun createGroupChat(
         name: String,
         avatarLink: String,
@@ -94,12 +101,17 @@ class MessageRepositoryImpl @Inject constructor(
         currentUserEmail: String
     ): Flow<State<String>> {
         Log.d("viewmodel->repo", "createGroupChat: $name")
-        val membersMap = members.map{ RemoveSpecialChar.removeSpecialCharacters(it)}.associateWith { false } + mapOf(RemoveSpecialChar.removeSpecialCharacters(currentUserEmail) to true)
+        val currentTime: ZonedDateTime = ZonedDateTime.now()
+        val membersMap = members.map { RemoveSpecialChar.removeSpecialCharacters(it) }
+            .associateWith { false } + mapOf(
+            RemoveSpecialChar.removeSpecialCharacters(
+                currentUserEmail
+            ) to true
+        )
         val group = NetworkChatGroup(name, avatarLink, membersMap)
         val recentChat = NetworkRecentChat(
             lastMessage = "No messages yet",
-            timestamp = getTimeStamp(Date()),
-            title = name,
+            timestamp = currentTime.toString(), title = name,
             senderName = "N/A",
             receiverName = "N/A",
             privateChat = false,
