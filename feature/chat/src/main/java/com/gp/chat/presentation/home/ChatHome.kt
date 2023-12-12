@@ -52,7 +52,6 @@ class ChatHome : Fragment(), OnRecentChatClicked {
     }
 
 
-
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -64,24 +63,31 @@ class ChatHome : Fragment(), OnRecentChatClicked {
         recyclerView.adapter = chatAdapter
 
         lifecycleScope.launch {
-            viewModel.recentChats.flowWithLifecycle(lifecycle).collect{
-                chatAdapter.submitList(it.map{it.copy(timestamp = DateTimeFormatter
-                    .ofPattern("hh:mm", Locale.ENGLISH).format(ZonedDateTime.parse(it.timestamp)))})
-            viewModel.recentChats.flowWithLifecycle(lifecycle).collect {
-                chatAdapter.submitList(it)
-            }
-        }
+            val  formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z", Locale.ENGLISH)
 
+            viewModel.recentChats.flowWithLifecycle(lifecycle).collect { it ->
+                chatAdapter.submitList(it.map {
+                    it.copy(
+                        timestamp = DateTimeFormatter
+                            .ofPattern("hh:mm", Locale.ENGLISH)
+                            .format(ZonedDateTime.parse(it.timestamp,formatter))
+                    )
+                })
+            }
+
+
+        }
         floatingActionButton.setOnClickListener {
             val action = ChatHomeDirections.actionChatHomeToNewChat()
             findNavController().navigate(action)
         }
+
     }
 
     override fun onRecentChatClicked(
         recentChat: RecentChat
     ) {
-        with(recentChat){
+        with(recentChat) {
             val action = if (recentChat.privateChat) {
                 ChatHomeDirections.actionChatHomeToPrivateChatFragment(
                     chatId = id,
@@ -101,9 +107,9 @@ class ChatHome : Fragment(), OnRecentChatClicked {
         }
 
 
-
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun leaveGroup(groupId: String) {
         viewModel.leaveGroup(groupId)
     }

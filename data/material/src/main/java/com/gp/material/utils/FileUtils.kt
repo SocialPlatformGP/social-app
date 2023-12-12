@@ -7,6 +7,7 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import android.util.Log
 import android.webkit.MimeTypeMap
+import com.gp.socialapp.database.model.MimeType
 import java.util.Locale
 
 object FileUtils {
@@ -35,7 +36,7 @@ object FileUtils {
         if (mimeType == null) {
             // If ContentResolver couldn't determine the MIME type, try getting it from the file extension
             val fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri.toString())
-                     Log.d("zarea151", "getMimeTypeFromUri: $fileExtension")
+            Log.d("zarea151", "getMimeTypeFromUri: $fileExtension")
 
             if (!fileExtension.isNullOrEmpty()) {
                 mimeType = MimeTypeMap.getSingleton()
@@ -46,4 +47,30 @@ object FileUtils {
 
         return mimeType
     }
+    fun getEnumMimeTypeFromUri(uri: Uri, context: Context): MimeType {
+        val contentResolver: ContentResolver = context.contentResolver
+        var mimeType: MimeType? = null
+
+        // Try to query the ContentResolver to get the MIME type
+        val mimeTypeString = contentResolver.getType(uri)
+        if (mimeTypeString != null) {
+            // If ContentResolver determined the MIME type, find the corresponding enum
+            mimeType = MimeType.values().find { it.value == mimeTypeString }
+            Log.d("seerde", "MimeType: $mimeType , MimeTypeString: $mimeTypeString")
+        }
+
+        if (mimeType == null) {
+            // If ContentResolver couldn't determine the MIME type, try getting it from the file extension
+            val fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri.toString())
+            if (!fileExtension.isNullOrEmpty()) {
+                // Use the enum class to get the MIME type from the file extension
+                Log.d("seerde", "1- MimeType: $mimeType , FileExtension: $fileExtension")
+                mimeType = MimeType.values().find { it.name.equals(fileExtension, ignoreCase = true) }
+            }
+            Log.d("seerde", "2- MimeType: $mimeType , FileExtension: $fileExtension")
+        }
+
+        return mimeType ?: MimeType.ALL_FILES
+    }
+
 }

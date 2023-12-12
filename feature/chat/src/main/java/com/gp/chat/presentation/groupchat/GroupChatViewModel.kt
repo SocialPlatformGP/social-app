@@ -1,8 +1,10 @@
 package com.gp.chat.presentation.groupchat
 
+import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.ktx.auth
@@ -23,6 +25,7 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.ZonedDateTime
+import java.time.ZonedDateTime.now
 import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
@@ -67,7 +70,9 @@ class GroupChatViewModel @Inject constructor(
         if (currentMessageState.value.message.isEmpty() && currentMessageState.value.fileTypes == "text") {
             return
         } else {
-            val currentTime: ZonedDateTime = ZonedDateTime.now()
+            val currentTime: ZonedDateTime =now()
+            val  formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z", Locale.ENGLISH)
+            val formatted = currentTime.format(formatter)
 
             viewModelScope.launch(Dispatchers.IO) {
                 val message = Message(
@@ -79,16 +84,16 @@ class GroupChatViewModel @Inject constructor(
                     senderId = currentEmail,
                     senderName = currentUser?.displayName!!,
                     senderPfpURL = currentUser.photoUrl.toString(),
-                    timestamp = currentTime.toString(),
+                    timestamp = formatted,
                     fileURI = currentMessageState.value.fileUri ?: "".toUri(),
                     fileType = currentMessageState.value.fileTypes ?: "",
                     fileNames = currentMessageState.value.fileName ?: ""
                 )
                 val recentChat = RecentChat(
                     lastMessage = if (currentMessageState.value.fileTypes == "text") {
-                        "${currentUser.value.userFirstName}: ${currentMessageState.value.message}"
+                        "${currentUser.displayName}: ${currentMessageState.value.message}"
                     } else {
-                        "${currentUser.value.userFirstName}: ${currentMessageState.value.fileName}"
+                        "${currentUser.displayName}: ${currentMessageState.value.fileName}"
                     },
                     timestamp = message.timestamp
                 )
@@ -118,7 +123,7 @@ class GroupChatViewModel @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
 
     private fun updateRecent() {
-        val currentTime: ZonedDateTime = ZonedDateTime.now()
+        val currentTime: ZonedDateTime = now()
 
         viewModelScope.launch(Dispatchers.IO) {
             val recentChat = RecentChat(
@@ -159,6 +164,7 @@ class GroupChatViewModel @Inject constructor(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun sendFile(uri: Uri, type: String, fileName: String) {
         currentMessageState.value = currentMessageState.value.copy(fileName = fileName)
         currentMessageState.value = currentMessageState.value.copy(fileUri = uri)

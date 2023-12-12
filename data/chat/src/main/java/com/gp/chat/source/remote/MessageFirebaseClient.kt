@@ -408,7 +408,7 @@ class MessageFirebaseClient(
         }
     }
 
-    override fun sendGroupMessage(message: Message): Flow<State<Nothing>> =
+    override fun sendGroupMessage(message: Message, recentChat: RecentChat): Flow<State<Nothing>> =
         callbackFlow {
             Log.d("edrees", "Before Sending")
             trySend(State.Loading)
@@ -417,7 +417,6 @@ class MessageFirebaseClient(
                     message.toNetworkMessage()
                 ) { error, ref ->
                     if (error == null) {
-
                         if (message.fileType != "text") {
                             val key = ref.key
                             val storageRef = Firebase.storage
@@ -425,10 +424,18 @@ class MessageFirebaseClient(
                                 .child(key!!)
                                 .child(message.fileURI.lastPathSegment!!)
                             putImageInStorage(storageRef, message, key)
-                        } else {
-
                         }
-                        trySend(State.Success)
+                        val updates = HashMap<String, Any>()
+                        updates["lastMessage"] = recentChat.lastMessage
+                        updates["timestamp"] = recentChat.timestamp
+                        database.reference.child(RECENT_CHATS)
+                            .child(message.groupId)
+                            .updateChildren(updates)
+                            .addOnSuccessListener {
+                                trySend(State.Success)
+                            }.addOnFailureListener {
+                                trySend(State.Error(it.localizedMessage!!))
+                            }
 
                     } else {
                         trySend(State.Error(error.message))
@@ -521,10 +528,6 @@ class MessageFirebaseClient(
                     trySend(State.Error("Group Object is Null"))
                 }
             }
-            val userEmails = membersSnapshot.children.map { restoreOriginalEmail(it.key ?: "") }
-            trySend(State.SuccessWithData(userEmails))
-        } catch (e: Exception) {
-            trySend(State.Error(e.localizedMessage ?: "An error occurred"))
 
             override fun onCancelled(error: DatabaseError) {
                 trySend(State.Error(error.message))
@@ -555,49 +558,52 @@ class MessageFirebaseClient(
             }
         }
 
-    override fun addGroupMembers(groupId: String, usersEmails: List<String>): Flow<State<Nothing>> = callbackFlow {
-        trySend(State.Loading)
-        val successCounter = AtomicInteger(0)
+    override fun addGroupMembers(groupId: String, usersEmails: List<String>): Flow<State<Nothing>> =
+        callbackFlow {
+            trySend(State.Loading)
+            val successCounter = AtomicInteger(0)
 
-        fun checkCompletion(counter: Int, totalUpdates: Int) {
-            if (counter == totalUpdates * 2) {
-                trySend(State.Success)
-                close()  // Close the flow when all updates are completed
+            fun checkCompletion(counter: Int, totalUpdates: Int) {
+                if (counter == totalUpdates * 2) {
+                    trySend(State.Success)
+                    close()  // Close the flow when all updates are completed
+                }
             }
-        }
 
-        usersEmails.forEach { userEmail ->
-            database.reference.child(CHAT_USER).child(RemoveSpecialChar.removeSpecialCharacters(userEmail)).child(GROUP).child(groupId)
-                .setValue(false)
+            usersEmails.forEach { userEmail ->
+                database.reference.child(CHAT_USER)
+                    .child(RemoveSpecialChar.removeSpecialCharacters(userEmail)).child(GROUP)
+                    .child(groupId)
+                    .setValue(false)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            successCounter.incrementAndGet()
+                            checkCompletion(successCounter.get(), usersEmails.size)
+                        } else {
+                            trySend(State.Error("$userEmail update failed"))
+                        }
+                    }
+            }
+
+            val groupUpdate = mutableMapOf<String, Any>()
+
+            usersEmails.forEach { userEmail ->
+                val userKey = RemoveSpecialChar.removeSpecialCharacters(userEmail)
+                groupUpdate["$CHAT/$groupId/members/$userKey"] = false
+            }
+
+            database.reference.updateChildren(groupUpdate)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         successCounter.incrementAndGet()
                         checkCompletion(successCounter.get(), usersEmails.size)
                     } else {
-                        trySend(State.Error("$userEmail update failed"))
+                        trySend(State.Error("Chat group update failed"))
                     }
                 }
+
+            // Use awaitClose as a cleanup mechanism, but don't close the flow immediately
+            awaitClose { /* cleanup resources if needed */ }
         }
-
-        val groupUpdate = mutableMapOf<String, Any>()
-
-        usersEmails.forEach { userEmail ->
-            val userKey = RemoveSpecialChar.removeSpecialCharacters(userEmail)
-            groupUpdate["$CHAT/$groupId/members/$userKey"] = false
-        }
-
-        database.reference.updateChildren(groupUpdate)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    successCounter.incrementAndGet()
-                    checkCompletion(successCounter.get(), usersEmails.size)
-                } else {
-                    trySend(State.Error("Chat group update failed"))
-                }
-            }
-
-        // Use awaitClose as a cleanup mechanism, but don't close the flow immediately
-        awaitClose { /* cleanup resources if needed */ }
-    }
 
 }

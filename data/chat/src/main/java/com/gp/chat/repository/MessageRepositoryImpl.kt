@@ -1,7 +1,9 @@
 package com.gp.chat.repository
 
 import android.net.Uri
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import com.google.firebase.auth.FirebaseUser
 import com.gp.chat.model.ChatGroup
 import com.gp.chat.model.ChatUser
@@ -15,7 +17,10 @@ import com.gp.chat.util.RemoveSpecialChar
 import com.gp.socialapp.utils.State
 import kotlinx.coroutines.flow.Flow
 import java.time.ZonedDateTime
+import java.time.ZonedDateTime.now
+import java.time.format.DateTimeFormatter
 import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 class MessageRepositoryImpl @Inject constructor(
@@ -94,14 +99,17 @@ class MessageRepositoryImpl @Inject constructor(
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun createGroupChat(
         name: String,
         avatarLink: String,
         members: List<String>,
         currentUserEmail: String
     ): Flow<State<String>> {
+        val currentTime: ZonedDateTime = now()
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z", Locale.ENGLISH)
+        val formatted = currentTime.format(formatter)
         Log.d("viewmodel->repo", "createGroupChat: $name")
-        val currentTime: ZonedDateTime = ZonedDateTime.now()
         val membersMap = members.map { RemoveSpecialChar.removeSpecialCharacters(it) }
             .associateWith { false } + mapOf(
             RemoveSpecialChar.removeSpecialCharacters(
@@ -111,7 +119,8 @@ class MessageRepositoryImpl @Inject constructor(
         val group = NetworkChatGroup(name, avatarLink, membersMap)
         val recentChat = NetworkRecentChat(
             lastMessage = "No messages yet",
-            timestamp = currentTime.toString(), title = name,
+            timestamp = formatted,
+            title = name,
             senderName = "N/A",
             receiverName = "N/A",
             privateChat = false,

@@ -5,6 +5,7 @@ import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.DialogInterface
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
@@ -20,6 +21,7 @@ import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.core.net.toUri
@@ -57,6 +59,7 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
     private lateinit var fileManager: FileManager
     private val args: PrivateChatFragmentArgs by navArgs()
     private val viewModel: PrivateChatViewModel by viewModels()
+    @RequiresApi(Build.VERSION_CODES.O)
     private val openDocument =
         registerForActivityResult(ActivityResultContracts.GetMultipleContents()) {
             it?.let {
@@ -69,6 +72,7 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
 
             }
         }
+    @RequiresApi(Build.VERSION_CODES.O)
     private val openGallery = registerForActivityResult(ActivityResultContracts.PickVisualMedia())
     {
         it?.let { uri ->
@@ -94,6 +98,7 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val recyclerView = binding.recyclerMessage
