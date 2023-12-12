@@ -1,28 +1,19 @@
 package com.gp.socialapp.repository
 
-import android.util.Log
 import com.gp.socialapp.database.model.PostEntity
-import com.gp.socialapp.model.NetworkPost
+import com.gp.socialapp.database.model.PostFile
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.model.Tag
 import com.gp.socialapp.source.local.PostLocalDataSource
 import com.gp.socialapp.source.remote.PostRemoteDataSource
 import com.gp.socialapp.util.PostMapper.toEntity
 import com.gp.socialapp.util.PostMapper.toModel
-import com.gp.socialapp.util.PostMapper.toNetworkModel
 import com.gp.socialapp.util.PostMapper.toPostFlow
 import com.gp.socialapp.utils.NetworkStatus
 import com.gp.socialapp.utils.State
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -74,7 +65,13 @@ class PostRepositoryImpl @Inject constructor(
         postRemoteSource.deletePost(post)
     }
 
-    override fun createPost(post: Post) = postRemoteSource.createPost(post)
+    override fun createPost(post: Post, files: List<PostFile>): Flow<State<Nothing>> {
+        return if(files.isEmpty()) {
+            postRemoteSource.createPost(post)
+        } else {
+            postRemoteSource.createPostWithFiles(post, files)
+        }
+    }
 
     override fun onCleared() {
         repositoryScope.cancel()

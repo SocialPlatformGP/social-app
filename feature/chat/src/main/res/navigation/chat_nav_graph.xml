@@ -9,7 +9,7 @@
         android:name="com.gp.chat.presentation.privateChat.PrivateChatFragment"
         android:label="PrivateChatFragment" >
         <argument
-            android:name="senderEmail"
+            android:name="senderName"
             app:argType="string"
             android:defaultValue='""' />
         <argument
@@ -17,9 +17,34 @@
             app:argType="string"
             android:defaultValue='""' />
         <argument
-            android:name="receiverEmail"
+            android:name="receiverName"
             app:argType="string"
             android:defaultValue='""' />
+        <action
+            android:id="@+id/action_privateChatFragment_to_fullScreenImageDialogFragment"
+            app:destination="@id/fullScreenImageDialogFragment" />
+        <argument
+            android:name="senderPic"
+            app:argType="string"
+            android:defaultValue='""' />
+        <argument
+            android:name="receiverPic"
+            app:argType="string"
+            android:defaultValue='""' />
+        <action
+            android:id="@+id/action_privateChatFragment_to_chatHome2"
+            app:destination="@id/chatHome" />
+        <action
+            android:id="@+id/action_privateChatFragment_to_newChat"
+            app:destination="@id/newChat"
+            app:popUpTo="@id/chatHome"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_privateChatFragment_to_groupDetailsFragment"
+            app:destination="@id/groupDetailsFragment" />
+        <action
+            android:id="@+id/action_privateChatFragment_to_cameraPreviewFragment"
+            app:destination="@id/cameraPreviewFragment" />
     </fragment>
     <fragment
         android:id="@+id/chatHome"
@@ -30,7 +55,8 @@
             app:destination="@id/newChat" />
         <action
             android:id="@+id/action_chatHome_to_privateChatFragment"
-            app:destination="@id/privateChatFragment" />
+            app:destination="@id/privateChatFragment"
+            app:popUpTo="@id/chatHome" />
         <action
             android:id="@+id/action_chatHome_to_groupChatFragment"
             app:destination="@id/groupChatFragment" />
@@ -42,7 +68,8 @@
         <action
             android:id="@+id/action_newChat_to_privateChatFragment"
             app:destination="@id/privateChatFragment"
-            app:popUpToInclusive="true" />
+            app:popUpToInclusive="true"
+            app:popUpTo="@id/newChat" />
         <action
             android:id="@+id/action_newChat_to_createGroupChatFragment"
             app:destination="@id/createGroupChatFragment" />
@@ -55,6 +82,23 @@
             android:name="group_id"
             app:argType="string"
             android:defaultValue='""' />
+        <action
+            android:id="@+id/action_groupChatFragment_to_fullScreenImageDialogFragment"
+            app:destination="@id/fullScreenImageDialogFragment" />
+        <argument
+            android:name="title"
+            app:argType="string"
+            android:defaultValue='""' />
+        <argument
+            android:name="photoUrl"
+            app:argType="string"
+            android:defaultValue='""' />
+        <action
+            android:id="@+id/action_groupChatFragment_to_groupDetailsFragment"
+            app:destination="@id/groupDetailsFragment" />
+        <action
+            android:id="@+id/action_groupChatFragment_to_cameraPreviewFragment"
+            app:destination="@id/cameraPreviewFragment" />
     </fragment>
     <fragment
         android:id="@+id/createGroupChatFragment"
@@ -76,5 +120,43 @@
         <argument
             android:name="group_id"
             app:argType="string" />
+    </fragment>
+    <dialog
+        android:id="@+id/fullScreenImageDialogFragment"
+        android:name="com.gp.chat.utils.FullScreenImageDialogFragment"
+        android:label="FullScreenImageDialogFragment" >
+        <argument
+            android:name="imageUrl"
+            app:argType="string"
+            android:defaultValue='""' />
+    </dialog>
+    <fragment
+        android:id="@+id/cameraPreviewFragment"
+        android:name="com.gp.chat.presentation.CameraPreviewFragment"
+        android:label="CameraPreviewFragment">
+         <argument
+            android:name="senderName"
+            app:argType="string"
+            android:defaultValue='""' />
+        <argument
+            android:name="chatId"
+            app:argType="string"
+            android:defaultValue='""' />
+        <argument
+            android:name="receiverName"
+            app:argType="string"
+            android:defaultValue='""' />
+
+        <argument
+            android:name="senderPic"
+            app:argType="string"
+            android:defaultValue='""' />
+        <argument
+            android:name="receiverPic"
+            app:argType="string"
+            android:defaultValue='""' />
+        <argument
+            android:name="isPrivateChat"
+            app:argType="boolean" />
     </fragment>
 </navigation>

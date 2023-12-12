@@ -12,7 +12,6 @@
         android:layout_height="match_parent"
         android:paddingBottom="24dp">
         <!--    Label Input-->
-
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
             android:id="@+id/label_text_field"

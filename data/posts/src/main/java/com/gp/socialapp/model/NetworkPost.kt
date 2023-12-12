@@ -1,5 +1,7 @@
 package com.gp.socialapp.model
 
+import com.gp.socialapp.database.model.PostAttachment
+
 
 data class NetworkPost (
     val replyCount: Int=0,
@@ -16,4 +18,5 @@ data class NetworkPost (
     val editStatus: Boolean = false,
     val tags: List<Tag> = emptyList(),
     val type: String = "all",
+    val attachments: List<PostAttachment> = emptyList()
 )

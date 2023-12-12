@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:posts="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:posts="http://schemas.android.com/apk/res-auto">
 
     <data>
 
         <variable
             name="postitem"
             type="com.gp.socialapp.model.Post" />
+
         <variable
             name="context"
             type="android.content.Context" />
+
         <variable
             name="onTagClick"
             type="com.gp.posts.listeners.OnTagClicked" />
@@ -19,18 +20,18 @@
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardViewPost"
+        style="@style/ImageViewVoteStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:foreground="@drawable/stroke_cardview"
         posts:cardCornerRadius="8dp"
         posts:cardElevation="5dp"
-        posts:cardUseCompatPadding="true"
-        android:foreground="@drawable/stroke_cardview"
-        style="@style/ImageViewVoteStyle">
+        posts:cardUseCompatPadding="true">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/replyContainer"
-            android:layout_width="match_parent"
             style="@style/ImageViewVoteStyle"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             posts:layout_constraintBottom_toTopOf="@id/nestedRecyclerView"
             posts:layout_constraintEnd_toEndOf="parent"
@@ -43,23 +44,22 @@
                 android:layout_height="30dp"
                 android:layout_marginStart="12dp"
                 android:layout_marginTop="8dp"
-                android:src="@drawable/pngwing_com"
-                android:scaleType="centerCrop"
-                posts:imageUrl="@{postitem.userPfp}"
                 android:background="@drawable/circular_background"
+                android:scaleType="centerCrop"
+                android:src="@drawable/pngwing_com"
+                posts:imageUrl="@{postitem.userPfp}"
                 posts:layout_constraintStart_toStartOf="parent"
-                posts:layout_constraintTop_toTopOf="parent"
-                />
+                posts:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/textView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
+                android:text="@{postitem.userName}"
                 android:textColor="#5E5B5C"
                 android:textSize="13sp"
                 android:textStyle="bold"
-                android:text="@{postitem.userName}"
                 posts:layout_constraintBottom_toBottomOf="@+id/imageView"
                 posts:layout_constraintStart_toEndOf="@+id/imageView"
                 posts:layout_constraintTop_toTopOf="@+id/imageView" />
@@ -70,15 +70,49 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:text="4d"
-                posts:timeTillNow="@{postitem.publishedAt}"
-                android:textSize="12sp"
                 android:textColor="#90555151"
+                android:textSize="12sp"
                 posts:layout_constraintBottom_toBottomOf="@+id/textView"
                 posts:layout_constraintStart_toEndOf="@+id/textView"
-                posts:layout_constraintTop_toTopOf="@+id/textView" />
+                posts:layout_constraintTop_toTopOf="@+id/textView"
+                posts:timeTillNow="@{postitem.publishedAt}" />
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/media_framelayout"
+                posts:layout_constraintTop_toBottomOf="@id/bodyTextView"
+                posts:layout_constraintBottom_toTopOf="@id/imageViewDownvotePost"
+                android:layout_marginVertical="8dp"
+                android:visibility="gone">
+                <androidx.viewpager2.widget.ViewPager2
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/media_viewpager"/>
+                <com.tbuonomo.viewpagerdotsindicator.SpringDotsIndicator
+                    android:id="@+id/spring_dots_indicator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    posts:dotsSpacing="6dp"
+                    android:layout_marginBottom="8dp"
+                    android:layout_gravity="bottom|center_horizontal" />
+                <androidx.core.widget.NestedScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp"
+                    android:scrollbars="vertical">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/media_recyclerview"
+                        android:layout_marginHorizontal="16dp"
+                        posts:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                        android:visibility="gone"/>
+
+                </androidx.core.widget.NestedScrollView>
+            </FrameLayout>
 
             <TextView
-                android:id="@+id/replyTextView"
+                android:id="@+id/bodyTextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
@@ -93,35 +127,34 @@
                 android:id="@+id/titleTextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@{postitem.title}"
-                android:textStyle="bold"
-                android:textSize="20sp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="12dp"
                 android:layout_marginBottom="8dp"
-                posts:layout_constraintTop_toBottomOf="@+id/imageView"
+                android:text="@{postitem.title}"
+                android:textSize="20sp"
+                android:textStyle="bold"
                 posts:layout_constraintEnd_toEndOf="parent"
-                posts:layout_constraintStart_toStartOf="@+id/imageView" />
+                posts:layout_constraintStart_toStartOf="@+id/imageView"
+                posts:layout_constraintTop_toBottomOf="@+id/imageView" />
 
             <com.google.android.flexbox.FlexboxLayout
+                android:id="@+id/tags_layout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:id="@+id/tags_layout"
-                posts:layout_constraintTop_toBottomOf="@id/titleTextView"
+                posts:alignContent="stretch"
+                posts:flexWrap="wrap"
                 posts:layout_constraintEnd_toEndOf="parent"
                 posts:layout_constraintStart_toStartOf="@id/titleTextView"
-                posts:flexWrap="wrap"
-                posts:alignContent="stretch" >
+                posts:layout_constraintTop_toBottomOf="@id/titleTextView">
 
                 <com.google.android.material.chip.ChipGroup
                     android:id="@+id/tags_chipgroup"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    posts:chipSpacingHorizontal= "4dp"
-                    posts:tags="@{postitem.tags}"
-                    posts:tagsContext="@{context}"
+                    posts:chipSpacingHorizontal="4dp"
                     posts:onTagClick="@{onTagClick}"
-                    />
+                    posts:tags="@{postitem.tags}"
+                    posts:tagsContext="@{context}" />
             </com.google.android.flexbox.FlexboxLayout>
 
             <com.google.android.material.button.MaterialButton
@@ -130,10 +163,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 posts:downVoteImage="@{postitem.downvoted}"
+                posts:icon="@drawable/ic_downvote"
                 posts:layout_constraintBottom_toBottomOf="parent"
-                posts:layout_constraintEnd_toEndOf="@+id/replyTextView"
-                posts:layout_constraintTop_toBottomOf="@+id/replyTextView"
-                posts:icon="@drawable/ic_downvote" />
+                posts:layout_constraintEnd_toEndOf="@+id/bodyTextView"
+                posts:layout_constraintTop_toBottomOf="@+id/media_framelayout" />
 
             <TextView
                 android:id="@+id/textView4"
@@ -150,11 +183,11 @@
                 style="@style/Widget.Material3.Button.IconButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                posts:upVoteImage="@{postitem.upvoted}"
+                posts:icon="@drawable/ic_upvote"
                 posts:layout_constraintBottom_toBottomOf="@+id/textView4"
                 posts:layout_constraintEnd_toStartOf="@+id/textView4"
                 posts:layout_constraintTop_toTopOf="@+id/textView4"
-                posts:icon="@drawable/ic_upvote" />
+                posts:upVoteImage="@{postitem.upvoted}" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/img_addComment"
@@ -165,17 +198,16 @@
                 posts:icon="@drawable/baseline_comment_24"
                 posts:layout_constraintBottom_toBottomOf="@+id/imageViewUpvotePost"
                 posts:layout_constraintEnd_toStartOf="@+id/imageViewUpvotePost"
-                posts:layout_constraintTop_toTopOf="@+id/imageViewUpvotePost"
-                />
+                posts:layout_constraintTop_toTopOf="@+id/imageViewUpvotePost" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/moreOptionPost"
                 style="@style/Widget.Material3.Button.IconButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                posts:icon="@drawable/baseline_more_vert_24"
                 posts:layout_constraintEnd_toEndOf="parent"
-                posts:layout_constraintTop_toTopOf="parent"
-                posts:icon="@drawable/baseline_more_vert_24" />
+                posts:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/textView2"

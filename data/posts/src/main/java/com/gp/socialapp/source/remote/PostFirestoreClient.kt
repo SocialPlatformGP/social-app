@@ -4,8 +4,10 @@ import android.util.Log
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
+import com.gp.socialapp.database.model.PostAttachment
+import com.gp.socialapp.database.model.PostFile
 import com.gp.socialapp.model.NetworkPost
 import com.gp.socialapp.model.NetworkReply
 import com.gp.socialapp.model.Post
@@ -16,10 +18,16 @@ import com.gp.socialapp.utils.State
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import java.util.UUID
+import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
-import javax.security.auth.callback.Callback
 
-class PostFirestoreClient@Inject constructor(private val firestore: FirebaseFirestore): PostRemoteDataSource {
+class PostFirestoreClient@Inject constructor(
+    private val firestore: FirebaseFirestore,
+    private val storage: FirebaseStorage
+): PostRemoteDataSource {
     private val ref = firestore.collection("posts")
     private val currentEmail = Firebase.auth.currentUser?.email
     override fun createPost(post: Post) = callbackFlow<State<Nothing>> {
@@ -30,6 +38,68 @@ class PostFirestoreClient@Inject constructor(private val firestore: FirebaseFire
             trySend(State.Error("Post Creation Failed: ${it.message}"))
         }
         awaitClose()
+    }
+
+    override fun createPostWithFiles(post: Post, files: List<PostFile>): Flow<State<Nothing>> = callbackFlow<State<Nothing>> {
+        trySend(State.Loading)
+        try {
+            val postKey = firestore.collection("posts").document().id
+            uploadPostFiles(postKey, files).collect {
+                when (it) {
+                    is State.SuccessWithData -> {
+                        val updatedPost = post.copy(attachments = it.data)
+                        firestore.collection("posts").document(postKey).set(updatedPost.toNetworkModel())
+                            .addOnSuccessListener {
+                                trySend(State.Success)
+                            }.addOnFailureListener {
+                            trySend(State.Error("Post Creation Failed: ${it.message}"))
+                        }
+                    }
+                    is State.Error -> {
+                        trySend(State.Error("Post Creation Failed: ${it.message}"))
+                    }
+
+                    else -> {}
+                }
+            }
+        }catch (e: Exception){
+            trySend(State.Error("Post Creation Failed: ${e.message}"))
+        } finally {
+            awaitClose()
+        }
+    }
+    private fun uploadPostFiles(postKey: String, files: List<PostFile>): Flow<State<List<PostAttachment>>> = callbackFlow {
+        val result = mutableListOf<PostAttachment>()
+        try{
+            files.forEach {file ->
+                val fileName = "${UUID.randomUUID()}_${file.name}"
+                val fileRef = storage.reference.child("posts/$postKey/$fileName")
+                fileRef.putFile(file.uri).addOnSuccessListener {
+                    fileRef.downloadUrl.addOnSuccessListener {url ->
+                        fileRef.metadata.addOnSuccessListener {data ->
+                            result.add(PostAttachment(
+                                url = url.toString(),
+                                name = file.name,
+                                type = file.type.readableType,
+                                size = data.sizeBytes))
+                            if(result.size == files.size){
+                                trySend(State.SuccessWithData(result))
+                            }
+                        }.addOnFailureListener {
+                            trySend(State.Error("Uploading File Failed: ${it.message}"))
+                        }
+                    }.addOnFailureListener {
+                        trySend(State.Error("Uploading File Failed: ${it.message}"))
+                    }
+                }.addOnFailureListener {
+                    trySend(State.Error("Uploading File Failed: ${it.message}"))
+                }
+            }
+        } catch(e: Exception) {
+            trySend(State.Error("Uploading File Failed: ${e.message}"))
+        } finally {
+            awaitClose {  }
+        }
     }
 
 

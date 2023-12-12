@@ -5,6 +5,8 @@
     <color name="defaultTempColor">#6750A4</color>
     <color name="Blue">#0D47A1</color>
     <color name="Red">#B71C1C</color>
+    <color name="material_green">#4CAF50</color>
+    <color name="material_red">#D32F2F</color>
     <color name="Gray">#6D6666</color> <!-- Black for light theme -->
 
 </resources>

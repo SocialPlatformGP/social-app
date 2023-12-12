@@ -52,7 +52,7 @@
             auth:layout_constraintEnd_toEndOf="parent"
             android:layout_marginTop="20dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/pfp"
+            android:src="@drawable/baseline_person_24"
             auth:shapeAppearanceOverlay="@style/circleImageView"/>
         <com.google.android.material.button.MaterialButton
             android:layout_width="wrap_content"

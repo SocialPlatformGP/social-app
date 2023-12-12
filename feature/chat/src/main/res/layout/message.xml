@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:chat="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/text_message_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/receiever_text_message_layout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            chat:layout_constraintEnd_toStartOf="@+id/guideline2"
+            chat:layout_constraintStart_toStartOf="parent"
+            chat:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible">
+
+            <ImageView
+                android:id="@+id/received_message_userpfp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="16dp"
+                android:contentDescription="User Icon"
+                android:src="@drawable/baseline_person_24"
+                chat:layout_constraintStart_toStartOf="parent"
+                chat:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/received_chatbox_cardview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                chat:cardBackgroundColor="#eef1f6"
+                chat:cardCornerRadius="12dp"
+                chat:cardElevation="0dp"
+                chat:cardPreventCornerOverlap="false"
+                chat:cardUseCompatPadding="true"
+                chat:layout_constraintStart_toEndOf="@+id/received_message_userpfp"
+                chat:layout_constraintTop_toTopOf="@+id/received_message_userpfp">
+
+                <LinearLayout
+                    android:id="@+id/received_chatbox_linearlayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:orientation="vertical"
+                    android:padding="3dp">
+
+
+                    <TextView
+                        android:id="@+id/received_message_username_textview"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:gravity="start"
+                        android:paddingLeft="12dp"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp"
+                        android:textSize="14sp"
+                        chat:layout_constraintStart_toEndOf="@+id/received_message_userpfp"
+                        chat:layout_constraintTop_toBottomOf="@+id/received_chat_date_textview"
+                        tools:text="Username" />
+
+
+                    <TextView
+                        android:id="@+id/received_message_textview"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:layout_marginBottom="8dp"
+                        android:gravity="start"
+                        android:paddingLeft="12dp"
+                        android:paddingTop="4dp"
+                        android:paddingRight="12dp"
+                        android:textColor="#000000"
+                        android:textSize="18sp"
+                        tools:text="Message" />
+
+                    <TextView
+                        android:id="@+id/received_message_timestamp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:gravity="end"
+                        android:paddingRight="12dp"
+                        android:textColor="#C0C0C0"
+                        android:textSize="11sp"
+                        tools:text="Timestamp" />
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/sender_text_message_layout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+
+            chat:layout_constraintBottom_toBottomOf="parent"
+            chat:layout_constraintEnd_toEndOf="parent"
+            chat:layout_constraintStart_toStartOf="@+id/guideline3"
+            chat:layout_constraintTop_toBottomOf="@+id/receiever_text_message_layout"
+            tools:visibility="visible">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/sent_message_cardview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                chat:cardBackgroundColor="@color/text_box_background"
+                chat:cardCornerRadius="8dp"
+
+                chat:cardElevation="0dp"
+                chat:cardPreventCornerOverlap="false"
+                chat:cardUseCompatPadding="true"
+                chat:layout_constraintBottom_toBottomOf="parent"
+                chat:layout_constraintEnd_toEndOf="parent"
+                chat:layout_constraintTop_toTopOf="parent">
+
+                <LinearLayout
+                    android:id="@+id/sent_chatbox_linearlayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="3dp">
+
+
+                    <TextView
+                        android:id="@+id/sent_message_textview"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:maxWidth="250dp"
+                        android:paddingEnd="12dp"
+                        android:paddingTop="4dp"
+                        android:gravity="end"
+                        android:layout_gravity="end"
+                        android:paddingStart="12dp"
+                        android:textColor="#ffffff"
+                        android:textSize="18sp"
+                        tools:text="message text" />
+
+                    <TextView
+                        android:id="@+id/sent_message_timestamp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:gravity="start"
+                        android:paddingEnd="12dp"
+                        android:textColor="#C0C0C0"
+                        android:textSize="11sp"
+                        tools:text="date time" />
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            chat:layout_constraintGuide_percent="0.8" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            chat:layout_constraintGuide_percent="0.2" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>
+

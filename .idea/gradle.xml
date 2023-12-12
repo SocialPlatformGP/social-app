@@ -14,11 +14,13 @@
             <option value="$PROJECT_DIR$/core" />
             <option value="$PROJECT_DIR$/data" />
             <option value="$PROJECT_DIR$/data/chat" />
+            <option value="$PROJECT_DIR$/data/material" />
             <option value="$PROJECT_DIR$/data/posts" />
             <option value="$PROJECT_DIR$/data/users" />
             <option value="$PROJECT_DIR$/feature" />
             <option value="$PROJECT_DIR$/feature/auth" />
             <option value="$PROJECT_DIR$/feature/chat" />
+            <option value="$PROJECT_DIR$/feature/material" />
             <option value="$PROJECT_DIR$/feature/posts" />
           </set>
         </option>

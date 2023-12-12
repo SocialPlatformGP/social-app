@@ -1,6 +1,7 @@
 package com.gp.auth.ui.registration
 
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import androidx.core.content.ContextCompat
 import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
@@ -10,13 +11,11 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.Date
 
 data class UserInformationUIState(
-    var firstName: String,
-    var lastName: String,
-    var phoneNumber: String,
-    var birthDate: Date,
-    var bio: String,
-    var pfp: Drawable?,
-    val createdState: State<Nothing>
-) : BaseObservable() {
-    constructor(): this("", "", "", Date(), "", null, State.Idle)
-}
+    var firstName: String = "",
+    var lastName: String = "",
+    var phoneNumber: String = "",
+    var birthDate: Date = Date(),
+    var bio: String ="",
+    var pfpLocalURI: Uri = Uri.EMPTY,
+    val createdState: State<Nothing> = State.Idle
+) : BaseObservable()

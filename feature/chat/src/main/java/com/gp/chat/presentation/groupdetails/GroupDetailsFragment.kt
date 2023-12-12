@@ -21,6 +21,7 @@ import com.gp.chat.adapter.GroupUserAdapter
 import com.gp.chat.databinding.FragmentGroupDetailsBinding
 import com.gp.chat.listener.OnGroupMemberClicked
 import com.gp.chat.listener.OnGroupMembersChangeListener
+import com.gp.chat.presentation.groupdetails.addGroupMembers.AddMembersDialogFragment
 import com.gp.users.model.User
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -92,8 +93,7 @@ class GroupDetailsFragment : Fragment(), OnGroupMemberClicked {
     }
 
     override fun onMemberClicked(user: User) {
-        val isAdmin = args.isAdmin
-        val items = if(isAdmin) {
+        val items = if(args.isAdmin) {
             arrayOf("View Profile", "Message", "Remove from Group")
         } else {
             arrayOf("View Profile", "Message")
@@ -117,5 +117,13 @@ class GroupDetailsFragment : Fragment(), OnGroupMemberClicked {
                 }
             }
         }.show()
+    }
+    fun onAddMembersClicked(){
+        val dialogFragment = AddMembersDialogFragment()
+        val bundle = Bundle()
+        bundle.putParcelableArrayList("users", ArrayList(viewModel.users.value))
+        bundle.putString("group_id", args.groupId)
+        dialogFragment.arguments = bundle
+        dialogFragment.show(childFragmentManager, "AddMembersDialogFragment")
     }
 }
