@@ -1,5 +1,6 @@
 package com.gp.users.repository
 
+import android.net.Uri
 import android.service.restrictions.RestrictionsReceiver
 import com.gp.socialapp.database.model.UserEntity
 import com.gp.socialapp.utils.State
@@ -17,7 +18,7 @@ interface UserRepository {
 
     suspend fun getAllLocalUsers(): Flow<List<UserEntity>>
 
-    fun createNetworkUser(user: NetworkUser): Flow<State<Nothing>>
+    fun createNetworkUser(user: NetworkUser, pfpURI: Uri): Flow<State<Nothing>>
     fun updateNetworkUser(user: UserEntity): Flow<State<Nothing>>
     fun deleteNetworkUser(user: UserEntity): Flow<State<Nothing>>
     suspend fun  fetchUser(email: String): State<NetworkUser>

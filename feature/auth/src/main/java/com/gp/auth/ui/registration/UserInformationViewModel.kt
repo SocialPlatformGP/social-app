@@ -19,30 +19,18 @@ import javax.inject.Inject
 class UserInformationViewModel @Inject constructor(private val userRepo: UserRepository) :
     ViewModel() {
     val uiState = MutableStateFlow(UserInformationUIState())
-    private val pfpLink = "https://clipart-library.com/data_images/6103.png"
     fun onCompleteAccount(email: String, password: String) {
         viewModelScope.launch {
             with(uiState.value) {
                 val networkFlow =
                     userRepo.createNetworkUser(
                         NetworkUser(
-                            firstName, lastName, password, pfpLink, email,
+                            firstName, lastName, password, "", email,
                             phoneNumber, birthDate, bio, Date()
-                        )
-                    )
+                        ), pfpLocalURI)
                 networkFlow.collect { state ->
                     uiState.value = uiState.value.copy(createdState = state)
                 }
-
-                //update display name in firebase auth
-
-                Firebase.auth.currentUser?.updateProfile(
-                    UserProfileChangeRequest.Builder()
-                        .setDisplayName("$firstName $lastName")
-                        .setPhotoUri(pfpLink.toUri())
-                        .build()
-                )
-
             }
         }
     }

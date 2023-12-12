@@ -18,27 +18,16 @@ import java.io.File
 
 class FileManager(private val context: Context) {
 
-    private lateinit var downloadManager: DownloadManager
+
     private var downloadID: Long = -1
 
     fun downloadFile(fileUrl: String, fileName: String, fileType: String) {
         Toast.makeText(context, "Downloading...", Toast.LENGTH_SHORT).show()
         Log.d("TAG", "downloadFile: $fileUrl $fileName")
+
         val request = DownloadManager.Request(Uri.parse(fileUrl))
-        request.setTitle(fileName)
-        request.setDescription("File is being downloaded...")
-        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-
-        val storageDir =
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-        if (!storageDir.exists()) {
-            storageDir.mkdirs()
-        }
-
-        val destinationFile = File(storageDir, fileName.replace(" ", "_"))
-
-        val destinationUri = Uri.fromFile(destinationFile)
-        request.setDestinationUri(destinationUri)
+            .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+            .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
 
         val downloadReceiver = object : BroadcastReceiver() {
             @RequiresApi(Build.VERSION_CODES.Q)
@@ -47,51 +36,68 @@ class FileManager(private val context: Context) {
                 if (DownloadManager.ACTION_DOWNLOAD_COMPLETE == action) {
                     val downloadId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
                     if (downloadID == downloadId) {
-                        Toast.makeText(context, "Download Completed", Toast.LENGTH_SHORT).show()
-                        Log.d("TAGe", "onReceive: $destinationUri $destinationFile")
-                        openFileWithMediaStoreUri(destinationUri, context!!, fileType)
+                        val query = DownloadManager.Query().setFilterById(downloadId)
+                        val downloadManager =
+                            context?.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+                        val cursor = downloadManager.query(query)
+
+                        if (cursor != null && cursor.moveToFirst()) {
+                            val columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)
+                            val status = cursor.getInt(columnIndex)
+
+                            if (status == DownloadManager.STATUS_SUCCESSFUL) {
+                                val uriIndex =
+                                    cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI)
+                                val downloadUriString = cursor.getString(uriIndex)
+                                val downloadUri = Uri.parse(downloadUriString)
+
+                                Toast.makeText(
+                                    context, "Download Completed", Toast.LENGTH_SHORT
+                                ).show()
+                                Log.d("TAG", "onReceive: $downloadUri")
+                                openFileWithMediaStoreUri(downloadUri, context, fileType)
+                            }
+                        }
+                        cursor?.close()
                     }
                 }
             }
         }
 
         context.registerReceiver(
-            downloadReceiver,
-            IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
+            downloadReceiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
         )
 
-        downloadManager =
-            context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         downloadID = downloadManager.enqueue(request)
     }
 
+
     @SuppressLint("Range")
     fun openFileWithMediaStoreUri(destinationUri: Uri, context: Context, fileType: String) {
+        Log.d("zarea5", "openFileWithMediaStoreUri: $destinationUri &&&$fileType")
         val contentResolver = context.contentResolver
-        val mimeType = if(fileType == MimeType.ALL_FILES.value) {
+        val mimeType = if (fileType == MimeType.ALL_FILES.value) {
             getMimeTypeFromUri(destinationUri, context)
         } else {
             fileType
         }
+
         val fileName = getFileNameFromUri(destinationUri) ?: ""
         val selection = "${MediaStore.Files.FileColumns.DISPLAY_NAME} = ?"
         val selectionArgs = arrayOf(fileName)
         val cursor = contentResolver.query(
-            MediaStore.Files.getContentUri("external"),
-            null,
-            selection,
-            selectionArgs,
-            null
+            MediaStore.Files.getContentUri("external"), null, selection, selectionArgs, null
         )
+        Log.d("zarea5", "cursor: ${cursor?.count}")
 
         cursor?.use {
             if (it.moveToFirst()) {
                 val fileId = it.getLong(it.getColumnIndex(MediaStore.Files.FileColumns._ID))
                 val mediaStoreUri = ContentUris.withAppendedId(
-                    MediaStore.Files.getContentUri("external"),
-                    fileId
+                    MediaStore.Files.getContentUri("external"), fileId
                 )
-                Log.d("TAG", "openFileWithMediaStoreUri: $mediaStoreUri    $fileId")
+                Log.d("zarea5", "openFileWithMediaStoreUri: $mediaStoreUri    $fileId")
 
                 // Create an intent to open the file using the obtained MediaStore URI
                 val openIntent = Intent(Intent.ACTION_VIEW)
@@ -103,9 +109,7 @@ class FileManager(private val context: Context) {
                     context.startActivity(openIntent)
                 } catch (e: ActivityNotFoundException) {
                     Toast.makeText(
-                        context,
-                        "No application found to open this file",
-                        Toast.LENGTH_SHORT
+                        context, "No application found to open this file", Toast.LENGTH_SHORT
                     ).show()
                     e.printStackTrace()
                 }

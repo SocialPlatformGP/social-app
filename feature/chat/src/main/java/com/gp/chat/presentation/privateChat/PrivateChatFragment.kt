@@ -1,30 +1,19 @@
 package com.gp.chat.presentation.privateChat
 
-import android.annotation.SuppressLint
-import android.content.ContentResolver
-import android.content.ContentValues
 import android.content.DialogInterface
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
-import android.provider.MediaStore
-import android.provider.OpenableColumns
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
-import android.webkit.MimeTypeMap
 import android.widget.EditText
-import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
-import androidx.core.net.toUri
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -33,11 +22,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.navigation.fragment.navArgs
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.gp.chat.R
-import com.gp.chat.adapter.GroupMessageAdapter
+import com.gp.chat.adapter.MessageAdapter
 import com.gp.chat.databinding.FragmentPrivateChatBinding
 import com.gp.chat.listener.ImageClickListener
 import com.gp.chat.utils.MyScrollToBottomObserver
@@ -48,13 +36,11 @@ import com.gp.material.utils.FileUtils.getFileName
 import com.gp.material.utils.FileUtils.getMimeTypeFromUri
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import java.io.File
-import java.util.Locale
 
 @AndroidEntryPoint
 class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListener,
     ImageClickListener {
-    lateinit var adapter: GroupMessageAdapter
+    lateinit var adapter: MessageAdapter
     lateinit var binding: FragmentPrivateChatBinding
     private lateinit var fileManager: FileManager
     private val args: PrivateChatFragmentArgs by navArgs()
@@ -104,7 +90,7 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
         val recyclerView = binding.recyclerMessage
         val manager = LinearLayoutManager(requireContext())
 
-        adapter = GroupMessageAdapter(this, this, this, true)
+        adapter = MessageAdapter(this, this, this, true)
         manager.stackFromEnd = true
         recyclerView.layoutManager = manager
         adapter.registerAdapterDataObserver(

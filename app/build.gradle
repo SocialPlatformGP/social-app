@@ -58,7 +58,8 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth-ktx:22.2.0'
     implementation project(path: ':feature:chat')
     implementation project(':feature:chat')
-// You can use a newer version if available
+    implementation project(path: ':feature:material')
+    // You can use a newer version if available
 
     //////////
     def nav_version = "2.6.0"

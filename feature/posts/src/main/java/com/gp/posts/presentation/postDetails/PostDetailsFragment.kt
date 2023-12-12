@@ -1,5 +1,6 @@
 package com.gp.posts.presentation.postDetails
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
@@ -20,19 +21,26 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.gp.posts.R
+import com.gp.posts.adapter.FileAttachmentAdapter
+import com.gp.posts.adapter.ImageAttachmentAdapter
 import com.gp.posts.adapter.NestedReplyAdapter
 import com.gp.posts.databinding.FragmentPostDetailsBinding
 import com.gp.posts.listeners.OnAddReplyClicked
+import com.gp.posts.listeners.OnFileClickedListener
 import com.gp.posts.listeners.OnMoreOptionClicked
 import com.gp.posts.listeners.OnReplyCollapsed
 import com.gp.posts.listeners.OnTagClicked
 import com.gp.posts.listeners.VotePressedListener
+import com.gp.socialapp.database.model.MimeType
+import com.gp.socialapp.database.model.PostAttachment
 import com.gp.socialapp.model.NestedReplyItem
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.model.Reply
@@ -68,6 +76,7 @@ class PostDetailsFragment
          binding =
             DataBindingUtil.inflate(inflater, R.layout.fragment_post_details, container, false)
         viewModel.getPost(args.post)
+
         lifecycleScope.launch {
             viewModel.currentPost.flowWithLifecycle(lifecycle).collect {
                 binding.viewModel = viewModel
@@ -96,6 +105,7 @@ class PostDetailsFragment
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        bindMediaLayout(args.post.attachments)
         recyclerView = view.findViewById(R.id.recyclerView)
         recyclerView.itemAnimator = null
         replyAdapter = NestedReplyAdapter(
@@ -134,6 +144,70 @@ class PostDetailsFragment
         }
     }
 
+    private fun bindMediaLayout(attachments: List<PostAttachment>) {
+        binding.mediaFramelayout.visibility = View.VISIBLE
+        val IMAGE_TYPES = listOf(
+            MimeType.JPEG.readableType,
+            MimeType.PNG.readableType,
+            MimeType.GIF.readableType,
+            MimeType.BMP.readableType,
+            MimeType.TIFF.readableType,
+            MimeType.WEBP.readableType,
+            MimeType.SVG.readableType
+        )
+
+        val VIDEO_TYPES = listOf(
+            MimeType.MP4.readableType,
+            MimeType.AVI.readableType,
+            MimeType.MKV.readableType,
+            MimeType.MOV.readableType,
+            MimeType.WMV.readableType
+        )
+        when(attachments.first().type){
+            in IMAGE_TYPES -> {
+                bindImageAttachments(attachments)
+            }
+            in VIDEO_TYPES ->{
+                bindVideoAttachments(attachments)
+            }
+            else -> {
+                bindFileAttachments(attachments)
+            }
+        }
+    }
+
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun bindImageAttachments(attachments: List<PostAttachment>) {
+        binding.mediaRecyclerview.visibility = View.GONE
+        binding.mediaViewpager.visibility = View.VISIBLE
+        binding.springDotsIndicator.visibility = View.VISIBLE
+        binding.mediaViewpager.adapter =  ImageAttachmentAdapter(attachments)
+        binding.mediaViewpager.orientation = ViewPager2.ORIENTATION_HORIZONTAL
+        binding.springDotsIndicator.attachTo(binding.mediaViewpager)
+    }
+
+    private fun bindVideoAttachments(attachments: List<PostAttachment>) {
+        //TODO: bind video attachments
+        bindFileAttachments(attachments)
+    }
+
+    private fun bindFileAttachments(attachments: List<PostAttachment>) {
+        binding.mediaRecyclerview.visibility = View.VISIBLE
+        binding.mediaViewpager.visibility = View.GONE
+        binding.springDotsIndicator.visibility = View.GONE
+        val adapter = FileAttachmentAdapter(object: OnFileClickedListener{
+            override fun onFileClicked(attachment: PostAttachment) {
+                Snackbar.make(
+                    binding.root,
+                    "File Clicked ${attachment.name}",
+                    Snackbar.LENGTH_SHORT).show()
+            }
+
+        }, requireContext())
+        adapter.submitList(attachments.toMutableList())
+        binding.mediaRecyclerview.adapter = adapter
+    }
 
 
     @RequiresApi(Build.VERSION_CODES.O)

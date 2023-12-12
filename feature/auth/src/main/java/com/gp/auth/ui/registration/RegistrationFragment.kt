@@ -1,5 +1,7 @@
 package com.gp.auth.ui.registration
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -29,6 +31,9 @@ class RegistrationFragment : Fragment() {
     private val viewModel: RegistrationViewModel by viewModels()
     private lateinit var binding: FragmentRegistrationBinding
 
+    private val PREFS_FILE_NAME = "shit_fix"
+    private val KEY_BOOLEAN_VALUE = "isUserComplete"
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -57,6 +62,7 @@ class RegistrationFragment : Fragment() {
                                         viewModel.registrationUiState.value.email,
                                         viewModel.registrationUiState.value.password
                                     )
+                                saveBooleanToSharedPreferences(false)
                                 findNavController().navigate(action)
                             }
 
@@ -136,10 +142,16 @@ class RegistrationFragment : Fragment() {
 
 
 
-fun onSignInClick() =
-    findNavController().navigate(R.id.action_registerationFragment_to_loginFragment)
+    fun onSignInClick() = findNavController().navigate(R.id.action_registerationFragment_to_loginFragment)
 
-private fun makeSnackbar(text: String) =
-    Snackbar.make(requireContext(), binding.root, text, Snackbar.LENGTH_SHORT).show()
+    private fun makeSnackbar(text: String) =
+        Snackbar.make(requireContext(), binding.root, text, Snackbar.LENGTH_SHORT).show()
+    private fun saveBooleanToSharedPreferences(value: Boolean) {
+        val sharedPreferences: SharedPreferences =
+            requireActivity().getSharedPreferences(PREFS_FILE_NAME, Context.MODE_PRIVATE)
+        val editor: SharedPreferences.Editor = sharedPreferences.edit()
+        editor.putBoolean(KEY_BOOLEAN_VALUE, value)
+        editor.apply()
+    }
 
 }

@@ -3,6 +3,7 @@ package com.gp.socialapp.di
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
 import com.gp.socialapp.source.remote.PostFirestoreClient
 import com.gp.socialapp.source.remote.PostRemoteDataSource
 import com.gp.socialapp.source.remote.ReplyFirestoreClient
@@ -18,8 +19,8 @@ object RemoteSourceModule {
     @Provides
     fun provideFireStore(): FirebaseFirestore = Firebase.firestore
     @Provides
-    fun providePostRemoteDataSource(firestore: FirebaseFirestore): PostRemoteDataSource
-        = PostFirestoreClient(firestore)
+    fun providePostRemoteDataSource(firestore: FirebaseFirestore, storage: FirebaseStorage): PostRemoteDataSource
+        = PostFirestoreClient(firestore, storage)
 
     @Provides
     fun provideReplyRemoteDataSource(firestore: FirebaseFirestore): ReplyRemoteDataSource
