@@ -106,8 +106,15 @@ class NewChatViewModel @Inject  constructor(
                 chatId
             ).collect {
                 createNewChatState.value = it
+
             }
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        createNewChatState.value = State.Idle
+        _users.value = emptyList()
     }
 
 

@@ -25,6 +25,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 import com.gp.auth.ui.AuthenticationActivity
 import com.gp.socialapp.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -34,7 +36,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
     lateinit var drawerLayout: DrawerLayout
-        lateinit var binding: ActivityMainBinding
+    lateinit var binding: ActivityMainBinding
     lateinit var navView: NavigationView
     lateinit var bottomNavigationView: BottomNavigationView
     lateinit var toolbar: Toolbar
@@ -50,7 +52,7 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         FirebaseApp.initializeApp(this)
-
+        Firebase.database.setPersistenceEnabled(true)
 
         drawerLayout = findViewById(R.id.drawerLayout)
         navView = findViewById(R.id.nav_view)
@@ -60,21 +62,24 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
         setSupportActionBar(toolbar)
 
-        navHostFragment= supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
-        navController= navHostFragment.findNavController()
-        appBarConfiguration= AppBarConfiguration(setOf(
-            R.id.post_nav_graph,
-            R.id.chat_nav_graph,
-        ),drawerLayout)
+        navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
+        navController = navHostFragment.findNavController()
+        appBarConfiguration = AppBarConfiguration(
+            setOf(
+                R.id.post_nav_graph,
+                R.id.chat_nav_graph,
+            ), drawerLayout
+        )
 
-        setupActionBarWithNavController(navController,appBarConfiguration)
+        setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
         bottomNavigationView.setupWithNavController(navController)
 
 
         navView.setNavigationItemSelectedListener {
-            when(it.itemId){
-                R.id.logout->{
+            when (it.itemId) {
+                R.id.logout -> {
                     currentUser.signOut()
                     val intent = Intent(this, AuthenticationActivity::class.java)
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
@@ -83,52 +88,71 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
                     finish()
                     return@setNavigationItemSelectedListener true
                 }
-                R.id.Announcement->{
+
+                R.id.Announcement -> {
 
                     return@setNavigationItemSelectedListener true
                 }
-                R.id.Material->{
+
+                R.id.Material -> {
                     return@setNavigationItemSelectedListener true
                 }
-                else->{
+
+                else -> {
                     navController.navigate(it.itemId)
                     drawerLayout.closeDrawer(GravityCompat.START)
                     return@setNavigationItemSelectedListener true
                 }
             }
         }
-    navController.addOnDestinationChangedListener{_,destination,_->
+        navController.addOnDestinationChangedListener { _, destination, _ ->
 
-        when (destination.id){
-            com.gp.chat.R.id.privateChatFragment->{
-                hideBottomNav()
-            }
-            com.gp.posts.R.id.suggest_post->{
-                hideBottomNav()
-            }
-            com.gp.posts.R.id.searchFragment2->{
-                hideBottomNav()
-            }
+            when (destination.id) {
+                com.gp.chat.R.id.privateChatFragment -> {
+                    hideBottomNav()
+                    toolbar.menu.clear()
 
-            com.gp.posts.R.id.createPostFragment->{
-                hideBottomNav()
-                appBarLayout.visibility=View.GONE
+                }
 
-            }
-            com.gp.posts.R.id.postDetailsFragment->{
-                hideBottomNav()
-            }
-            else->{
-                showBottomNav()
-                appBarLayout.visibility=View.VISIBLE
+                com.gp.chat.R.id.groupChatFragment -> {
+                    hideBottomNav()
+                    toolbar.menu.clear()
+
+                }
+
+                com.gp.posts.R.id.suggest_post -> {
+                    hideBottomNav()
+                }
+
+                com.gp.posts.R.id.searchFragment2 -> {
+                    hideBottomNav()
+                }
+
+                com.gp.posts.R.id.createPostFragment -> {
+                    hideBottomNav()
+                    appBarLayout.visibility = View.GONE
+
+                }
+
+                com.gp.posts.R.id.postDetailsFragment -> {
+                    hideBottomNav()
+                }
+
+                com.gp.chat.R.id.fullScreenImageDialogFragment -> {
+                    hideBottomNav()
+                }
+
+                else -> {
+                    showBottomNav()
+                    appBarLayout.visibility = View.VISIBLE
+                }
             }
         }
-    }
     }
 
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.search_menu,menu)
+        menuInflater.inflate(R.menu.search_menu, menu)
         val searchManager = getSystemService(SEARCH_SERVICE) as SearchManager
         val searchItem = menu?.findItem(R.id.search_Fragment)
         val searchView = searchItem?.actionView as SearchView
@@ -141,8 +165,8 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
     }
 
     override fun onQueryTextSubmit(query: String?): Boolean {
-        val currentFragment= navHostFragment.childFragmentManager.fragments[0]
-        if(currentFragment is com.gp.posts.SearchFragment){
+        val currentFragment = navHostFragment.childFragmentManager.fragments[0]
+        if (currentFragment is com.gp.posts.SearchFragment) {
             currentFragment.navigateToFinalResult(query)
 
         }
@@ -150,12 +174,13 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
     }
 
     override fun onQueryTextChange(newText: String?): Boolean {
-        val currentFragment= navHostFragment.childFragmentManager.fragments[0]
-        when(currentFragment){
-            is com.gp.posts.SearchFragment->{
+        val currentFragment = navHostFragment.childFragmentManager.fragments[0]
+        when (currentFragment) {
+            is com.gp.posts.SearchFragment -> {
                 currentFragment.updateSearchQuery(newText)
             }
-            is com.gp.posts.presentation.postsSearch.SearchResultsFragment->{
+
+            is com.gp.posts.presentation.postsSearch.SearchResultsFragment -> {
                 currentFragment.backToSuggest(newText)
 
 
@@ -165,20 +190,23 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
-            R.id.search_Fragment->{
+        when (item.itemId) {
+            R.id.search_Fragment -> {
                 navController.navigate(com.gp.posts.R.id.suggest_post)
                 return true
             }
-            else->{
+
+            else -> {
                 return false
             }
         }
 
     }
+
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
+
     override fun onBackPressed() {
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START)
@@ -187,25 +215,25 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
         }
     }
 
-    fun hideBottomNav(){
-        val params=bottomNavigationView.layoutParams as ViewGroup.LayoutParams
+    fun hideBottomNav() {
+        val params = bottomNavigationView.layoutParams as ViewGroup.LayoutParams
         val dpToPx = resources.displayMetrics.density // Conversion factor
         val heightInPixels = (0 * dpToPx).toInt()
-        params.height=heightInPixels
-        bottomNavigationView.layoutParams=params
-        binding.appBarMain.contentInAppBarMain.height=heightInPixels
-        bottomNavigationView.visibility= View.GONE
-    }
-    fun showBottomNav(){
-        val params=bottomNavigationView.layoutParams as ViewGroup.LayoutParams
-        val dpToPx = resources.displayMetrics.density // Conversion factor
-        val heightInPixels = (80 * dpToPx).toInt()
-        params.height=heightInPixels
-        bottomNavigationView.layoutParams=params
-        binding.appBarMain.contentInAppBarMain.height=heightInPixels
-        bottomNavigationView.visibility= View.VISIBLE
+        params.height = heightInPixels
+        bottomNavigationView.layoutParams = params
+        binding.appBarMain.contentInAppBarMain.height = heightInPixels
+        bottomNavigationView.visibility = View.GONE
     }
 
+    fun showBottomNav() {
+        val params = bottomNavigationView.layoutParams as ViewGroup.LayoutParams
+        val dpToPx = resources.displayMetrics.density // Conversion factor
+        val heightInPixels = (80 * dpToPx).toInt()
+        params.height = heightInPixels
+        bottomNavigationView.layoutParams = params
+        binding.appBarMain.contentInAppBarMain.height = heightInPixels
+        bottomNavigationView.visibility = View.VISIBLE
+    }
 
 
 }

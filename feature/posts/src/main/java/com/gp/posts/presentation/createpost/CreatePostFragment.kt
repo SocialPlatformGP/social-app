@@ -1,5 +1,7 @@
 package com.gp.posts.presentation.createpost
 
+import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
@@ -12,6 +14,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -26,9 +30,14 @@ import com.github.dhaval2404.colorpicker.model.ColorSwatch
 import com.google.android.material.chip.Chip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.gp.material.utils.FileUtils.getEnumMimeTypeFromUri
+import com.gp.material.utils.FileUtils.getFileName
 import com.gp.posts.R
 import com.gp.posts.databinding.DialogAddTagBinding
 import com.gp.posts.databinding.FragmentCreatePostBinding
+import com.gp.posts.listeners.OnFilePreviewClicked
+import com.gp.socialapp.database.model.MimeType
+import com.gp.socialapp.database.model.PostFile
 import com.gp.socialapp.model.Tag
 import com.gp.socialapp.utils.State
 import dagger.hilt.android.AndroidEntryPoint
@@ -36,11 +45,27 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class CreatePostFragment : Fragment() {
+class CreatePostFragment : Fragment(), OnFilePreviewClicked {
     private val viewModel: CreatePostViewModel by viewModels()
     lateinit var binding: FragmentCreatePostBinding
     lateinit var addTagBinding: DialogAddTagBinding
     private val args: CreatePostFragmentArgs by navArgs()
+    private val openFileResultLauncher = registerForActivityResult(ActivityResultContracts.GetMultipleContents())
+    { list ->
+        list.forEach {uri ->
+            if(viewModel.uiState.value.files.any { it.uri == uri }){
+                makeSnackbar("This File is already added!", Snackbar.LENGTH_LONG)
+            } else {
+                viewModel.addFile(
+                    PostFile(
+                        uri = uri,
+                        name = getFileName(uri, requireContext()),
+                        type = getEnumMimeTypeFromUri(uri, requireContext())
+                    )
+                )
+            }
+        }
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -50,20 +75,50 @@ class CreatePostFragment : Fragment() {
         binding.lifecycleOwner = this
         binding.viewmodel = viewModel
         binding.fragment = this
+        binding.context = requireContext()
+        binding.onFilePreviewsClicked = this
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.setType(args.type)
-
         addCancelPressedCollector()
+        addPostFilesChangeCollector()
+    }
 
+    private fun addPostFilesChangeCollector() {
+        lifecycleScope.launch {
+            viewModel.uiState.flowWithLifecycle(lifecycle).distinctUntilChanged { old, new ->
+                old.files == new.files
+            }.collect{
+                if(it.files.isEmpty()){
+                    binding.buttonOpenFile.isEnabled = true
+                    binding.buttonOpenImage.isEnabled = true
+                    binding.buttonOpenVideo.isEnabled = true
+                } else if (it.files.first().type in listOf(MimeType.IMAGE, MimeType.JPEG, MimeType.PNG, MimeType.GIF
+                        , MimeType.TIFF, MimeType.WEBP, MimeType.BMP)) {
+                    binding.buttonOpenFile.isEnabled = false
+                    binding.buttonOpenImage.isEnabled = true
+                    binding.buttonOpenVideo.isEnabled = false
+                } else if (it.files.first().type in listOf(MimeType.VIDEO, MimeType.MKV, MimeType.AVI, MimeType.MP4,
+                        MimeType.MOV, MimeType.WMV)) {
+                    binding.buttonOpenFile.isEnabled = false
+                    binding.buttonOpenImage.isEnabled = false
+                    binding.buttonOpenVideo.isEnabled = true
+                } else {
+                    binding.buttonOpenFile.isEnabled = true
+                    binding.buttonOpenImage.isEnabled = false
+                    binding.buttonOpenVideo.isEnabled = false
+                }
+            }
+        }
     }
 
     fun onPostClick() {
-        viewModel.insertNewTags(getAllTags())
-        viewModel.uiState.value.tags = getAllTags()
+        val tags = getAllTags()
+        viewModel.insertNewTags(tags)
+        viewModel.uiState.value.tags = tags
         addCreatedStateCollector()
         viewModel.onCreatePost()
     }
@@ -80,16 +135,19 @@ class CreatePostFragment : Fragment() {
                             getString(R.string.post_created_successfully),
                             Snackbar.LENGTH_LONG
                         )
+                        hideProgressBar()
                     }
 
                     is State.Error -> {
+                        hideProgressBar()
                         makeSnackbar(
                             (uiState.createdState as State.Error).message,
                             Snackbar.LENGTH_LONG
                         )
-                        //TODO("Provide an informative error message to the user")
                     }
-
+                    is State.Loading ->{
+                        showProgressBar()
+                    }
                     else -> {}
                 }
             }
@@ -237,6 +295,15 @@ class CreatePostFragment : Fragment() {
         }
         return tags
     }
+    fun onOpenImageClick(){
+        openFileResultLauncher.launch(MimeType.IMAGE.value)
+    }
+    fun onOpenVideoClick(){
+        openFileResultLauncher.launch(MimeType.VIDEO.value)
+    }
+    fun onOpenFileClick(){
+        openFileResultLauncher.launch(MimeType.ALL_FILES.value)
+    }
 
     private fun makeSnackbar(message: String, duration: Int) {
         Snackbar.make(
@@ -245,5 +312,28 @@ class CreatePostFragment : Fragment() {
             message,
             duration
         ).show()
+    }
+
+    @SuppressLint("QueryPermissionsNeeded")
+    override fun onFilePreviewClicked(file: PostFile) {
+        Log.d("zarea5", "File Preview ${file.uri}")
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.setDataAndType(file.uri, file.type.value)
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        if (intent.resolveActivity(requireContext().packageManager) != null) {
+           requireContext().startActivity(intent)
+        } else {
+            makeSnackbar("No app available to open this file format!", Snackbar.LENGTH_SHORT)
+        }
+    }
+
+    override fun onFileRemoveClicked(file: PostFile) {
+        viewModel.removeFile(file)
+    }
+    private fun showProgressBar(){
+        binding.progressIndicator.visibility = View.VISIBLE
+    }
+    private fun hideProgressBar(){
+        binding.progressIndicator.visibility = View.INVISIBLE
     }
 }

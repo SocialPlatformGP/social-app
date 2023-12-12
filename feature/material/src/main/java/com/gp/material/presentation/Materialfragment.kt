@@ -18,6 +18,7 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -46,7 +47,11 @@ class materialfragment : Fragment(), ClickOnFileClicKListener {
     private val viewModel: MaterialViewModel by viewModels()
     private lateinit var adapter: MaterialAdapter
     private lateinit var dialog: BottomSheetDialog
-
+    private val actionUpload= registerForActivityResult(ActivityResultContracts.GetContent()){
+        it?.let {
+            viewModel.uploadFile(it,requireContext())
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -83,12 +88,10 @@ class materialfragment : Fragment(), ClickOnFileClicKListener {
 
 
         binding.addMaterial.setOnClickListener {
-
             val uploadImage = view.findViewById<Button>(R.id.uploadImage)
             uploadImage.setOnClickListener {
-                val intentImage = Intent(Intent.ACTION_PICK)
-                intentImage.type = "*/*"
-                startActivityForResult(intentImage, PICK_FILE_REQUEST)
+                actionUpload.launch("*/*")
+                dialog.dismiss()
             }
 
 
@@ -222,17 +225,7 @@ class materialfragment : Fragment(), ClickOnFileClicKListener {
 
 
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == PICK_FILE_REQUEST && resultCode == Activity.RESULT_OK) {
-            val selectedFileUri: Uri? = data?.data
-            if (selectedFileUri != null) {
-                runBlocking {
-                    viewModel.uploadFile(selectedFileUri, requireContext())
-                }
-            }
-        }
-    }
+
 
 }
 

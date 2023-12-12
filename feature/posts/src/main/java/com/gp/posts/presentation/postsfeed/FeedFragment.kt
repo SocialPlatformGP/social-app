@@ -22,17 +22,22 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.chip.Chip
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.gp.material.utils.FileManager
 import com.gp.posts.R
 import com.gp.posts.adapter.FeedPostAdapter
 import com.gp.posts.adapter.StateWIthLifeCycle
 import com.gp.posts.databinding.BottomSheetFeedOptionsBinding
 import com.gp.posts.databinding.FragmentFeedBinding
 import com.gp.posts.listeners.OnFeedOptionsClicked
+import com.gp.posts.listeners.OnFileClickedListener
 import com.gp.posts.listeners.OnMoreOptionClicked
 import com.gp.posts.listeners.OnTagClicked
 import com.gp.posts.listeners.VotesClickedListenerPost
+import com.gp.socialapp.database.model.MimeType
+import com.gp.socialapp.database.model.PostAttachment
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.model.Reply
 import com.gp.socialapp.model.Tag
@@ -41,7 +46,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked, OnFeedOptionsClicked , OnTagClicked{
+class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked, OnFeedOptionsClicked , OnTagClicked, OnFileClickedListener{
     lateinit var  binding:FragmentFeedBinding
     lateinit var  feedAdapter: FeedPostAdapter
     private val viewModel: FeedPostViewModel by viewModels()
@@ -64,7 +69,7 @@ class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked,
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        feedAdapter = FeedPostAdapter(this, this, this, requireContext())
+        feedAdapter = FeedPostAdapter(this, this, this, this, requireContext())
         binding.postsRecyclerView.apply {
             adapter = feedAdapter
             itemAnimator = null
@@ -80,7 +85,6 @@ class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked,
                         )
                         val vipData = currentState.data.filter { it.type != "vip" }
                         feedAdapter.submitList(vipData)
-                        feedAdapter.notifyDataSetChanged()
                     }
 
                     is State.Loading -> {
@@ -92,10 +96,14 @@ class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked,
                 }
             }
 
-            binding.floatingActionButton.setOnClickListener {
-                val action = MainFeedFragmentDirections.mainFeedFragment2ToCreatePostFragment("all")
-                findNavController().navigate(action)
-            }
+
+        }
+        binding.floatingActionButton.setOnClickListener {
+            Log.d("TAG258", "onViewCreated:all  ")
+
+            val action =
+                MainFeedFragmentDirections.actionMainFeedFragment2ToCreatePostFragment("all")
+            findNavController().navigate(action)
         }
     }
 
@@ -223,6 +231,11 @@ class FeedFragment : Fragment() , VotesClickedListenerPost, OnMoreOptionClicked,
     override fun onTagClicked(tag: Tag) {
         val action = MainFeedFragmentDirections.mainFeedFragment2ToSearchFragment2(tag.label, true)
         findNavController().navigate(action)
+    }
+
+    override fun onFileClicked(attachment: PostAttachment) {
+        val fileManager = FileManager(requireContext())
+        fileManager.downloadFile(attachment.url, attachment.name, MimeType.findByReadableType(attachment.type).value)
     }
 
 

@@ -1,5 +1,7 @@
 package com.gp.chat.util
 
+import android.util.Log
+import androidx.core.net.toUri
 import com.gp.chat.model.ChatGroup
 import com.gp.chat.model.ChatUser
 import com.gp.chat.model.Message
@@ -17,12 +19,14 @@ object ChatMapper {
 
     fun ChatGroup.toNetworkChatGroup() = NetworkChatGroup(
         name = name,
+        picURL = picURL,
         members = members
     )
 
     fun NetworkChatGroup.toChatGroup(id: String) = ChatGroup(
         id = id,
         name = name,
+        picURL = picURL,
         members = members
     )
 
@@ -43,7 +47,10 @@ object ChatMapper {
         timestamp = timestamp,
         messageDate = messageDate,
         senderName = senderName,
-        senderPfpURL = senderPfpURL
+        senderPfpURL = senderPfpURL,
+        fileURI = fileURI.toString(),
+        fileType = fileType,
+        fileNames = fileNames
     )
 
     fun NetworkMessage.toModel(id: String,groupId:String) = Message(
@@ -54,7 +61,10 @@ object ChatMapper {
         timestamp = timestamp,
         messageDate = messageDate,
         senderName = senderName,
-        senderPfpURL = senderPfpURL
+        senderPfpURL = senderPfpURL,
+        fileURI = fileURI.toUri(),
+        fileType = fileType,
+        fileNames = fileNames
     )
 
 
@@ -66,19 +76,27 @@ object ChatMapper {
         senderName = senderName,
         receiverName = receiverName,
         privateChat = privateChat,
-        picUrl = picUrl
+        senderPicUrl = senderPicUrl,
+        receiverPicUrl = receiverPicUrl,
     )
 
-    fun NetworkRecentChat.toRecentChat(id: String) = RecentChat(
-        id = id,
-        lastMessage = lastMessage,
-        timestamp = timestamp,
-        title = title,
-        senderName = senderName,
-        receiverName = receiverName,
-        privateChat = privateChat,
-        picUrl = picUrl
-    )
+    fun NetworkRecentChat.toRecentChat(id: String) :RecentChat{
+        Log.d("zarea5","toRecentChat"+privateChat)
+       return RecentChat(
+            id = id,
+            lastMessage = lastMessage,
+            timestamp = timestamp,
+            title = title,
+            senderName = senderName,
+            receiverName = receiverName,
+            privateChat = privateChat,
+            senderPicUrl = senderPicUrl,
+            receiverPicUrl = receiverPicUrl,
+        )
+
+
+    }
+
 
 
     fun PrivateChats.toNetworkPrivateChats() = PrivateChatsNetwork(
@@ -95,7 +113,8 @@ object ChatMapper {
         "senderName" to senderName,
         "receiverName" to receiverName,
         "privateChat" to privateChat,
-        "picUrl" to picUrl
+        "senderPicUrl" to senderPicUrl,
+        "receiverPicUrl" to receiverPicUrl,
     )
 
 

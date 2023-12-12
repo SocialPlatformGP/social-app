@@ -31,6 +31,7 @@ lateinit var  binding :FragmentMainFeedBinding
         super.onViewCreated(view, savedInstanceState)
         val adapter = ViewPagerAdapter(childFragmentManager, lifecycle)
         binding.viewPager.adapter = adapter
+        binding.viewPager.isUserInputEnabled = false
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             tab.text = taps[position]
         }.attach()

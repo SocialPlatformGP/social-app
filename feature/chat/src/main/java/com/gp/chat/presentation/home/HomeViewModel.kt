@@ -1,6 +1,8 @@
 package com.gp.chat.presentation.home
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.ktx.auth
@@ -14,39 +16,47 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 import javax.inject.Inject
 
+@RequiresApi(Build.VERSION_CODES.O)
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val messageRepository: MessageRepository
-):ViewModel(){
+) : ViewModel() {
 
-    private val userEmail =Firebase.auth.currentUser?.email!!
+    private val userEmail = Firebase.auth.currentUser?.email!!
 
     private val _recentChats = MutableStateFlow<List<RecentChat>>(emptyList())
     val recentChats = _recentChats.asStateFlow()
-    private val chats = mutableListOf("-1")
-    init{
+
+    init {
         getChatsForUser()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun getChatsForUser() {
         viewModelScope.launch(Dispatchers.IO) {
             messageRepository.getUserChats(
                 removeSpecialCharacters(userEmail)
             ).collect {
-                when(it){
-                    is State.SuccessWithData->{
+                when (it) {
+                    is State.SuccessWithData -> {
                         getRecentChats(it.data.groups.keys.toList())
 
                     }
-                    is State.Error->{
+
+                    is State.Error -> {
 
                     }
-                    is State.Loading->{
+
+                    is State.Loading -> {
 
                     }
-                    else-> {
+
+                    else -> {
 
                     }
                 }
@@ -55,22 +65,32 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getRecentChats(chatId:List<String>){
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getRecentChats(chatId: List<String>) {
         Log.d("testoVmHome", "getRecentChats: $chatId")
         viewModelScope.launch {
-            messageRepository.getRecentChats(chatId).collect{
-                when(it){
-                    is State.SuccessWithData->{
+            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z", Locale.ENGLISH)
+
+            messageRepository.getRecentChats(chatId).collect {
+                when (it) {
+                    is State.SuccessWithData -> {
                         Log.d("testoVmHome", "getRecentChats: ${it.data}")
-                        _recentChats.value=it.data
+                        if (it.data.isNotEmpty()) {
+                            _recentChats.value =
+
+                                it.data.sortedByDescending { ZonedDateTime.parse(it.timestamp, formatter) }
+                        }
                     }
-                    is State.Error->{
+
+                    is State.Error -> {
 
                     }
-                    is State.Loading->{
+
+                    is State.Loading -> {
 
                     }
-                    else-> {
+
+                    else -> {
 
                     }
                 }
@@ -78,7 +98,8 @@ class HomeViewModel @Inject constructor(
         }
 
     }
-    fun leaveGroup(chatId: String){
+
+    fun leaveGroup(chatId: String) {
         messageRepository.leaveGroup(chatId)
     }
 }

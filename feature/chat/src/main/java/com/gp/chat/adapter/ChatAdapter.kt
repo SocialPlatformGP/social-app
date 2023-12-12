@@ -3,6 +3,7 @@ package com.gp.chat.adapter
 
 import android.content.Context
 import android.system.Os.remove
+import android.util.Log
 import android.view.ContextMenu
 import android.view.LayoutInflater
 import android.view.Menu
@@ -10,6 +11,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView.OnItemLongClickListener
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
@@ -17,6 +19,8 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.gp.chat.R
@@ -27,7 +31,7 @@ import com.gp.chat.listener.OnRecentChatClicked
 import com.gp.chat.model.RecentChat
 import com.gp.chat.util.RemoveSpecialChar.removeSpecialCharacters
 
-class ChatAdapter(private var onItemClickListener: OnRecentChatClicked) :
+class ChatAdapter(var onItemClickListener: OnRecentChatClicked) :
     ListAdapter<RecentChat, ChatAdapter.ChatViewHolder>(DiffUtilCallBack) {
 
     inner class ChatViewHolder(val binding: ChatitemBinding) :
@@ -36,6 +40,23 @@ class ChatAdapter(private var onItemClickListener: OnRecentChatClicked) :
 
         fun bind(chat: RecentChat) {
             binding.chat = chat
+            val currentUser = Firebase.auth.currentUser?.displayName.toString()
+            Log.d("zarea5", "bind: ${chat.privateChat}")
+            if(chat.privateChat) {
+                if (chat.senderName == currentUser) {
+                    binding.name.text = chat.receiverName
+                    loadWithGlide(binding.profileImage, chat.receiverPicUrl)
+                } else {
+                    binding.name.text = chat.senderName
+                    loadWithGlide(binding.profileImage, chat.senderPicUrl)
+                }
+            } else {
+                binding.name.text = chat.title
+                loadWithGlide(binding.profileImage, chat.senderPicUrl)
+            }
+
+
+
             binding.executePendingBindings()
 
             itemView.setOnLongClickListener {
@@ -47,10 +68,8 @@ class ChatAdapter(private var onItemClickListener: OnRecentChatClicked) :
 
             itemView.setOnClickListener {
                 onItemClickListener.onRecentChatClicked(
-                    chatId = chat.id,
-                    receiverName = chat.receiverName,
-                    senderName = chat.senderName,
-                    isPrivateChat = chat.privateChat
+                    recentChat = chat,
+
                 )
             }
         }
@@ -83,7 +102,17 @@ class ChatAdapter(private var onItemClickListener: OnRecentChatClicked) :
         }
         popupMenu.show()
     }
+
+    private fun loadWithGlide(view: ImageView, url: String, isCircular: Boolean = true) {
+        Glide.with(view.context).load(url).into(view)
+        var requestBuilder = Glide.with(view.context).load(url)
+        if (isCircular) {
+            requestBuilder = requestBuilder.transform(CircleCrop())
+        }
+        requestBuilder.into(view)
+    }
 }
+
 
 object DiffUtilCallBack : DiffUtil.ItemCallback<RecentChat>() {
     override fun areItemsTheSame(oldItem: RecentChat, newItem: RecentChat): Boolean {

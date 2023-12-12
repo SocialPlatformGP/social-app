@@ -36,7 +36,9 @@ class VipFeedViewModel @Inject constructor(
     val isSortedByNewest = MutableStateFlow(true)
 
     fun getAllPosts() {
+
         viewModelScope.launch(Dispatchers.IO) {
+
             _uiState.value = State.Loading
             repository.getAllLocalPosts().collect { posts ->
                 val sortedPosts = if(isSortedByNewest.value){

@@ -1,32 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="4dp">
-
+    android:layout_margin="4dp"
+>
 
 
     <!-- CardView for displaying chat conversations -->
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:backgroundTint="#001F25"
         app:cardCornerRadius="8dp"
         app:cardElevation="4dp"
-        app:contentPadding="8dp"
-        app:cardBackgroundColor="#ffffff"
+        app:contentPadding="4dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/chatListRecyclerView"
             android:layout_width="match_parent"
-            android:orientation="vertical"
+            android:layout_height="match_parent"
             android:background="?attr/selectableItemBackground"
-            tools:listitem="@layout/chatitem"
+            android:orientation="vertical"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            android:layout_height="match_parent" />
+            tools:listitem="@layout/chatitem" />
 
     </androidx.cardview.widget.CardView>
 

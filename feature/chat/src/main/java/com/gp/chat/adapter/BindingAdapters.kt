@@ -2,7 +2,6 @@ package com.gp.chat.adapter
 
 import android.content.Context
 import android.graphics.drawable.Drawable
-import android.widget.Button
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
@@ -11,10 +10,8 @@ import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
-import com.google.firebase.ktx.Firebase
 import com.gp.chat.R
 import com.gp.chat.listener.OnGroupMembersChangeListener
-import com.gp.chat.model.RecentChat
 import com.gp.users.model.User
 
 @BindingAdapter("chat:imageUrl")
@@ -34,7 +31,7 @@ fun setSelectedMembers(view: ChipGroup, selectedMembers: List<User>, context: Co
     view.removeAllViews()
     if (view.childCount==0) {
         selectedMembers.forEach {user ->
-            val label = "${user.firstName} ${user.lastName}"
+            val label = user.firstName
             val chip = Chip(context)
             chip.text = label
             chip.textSize = 14f
