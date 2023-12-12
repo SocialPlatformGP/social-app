@@ -99,10 +99,13 @@ class MaterialViewModel @Inject constructor(
     }
 
 
+
     fun clearData(){
         _fileItems.value= emptyList()
         _folderItems.value= emptyList()
     }
+
+
 
 
     fun getCurrentPath():String{
@@ -117,6 +120,7 @@ class MaterialViewModel @Inject constructor(
             FileType.UnKnown
         }
     }
+
 
 
     private fun createMaterialItemFromPrefix(prefix: StorageReference): MaterialItem {
@@ -144,6 +148,7 @@ class MaterialViewModel @Inject constructor(
     }
 
 
+
     fun deleteFolder(currentPath:String){
         remoteDataSource.deleteFolder(currentPath)
     }
@@ -154,6 +159,7 @@ class MaterialViewModel @Inject constructor(
     fun deleteFile(fileLocation: String) {
         remoteDataSource.deleteFile(fileLocation)
     }
+
 
 
 
