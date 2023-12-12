@@ -3,11 +3,11 @@ package com.gp.chat.utils
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
-import com.gp.chat.adapter.GroupMessageAdapter
+import com.gp.chat.adapter.MessageAdapter
 
 class MyScrollToBottomObserver(
     private val recycler: RecyclerView,
-    private val adapter: GroupMessageAdapter,
+    private val adapter: MessageAdapter,
     private val manager: LinearLayoutManager
 ) : AdapterDataObserver() {
     override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {

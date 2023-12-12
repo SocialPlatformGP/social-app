@@ -1,4 +1,4 @@
-package com.gp.chat.adapter
+ package com.gp.chat.adapter
 
 import android.media.MediaPlayer
 import android.net.Uri
@@ -11,7 +11,6 @@ import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
@@ -34,7 +33,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
-class GroupMessageAdapter(
+class MessageAdapter(
     private val messageClickListener: OnMessageClickListener,
     private val fileClickListener: OnFileClickListener,
     private val imageClickListener: ImageClickListener,

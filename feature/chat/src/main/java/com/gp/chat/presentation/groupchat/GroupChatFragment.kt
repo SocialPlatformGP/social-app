@@ -1,6 +1,7 @@
 package com.gp.chat.presentation.groupchat
 
 import android.content.DialogInterface
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,6 +12,7 @@ import androidx.appcompat.app.AlertDialog
 import android.view.ViewTreeObserver
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -20,11 +22,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import com.gp.chat.R
-import com.gp.chat.adapter.GroupMessageAdapter
+import com.gp.chat.adapter.MessageAdapter
 import com.gp.chat.databinding.FragmentGroupChatBinding
 import com.gp.chat.listener.ImageClickListener
 import com.gp.chat.listener.OnMessageClickListener
@@ -44,6 +43,7 @@ class GroupChatFragment : Fragment(), OnMessageClickListener, OnFileClickListene
     private lateinit var binding: FragmentGroupChatBinding
     private val args: GroupChatFragmentArgs by navArgs()
     private lateinit var fileManager: FileManager
+    @RequiresApi(Build.VERSION_CODES.O)
     private val openDocument =
         registerForActivityResult(ActivityResultContracts.GetMultipleContents()) {
             it?.let {
@@ -56,6 +56,7 @@ class GroupChatFragment : Fragment(), OnMessageClickListener, OnFileClickListene
 
             }
         }
+    @RequiresApi(Build.VERSION_CODES.O)
     private val openGallery = registerForActivityResult(ActivityResultContracts.PickVisualMedia())
     {
         it?.let { uri ->
@@ -76,11 +77,12 @@ class GroupChatFragment : Fragment(), OnMessageClickListener, OnFileClickListene
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.setData(args.groupId, args.title, args.photoUrl)
         val recyclerView = binding.recyclerMessage
-        val adapter = GroupMessageAdapter(this, this, this, false)
+        val adapter = MessageAdapter(this, this, this, false)
         val manager = LinearLayoutManager(requireContext())
         manager.stackFromEnd = true
 

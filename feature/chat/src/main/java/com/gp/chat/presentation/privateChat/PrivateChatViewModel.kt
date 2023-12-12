@@ -2,6 +2,8 @@ package com.gp.chat.presentation.privateChat
 
 import android.annotation.SuppressLint
 import android.net.Uri
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.ktx.auth
@@ -17,8 +19,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
+import java.time.ZonedDateTime
+import java.time.ZonedDateTime.now
+import java.time.format.DateTimeFormatter
 import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 
@@ -39,6 +44,7 @@ class PrivateChatViewModel @Inject constructor(
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
     val messages = _messages.asStateFlow()
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun setData(
         chatId: String,
         senderName: String,
@@ -56,8 +62,12 @@ class PrivateChatViewModel @Inject constructor(
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun getMessages() {
         viewModelScope.launch(Dispatchers.IO) {
+                        val currentTime: ZonedDateTime =now()
+            val  formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z", Locale.ENGLISH)
+            val formatted = currentTime.format(formatter)
             messageRepository.getMessages(chatId).collect {
                 when (it) {
                     is State.SuccessWithData -> {
@@ -65,6 +75,7 @@ class PrivateChatViewModel @Inject constructor(
                     }
 
                     is State.Error -> {
+
                         if (it.message == "No messages found") {
                             messageRepository.insertRecentChat(
                                 RecentChat(
@@ -74,7 +85,7 @@ class PrivateChatViewModel @Inject constructor(
                                     receiverName = receiverName,
                                     receiverPicUrl = receiverPic,
                                     lastMessage = "No messages yet",
-                                    timestamp = getTimeStamp(Date()),
+                                    timestamp = formatted,
                                     title = "private chat",
                                     privateChat = true
                                 ), chatId
@@ -89,19 +100,23 @@ class PrivateChatViewModel @Inject constructor(
     }
 
     @SuppressLint("SimpleDateFormat")
+    @RequiresApi(Build.VERSION_CODES.O)
     fun sendMessage() {
         if (currentMessage.value.message.isEmpty() && currentMessage.value.fileTypes == "text") {
             return
         } else {
+            val currentTime: ZonedDateTime =now()
+            val  formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z", Locale.ENGLISH)
+            val formatted = currentTime.format(formatter)
             viewModelScope.launch(Dispatchers.IO) {
                 val message = Message(
                     senderId = currentEmail,
                     senderName = currentUser?.displayName!!,
                     senderPfpURL = currentUser?.photoUrl.toString(),
                     groupId = chatId,
-                    messageDate = SimpleDateFormat("MMMM dd, yyyy").format(Date()),
+                    messageDate = DateTimeFormatter.ofPattern("MMM dd, yyyy", Locale.ENGLISH).format(currentTime),
                     message = currentMessage.value.message,
-                    timestamp = getTimeStamp(Date()),
+                    timestamp = formatted,
                     fileURI = currentMessage.value.fileUri ,
                     fileType = currentMessage.value.fileTypes ,
                     fileNames = currentMessage.value.fileName
@@ -109,7 +124,7 @@ class PrivateChatViewModel @Inject constructor(
 
                 messageRepository.sendMessage(message).collect {
                     if (it is State.SuccessWithData) {
-                        updateRecent()
+                        updateRecent(message.timestamp)
                     }
 
                 }
@@ -118,6 +133,7 @@ class PrivateChatViewModel @Inject constructor(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun sendFile(uri: Uri, type: String, fileName: String) {
         currentMessage.value = currentMessage.value.copy(
             fileName = fileName,
@@ -127,8 +143,11 @@ class PrivateChatViewModel @Inject constructor(
         sendMessage()
     }
 
-    private fun updateRecent() {
-        viewModelScope.launch(Dispatchers.IO) {
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun updateRecent(timestamp: String) {
+
+        viewModelScope.launch (Dispatchers.IO){
             val recentChat = RecentChat(
                 lastMessage =
                 if (currentMessage.value.fileTypes == "text") {
@@ -136,7 +155,7 @@ class PrivateChatViewModel @Inject constructor(
                 } else {
                     currentMessage.value.fileName
                 },
-                timestamp = Date().toString(),
+                timestamp = timestamp,
                 title = "private chat",
                 privateChat = true,
                 receiverName = receiverName,

@@ -4,7 +4,9 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bumptech.glide.Glide.init
+import com.gp.chat.model.ChatGroup
 import com.gp.chat.repository.MessageRepository
+import com.gp.chat.util.RemoveSpecialChar
 import com.gp.socialapp.utils.State
 import com.gp.users.model.User
 import com.gp.users.repository.UserRepository
@@ -20,14 +22,18 @@ class GroupDetailsViewModel @Inject constructor(private val userRepo: UserReposi
     private val messageRepo: MessageRepository): ViewModel() {
     private val _users = MutableStateFlow<List<User>>(emptyList())
     val users = _users.asStateFlow()
+    val groupDetails = MutableStateFlow(ChatGroup())
 
     fun getUsersList(key: String) {
         viewModelScope.launch (Dispatchers.IO){
-            messageRepo.getGroupMembersEmails(key).collect{
+            messageRepo.getGroupDetails(key).collect{
                 when(it){
                     is State.SuccessWithData -> {
                         Log.d("seerde", "1: ${it.data}")
-                        userRepo.getUsersByEmails(it.data).collect{
+                        groupDetails.value = it.data
+                        userRepo.getUsersByEmails(
+                            it.data.members.keys.map{RemoveSpecialChar.restoreOriginalEmail(it)}
+                        ).collect{
                             when(it) {
                                 is State.SuccessWithData -> {
                                     Log.d("seerde", "2: ${it.data}")

@@ -17,6 +17,5 @@ import javax.inject.Singleton
 object RemoteSourceModule {
     @Provides
     fun provideUserRemoteDataSource(firestore: FirebaseFirestore, auth: FirebaseAuth, storage: FirebaseStorage): UserRemoteDataSource = UserfirestoreClient(firestore, auth, storage)
-    @Provides
-    fun provideStorageReference(): FirebaseStorage = FirebaseStorage.getInstance()
+
 }
