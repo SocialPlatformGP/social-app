@@ -316,6 +316,7 @@ class CreatePostFragment : Fragment(), OnFilePreviewClicked {
 
     @SuppressLint("QueryPermissionsNeeded")
     override fun onFilePreviewClicked(file: PostFile) {
+        Log.d("zarea5", "File Preview ${file.uri}")
         val intent = Intent(Intent.ACTION_VIEW)
         intent.setDataAndType(file.uri, file.type.value)
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)

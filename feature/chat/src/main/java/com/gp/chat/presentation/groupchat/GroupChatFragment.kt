@@ -22,11 +22,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import com.gp.chat.R
-import com.gp.chat.adapter.GroupMessageAdapter
+import com.gp.chat.adapter.MessageAdapter
 import com.gp.chat.databinding.FragmentGroupChatBinding
 import com.gp.chat.listener.ImageClickListener
 import com.gp.chat.listener.OnMessageClickListener
@@ -85,7 +82,7 @@ class GroupChatFragment : Fragment(), OnMessageClickListener, OnFileClickListene
         super.onViewCreated(view, savedInstanceState)
         viewModel.setData(args.groupId, args.title, args.photoUrl)
         val recyclerView = binding.recyclerMessage
-        val adapter = GroupMessageAdapter(this, this, this, false)
+        val adapter = MessageAdapter(this, this, this, false)
         val manager = LinearLayoutManager(requireContext())
         manager.stackFromEnd = true
 

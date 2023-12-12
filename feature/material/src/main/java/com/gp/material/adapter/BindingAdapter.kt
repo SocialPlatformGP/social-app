@@ -23,7 +23,7 @@ fun setMaterialItemImage(view: ImageView, item: MaterialItem) {
             }
         }
         FileType.PDF -> {
-            view.setImageResource(R.drawable.img)
+            view.setImageResource(R.drawable.pdf_file)
         }
         FileType.FOLDER -> {
             view.setImageResource(R.drawable.img_6)
