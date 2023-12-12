@@ -23,6 +23,7 @@ import com.gp.socialapp.utils.State
 import com.gp.users.model.User
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -58,31 +59,20 @@ class CreateGroupChatFragment : Fragment(), OnGroupMembersChangeListener {
         super.onViewCreated(view, savedInstanceState)
         val adapter = GroupUserAdapter(requireContext(), this)
         binding.usersRecyclerview.adapter = adapter
-        var isUsersLoaded = false
         lifecycleScope.launch {
             viewModel.users.flowWithLifecycle(lifecycle).collect {
                 if (it.isNotEmpty()) {
                     adapter.submitList(it)
-                    isUsersLoaded = true
                 }
             }
         }
-        binding.searchTextinput.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                if (isUsersLoaded && s.toString().isNotBlank()) {
-                    adapter.filterList(viewModel.users.value, s.toString())
-                } else if (s.toString().isBlank()) {
-                    adapter.submitList(viewModel.users.value)
-                }
-            }
-
-            override fun afterTextChanged(s: Editable?) {
-            }
-
-        })
+//        lifecycleScope.launch {
+//            viewModel.users.flowWithLifecycle(lifecycle).distinctUntilChanged { old, new ->  old.map { it.data } == new.map { it.data } }.collect {
+//                if (it.isNotEmpty()) {
+//                    adapter.submitList(it)
+//                }
+//            }
+//        }
     }
 
     fun onLoadPictureClick() {

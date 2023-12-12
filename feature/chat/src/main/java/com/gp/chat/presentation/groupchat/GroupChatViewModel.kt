@@ -1,7 +1,9 @@
 package com.gp.chat.presentation.groupchat
 
 import android.net.Uri
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -21,7 +23,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.ZonedDateTime
+import java.time.ZonedDateTime.now
+import java.time.format.DateTimeFormatter
 import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -57,40 +64,52 @@ class GroupChatViewModel @Inject constructor(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun onSendMessage() {
         Log.d("zarea2", "start of message send  $ChatId")
         if (currentMessageState.value.message.isEmpty() && currentMessageState.value.fileTypes == "text") {
-            currentMessageState.value = currentMessageState.value.copy(error = "message is empty")
             return
         } else {
+            val currentTime: ZonedDateTime =now()
+            val  formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z", Locale.ENGLISH)
+            val formatted = currentTime.format(formatter)
+
             viewModelScope.launch(Dispatchers.IO) {
                 val message = Message(
                     id = "",
                     groupId = ChatId,
                     message = currentMessageState.value.message,
-                    messageDate = SimpleDateFormat("MMMM dd, yyyy").format(Date()),
+                    messageDate = DateTimeFormatter.ofPattern("MMM dd, yyyy", Locale.ENGLISH)
+                        .format(currentTime),
                     senderId = currentEmail,
                     senderName = currentUser?.displayName!!,
                     senderPfpURL = currentUser.photoUrl.toString(),
-                    timestamp = getTimeStamp(Date()),
+                    timestamp = formatted,
                     fileURI = currentMessageState.value.fileUri ?: "".toUri(),
                     fileType = currentMessageState.value.fileTypes ?: "",
                     fileNames = currentMessageState.value.fileName ?: ""
                 )
-                Log.d("zarea2", "calling send  $ChatId")
-
-                messageRepo.sendGroupMessage(message).collect {
+                val recentChat = RecentChat(
+                    lastMessage = if (currentMessageState.value.fileTypes == "text") {
+                        "${currentUser.displayName}: ${currentMessageState.value.message}"
+                    } else {
+                        "${currentUser.displayName}: ${currentMessageState.value.fileName}"
+                    },
+                    timestamp = message.timestamp
+                )
+                messageRepo.sendGroupMessage(message, recentChat).collect {
                     when (it) {
                         is State.Success -> {
                             Log.d("zarea2", "in success   $ChatId")
-
-                            updateRecent()
+                            currentMessageState.value = MessageState()
                             Log.d("seerde", "Success")
                         }
+
 
                         is State.Error -> {
                             Log.d("seerde", "Error: ${it.message}")
                         }
+
 
                         else -> {
                             Log.d("seerde", "Loading")
@@ -101,7 +120,11 @@ class GroupChatViewModel @Inject constructor(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+
     private fun updateRecent() {
+        val currentTime: ZonedDateTime = now()
+
         viewModelScope.launch(Dispatchers.IO) {
             val recentChat = RecentChat(
                 lastMessage =
@@ -110,8 +133,9 @@ class GroupChatViewModel @Inject constructor(
                 } else {
                     currentMessageState.value.fileName
                 },
-                timestamp = Date().toString(),
-            )
+                timestamp = currentTime.toString(),
+
+                )
             Log.d("zarea2", "calling update recent in vm  $ChatId")
             messageRepo.updateRecentChat(recentChat, ChatId).collect {
                 when (it) {
@@ -140,6 +164,7 @@ class GroupChatViewModel @Inject constructor(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun sendFile(uri: Uri, type: String, fileName: String) {
         currentMessageState.value = currentMessageState.value.copy(fileName = fileName)
         currentMessageState.value = currentMessageState.value.copy(fileUri = uri)

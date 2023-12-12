@@ -5,10 +5,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.gp.chat.model.ChatGroup
 import com.gp.chat.model.ChatUser
 import com.gp.chat.model.Message
-import com.gp.chat.model.NetworkMessage
 import com.gp.chat.model.NetworkRecentChat
-import com.gp.chat.model.PrivateChats
-import com.gp.chat.model.PrivateChatsNetwork
 import com.gp.chat.model.NetworkChatGroup
 import com.gp.chat.model.RecentChat
 import com.gp.socialapp.utils.State
@@ -16,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface MessageRemoteDataSource {
     fun fetchGroupMessages(groupId: String): Flow<List<Message>>
-    fun sendGroupMessage(message: Message): Flow<State<Nothing>>
+    fun sendGroupMessage(message: Message,recentChat: RecentChat): Flow<State<Nothing>>
     fun insertChat(chat:ChatGroup): Flow<State<String>>
     fun insertRecentChat(recentChat: RecentChat,chatId: String)
     fun sendMessage(message: Message): Flow<State<String>>
@@ -32,7 +29,8 @@ interface MessageRemoteDataSource {
     fun leaveGroup(chatId: String)
 
     fun createGroupChat(group: NetworkChatGroup, recentChat: NetworkRecentChat): Flow<State<String>>
-    fun getGroupMembersEmails(groupId: String): Flow<State<List<String>>>
+    fun getGroupDetails(groupId: String): Flow<State<ChatGroup>>
     fun removeMemberFromGroup(groupId: String, memberEmail: String): Flow<State<String>>
+    fun addGroupMembers(groupId: String, usersEmails: List<String>): Flow<State<Nothing>>
 //    fun sendMessageWithFile(message: Message, fileUri: Uri, chatId: String)
 }
