@@ -5,6 +5,8 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bumptech.glide.Glide.init
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.gp.chat.model.RecentChat
@@ -26,11 +28,13 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val messageRepository: MessageRepository
 ) : ViewModel() {
-
-    private val userEmail = Firebase.auth.currentUser?.email!!
-
     private val _recentChats = MutableStateFlow<List<RecentChat>>(emptyList())
     val recentChats = _recentChats.asStateFlow()
+    private val _chatHomeState = MutableStateFlow(
+        ChatHomeState(
+            Firebase.auth.currentUser!!
+        ))
+    val chatHomeState = _chatHomeState.asStateFlow()
 
     init {
         getChatsForUser()
@@ -40,28 +44,27 @@ class HomeViewModel @Inject constructor(
     private fun getChatsForUser() {
         viewModelScope.launch(Dispatchers.IO) {
             messageRepository.getUserChats(
-                removeSpecialCharacters(userEmail)
-            ).collect {
-                when (it) {
+                removeSpecialCharacters(chatHomeState.value.currentUser.email!!)
+            ).collect {result ->
+                when (result) {
                     is State.SuccessWithData -> {
-                        getRecentChats(it.data.groups.keys.toList())
-
+                        getRecentChats(result.data.groups.keys.toList())
                     }
-
                     is State.Error -> {
-
+                        _chatHomeState.value = _chatHomeState.value.copy(
+                            isLoading = false,
+                            isError = true,
+                            errorMessage = result.message
+                        )
                     }
-
                     is State.Loading -> {
-
+                        _chatHomeState.value = _chatHomeState.value.copy(
+                            isLoading = true
+                        )
                     }
-
-                    else -> {
-
-                    }
+                    else -> {}
                 }
             }
-
         }
     }
 
@@ -71,35 +74,42 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z", Locale.ENGLISH)
 
-            messageRepository.getRecentChats(chatId).collect {
-                when (it) {
+            messageRepository.getRecentChats(chatId).collect { result ->
+                when (result) {
                     is State.SuccessWithData -> {
-                        Log.d("testoVmHome", "getRecentChats: ${it.data}")
-                        if (it.data.isNotEmpty()) {
-                            _recentChats.value =
-
-                                it.data.sortedByDescending { ZonedDateTime.parse(it.timestamp, formatter) }
+                        Log.d("testoVmHome", "getRecentChats: ${result.data}")
+                        if (result.data.isNotEmpty()) {
+                            _recentChats.value = result.data.sortedByDescending { ZonedDateTime.parse(it.timestamp, formatter) }
+                            _chatHomeState.value = _chatHomeState.value.copy(
+                                isLoading = false,
+                                isError = false
+                            )
                         }
                     }
-
                     is State.Error -> {
-
+                        _chatHomeState.value = _chatHomeState.value.copy(
+                            isLoading = false,
+                            isError = true,
+                            errorMessage = result.message
+                        )
                     }
-
                     is State.Loading -> {
-
+                        _chatHomeState.value = _chatHomeState.value.copy(
+                            isLoading = true
+                        )
                     }
-
-                    else -> {
-
-                    }
+                    else -> {}
                 }
             }
         }
-
     }
-
     fun leaveGroup(chatId: String) {
         messageRepository.leaveGroup(chatId)
     }
 }
+data class ChatHomeState(
+    var currentUser: FirebaseUser ,
+    var isLoading: Boolean = false,
+    var isError: Boolean = false,
+    val errorMessage: String = ""
+)
