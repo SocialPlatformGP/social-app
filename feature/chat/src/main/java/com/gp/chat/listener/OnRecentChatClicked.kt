@@ -3,11 +3,8 @@ package com.gp.chat.listener
 import com.gp.chat.model.RecentChat
 
 interface OnRecentChatClicked {
-    fun onRecentChatClicked(
+    fun onClick(
         recentChat: RecentChat
     )
-
-    fun leaveGroup(groupId:String)
-
-
+    fun onLongClick(recentChat: RecentChat)
 }
