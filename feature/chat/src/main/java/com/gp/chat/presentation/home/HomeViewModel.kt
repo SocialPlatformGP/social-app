@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bumptech.glide.Glide.init
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -33,7 +32,8 @@ class HomeViewModel @Inject constructor(
     private val _chatHomeState = MutableStateFlow(
         ChatHomeState(
             Firebase.auth.currentUser!!
-        ))
+        )
+    )
     val chatHomeState = _chatHomeState.asStateFlow()
 
     init {
@@ -45,11 +45,12 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             messageRepository.getUserChats(
                 removeSpecialCharacters(chatHomeState.value.currentUser.email!!)
-            ).collect {result ->
+            ).collect { result ->
                 when (result) {
                     is State.SuccessWithData -> {
                         getRecentChats(result.data.groups.keys.toList())
                     }
+
                     is State.Error -> {
                         _chatHomeState.value = _chatHomeState.value.copy(
                             isLoading = false,
@@ -57,11 +58,13 @@ class HomeViewModel @Inject constructor(
                             errorMessage = result.message
                         )
                     }
+
                     is State.Loading -> {
                         _chatHomeState.value = _chatHomeState.value.copy(
                             isLoading = true
                         )
                     }
+
                     else -> {}
                 }
             }
@@ -79,13 +82,19 @@ class HomeViewModel @Inject constructor(
                     is State.SuccessWithData -> {
                         Log.d("testoVmHome", "getRecentChats: ${result.data}")
                         if (result.data.isNotEmpty()) {
-                            _recentChats.value = result.data.sortedByDescending { ZonedDateTime.parse(it.timestamp, formatter) }
+                            _recentChats.value = result.data.sortedByDescending {
+                                ZonedDateTime.parse(
+                                    it.timestamp,
+                                    formatter
+                                )
+                            }
                             _chatHomeState.value = _chatHomeState.value.copy(
                                 isLoading = false,
                                 isError = false
                             )
                         }
                     }
+
                     is State.Error -> {
                         _chatHomeState.value = _chatHomeState.value.copy(
                             isLoading = false,
@@ -93,22 +102,26 @@ class HomeViewModel @Inject constructor(
                             errorMessage = result.message
                         )
                     }
+
                     is State.Loading -> {
                         _chatHomeState.value = _chatHomeState.value.copy(
                             isLoading = true
                         )
                     }
+
                     else -> {}
                 }
             }
         }
     }
+
     fun leaveGroup(chatId: String) {
         messageRepository.leaveGroup(chatId)
     }
 }
+
 data class ChatHomeState(
-    var currentUser: FirebaseUser ,
+    var currentUser: FirebaseUser,
     var isLoading: Boolean = false,
     var isError: Boolean = false,
     val errorMessage: String = ""

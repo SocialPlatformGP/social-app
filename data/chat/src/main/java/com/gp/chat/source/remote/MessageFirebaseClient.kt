@@ -317,6 +317,7 @@ class MessageFirebaseClient(
             val map = hashMapOf<String, Any>()
             map["lastMessage"] = recentChat.lastMessage
             map["timestamp"] = recentChat.timestamp
+            map["id"] = chatId
 
             database.reference.child(RECENT_CHATS).child(chatId).updateChildren(
                 map
@@ -470,7 +471,7 @@ class MessageFirebaseClient(
                             chatRef.setValue(group)
                                 .addOnSuccessListener {
                                     database.reference.child(RECENT_CHATS).child(chatKey)
-                                        .setValue(recentChat.copy(senderPicUrl = uri.toString()))
+                                        .setValue(recentChat.copy(senderPicUrl = uri.toString()).toRecentChat(chatKey))
                                         .addOnSuccessListener {
                                             val userGroupData = hashMapOf<String, Any>()
                                             for (user in group.members.entries) {
