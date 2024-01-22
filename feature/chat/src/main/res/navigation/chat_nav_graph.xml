@@ -60,6 +60,9 @@
         <action
             android:id="@+id/action_chatHome_to_groupChatFragment"
             app:destination="@id/groupChatFragment" />
+        <action
+            android:id="@+id/action_chatHome_to_createGroupChatFragment"
+            app:destination="@id/createGroupChatFragment" />
     </fragment>
     <fragment
         android:id="@+id/newChat"

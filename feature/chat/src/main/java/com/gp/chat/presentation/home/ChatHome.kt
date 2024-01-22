@@ -2,20 +2,27 @@ package com.gp.chat.presentation.home
 
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.gp.chat.R
 import com.gp.chat.listener.OnRecentChatClicked
 import com.gp.chat.model.RecentChat
+import com.gp.chat.presentation.newchat.NewChatDirections
+import com.jai.multifabbutton.compose.FabItem
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -43,10 +50,28 @@ class ChatHome : Fragment(), OnRecentChatClicked {
                     onClick(recentChat)
                 }, onDropPDownItemClicked = { dropDownItem, recentChat ->
                     onDropDownItemClicked(dropDownItem, recentChat)
-                }, dropDownItems = listOf(DropDownItem("Leave")), onFabClick = {
-                    val action = ChatHomeDirections.actionChatHomeToNewChat()
-                    findNavController().navigate(action)
-                })
+                }, dropDownItems = listOf(DropDownItem("Leave")),
+                fabItems = arrayListOf(
+                    FabItem(
+                        icon = painterResource(id = R.drawable.ic_new_group),
+                        label = "New Group",
+                        backgroundColor = Color.DarkGray,
+                        onFabItemClicked =  {
+                            val action = NewChatDirections.actionNewChatToCreateGroupChatFragment()
+                            findNavController().navigate(action)
+                        }
+                    ),
+                    FabItem(
+                        icon = painterResource(id = R.drawable.ic_new_chat),
+                        label = "New Chat",
+                        backgroundColor = Color.DarkGray,
+                        onFabItemClicked =  {
+                            val action = ChatHomeDirections.actionChatHomeToCreateGroupChatFragment()
+                            findNavController().navigate(action)
+                        }
+                    ),
+                )
+                )
             }
         }
     }
@@ -73,8 +98,9 @@ class ChatHome : Fragment(), OnRecentChatClicked {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onDropDownItemClicked(dropDownItem: DropDownItem, recentChat: RecentChat) {
         when (dropDownItem.text) {
-            "leave" -> {
-                TODO("Fix Leave Not working")
+            "Leave" -> {
+//                TODO("Fix Leave Not working")
+                Log.d("SEERDE", "onDropDownItemClicked: Called from fragment")
                 viewModel.leaveGroup(recentChat.id)
             }
         }

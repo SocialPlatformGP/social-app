@@ -38,11 +38,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
@@ -53,7 +55,10 @@ import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.google.firebase.auth.FirebaseUser
+import com.gp.chat.R
 import com.gp.chat.model.RecentChat
+import com.jai.multifabbutton.compose.FabItem
+import com.jai.multifabbutton.compose.MultiFloatingActionButton
 import kotlinx.coroutines.Dispatchers
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -67,18 +72,17 @@ fun ChatHomeScreen(
     onRecentChatClicked: (RecentChat) -> Unit,
     dropDownItems: List<DropDownItem>,
     onDropPDownItemClicked: (DropDownItem, RecentChat) -> Unit,
-    onFabClick: () -> Unit,
+    fabItems: ArrayList<FabItem>,
     modifier: Modifier = Modifier
 ) {
 
     Scaffold(
         topBar = { },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = onFabClick
-            ) {
-                Icon(Icons.Filled.Add, "")
-            }
+                MultiFloatingActionButton(
+                    fabIcon = Icons.Filled.Add,
+                    items = fabItems,
+                    backgroundColor = Color.DarkGray)
         }, content = {
             ChatHomeScreenContent(
                 viewModel = viewModel,

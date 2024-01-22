@@ -120,6 +120,8 @@ dependencies {
     // UI Tests
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+    // Optional - Integration with activities
+    implementation("androidx.activity:activity-compose:1.8.2")
     // Optional - Integration with ViewModels
     def compose_lifecycle_version = "2.7.0"
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$compose_lifecycle_version")
