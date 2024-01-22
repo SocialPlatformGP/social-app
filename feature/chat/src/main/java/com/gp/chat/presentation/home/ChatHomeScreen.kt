@@ -12,21 +12,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,29 +32,20 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.AsyncImage
-import coil.request.CachePolicy
-import coil.request.ImageRequest
 import com.google.firebase.auth.FirebaseUser
-import com.gp.chat.R
 import com.gp.chat.model.RecentChat
+import com.gp.chat.utils.CircularAvatar
 import com.jai.multifabbutton.compose.FabItem
 import com.jai.multifabbutton.compose.MultiFloatingActionButton
-import kotlinx.coroutines.Dispatchers
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -75,36 +61,60 @@ fun ChatHomeScreen(
     fabItems: ArrayList<FabItem>,
     modifier: Modifier = Modifier
 ) {
+    val chats by viewModel.recentChats.collectAsStateWithLifecycle()
+    val state by viewModel.chatHomeState.collectAsStateWithLifecycle()
+    ChatHomeScreen(
+        chats = chats,
+        state = state,
+        onRecentChatClicked = onRecentChatClicked,
+        dropDownItems = dropDownItems,
+        onDropPDownItemClicked = onDropPDownItemClicked,
+        fabItems = fabItems,
+        modifier = modifier
+    )
+}
 
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun ChatHomeScreen(
+    chats: List<RecentChat>,
+    state: ChatHomeState,
+    onRecentChatClicked: (RecentChat) -> Unit,
+    dropDownItems: List<DropDownItem>,
+    onDropPDownItemClicked: (DropDownItem, RecentChat) -> Unit,
+    fabItems: ArrayList<FabItem>,
+    modifier: Modifier = Modifier
+) {
     Scaffold(
         topBar = { },
         floatingActionButton = {
-                MultiFloatingActionButton(
-                    fabIcon = Icons.Filled.Add,
-                    items = fabItems,
-                    backgroundColor = Color.DarkGray)
+            MultiFloatingActionButton(
+                fabIcon = Icons.Filled.Add,
+                items = fabItems,
+                backgroundColor = Color.DarkGray
+            )
         }, content = {
             ChatHomeScreenContent(
-                viewModel = viewModel,
-                onRecentChatClicked = onRecentChatClicked ,
+                chats = chats,
+                state = state,
+                onRecentChatClicked = onRecentChatClicked,
                 dropDownItems = dropDownItems,
                 onDropPDownItemClicked = onDropPDownItemClicked,
                 modifier.padding(it)
             )
-    })
+        })
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ChatHomeScreenContent(
-    viewModel: HomeViewModel,
+    chats: List<RecentChat>,
+    state: ChatHomeState,
     onRecentChatClicked: (RecentChat) -> Unit,
     dropDownItems: List<DropDownItem>,
     onDropPDownItemClicked: (DropDownItem, RecentChat) -> Unit,
     modifier: Modifier = Modifier
-){
-    val chats by viewModel.recentChats.collectAsStateWithLifecycle()
-    val state by viewModel.chatHomeState.collectAsStateWithLifecycle()
+) {
     LazyColumn(
         contentPadding = PaddingValues(8.dp),
         modifier = modifier
@@ -197,17 +207,18 @@ fun ChatItem(
                     })
             }
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically,
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
             modifier = modifier
                 .fillMaxWidth()
-                ) {
-            HomeChatIcon(imageURL, modifier)
+        ) {
+            CircularAvatar(imageURL, 55.dp, modifier)
             Spacer(Modifier.width(12.dp))
             Column(
                 horizontalAlignment = Alignment.Start,
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
-                Row (
+                Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
@@ -224,7 +235,7 @@ fun ChatItem(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         fontSize = 12.sp,
-                        color = androidx.compose.ui.graphics.Color.Gray
+                        color = Color.Gray
                     )
                 }
 
@@ -233,7 +244,7 @@ fun ChatItem(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     fontSize = 14.sp,
-                    color = androidx.compose.ui.graphics.Color.Gray
+                    color = Color.Gray
                 )
 
             }
@@ -248,8 +259,9 @@ fun ChatItem(
             },
             offset = pressOffset.copy(
                 y = pressOffset.y - itemHieght
-            )) {
-            dropDownItems.forEach{item ->
+            )
+        ) {
+            dropDownItems.forEach { item ->
                 DropdownMenuItem(
                     text = {
                         Text(text = item.text)
@@ -257,27 +269,10 @@ fun ChatItem(
                     onClick = {
                         isDropDownMenuVisible = false
                         onItemClicked(item, chatItem)
-                })
+                    })
             }
 
         }
     }
 }
 
-@Composable
-fun HomeChatIcon(
-    imageURL: String, modifier: Modifier = Modifier
-) {
-    val imageRequest =
-        ImageRequest.Builder(LocalContext.current).data(imageURL).dispatcher(Dispatchers.IO)
-            .memoryCacheKey(imageURL).diskCacheKey(imageURL).diskCachePolicy(CachePolicy.ENABLED)
-            .memoryCachePolicy(CachePolicy.ENABLED).build()
-    AsyncImage(
-        model = imageRequest,
-        contentDescription = "Image Description",
-        contentScale = ContentScale.FillBounds,
-        modifier = modifier
-            .size(55.dp)
-            .clip(CircleShape),
-    )
-}

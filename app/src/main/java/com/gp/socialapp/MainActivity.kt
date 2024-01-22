@@ -134,6 +134,12 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
                 }
 
+                com.gp.chat.R.id.newChat -> {
+                    hideBottomNav()
+                    appBarLayout.visibility = View.GONE
+
+                }
+
                 com.gp.posts.R.id.postDetailsFragment -> {
                     hideBottomNav()
                 }

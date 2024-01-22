@@ -1,6 +1,5 @@
 package com.gp.chat.adapter
 
-import android.media.browse.MediaBrowser.ItemCallback
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,11 +9,10 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.gp.chat.R
-import com.gp.chat.listener.OnItemClickListener
-import com.gp.socialapp.database.model.UserEntity
+import com.gp.chat.listener.OnUserClickListener
 import com.gp.users.model.User
 
-class UsersChatAdapter(var onItemClickListener: OnItemClickListener): ListAdapter<User,UsersChatAdapter.UsersViewHolder>(UserChatDiffUtill) {
+class UsersChatAdapter(var onUserClickListener: OnUserClickListener): ListAdapter<User,UsersChatAdapter.UsersViewHolder>(UserChatDiffUtill) {
 
     inner class UsersViewHolder(item: View):RecyclerView.ViewHolder(item){
         val name=item.findViewById<TextView>(R.id.name)
@@ -24,7 +22,7 @@ class UsersChatAdapter(var onItemClickListener: OnItemClickListener): ListAdapte
             name.text="${userEntity.firstName} ${userEntity.lastName}"
             img.setProfilePicture(userEntity.profilePictureURL)
             itemView.setOnClickListener{
-                onItemClickListener.onClick(userEntity.email)
+                onUserClickListener.onUserClicked(userEntity.email)
             }
 
         }
