@@ -144,6 +144,10 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
                     hideBottomNav()
                 }
 
+                com.gp.chat.R.id.createGroupChatFragment -> {
+                    hideBottomNav()
+                }
+
                 com.gp.chat.R.id.fullScreenImageDialogFragment -> {
                     hideBottomNav()
                 }

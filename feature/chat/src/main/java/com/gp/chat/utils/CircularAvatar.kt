@@ -26,7 +26,7 @@ fun CircularAvatar(
     AsyncImage(
         model = imageRequest,
         contentDescription = null,
-        contentScale = ContentScale.FillBounds,
+        contentScale = ContentScale.Crop,
         modifier = modifier
             .size(size)
             .clip(CircleShape),

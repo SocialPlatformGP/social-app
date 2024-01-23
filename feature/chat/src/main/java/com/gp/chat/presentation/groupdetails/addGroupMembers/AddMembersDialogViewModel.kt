@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.gp.chat.presentation.createGroupChat.CreateGroupChatUiState
 import com.gp.chat.repository.MessageRepository
 import com.gp.socialapp.utils.State
 import com.gp.users.model.SelectableUser

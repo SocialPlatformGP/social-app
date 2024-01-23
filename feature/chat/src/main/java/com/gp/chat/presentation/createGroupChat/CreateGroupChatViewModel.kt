@@ -14,7 +14,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -22,18 +21,32 @@ class CreateGroupChatViewModel @Inject constructor(
     private val userRepo: UserRepository,
     private val chatRepo: MessageRepository
 ) : ViewModel() {
-    val uiState = MutableStateFlow(CreateGroupChatUiState())
+    private val _name = MutableStateFlow("")
+    val name = _name.asStateFlow()
+    private val _avatarURL = MutableStateFlow("")
+    val avatarURL = _avatarURL.asStateFlow()
+    private val _selectedUsers = MutableStateFlow(emptyList<User>())
+    val selectedUsers = _selectedUsers.asStateFlow()
     private val _users = MutableStateFlow(emptyList<SelectableUser>())
     val users = _users.asStateFlow()
     private val currentUserEmail = userRepo.getCurrentUserEmail()
+
     init {
         Log.d("EDREES", "Viewmodel Initialized")
         getListOfUsers()
     }
 
+    fun updateName(name: String) {
+        _name.value = name
+    }
+
+    fun updateAvatarURL(url: String) {
+        _avatarURL.value = url
+    }
+
     fun addMember(user: User) {
-        viewModelScope.launch (Dispatchers.Default){
-            val updatedMembers = uiState.value.selectedMembers.toMutableList()
+        viewModelScope.launch(Dispatchers.Default) {
+            val updatedMembers = _selectedUsers.value.toMutableList()
             updatedMembers.add(user)
             _users.value = _users.value.map {
                 if (it.data.email == user.email) {
@@ -43,14 +56,17 @@ class CreateGroupChatViewModel @Inject constructor(
                     it
                 }
             }
-            Log.d("seerde", "User status before edit in viewmodel: ${_users.value.find { it.data.email == user.email }!!.isSelected}")
-            uiState.value = uiState.value.copy(selectedMembers = updatedMembers.toList())
+            Log.d(
+                "seerde",
+                "User status before edit in viewmodel: ${_users.value.find { it.data.email == user.email }!!.isSelected}"
+            )
+            _selectedUsers.value = updatedMembers.toList()
         }
     }
 
     fun removeMember(user: User) {
-        viewModelScope.launch(Dispatchers.Default){
-            val updatedMembers = uiState.value.selectedMembers.toMutableList()
+        viewModelScope.launch(Dispatchers.Default) {
+            val updatedMembers = _selectedUsers.value.toMutableList()
             updatedMembers.remove(user)
             _users.value = _users.value.map {
                 if (it.data.email == user.email) {
@@ -59,7 +75,7 @@ class CreateGroupChatViewModel @Inject constructor(
                     it
                 }
             }
-            uiState.value = uiState.value.copy(selectedMembers = updatedMembers.toList())
+            _selectedUsers.value = updatedMembers.toList()
         }
     }
 
@@ -68,7 +84,8 @@ class CreateGroupChatViewModel @Inject constructor(
             userRepo.fetchUsers().collect {
                 when (it) {
                     is State.SuccessWithData -> {
-                        _users.value = it.data.map{it.toSelectableUser()}.filter { it.data.email != currentUserEmail }
+                        _users.value = it.data.map { it.toSelectableUser() }
+                            .filter { it.data.email != currentUserEmail }
                         Log.d("EDREES", "User: ${_users.value.map { it.data.email }}")
                     }
 
@@ -87,7 +104,9 @@ class CreateGroupChatViewModel @Inject constructor(
 
 
     fun createGroup() = chatRepo.createGroupChat(
-        name = uiState.value.name,
-        avatarLink = uiState.value.avatarURL,
-        members = uiState.value.selectedMembers.map { it.email }, currentUserEmail)
+        name = _name.value,
+        avatarLink = _avatarURL.value,
+        members = _selectedUsers.value.map { it.email },
+        currentUserEmail = currentUserEmail
+    )
 }
