@@ -128,5 +128,6 @@ class MessageRepositoryImpl @Inject constructor(
         )
         return messageRemoteDataSource.createGroupChat(group, recentChat)
     }
-
+    override fun changeGroupName(groupID: String, newName: String)
+        = messageRemoteDataSource.changeGroupName(groupID, newName)
 }

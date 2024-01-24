@@ -38,6 +38,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+                    android:id="@+id/dialog_label"
                     android:text="Add New Members"
                     android:gravity="center_horizontal"/>
 
@@ -50,7 +51,7 @@
                     chat:alignContent="stretch"
                     chat:layout_constraintStart_toStartOf="parent"
                     chat:layout_constraintEnd_toEndOf="parent"
-                    chat:layout_constraintTop_toBottomOf="@id/group_name_textfield">
+                    chat:layout_constraintTop_toBottomOf="@id/dialog_label">
 
                     <com.google.android.material.chip.ChipGroup
                         android:id="@+id/chipGroup"

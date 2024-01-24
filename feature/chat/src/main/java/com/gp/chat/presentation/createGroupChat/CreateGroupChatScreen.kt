@@ -29,6 +29,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.rounded.Create
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
@@ -87,6 +88,7 @@ fun CreateGroupChatScreen(
         ) {
             GroupAvatarSection(
                 avatarURL = avatarURL,
+                isModifiable = true,
                 onChoosePhotoClicked = onChoosePhotoClicked
             )
             OutlinedTextField(
@@ -144,6 +146,7 @@ fun CreateGroupChatScreen(
 @Composable
 fun GroupAvatarSection(
     avatarURL: String,
+    isModifiable: Boolean = false,
     onChoosePhotoClicked: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -155,7 +158,7 @@ fun GroupAvatarSection(
             .fillMaxWidth()) {
         Image(
             painter = if(avatarURL.isBlank()){
-                painterResource(id = R.drawable.ic_new_group)
+                painterResource(id = R.drawable.ic_group)
                 } else{
                 rememberAsyncImagePainter(
                     model = Uri.parse(avatarURL)
@@ -166,19 +169,20 @@ fun GroupAvatarSection(
             modifier = Modifier
                 .size(100.dp)
                 .clip(CircleShape)
-                .border(width = 1.dp, color = Color.Black, shape = CircleShape)
         )
-        IconButton(
-            onClick = {onChoosePhotoClicked()},
-            modifier = Modifier
-                .offset(x = 38.dp, y = 38.dp)
-                .background(backgroundColor, CircleShape)
-                .size(32.dp)) {
+        if (isModifiable) {
+            IconButton(
+                onClick = {onChoosePhotoClicked()},
+                modifier = Modifier
+                    .offset(x = 38.dp, y = 38.dp)
+                    .background(backgroundColor, CircleShape)
+                    .size(32.dp)) {
                 Icon(
-                    painter = painterResource(id = R.drawable.baseline_photo_camera_24),
+                    imageVector = Icons.Rounded.Create,
                     contentDescription = null,
                     tint = contentColor
                 )
+            }
         }
     }
 }
@@ -208,6 +212,7 @@ fun ChooseGroupMembersSection(
                 GroupMemberItem(
                     user = user,
                     isSelected = user.isSelected,
+                    isSelectable = true,
                     onUserClick = {
                         onUserClick(user.copy(isSelected = !user.isSelected))
                     })
@@ -240,7 +245,6 @@ fun SelectedMemberItem(
                     contentDescription = null)
             }
         }
-//        Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = user.firstName,
             modifier = Modifier.paddingFromBaseline(top = 24.dp, bottom = 8.dp),
@@ -250,17 +254,18 @@ fun SelectedMemberItem(
 }
 @Composable
 fun GroupMemberItem(
-    isSelected: Boolean,
-    user: SelectableUser,
-    onUserClick: () -> Unit,
     modifier: Modifier = Modifier,
+    isSelected: Boolean = false,
+    isSelectable: Boolean = false,
+    user: SelectableUser,
+    onUserClick: (User) -> Unit,
 ){
     Row(
         modifier = modifier
             .padding(start = 8.dp, end = 8.dp, top = 16.dp)
             .fillMaxWidth()
             .clickable {
-                onUserClick()
+                onUserClick(user.data)
             },
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -281,9 +286,11 @@ fun GroupMemberItem(
                 .padding(8.dp)
                 .fillMaxWidth()
         ) {
-            CircleCheckbox(
-                selected = isSelected,
-                onChecked = {onUserClick()})
+            if(isSelectable){
+                CircleCheckbox(
+                    selected = isSelected,
+                    onChecked = {onUserClick(user.data)})
+            }
         }
     }
 }

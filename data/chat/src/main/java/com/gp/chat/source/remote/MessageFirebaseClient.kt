@@ -458,58 +458,87 @@ class MessageFirebaseClient(
                 trySend(State.Error("Failed to generate a chat key"))
                 return@callbackFlow
             }
-            //**********************************
-            Firebase.storage
-                .getReference(currentUser!!.uid)
-                .child(chatKey)
-                .child(recentChat.senderPicUrl.toUri().lastPathSegment!!)
-                .putFile(recentChat.senderPicUrl.toUri())
-                .addOnSuccessListener {
-                    it.metadata?.reference?.downloadUrl
-                        ?.addOnSuccessListener { uri ->
-                            Log.d("zarea3", "Image Uploaded ${uri}")
-                            chatRef.setValue(group)
-                                .addOnSuccessListener {
-                                    database.reference.child(RECENT_CHATS).child(chatKey)
-                                        .setValue(recentChat.copy(senderPicUrl = uri.toString()).toRecentChat(chatKey))
-                                        .addOnSuccessListener {
-                                            val userGroupData = hashMapOf<String, Any>()
-                                            for (user in group.members.entries) {
-                                                userGroupData["$CHAT_USER/${
-                                                    removeSpecialCharacters(
-                                                        user.key
-                                                    )
-                                                }/$GROUP/${chatKey}"] = user.value
-                                            }
-                                            val updateResult =
-                                                database.reference.updateChildren(userGroupData)
-                                                    .addOnSuccessListener {
-                                                        trySend(State.SuccessWithData(chatKey))
-                                                    }.addOnFailureListener {
-                                                        trySend(State.Error("Failed to update user groups"))
-                                                    }
-                                        }
-                                        .addOnFailureListener {
-                                            trySend(
-                                                State.Error(
-                                                    it.localizedMessage
-                                                        ?: "Failed to create recent chat"
-                                                )
-                                            )
-                                        }
-                                }
-                                .addOnFailureListener {
-                                    trySend(
-                                        State.Error(
-                                            it.localizedMessage ?: "Failed to create group chat"
+            if(recentChat.senderPicUrl.isBlank()){
+                chatRef.setValue(group.copy(picURL = ""))
+                    .addOnSuccessListener {
+                        database.reference.child(RECENT_CHATS).child(chatKey)
+                            .setValue(recentChat.toRecentChat(chatKey))
+                            .addOnSuccessListener {
+                                val userGroupData = hashMapOf<String, Any>()
+                                for (user in group.members.entries) {
+                                    userGroupData["$CHAT_USER/${
+                                        removeSpecialCharacters(
+                                            user.key
                                         )
-                                    )
+                                    }/$GROUP/${chatKey}"] = user.value
                                 }
-                        }
-
-                }
-            //**********************************
-
+                                val updateResult =
+                                    database.reference.updateChildren(userGroupData)
+                                        .addOnSuccessListener {
+                                            trySend(State.SuccessWithData(chatKey))
+                                        }.addOnFailureListener {
+                                            trySend(State.Error("Failed to update user groups"))
+                                        }
+                            }
+                            .addOnFailureListener {
+                                trySend(
+                                    State.Error(
+                                        it.localizedMessage
+                                            ?: "Failed to create recent chat"
+                                    )
+                                )
+                            }
+                    }
+            } else {
+                Firebase.storage
+                    .getReference(currentUser!!.uid)
+                    .child(chatKey)
+                    .child(recentChat.senderPicUrl.toUri().lastPathSegment!!)
+                    .putFile(recentChat.senderPicUrl.toUri())
+                    .addOnSuccessListener {
+                        it.metadata?.reference?.downloadUrl
+                            ?.addOnSuccessListener { uri ->
+                                Log.d("zarea3", "Image Uploaded ${uri}")
+                                chatRef.setValue(group.copy(picURL = uri.toString()))
+                                    .addOnSuccessListener {
+                                        database.reference.child(RECENT_CHATS).child(chatKey)
+                                            .setValue(recentChat.copy(senderPicUrl = uri.toString()).toRecentChat(chatKey))
+                                            .addOnSuccessListener {
+                                                val userGroupData = hashMapOf<String, Any>()
+                                                for (user in group.members.entries) {
+                                                    userGroupData["$CHAT_USER/${
+                                                        removeSpecialCharacters(
+                                                            user.key
+                                                        )
+                                                    }/$GROUP/${chatKey}"] = user.value
+                                                }
+                                                val updateResult =
+                                                    database.reference.updateChildren(userGroupData)
+                                                        .addOnSuccessListener {
+                                                            trySend(State.SuccessWithData(chatKey))
+                                                        }.addOnFailureListener {
+                                                            trySend(State.Error("Failed to update user groups"))
+                                                        }
+                                            }
+                                            .addOnFailureListener {
+                                                trySend(
+                                                    State.Error(
+                                                        it.localizedMessage
+                                                            ?: "Failed to create recent chat"
+                                                    )
+                                                )
+                                            }
+                                    }
+                                    .addOnFailureListener {
+                                        trySend(
+                                            State.Error(
+                                                it.localizedMessage ?: "Failed to create group chat"
+                                            )
+                                        )
+                                    }
+                            }
+                    }
+            }
         } catch (e: Exception) {
             trySend(State.Error(e.localizedMessage ?: "An error occurred"))
         }
@@ -606,5 +635,24 @@ class MessageFirebaseClient(
             // Use awaitClose as a cleanup mechanism, but don't close the flow immediately
             awaitClose { /* cleanup resources if needed */ }
         }
+
+    override fun changeGroupName(groupID: String, newName: String):Flow<State<Nothing>> = callbackFlow{
+        trySend(State.Loading)
+        Log.d("SEERDE", "changeGroupName: Before calling")
+        database.reference.child(RECENT_CHATS)
+            .child(groupID)
+            .child("title")
+            .setValue(newName)
+            .addOnSuccessListener {
+                database.reference.child(CHAT).child(groupID).child("name").setValue(newName).addOnSuccessListener {
+                    trySend(State.Success)
+                }.addOnFailureListener {
+                    trySend(State.Error(it.message!!))
+                }
+            }.addOnFailureListener {
+                trySend(State.Error(it.message!!))
+            }
+        awaitClose { /* cleanup resources if needed */ }
+    }
 
 }

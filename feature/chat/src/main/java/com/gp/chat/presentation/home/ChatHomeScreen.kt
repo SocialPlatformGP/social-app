@@ -1,8 +1,11 @@
 package com.gp.chat.presentation.home
 
+import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -14,9 +17,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Divider
@@ -32,16 +37,21 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.rememberAsyncImagePainter
 import com.google.firebase.auth.FirebaseUser
+import com.gp.chat.R
 import com.gp.chat.model.RecentChat
 import com.gp.chat.utils.CircularAvatar
 import com.jai.multifabbutton.compose.FabItem
@@ -212,7 +222,18 @@ fun ChatItem(
             modifier = modifier
                 .fillMaxWidth()
         ) {
-            CircularAvatar(imageURL, 55.dp, modifier)
+            if(imageURL.isBlank()) {
+                Image(
+                    painterResource(id = R.drawable.ic_group),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .size(55.dp)
+                        .clip(CircleShape)
+                )
+            } else {
+                CircularAvatar(imageURL, 55.dp, modifier)
+            }
             Spacer(Modifier.width(12.dp))
             Column(
                 horizontalAlignment = Alignment.Start,
@@ -227,7 +248,6 @@ fun ChatItem(
                         text = name,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-//                        fontWeight = FontWeight.Bold,
                         fontSize = 20.sp
                     )
                     Text(
