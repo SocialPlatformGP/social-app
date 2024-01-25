@@ -29,6 +29,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.rounded.Build
 import androidx.compose.material.icons.rounded.Create
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
@@ -258,6 +259,7 @@ fun GroupMemberItem(
     isSelected: Boolean = false,
     isSelectable: Boolean = false,
     user: SelectableUser,
+    isAdmin: Boolean = false,
     onUserClick: (User) -> Unit,
 ){
     Row(
@@ -274,22 +276,44 @@ fun GroupMemberItem(
             size = 55.dp
         )
         Spacer(modifier = modifier.width(12.dp))
-        Text(
-            text = user.data.firstName + " " + user.data.lastName,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            fontSize = 20.sp
-        )
-        Row(
-            horizontalArrangement = Arrangement.End,
-            modifier = Modifier
-                .padding(8.dp)
-                .fillMaxWidth()
-        ) {
-            if(isSelectable){
-                CircleCheckbox(
-                    selected = isSelected,
-                    onChecked = {onUserClick(user.data)})
+        Column (
+            verticalArrangement = Arrangement.SpaceEvenly,
+            modifier = Modifier.fillMaxWidth()
+        ){
+            Row {
+                Text(
+                    text = user.data.firstName + " " + user.data.lastName,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    fontSize = 20.sp
+                )
+                Row(
+                    horizontalArrangement = if(isAdmin) Arrangement.Start else Arrangement.End,
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth()
+                ) {
+                    if(isSelectable){
+                        CircleCheckbox(
+                            selected = isSelected,
+                            onChecked = {onUserClick(user.data)})
+                    } else if(isAdmin) {
+                        Image(
+                            painter = painterResource(id = R.drawable.admin_svgrepo_com),
+                            contentDescription = null,
+                        )
+                    }
+                }
+            }
+            if(user.data.bio.isNotBlank()) {
+                Text(
+                    text = user.data.bio,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    fontSize = 14.sp,
+                    color = Color.Gray,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
     }

@@ -52,7 +52,6 @@ import com.gp.chat.presentation.createGroupChat.GroupMemberItem
 import com.gp.users.model.SelectableUser
 import com.gp.users.model.User
 
-//TODO("Add bio to members and admin indicator)
 @Composable
 fun GroupDetailsScreen(
     modifier: Modifier = Modifier,
@@ -64,6 +63,7 @@ fun GroupDetailsScreen(
 ) {
     val name by viewModel.groupName.collectAsStateWithLifecycle()
     val avatarURL by viewModel.avatarURL.collectAsStateWithLifecycle()
+    val admins by viewModel.admins.collectAsStateWithLifecycle()
     val members by viewModel.users.collectAsStateWithLifecycle()
     Log.d("seerde", "Name: $name")
     Column(
@@ -85,6 +85,7 @@ fun GroupDetailsScreen(
         Divider(modifier = Modifier.height(2.dp))
         GroupMembersSection(
             members = members,
+            admins = admins,
             isAdmin = isAdmin,
             onAddMembersClicked = onAddMembersClicked,
             onUserClicked = onUserClicked
@@ -175,11 +176,13 @@ fun GroupNameSection(
 @Composable
 fun GroupMembersSection(
     members: List<User>,
+    admins: List<String>,
     isAdmin: Boolean = false,
     onAddMembersClicked: () -> Unit,
     onUserClicked: (User) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val isAdminList = members.map { member -> admins.any { member.email == it } }
     val addImage = "https://i.pinimg.com/564x/47/63/6f/47636f91f2a66c9c5341655f64e73d69.jpg"
     Column(
         modifier = modifier
@@ -210,6 +213,7 @@ fun GroupMembersSection(
                 } else {
                     GroupMemberItem(
                         user = SelectableUser(user, false),
+                        isAdmin = admins.any { user.email == it },
                         onUserClick = {
                             onUserClicked(it)
                         })
