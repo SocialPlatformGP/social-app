@@ -32,6 +32,7 @@ interface MessageRemoteDataSource {
     fun getGroupDetails(groupId: String): Flow<State<ChatGroup>>
     fun removeMemberFromGroup(groupId: String, memberEmail: String): Flow<State<String>>
     fun addGroupMembers(groupId: String, usersEmails: List<String>): Flow<State<Nothing>>
+    fun updateGroupAvatar(uri: Uri, oldURL: String, groupID: String): Flow<State<String>>
     fun changeGroupName(groupID: String, newName: String): Flow<State<Nothing>>
 //    fun sendMessageWithFile(message: Message, fileUri: Uri, chatId: String)
 }

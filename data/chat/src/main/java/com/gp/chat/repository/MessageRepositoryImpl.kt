@@ -94,6 +94,8 @@ class MessageRepositoryImpl @Inject constructor(
         return messageRemoteDataSource.removeMemberFromGroup(groupId, memberEmail)
     }
 
+    override fun updateGroupAvatar(uri: Uri, oldURL: String, groupID: String)
+        = messageRemoteDataSource.updateGroupAvatar(uri, oldURL, groupID)
     override fun addGroupMembers(groupId: String, usersEmails: List<String>): Flow<State<Nothing>> {
         return messageRemoteDataSource.addGroupMembers(groupId, usersEmails)
     }
