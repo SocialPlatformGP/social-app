@@ -634,49 +634,42 @@ class MessageFirebaseClient(
     override fun addGroupMembers(groupId: String, usersEmails: List<String>): Flow<State<Nothing>> =
         callbackFlow {
             trySend(State.Loading)
-            val successCounter = AtomicInteger(0)
-
-            fun checkCompletion(counter: Int, totalUpdates: Int) {
-                if (counter == totalUpdates * 2) {
-                    trySend(State.Success)
-                    close()  // Close the flow when all updates are completed
-                }
-            }
-
-            usersEmails.forEach { userEmail ->
-                database.reference.child(CHAT_USER)
-                    .child(RemoveSpecialChar.removeSpecialCharacters(userEmail)).child(GROUP)
-                    .child(groupId)
-                    .setValue(false)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            successCounter.incrementAndGet()
-                            checkCompletion(successCounter.get(), usersEmails.size)
-                        } else {
-                            trySend(State.Error("$userEmail update failed"))
-                        }
-                    }
-            }
-
+//            val successCounter = AtomicInteger(0)
+//
+//            fun checkCompletion(counter: Int, totalUpdates: Int) {
+//                if (counter == totalUpdates * 2) {
+//                    trySend(State.Success)
+//                    close()  // Close the flow when all updates are completed
+//                }
+//            }
+//
+//            usersEmails.forEach { userEmail ->
+//                database.reference.child(CHAT_USER)
+//                    .child(RemoveSpecialChar.removeSpecialCharacters(userEmail)).child(GROUP)
+//                    .child(groupId)
+//                    .setValue(false)
+//                    .addOnCompleteListener { task ->
+//                        if (task.isSuccessful) {
+//                            successCounter.incrementAndGet()
+//                            checkCompletion(successCounter.get(), usersEmails.size)
+//                        } else {
+//                            trySend(State.Error("$userEmail update failed"))
+//                        }
+//                    }
+//            }
             val groupUpdate = mutableMapOf<String, Any>()
-
             usersEmails.forEach { userEmail ->
                 val userKey = RemoveSpecialChar.removeSpecialCharacters(userEmail)
                 groupUpdate["$CHAT/$groupId/members/$userKey"] = false
+                groupUpdate["$CHAT_USER/$userKey/$GROUP/$groupId"] = false
             }
-
             database.reference.updateChildren(groupUpdate)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        successCounter.incrementAndGet()
-                        checkCompletion(successCounter.get(), usersEmails.size)
-                    } else {
-                        trySend(State.Error("Chat group update failed"))
-                    }
+                .addOnSuccessListener {
+                    trySend(State.Success)
+                }.addOnFailureListener {
+                    trySend(State.Error("Chat group update failed"))
                 }
-
-            // Use awaitClose as a cleanup mechanism, but don't close the flow immediately
-            awaitClose { /* cleanup resources if needed */ }
+            awaitClose {}
         }
 
     override fun changeGroupName(groupID: String, newName: String):Flow<State<Nothing>> = callbackFlow{

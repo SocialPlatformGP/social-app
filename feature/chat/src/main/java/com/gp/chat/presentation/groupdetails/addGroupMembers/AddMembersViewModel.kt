@@ -18,12 +18,14 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class AddMembersDialogViewModel @Inject constructor(
+class AddMembersViewModel @Inject constructor(
     private val userRepo: UserRepository,
     private val chatRepo: MessageRepository
 ): ViewModel() {
     val uiState = MutableStateFlow(AddMembersUIState())
     private val _allUsers = MutableStateFlow(emptyList<User>())
+    private val _selectedUsers = MutableStateFlow(emptyList<User>())
+    val selectedUsers = _selectedUsers.asStateFlow()
     private val _users = MutableStateFlow(emptyList<SelectableUser>())
     val users = _users.asStateFlow()
     private val currentUserEmail = userRepo.getCurrentUserEmail()
@@ -69,8 +71,8 @@ class AddMembersDialogViewModel @Inject constructor(
                     it
                 }
             }
+            _selectedUsers.value = updatedUsers
             Log.d("seerde", "User status before edit in viewmodel: ${_users.value.find { it.data.email == user.email }!!.isSelected}")
-            uiState.value = uiState.value.copy(selectedUsers = updatedUsers.toList())
         }
     }
 
@@ -85,22 +87,24 @@ class AddMembersDialogViewModel @Inject constructor(
                     it
                 }
             }
-            uiState.value = uiState.value.copy(selectedUsers = updatedUsers.toList())
+            _selectedUsers.value = updatedUsers
         }
     }
     fun onAddMembersClick(groupId: String){
         viewModelScope.launch{
             val userEmails = uiState.value.selectedUsers.map{it.email}
-            Log.d("seerde" , "User emails to add: ${userEmails}")
-            chatRepo.addGroupMembers(groupId, userEmails).collect{
-                when(it){
-                    is State.Success -> {
-                        uiState.value = uiState.value.copy(isCreated = true)
+            if(userEmails.isNotEmpty()){
+                Log.d("seerde" , "User emails to add: ${userEmails}")
+                chatRepo.addGroupMembers(groupId, userEmails).collect{
+                    when(it){
+                        is State.Success -> {
+                            uiState.value = uiState.value.copy(isCreated = true)
+                        }
+                        is State.Error -> {
+                            Log.d("seerde", "Adding Members Failed: ${it.message}")
+                        }
+                        else ->{}
                     }
-                    is State.Error -> {
-                        Log.d("seerde", "Adding Members Failed: ${it.message}")
-                    }
-                    else ->{}
                 }
             }
         }

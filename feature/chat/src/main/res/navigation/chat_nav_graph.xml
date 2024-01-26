@@ -125,7 +125,11 @@
             app:argType="string" />
         <action
             android:id="@+id/action_groupDetailsFragment_to_privateChatFragment"
-            app:destination="@id/privateChatFragment"/>
+            app:destination="@id/privateChatFragment"
+            app:popUpTo="@id/chatHome" />
+        <action
+            android:id="@+id/action_groupDetailsFragment_to_addMembersFragment"
+            app:destination="@id/addMembersFragment" />
     </fragment>
     <dialog
         android:id="@+id/fullScreenImageDialogFragment"
@@ -164,5 +168,21 @@
         <argument
             android:name="isPrivateChat"
             app:argType="boolean" />
+    </fragment>
+    <fragment
+        android:id="@+id/addMembersFragment"
+        android:name="com.gp.chat.presentation.groupdetails.addGroupMembers.AddMembersFragment"
+        android:label="AddMembersFragment" >
+        <argument
+            android:name="users"
+            app:argType="com.gp.users.model.User[]" />
+        <argument
+            android:name="groupID"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_addMembersFragment_to_groupDetailsFragment"
+            app:destination="@id/groupDetailsFragment"
+            app:popUpTo="@id/groupDetailsFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 </navigation>
