@@ -23,7 +23,7 @@ data class EditPostUIState(
     var body: String = "",
 )
 
-    val uiState = MutableStateFlow(EditPostUIState())
+    val uiState = MutableStateFlow<EditPostUIState>(EditPostUIState())
     val post = MutableStateFlow<Post?>(null)
 
     fun updatePost(){

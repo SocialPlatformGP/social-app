@@ -105,7 +105,9 @@ class PostDetailsFragment
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        bindMediaLayout(args.post.attachments)
+        if(args.post.attachments.isNotEmpty()){bindMediaLayout(args.post.attachments)}
+
+
         recyclerView = view.findViewById(R.id.recyclerView)
         recyclerView.itemAnimator = null
         replyAdapter = NestedReplyAdapter(

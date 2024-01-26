@@ -28,6 +28,7 @@ class EditPostFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
         binding=DataBindingUtil.inflate(
             inflater,
             R.layout.fragment_edit_post,

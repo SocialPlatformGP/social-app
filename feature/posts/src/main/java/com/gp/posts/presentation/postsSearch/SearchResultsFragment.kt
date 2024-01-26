@@ -39,6 +39,7 @@ class SearchResultsFragment : Fragment(){
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         val recyclerView = binding.rvSearchPosts
         val adapter = SearchResultAdapter()
         recyclerView.adapter = adapter
@@ -49,6 +50,7 @@ class SearchResultsFragment : Fragment(){
                 adapter.submitList(it)
             }
         }
+
         if(args.isTag){
             viewModel.searchPostsByTag(args.SearchQuery)
             binding.searchView.text="Search Results for Tag: "+args.SearchQuery

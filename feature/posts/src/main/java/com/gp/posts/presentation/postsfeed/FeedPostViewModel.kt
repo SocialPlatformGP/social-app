@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.Collections
 import javax.inject.Inject
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -30,7 +29,6 @@ class FeedPostViewModel @Inject constructor(
 ) : ViewModel() {
     private val _tags = mutableSetOf<String>()
     val tags: Set<String> = _tags
-    private val unfilteredPosts = mutableListOf<Post>()
     private val _selectedTagFilters = MutableStateFlow<Set<String>>(emptySet())
     val selectedTagFilters = _selectedTagFilters.asStateFlow()
     init {
@@ -42,7 +40,7 @@ class FeedPostViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<State<List<Post>>>(State.Idle)
     val uiState = _uiState.asStateFlow()
 
-    fun getAllPosts() {
+    private fun getAllPosts() {
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.value = State.Loading
             repository.getAllLocalPosts().collect { posts ->
@@ -63,7 +61,7 @@ class FeedPostViewModel @Inject constructor(
                 }
                 withContext(Dispatchers.Main) {
                     _uiState.value = State.SuccessWithData(sortedPosts)
-                    Log.d("TAG258", "New Data: ${sortedPosts}")
+                    Log.d("TAG258", "New Data: $sortedPosts")
                 }
             }
         }

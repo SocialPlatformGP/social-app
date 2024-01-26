@@ -22,7 +22,7 @@ data class Post(
     val editStatus: Boolean = false,
     val tags: List<Tag> = emptyList(),
     val type: String = "all",
-    val attachments: List<PostAttachment>
+    val attachments: List<PostAttachment> = emptyList()
 ):Serializable{
     companion object{
         val sortByVotes = compareByDescending<Post>{ PostPopularityUtils.calculateInteractionValue(it.votes, it.replyCount)}
