@@ -53,6 +53,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.google.firebase.auth.FirebaseUser
 import com.gp.chat.R
 import com.gp.chat.model.RecentChat
+import com.gp.chat.util.DateUtils
 import com.gp.chat.utils.CircularAvatar
 import com.jai.multifabbutton.compose.FabItem
 import com.jai.multifabbutton.compose.MultiFloatingActionButton
@@ -188,8 +189,7 @@ fun ChatItem(
         }
     }
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z", Locale.ENGLISH)
-    val timestamp = DateTimeFormatter.ofPattern("hh:mm", Locale.ENGLISH)
-        .format(ZonedDateTime.parse(chatItem.timestamp, formatter))
+    val timestamp = DateUtils.getTimeStamp(ZonedDateTime.parse(chatItem.timestamp, formatter))
     Column(
         modifier = modifier
             .padding(start = 8.dp, end = 8.dp, top = 16.dp)
