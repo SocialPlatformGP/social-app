@@ -21,7 +21,7 @@ android {
 
     defaultConfig {
         applicationId "com.gp.socialapp"
-        minSdk 24
+        minSdk 26
         targetSdk 34
         versionCode 1
 

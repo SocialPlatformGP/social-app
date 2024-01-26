@@ -5,8 +5,10 @@ import com.gp.socialapp.utils.State
 
 data class LoginUiState(
     var email: String,
+    var emailError: String,
     var password: String,
+    var passwordError: String,
     var isSignedIn: State<FirebaseUser>
 ){
-    constructor(): this("", "", State.Idle)
+    constructor(): this("", "", "", "", State.Idle)
 }

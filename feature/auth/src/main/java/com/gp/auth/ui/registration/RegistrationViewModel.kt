@@ -7,6 +7,7 @@ import com.gp.auth.repo.AuthenticationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 @HiltViewModel
@@ -21,5 +22,14 @@ class  RegistrationViewModel @Inject constructor(private val authRepo: Authentic
                 }
             }
         }
+    }
+    fun onEmailChange(email: String){
+        registrationUiState.update { it.copy(email = email) }
+    }
+    fun onPasswordChange(password: String){
+        registrationUiState.update { it.copy(password = password) }
+    }
+    fun rePasswordChange(rePassword: String){
+        registrationUiState.update { it.copy(rePassword = rePassword) }
     }
 }
