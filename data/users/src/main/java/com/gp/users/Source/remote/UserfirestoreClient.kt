@@ -89,12 +89,14 @@ class UserfirestoreClient @Inject constructor(
         try {
             val users = mutableListOf<User>()
             for (userEmail in emails) {
+                Log.d("SEERDE", "getUsersByEmails: called on user: $userEmail")
                 val userQuerySnapshot =
                     firestore.collection("users").whereEqualTo("userEmail", userEmail).get().await()
                 if (!userQuerySnapshot.isEmpty) {
                     val user = userQuerySnapshot.first()
                         .toObject(NetworkUser::class.java)
                         .toModel()
+                    Log.d("SEERDE", "getUsersByEmails: success on user $userEmail")
                     users.add(user)
                 }
             }

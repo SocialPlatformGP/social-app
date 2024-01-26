@@ -49,6 +49,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gp.chat.R
 import com.gp.chat.presentation.createGroupChat.GroupAvatarSection
 import com.gp.chat.presentation.createGroupChat.GroupMemberItem
+import com.gp.chat.util.RemoveSpecialChar
 import com.gp.users.model.SelectableUser
 import com.gp.users.model.User
 
@@ -182,8 +183,7 @@ fun GroupMembersSection(
     onUserClicked: (User) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val isAdminList = members.map { member -> admins.any { member.email == it } }
-    val addImage = "https://i.pinimg.com/564x/47/63/6f/47636f91f2a66c9c5341655f64e73d69.jpg"
+    Log.d("SEERDE", "GroupMembersSection:  members: ${members.map { it.email }}")
     Column(
         modifier = modifier
             .padding(top = 4.dp)
@@ -213,7 +213,7 @@ fun GroupMembersSection(
                 } else {
                     GroupMemberItem(
                         user = SelectableUser(user, false),
-                        isAdmin = admins.any { user.email == it },
+                        isAdmin = admins.any { RemoveSpecialChar.removeSpecialCharacters(user.email) == it },
                         onUserClick = {
                             onUserClicked(it)
                         })

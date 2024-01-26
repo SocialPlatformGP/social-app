@@ -89,7 +89,7 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
         super.onViewCreated(view, savedInstanceState)
         val recyclerView = binding.recyclerMessage
         val manager = LinearLayoutManager(requireContext())
-
+        Log.d("SEERDE", "Arguments: chatID: ${args.chatId}, senderName: ${args.senderName}, senderPic: ${args.senderPic}, receiverName: ${args.receiverName}, receiverPic: ${args.receiverPic}")
         adapter = MessageAdapter(this, this, this, true)
         manager.stackFromEnd = true
         recyclerView.layoutManager = manager

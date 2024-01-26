@@ -277,49 +277,44 @@ fun GroupMemberItem(
         )
         Spacer(modifier = modifier.width(12.dp))
         Column (
-            verticalArrangement = Arrangement.SpaceEvenly,
-            modifier = Modifier.fillMaxWidth()
+            verticalArrangement = Arrangement.Center,
         ){
-            Row {
+            Column{
                 Text(
                     text = user.data.firstName + " " + user.data.lastName,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    fontSize = 20.sp
+                    fontSize = 20.sp,
                 )
-                Row(
-                    horizontalArrangement = if(isAdmin) Arrangement.Start else Arrangement.End,
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .fillMaxWidth()
-                ) {
-                    if(isSelectable){
-                        CircleCheckbox(
-                            selected = isSelected,
-                            onChecked = {onUserClick(user.data)})
-                    } else if(isAdmin) {
-                        Image(
-                            painter = painterResource(id = R.drawable.admin_svgrepo_com),
-                            contentDescription = null,
-                        )
-                    }
+                if(user.data.bio.isNotBlank()) {
+                    Text(
+                        text = user.data.bio,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        fontSize = 14.sp,
+                        color = Color.Gray,
+                    )
                 }
             }
-            if(user.data.bio.isNotBlank()) {
-                Text(
-                    text = user.data.bio,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    fontSize = 14.sp,
-                    color = Color.Gray,
-                    modifier = Modifier.fillMaxWidth()
+        }
+        Box(modifier = Modifier.fillMaxWidth()){
+            if(isSelectable){
+                CircleCheckbox(
+                    selected = isSelected,
+                    onChecked = {onUserClick(user.data)},
+                    modifier = Modifier.align(Alignment.CenterEnd))
+            } else if(isAdmin) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_admin_24),
+                    contentDescription = null,
+                    modifier = Modifier.align(Alignment.CenterEnd)
                 )
             }
         }
     }
 }
 @Composable
-fun CircleCheckbox(selected: Boolean, enabled: Boolean = true, onChecked: () -> Unit) {
+fun CircleCheckbox(modifier: Modifier = Modifier,selected: Boolean, enabled: Boolean = true, onChecked: () -> Unit) {
     val color = MaterialTheme.colorScheme
     val imageVector = if (selected) Icons.Filled.CheckCircle else ImageVector.vectorResource(R.drawable.circle_outline)
     val tint = if (selected) color.primary.copy(alpha = 0.8f) else Color.White.copy(alpha = 0.8f)
@@ -327,7 +322,7 @@ fun CircleCheckbox(selected: Boolean, enabled: Boolean = true, onChecked: () -> 
 
     IconButton(
         onClick = { onChecked() },
-        modifier = Modifier.offset(x = 4.dp, y = 4.dp),
+        modifier = modifier.size(24.dp),
         enabled = enabled
     ) {
         Icon(imageVector = imageVector, tint = tint,
