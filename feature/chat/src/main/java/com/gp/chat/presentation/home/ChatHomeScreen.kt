@@ -223,8 +223,9 @@ fun ChatItem(
                 .fillMaxWidth()
         ) {
             if(imageURL.isBlank()) {
+                val drawable = if(chatItem.privateChat) R.drawable.baseline_account_circle_24 else R.drawable.ic_group
                 Image(
-                    painterResource(id = R.drawable.ic_group),
+                    painterResource(id = drawable),
                     contentDescription = null,
                     contentScale = ContentScale.Fit,
                     modifier = Modifier

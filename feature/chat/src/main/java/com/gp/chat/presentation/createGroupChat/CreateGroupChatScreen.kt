@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFromBaseline
@@ -88,10 +89,12 @@ fun CreateGroupChatScreen(
 //            .padding(8.dp)
         ) {
             GroupAvatarSection(
+//                modifier = Modifier.weight(0.3F),
                 avatarURL = avatarURL,
                 isModifiable = true,
                 onChoosePhotoClicked = onChoosePhotoClicked
             )
+            Spacer(modifier = Modifier.height(4.dp))
             OutlinedTextField(
                 value = name,
                 isError = isError,
@@ -112,8 +115,10 @@ fun CreateGroupChatScreen(
                     Text(text = "Group Name")
                 },
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth(),)
+                modifier = Modifier
+                    .fillMaxWidth(),)
             ChooseGroupMembersSection(
+//                modifier = Modifier.weight(1F),
                 selectedUsers = selectedUsers,
                 users = users,
                 onUnselectUser = {
@@ -129,13 +134,15 @@ fun CreateGroupChatScreen(
                     }
                 })
         }
+        //TODO("give weight to each composable in the column")
         Button(
             onClick = {
                 isError = name.isBlank()
                 if (!isError){
                     onCreateGroupClicked()
                 }
-            }
+            },
+            modifier = Modifier.heightIn(40.dp, 41.dp)
         ) {
             Text(
                 text = "Create Group",
@@ -197,7 +204,9 @@ fun ChooseGroupMembersSection(
     users: List<SelectableUser>,
     onUserClick: (SelectableUser) -> Unit
 ) {
-    Column {
+    Column (
+        modifier = modifier,
+    ){
         FlowRow {
             selectedUsers.forEach {user ->
                 SelectedMemberItem(

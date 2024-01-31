@@ -14,6 +14,9 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.Toolbar
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -29,6 +32,8 @@ import com.gp.chat.listener.ImageClickListener
 import com.gp.chat.listener.OnMessageClickListener
 import com.gp.chat.utils.MyScrollToBottomObserver
 import com.gp.chat.listener.OnFileClickListener
+import com.gp.chat.presentation.home.DropDownItem
+import com.gp.chat.presentation.privateChat.ChatScreen
 import com.gp.material.utils.FileManager
 import com.gp.material.utils.FileUtils.getFileName
 import com.gp.material.utils.FileUtils.getMimeTypeFromUri
@@ -37,10 +42,13 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class GroupChatFragment : Fragment(), OnMessageClickListener, OnFileClickListener,
-    ImageClickListener {
+class GroupChatFragment : Fragment(),
+    OnMessageClickListener,
+    OnFileClickListener,
+    ImageClickListener
+{
+    private lateinit var composeView: ComposeView
     private val viewModel: GroupChatViewModel by viewModels()
-    private lateinit var binding: FragmentGroupChatBinding
     private val args: GroupChatFragmentArgs by navArgs()
     private lateinit var fileManager: FileManager
     @RequiresApi(Build.VERSION_CODES.O)
@@ -71,74 +79,66 @@ class GroupChatFragment : Fragment(), OnMessageClickListener, OnFileClickListene
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_group_chat, container, false)
-        binding.lifecycleOwner = this
-        binding.viewModel = viewModel
-        return binding.root
+        return ComposeView(requireContext()).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+        }.also {
+            composeView = it
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.setData(args.groupId, args.title, args.photoUrl)
-        val recyclerView = binding.recyclerMessage
-        val adapter = MessageAdapter(this, this, this, false)
-        val manager = LinearLayoutManager(requireContext())
-        manager.stackFromEnd = true
-
-        recyclerView.layoutManager = manager
-        adapter.registerAdapterDataObserver(
-            MyScrollToBottomObserver(
-                recyclerView,
-                adapter,
-                manager
-            )
-        )
-        recyclerView.adapter = adapter
-        binding.addFileButton.setOnClickListener {
-            openDocument.launch("*/*")
-        }
-        binding.addImageButton.setOnClickListener {
-            openGallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
-        }
-        binding.addCameraButton.setOnClickListener {
-            val action =
-                GroupChatFragmentDirections.actionGroupChatFragmentToCameraPreviewFragment(
-                    chatId = args.groupId,
-                    senderName = args.title,
-                    senderPic = args.photoUrl,
-                    isPrivateChat = false
-                )
-            findNavController().navigate(action)
-        }
-
-        val toolbar = requireActivity().findViewById<Toolbar>(R.id.toolbar)
-        toolbar.title = args.title
-        toolbar.setOnClickListener {
-            val action =
-                GroupChatFragmentDirections.actionGroupChatFragmentToGroupDetailsFragment(
-                    args.groupId,
-                )
-            //todo admin or not ????
-            findNavController().navigate(action)
-        }
-        lifecycleScope.launch {
-            viewModel.chatMessagesFlow.flowWithLifecycle(lifecycle).collectLatest {
-                Log.d("edrees", "before submit")
-                adapter.submitList(it)
-                Log.d("edrees", "after submit")
-                recyclerView.viewTreeObserver.addOnPreDrawListener(object :
-                    ViewTreeObserver.OnPreDrawListener {
-                    override fun onPreDraw(): Boolean {
-                        recyclerView.viewTreeObserver.removeOnPreDrawListener(this)
-                        recyclerView.scrollToPosition(adapter.itemCount - 1)
-                        return true
-                    }
-                })
+       composeView.setContent {
+           MaterialTheme {
+               ChatScreen(
+                   viewModel = viewModel,
+                   isPrivateChat = false,
+                   chatTitle = args.title,
+                   chatImageURL = args.photoUrl,
+                   onChatHeaderClicked = { navigateToGroupDetails(true)/*Todo check if is admin*/ },
+                   onBackPressed = { findNavController().popBackStack() },
+                   onFileClicked = ::onFileClick,
+                   onImageClicked = ::onImageClick,
+                   onUserClicked = {/*TODO("navigate to user profile")*/},
+                   onAttachFileClicked = { openDocument.launch("*/*") },
+                   onAttachImageClicked = { openGallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)) },
+                   onOpenCameraClicked = {
+                       val action =
+                       GroupChatFragmentDirections.actionGroupChatFragmentToCameraPreviewFragment(
+                           chatId = args.groupId,
+                           senderName = args.title,
+                           senderPic = args.photoUrl,
+                           isPrivateChat = false
+                       )
+                       findNavController().navigate(action)
+                                         },
+                   dropDownItems = listOf(DropDownItem("Update"), DropDownItem("Delete")),
+                   onDropPDownItemClicked = ::onDropDownItemClicked
+               )
+           }
+       }
+    }
+    private fun onDropDownItemClicked(dropDownItem: DropDownItem, messageId: String, messageBody: String) {
+        val chatId = args.groupId
+        when (dropDownItem.text) {
+            "Delete" -> {
+                deleteMessage(messageId, chatId)
+            }
+            "Update" -> {
+                updateMessage(messageId, chatId, messageBody)
             }
         }
     }
-
+    private fun navigateToGroupDetails(isAdmin: Boolean){
+        val action =
+            GroupChatFragmentDirections.actionGroupChatFragmentToGroupDetailsFragment(
+                args.groupId,
+                isAdmin
+            )
+        findNavController().navigate(action)
+    }
 
     override fun deleteMessage(messageId: String, chatId: String) {
         viewModel.deleteMessage(messageId, chatId)

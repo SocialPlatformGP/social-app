@@ -98,7 +98,7 @@ class MessageFirebaseClient(
             message.toNetworkMessage()
         ) { error, ref ->
             if (error == null) {
-                if (message.fileType != "text") {
+                if (message.fileType != "") {
                     val key = ref.key
                     val storageRef = Firebase.storage
                         .getReference(currentUser!!.uid)
@@ -400,7 +400,6 @@ class MessageFirebaseClient(
                 }
                 trySend(messages)
             }
-
             override fun onCancelled(error: DatabaseError) {
                 close(error.toException())
             }

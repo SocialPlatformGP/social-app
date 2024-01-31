@@ -1,5 +1,6 @@
 package com.gp.chat.utils
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
@@ -17,7 +18,8 @@ import kotlinx.coroutines.Dispatchers
 fun CircularAvatar(
     imageURL: String,
     size: Dp,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {},
 ) {
     val imageRequest =
         ImageRequest.Builder(LocalContext.current).data(imageURL).dispatcher(Dispatchers.IO)
@@ -29,6 +31,7 @@ fun CircularAvatar(
         contentScale = ContentScale.Crop,
         modifier = modifier
             .size(size)
-            .clip(CircleShape),
+            .clip(CircleShape)
+            .clickable { onClick() },
     )
 }

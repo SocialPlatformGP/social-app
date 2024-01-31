@@ -97,8 +97,6 @@ class ChatHome : Fragment(), OnRecentChatClicked {
     override fun onDropDownItemClicked(dropDownItem: DropDownItem, recentChat: RecentChat) {
         when (dropDownItem.text) {
             "Leave" -> {
-//                TODO("Fix Leave Not working")
-                Log.d("SEERDE", "onDropDownItemClicked: Called from fragment")
                 viewModel.leaveGroup(recentChat.id)
             }
         }
