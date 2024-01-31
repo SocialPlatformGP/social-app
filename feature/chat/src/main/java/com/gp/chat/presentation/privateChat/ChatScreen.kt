@@ -212,7 +212,7 @@ fun ChatScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .padding(horizontal = 8.dp, vertical = 8.dp)
             ) {
                 IconButton(onClick = { onBackPressed() }) {
                     Icon(
@@ -222,13 +222,16 @@ fun ChatScreen(
                     )
                 }
                 Row (
-                    modifier = Modifier.clickable { onChatHeaderClicked() }
+                    modifier = Modifier.clickable { onChatHeaderClicked()}.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically,
                 ){
                     Spacer(modifier = Modifier.size(8.dp))
-                    CircularAvatar(imageURL = chatImageURL, size = 55.dp)
+                    CircularAvatar(imageURL = chatImageURL, size = 45.dp)
                     Spacer(modifier = Modifier.size(8.dp))
                     Text(
-                        text = chatTitle
+                        text = chatTitle,
+                        fontSize = 18.sp
                     )
                 }
             }
@@ -297,14 +300,13 @@ fun MessageInput(
     }
     Column (
         modifier = modifier
-            .padding(vertical = 2.dp, horizontal = 8.dp)
+            .padding(vertical = 4.dp, horizontal = 8.dp)
             .fillMaxWidth()
     ){
         Divider(
-            modifier = Modifier
-                .padding(vertical = 8.dp)
+            modifier = Modifier.padding(bottom = 2.dp)
                 .size(2.dp),
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
         )
         Row (
             verticalAlignment = Alignment.CenterVertically
@@ -405,13 +407,6 @@ fun MessagesContent(
             val previousMessage = reversedMessages.getOrNull(index + 1)
             val isSameSender = previousMessage?.senderId.equals(message.senderId)
             val  isCurrentUser = message.senderId == currentUserEmail
-            if (previousMessage?.messageDate != message.messageDate) {
-                item {
-                    DateHeader(
-                        dateString = message.messageDate,
-                    )
-                }
-            }
             Log.d("seerde","messageMail: ${message.senderId}, currentMail: $currentUserEmail")
             item {
                 MessageItem(
@@ -427,6 +422,13 @@ fun MessagesContent(
                     maxScreenWidthDP = maxScreenWidthDP,
                     maxScreenHeightDP = maxScreenHeightDP,
                 )
+            }
+            if (previousMessage?.messageDate != message.messageDate) {
+                item {
+                    DateHeader(
+                        dateString = message.messageDate,
+                    )
+                }
             }
         }
     }
@@ -451,7 +453,7 @@ fun DateHeader(
         Text(
             text = header,
             modifier = Modifier.padding(horizontal = 8.dp),
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Divider(
@@ -580,7 +582,7 @@ fun MessageItem(
     val density = LocalDensity.current
     Row(
         modifier = modifier
-            .padding(top = topPadding)
+            .padding(top = topPadding, start = if(isPrivateChat) 16.dp else 0.dp, end = if(isPrivateChat) 16.dp else 0.dp)
             .fillMaxWidth(),
         horizontalArrangement = horizontalArrangement
     ) {
@@ -604,8 +606,6 @@ fun MessageItem(
                     .clickable { onUserClicked(message.senderId) })
         } else if (!isCurrentUser && message.senderPfpURL.isNotBlank() && !isPrivateChat) {
             Spacer(modifier = Modifier.width(74.dp))
-        } else if (isPrivateChat || isCurrentUser) {
-            Spacer(modifier = Modifier.width(16.dp))
         }
         Surface(
             color = backgroundColor,

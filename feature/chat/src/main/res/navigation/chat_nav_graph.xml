@@ -125,8 +125,7 @@
             app:argType="string" />
         <action
             android:id="@+id/action_groupDetailsFragment_to_privateChatFragment"
-            app:destination="@id/privateChatFragment"
-            app:popUpTo="@id/chatHome" />
+            app:destination="@id/privateChatFragment" />
         <action
             android:id="@+id/action_groupDetailsFragment_to_addMembersFragment"
             app:destination="@id/addMembersFragment" />

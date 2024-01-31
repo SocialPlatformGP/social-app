@@ -1,5 +1,6 @@
 package com.gp.chat.presentation.groupdetails
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -14,6 +15,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -48,9 +51,11 @@ class GroupDetailsFragment : Fragment(), OnGroupMemberClicked {
         }
     }
 
+    @SuppressLint("RestrictedApi")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.getUsersList(args.groupId)
+        this.listFragments("SEERDE")
         composeView.setContent {
             MaterialTheme {
                 GroupDetailsScreen(viewModel = viewModel,
@@ -61,10 +66,11 @@ class GroupDetailsFragment : Fragment(), OnGroupMemberClicked {
             }
         }
     }
-
-
-    private fun onAddGroupMember(user: User) {
-//        TODO("Check if the function in firebase client is working or not if not fix")
+    fun Fragment.listFragments(tag: String) {
+        val fm = (requireParentFragment() as NavHostFragment).childFragmentManager
+        fm.fragments.forEachIndexed { index, fragment ->
+            Log.d(tag, "Fragment $index: ${fragment.javaClass.simpleName}")
+        }
     }
 
     private fun onRemoveGroupMember(user: User) {
@@ -95,7 +101,7 @@ class GroupDetailsFragment : Fragment(), OnGroupMemberClicked {
     }
 
     override fun onMemberClicked(user: User) {
-        val items = if (isAdmin) {
+        val items = if (isAdmin && user.email != viewModel.currentUserEmail) {
             arrayOf("View Profile", "Message", "Remove from Group")
         } else {
             arrayOf("View Profile", "Message")

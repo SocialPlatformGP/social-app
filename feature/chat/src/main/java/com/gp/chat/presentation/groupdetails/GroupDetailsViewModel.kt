@@ -2,8 +2,10 @@ package com.gp.chat.presentation.groupdetails
 
 import android.net.Uri
 import android.util.Log
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.auth.auth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -27,7 +29,7 @@ class GroupDetailsViewModel @Inject constructor(
     private val userRepo: UserRepository,
     private val messageRepo: MessageRepository
 ) : ViewModel(){
-    private val currentUserEmail = removeSpecialCharacters(Firebase.auth.currentUser!!.email!!)
+    val currentUserEmail = Firebase.auth.currentUser!!.email!!
     private val _haveChatWithUserState = MutableStateFlow<State<String>>(State.Idle)
     val haveChatWithUserState = _haveChatWithUserState.asStateFlow()
     private val _avatarURL = MutableStateFlow<String>("")
@@ -109,10 +111,10 @@ class GroupDetailsViewModel @Inject constructor(
     }
 
     fun messageUser(userEmail: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             Log.d("SEERDE", "messageUser: call reached viewmodel")
             messageRepo.haveChatWithUser(
-                removeSpecialCharacters(userEmail), currentUserEmail).collect{
+                removeSpecialCharacters(userEmail), removeSpecialCharacters(currentUserEmail)).collect{
                 when (it) {
                     is State.SuccessWithData -> {
                         Log.d("SEERDE", "messageUser: success in viewmodel: data:${it.data}")
@@ -133,15 +135,15 @@ class GroupDetailsViewModel @Inject constructor(
                 ChatGroup(
                     name = "Private Chat",
                     members = mapOf(
-                        currentUserEmail to true,
-                        RemoveSpecialChar.removeSpecialCharacters(receiverEmail) to true
+                        removeSpecialCharacters(currentUserEmail) to true,
+                        removeSpecialCharacters(receiverEmail) to true
                     )
                 )
             ).collect {
                 when (it) {
                     is State.SuccessWithData -> {
-                        insertUserToChat(currentUserEmail, it.data,
-                            RemoveSpecialChar.removeSpecialCharacters(receiverEmail)
+                        insertUserToChat(removeSpecialCharacters(currentUserEmail), it.data,
+                            removeSpecialCharacters(receiverEmail)
                         )
                         insertPrivateChat(receiverEmail, it.data)
                         _haveChatWithUserState.value = State.SuccessWithData(it.data)
@@ -173,8 +175,8 @@ class GroupDetailsViewModel @Inject constructor(
     fun insertPrivateChat(receiverEmail: String, chatId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             messageRepo.insertPrivateChat(
-                currentUserEmail,
-                RemoveSpecialChar.removeSpecialCharacters(receiverEmail),
+                removeSpecialCharacters(currentUserEmail),
+                removeSpecialCharacters(receiverEmail),
                 chatId
             ).collect {
                 if(it is State.Error) {

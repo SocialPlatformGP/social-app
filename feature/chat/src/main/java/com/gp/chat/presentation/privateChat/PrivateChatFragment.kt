@@ -77,6 +77,7 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
         savedInstanceState: Bundle?
     ): View {
         initializeViewModel()
+        Log.d("SEERDE", "onCreateView")
         return ComposeView(requireContext()).apply{
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
         }.also {
@@ -88,8 +89,10 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val chatTitle = if (args.senderName == viewModel.currentUser.displayName) args.receiverName else args.senderName
-        val chatImageUrl = if (args.senderName == viewModel.currentUser.displayName) args.receiverPic else args.senderPic
+        Log.d("seerde", "1- ${args.chatId} 2- ${args.receiverName} 3- ${args.senderName} 4- ${args.receiverPic} 5- ${args.senderPic}")
+        val chatTitle = if (args.senderPic == viewModel.currentUser.photoUrl.toString()) args.receiverName else args.senderName
+        val chatImageUrl = if (args.senderPic == viewModel.currentUser.photoUrl.toString()) args.receiverPic else args.senderPic
+        Log.d("SEERDE", "onViewCreated: $chatTitle----$chatImageUrl")
         composeView.setContent {
             MaterialTheme {
                 ChatScreen(
@@ -120,6 +123,17 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
                 )
             }
         }
+        Log.d("SEERDE", "onViewCreated: 2")
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Log.d("SEERDE", "onStart: ")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d("SEERDE", "onResume: ")
     }
 
     private fun onDropDownItemClicked(dropDownItem: DropDownItem, messageId: String, messageBody: String) {

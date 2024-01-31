@@ -167,7 +167,7 @@ fun ChatItem(
         MutableInteractionSource()
     }
     val imageURL = when {
-        chatItem.privateChat && chatItem.senderName == currentUser.displayName -> {
+        chatItem.privateChat && chatItem.senderPicUrl == currentUser.photoUrl.toString()-> {
             chatItem.receiverPicUrl
         }
 
@@ -176,7 +176,7 @@ fun ChatItem(
         }
     }
     val name = when {
-        chatItem.privateChat && chatItem.senderName == currentUser.displayName -> {
+        chatItem.privateChat && chatItem.senderPicUrl == currentUser.photoUrl.toString() -> {
             chatItem.receiverName
         }
 

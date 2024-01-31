@@ -299,7 +299,6 @@ class MessageFirebaseClient(
                         Log.d("SEERDE", "onDataChange: user doesn't exist in client")
                         trySend(State.SuccessWithData("-1"))
                     }
-
                 }
                 override fun onCancelled(error: DatabaseError) {
                     Log.d(TAG, "onCancelled: ${error.message}")
@@ -419,7 +418,7 @@ class MessageFirebaseClient(
                     message.toNetworkMessage()
                 ) { error, ref ->
                     if (error == null) {
-                        if (message.fileType != "text") {
+                        if (message.fileType != "") {
                             val key = ref.key
                             val storageRef = Firebase.storage
                                 .getReference(currentUser!!.uid)

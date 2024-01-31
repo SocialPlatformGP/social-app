@@ -58,7 +58,7 @@ class NewChatViewModel @Inject constructor(
             userRepository.fetchUsers().collect {
                 Log.d("TAG", "getAllUsers: $it")
                 if (it is State.SuccessWithData) {
-                    _users.value = it.data.filter { removeSpecialCharacters( it.email) == senderEmail }
+                    _users.value = it.data.filter { removeSpecialCharacters( it.email) != senderEmail }
                 }
             }
         }

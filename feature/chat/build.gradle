@@ -48,7 +48,7 @@ dependencies {
     implementation 'com.android.volley:volley:1.2.1'
     implementation project(':data:material')
     def lifecycle_version = "2.6.2"
-    def nav_version = "2.6.0"
+    def nav_version = "2.7.6"
     implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.10.0'
