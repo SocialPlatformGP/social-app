@@ -6,27 +6,40 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Comment
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.More
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.ThumbDown
+import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.gp.posts.R
 import com.gp.socialapp.model.NestedReplyItem
 import com.gp.socialapp.model.Reply
 
@@ -88,32 +101,140 @@ fun ReplyItem(reply: Reply?) {
                 .padding(8.dp)
         ) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-                    , verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = reply?.authorEmail ?: "Unknown", fontWeight = FontWeight.Bold)
-                IconButton(onClick = { isEditing = !isEditing }) {
-                    Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
+                // Circular Image
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data("")
+                        .crossfade(true)
+                        .build(),
+                    placeholder = painterResource(R.drawable.pngwing_com),
+                    contentDescription = "picture image",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .size(40.dp)
+                )
+
+                // Add spacing between image and the text
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Text(
+                    text = reply?.authorEmail ?: "Unknown",
+                    fontWeight = FontWeight.Bold,
+                )
+
+                // Add spacing between the text and timestamp
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Text(
+                    text = "4d",
+                )
+
+                // Add more spacing if needed
+                Spacer(modifier = Modifier.width(180.dp))
+
+                ReplyDropDownMenu()
+            }
+
+
+
+            ExpandableText(text = "how are you my friend today")
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp, horizontal = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                // Comment Button
+                IconButton(onClick = { /* Handle Comment */ }) {
+                    Icon(
+                        imageVector = Icons.Default.Comment,
+                        contentDescription = "Comment",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                // Reply Count
+                Text(
+                    text = "Reply Count",
+                    color = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier
+                        .padding(start = 4.dp)
+                )
+
+                // Upvote Button
+                IconButton(onClick = { /* Handle Upvote */ }) {
+                    Icon(
+                        imageVector = Icons.Default.ThumbUp,
+                        contentDescription = "Upvote",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                // Votes Text
+                Text(
+                    text = "Votes",
+                    color = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier
+                        .padding(end = 4.dp)
+                )
+
+                // DownVote Button
+                IconButton(onClick = {  }) {
+                    Icon(
+                        imageVector = Icons.Default.ThumbDown,
+                        contentDescription = "Down Vote",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
                 }
             }
 
-            Text(text = reply?.content ?: "No content available")
 
-            // Reply actions (upvote, downvote, etc.) can be added here
-
-            if (isEditing) {
-                EditableReplyContent(
-                    editedContent = editedContent,
-                    onEditContentChange = { editedContent = it },
-                    onSaveClick = {
-                        // Handle save click
-                        isEditing = false
-                    }
-                )
-            }
         }
+    }
+}
+
+@Composable
+fun ReplyDropDownMenu() {
+
+    var menuExpanded by remember { mutableStateOf(false) }
+    IconButton(onClick = { menuExpanded = !menuExpanded }) {
+        Icon(
+            imageVector = Icons.Default.MoreVert,
+            contentDescription = "More Options"
+        )
+    }
+    DropdownMenu(
+        expanded=menuExpanded
+        , onDismissRequest = { menuExpanded = false }
+    ) {
+        DropdownMenuItem(
+            text = {
+                Text(text = "Delete")
+            },
+            onClick = {
+            }
+        )
+        DropdownMenuItem(
+            text = {
+                Text(text = "Edit")
+            },
+            onClick = {
+            }
+        )
+        DropdownMenuItem(
+            text = {
+                Text(text = "Report")
+            },
+            onClick = {
+            }
+        )
     }
 }
 

@@ -18,7 +18,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -204,7 +203,7 @@ fun PostDetails(post: Post) {
         LazyColumn(modifier = Modifier.verticalScroll(scrollState)) {
 
             item {
-               PostItem(post = post)
+                PostItem(post = post)
             }
 
             items(sampleData.replies.size) { post ->
@@ -229,40 +228,40 @@ fun PostDropDownMenu() {
             contentDescription = "More Options"
         )
     }
-            DropdownMenu(
-                expanded=menuExpanded
-                , onDismissRequest = { menuExpanded = false }
-            ) {
-                DropdownMenuItem(
-                    text = {
-                        Text(text = "Delete")
-                    },
-                    onClick = {
-                    }
-                )
-                DropdownMenuItem(
-                    text = {
-                        Text(text = "Edit")
-                    },
-                    onClick = {
-                    }
-                )
-                DropdownMenuItem(
-                    text = {
-                        Text(text = "Save")
-                    },
-                    onClick = {
-                    }
-                )
-                DropdownMenuItem(
-                    text = {
-                        Text(text = "Report")
-                    },
-                    onClick = {
-                    }
-                )
+    DropdownMenu(
+        expanded=menuExpanded
+        , onDismissRequest = { menuExpanded = false }
+    ) {
+        DropdownMenuItem(
+            text = {
+                Text(text = "Delete")
+            },
+            onClick = {
             }
-        }
+        )
+        DropdownMenuItem(
+            text = {
+                Text(text = "Edit")
+            },
+            onClick = {
+            }
+        )
+        DropdownMenuItem(
+            text = {
+                Text(text = "Save")
+            },
+            onClick = {
+            }
+        )
+        DropdownMenuItem(
+            text = {
+                Text(text = "Report")
+            },
+            onClick = {
+            }
+        )
+    }
+}
 val post1 = Post(
     replyCount = 5,
     userName = "JohnDoe",
