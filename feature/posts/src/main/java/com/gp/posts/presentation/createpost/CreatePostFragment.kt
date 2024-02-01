@@ -16,6 +16,7 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.ui.platform.ComposeView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -46,6 +47,7 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class CreatePostFragment : Fragment(), OnFilePreviewClicked {
+    private lateinit var composeView: ComposeView
     private val viewModel: CreatePostViewModel by viewModels()
     lateinit var binding: FragmentCreatePostBinding
     lateinit var addTagBinding: DialogAddTagBinding
@@ -70,21 +72,22 @@ class CreatePostFragment : Fragment(), OnFilePreviewClicked {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding =
-            DataBindingUtil.inflate(layoutInflater, R.layout.fragment_create_post, container, false)
-        binding.lifecycleOwner = this
-        binding.viewmodel = viewModel
-        binding.fragment = this
-        binding.context = requireContext()
-        binding.onFilePreviewsClicked = this
-        return binding.root
+        return ComposeView(requireContext()).apply {
+            composeView = this
+        }
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.setType(args.type)
-        addCancelPressedCollector()
-        addPostFilesChangeCollector()
+        composeView.apply {
+            setContent {
+                CreatePostScreen()
+            }
+        }
+//        viewModel.setType(args.type)
+//        addCancelPressedCollector()
+//        addPostFilesChangeCollector()
     }
 
     private fun addPostFilesChangeCollector() {
