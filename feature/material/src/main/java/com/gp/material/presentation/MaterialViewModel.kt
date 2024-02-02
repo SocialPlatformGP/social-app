@@ -5,172 +5,155 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.StorageMetadata
-import com.google.firebase.storage.StorageReference
-import com.google.firebase.storage.component3
-import com.google.firebase.storage.ktx.storage
-import com.gp.material.model.FileType
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.gp.material.model.MaterialItem
+import com.gp.material.repository.MaterialRepository
 import com.gp.material.source.remote.MaterialRemoteDataSource
+import com.gp.socialapp.utils.State
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class MaterialViewModel @Inject constructor(
-    private val remoteDataSource: MaterialRemoteDataSource
+    private val materialRepo: MaterialRepository
      ) : ViewModel() {
-
-     private var currentPath=""
-
-    private val storageReference: StorageReference = Firebase.storage.reference
-
-    private val _fileItems = MutableStateFlow<List<MaterialItem>>(emptyList())
-
-    private val _folderItems = MutableStateFlow<List<MaterialItem>>(emptyList())
-    val folderItems: StateFlow<List<MaterialItem>> get() = _folderItems
-    val fileItems: StateFlow<List<MaterialItem>> get() = _fileItems
-
-    fun fetchDataFromFirebaseStorage() {
-
-        val fileItems = mutableListOf<MaterialItem>()
-
-        if (currentPath==""){
-            currentPath="materials"
-        }
-        storageReference.child(currentPath).listAll()
-            .addOnSuccessListener { listResult ->
-                listResult.items.forEach { item ->
-                    item.metadata.addOnSuccessListener { metadata ->
-                        val newItem=createMaterialItemFromMetadata(metadata)
-                        metadata.reference?.downloadUrl?.addOnSuccessListener { url ->
-                            val updatedItem = newItem.copy(fileUrl = url.toString())
-                            fileItems.add(updatedItem)
-                            if (fileItems.size == listResult.items.size) {
-                                _fileItems.value = fileItems }
-                        }
-                    }
-                }
-                val folderItems = mutableListOf<MaterialItem>()
-                listResult.prefixes.forEach { prefix ->
-
-                    val newItem = createMaterialItemFromPrefix(prefix)
-                    folderItems.add(newItem)
-
-                    if (folderItems.size == listResult.prefixes.size) {
-                        _folderItems.value = folderItems
-                        Log.d("waleed2", _folderItems.value.toString())
-                    }
-                }
-            }
-            .addOnFailureListener { exception ->
-                Log.e("waleed2", "Error fetching data: $exception")
-            }
-    }
-
-
-
-    fun openFolder(path: String) {
-        currentPath = path
-        fetchDataFromFirebaseStorage()
-    }
-
-
-
-    private fun createMaterialItemFromMetadata(metadata: StorageMetadata): MaterialItem {
-        val fileName = metadata.getCustomMetadata("fName") ?: ""
-        val path = metadata.getCustomMetadata("path") ?: ""
-        val creator = metadata.getCustomMetadata("createdBy") ?: ""
-        val id = metadata.getCustomMetadata("id") ?: ""
-        val type = metadata.getCustomMetadata("fileType") ?: ""
-        val time= metadata.getCustomMetadata("time") ?: ""
-
-        return MaterialItem(
-            name = fileName,
-            path = path,
-            createdBy = creator,
-            id = id,
-            fileType = stringToFileType(type),
-            creationTime=time
-        )
-    }
-
-
-    fun clearData(){
-        _fileItems.value= emptyList()
-        _folderItems.value= emptyList()
-    }
-
-
-    fun getCurrentPath():String{
-        return currentPath
-    }
-
-
-    private fun stringToFileType(typeString: String): FileType {
-        return try {
-            FileType.valueOf(typeString.toUpperCase())
-        } catch (e: IllegalArgumentException) {
-            FileType.UnKnown
-        }
-    }
-
-
-    private fun createMaterialItemFromPrefix(prefix: StorageReference): MaterialItem {
-        val fileName = prefix.name ?: ""
-        val path = prefix.path ?: ""
-        return MaterialItem(
-            name = fileName,
-            path = path,
-            fileType = FileType.FOLDER
-        )
-    }
-
-
-
-    fun uploadFile(fileUri: Uri, context: Context) {
+    private val _currentPath = MutableStateFlow("materials")
+    val currentPath = _currentPath.asStateFlow()
+    private val _items = MutableStateFlow<List<MaterialItem>>(emptyList())
+    val items = _items.asStateFlow()
+    init {
         viewModelScope.launch {
-            remoteDataSource.uploadFile(currentPath, fileUri, context)
+            _currentPath.collect{
+                fetchDataFromFirebaseStorage()
+            }
+        }
+        Log.d("SEERDE", "Viewmodel: initial fetch call ")
+//        fetchDataFromFirebaseStorage()
+    }
+    fun fetchDataFromFirebaseStorage() {
+        viewModelScope.launch (Dispatchers.IO){
+            Log.d("SEERDE", "Viewmodel: fetch call for path: ${_currentPath.value}")
+            materialRepo.getListOfFiles(_currentPath.value).collect{
+                when(it){
+                    is State.SuccessWithData -> {
+                        Log.d("SEERDE", "Viewmodel: fetch call success data: ${it.data}")
+                        _items.value = it.data
+                    }
+                    is State.Error -> {
+                        Log.d("SEERDE", "fetchDataFromFirebaseStorage: error ${it.message}")
+                    }
+                    else ->{
+                        Log.d("SEERDE", "received other state: ${it.javaClass}")
+                    }
+                }
+            }
         }
     }
-
-
-
-    fun uploadFolder(currentPath:String,name:String){
-        remoteDataSource.uploadFolder(currentPath,name)
+    fun openFolder(path: String) {
+        _currentPath.value = path
     }
+    fun getCurrentPath():String{
+        return _currentPath.value
+    }
+    fun uploadFile(fileUri: Uri, context: Context) {
+        Log.d("SEERDE", "uploadFile: called from vm")
+        viewModelScope.launch (Dispatchers.IO) {
+            materialRepo.uploadFile(_currentPath.value, fileUri, context).collect{
+                when(it) {
+                    is State.Success -> {
+                        //todo stop progress dialog and show snackbar
+                        Log.d("SEERDE", "uploadFile: Success in vm")
+                        fetchDataFromFirebaseStorage()
+                    }
+                    is State.Error -> {
+                        //todo stop progress dialog and show snackbar
+                        Log.d("SEERDE", "uploadFile: error ${it.message}")
+                    }
+                    is State.Loading -> {
+                        //todo show progress dialog
+                    }
+                    else -> {}
+                }
+            }
+        }
+    }
+    fun uploadFolder(name:String){
+        viewModelScope.launch (Dispatchers.IO) {
+            materialRepo.uploadFolder(_currentPath.value, name).collect{
+                when(it){
+                    is State.Success -> {
+                        fetchDataFromFirebaseStorage()
+                    }
+                    is State.Loading -> {
+                        //todo
+                    }
+                    is State.Error -> {
+                        Log.d("SEERDE", "uploadFolder: error :${it.message}")
+                    }
+                    else -> {}
+                }
+            }
 
-
+        }
+    }
     fun deleteFolder(currentPath:String){
-        remoteDataSource.deleteFolder(currentPath)
-    }
-
-
-
-
-    fun deleteFile(fileLocation: String) {
-        remoteDataSource.deleteFile(fileLocation)
-    }
-
-
-
-    fun goBack() :Boolean{
-
-        val lastSlashIndex = currentPath.lastIndexOf("/")
-
-        if (lastSlashIndex != -1) {
-            currentPath= currentPath.substring(0, lastSlashIndex)
-            return true
-        } else {
-            currentPath = "materials"
-            return false
+        viewModelScope.launch (Dispatchers.IO) {
+            materialRepo.deleteFolder(currentPath).collect{
+                when(it){
+                    is State.Success -> {
+                        fetchDataFromFirebaseStorage()
+                    }
+                    is State.Loading -> {
+                        //todo
+                    }
+                    is State.Error -> {
+                        Log.d("SEERDE", "uploadFolder: error :${it.message}")
+                    }
+                    else -> {}
+                }
+            }
         }
-
-        fetchDataFromFirebaseStorage()
     }
-
-
+    fun deleteFile(fileLocation: String) {
+        viewModelScope.launch (Dispatchers.IO) {
+            materialRepo.deleteFile(fileLocation).collect{
+                when(it){
+                    is State.Success -> {
+                        fetchDataFromFirebaseStorage()
+                    }
+                    is State.Loading -> {
+                        //todo
+                    }
+                    is State.Error -> {
+                        Log.d("SEERDE", "uploadFolder: error :${it.message}")
+                    }
+                    else -> {}
+                }
+            }
+        }
+    }
+    fun goBack() :Boolean{
+        val lastSlashIndex = _currentPath.value.lastIndexOf("/")
+        return if (lastSlashIndex != 0) {
+            _currentPath.value = _currentPath.value.substring(0, lastSlashIndex)
+            true
+        } else {
+            _currentPath.value = "materials"
+            false
+        }
+    }
+    fun getCurrentFolderName(path: String) :String{
+        val lastSlashIndex = path.lastIndexOf("/")
+        return if (lastSlashIndex != 0 && lastSlashIndex != -1) {
+            path.substring(startIndex = lastSlashIndex+1)
+        } else {
+            "Home"
+        }
+    }
 }

@@ -7,16 +7,21 @@ data class MaterialItem(
     val name:String="",
     val createdBy:String="",
     val fileUrl: String="",
-    val creationTime:String=""
+    val creationTime:String="",
+    val size: String = ""
     )
 enum class FileType {
     IMAGE,
     PDF,
     AUDIO,
+    EXCEL,
+    PPT,
+    TEXT,
+    WORD,
+    ZIP,
     VIDEO,
     OTHER,
     FOLDER,
     UnKnown
-
 }
 

@@ -1,4 +1,4 @@
-package com.gp.chat.utils
+package com.gp.material.presentation
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Spring

@@ -798,6 +798,7 @@ fun MessageFileAttachment(
             Icon(
                 painter = getFilePainterResource(fileType),
                 contentDescription = null,
+                tint = Color.Unspecified,
                 modifier = Modifier.size(32.dp)
             )
             Spacer(modifier = Modifier.size(4.dp))

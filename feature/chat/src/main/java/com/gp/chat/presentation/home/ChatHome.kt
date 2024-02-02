@@ -18,7 +18,7 @@ import androidx.navigation.fragment.findNavController
 import com.gp.chat.R
 import com.gp.chat.listener.OnRecentChatClicked
 import com.gp.chat.model.RecentChat
-import com.jai.multifabbutton.compose.FabItem
+import com.gp.chat.utils.FabItem
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

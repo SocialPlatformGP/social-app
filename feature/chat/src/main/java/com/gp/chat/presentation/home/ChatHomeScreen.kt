@@ -55,8 +55,8 @@ import com.gp.chat.R
 import com.gp.chat.model.RecentChat
 import com.gp.chat.util.DateUtils
 import com.gp.chat.utils.CircularAvatar
-import com.jai.multifabbutton.compose.FabItem
-import com.jai.multifabbutton.compose.MultiFloatingActionButton
+import com.gp.chat.utils.FabItem
+import com.gp.chat.utils.MultiFloatingActionButton
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
