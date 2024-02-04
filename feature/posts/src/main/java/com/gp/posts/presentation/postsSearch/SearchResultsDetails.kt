@@ -1,4 +1,4 @@
-package com.gp.posts.presentation.postsSearch.ui
+package com.gp.posts.presentation.postsSearch
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,17 +14,19 @@ import androidx.compose.material.MaterialTheme.typography
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Comment
-import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.ThumbDown
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.outlined.ThumbUp
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,14 +40,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.gp.posts.presentation.postsSearch.SearchResultsViewModel
 import com.gp.socialapp.model.Post
 import com.gp.posts.R
 
 
-
 @Composable
-fun SearchScreen(viewModel: SearchResultsViewModel) {
+fun SearchScreen(viewModel: SearchResultsViewModel,searchQuery:String) {
     val searchResult by viewModel.searchResult.collectAsState(initial = emptyList())
 
     Surface(
@@ -188,7 +188,8 @@ fun PostItem(post: Post) {
                 IconButton(
                     onClick = { clicked=true }
                 ) {
-                    val icon = if (clicked) Icons.Default.ThumbDown else Icons.Default.ThumbUp
+                    if (clicked) Icons.Default.ThumbDown
+                    else Icons.Default.ThumbUp
                 }
 
 
@@ -202,7 +203,7 @@ fun PostItem(post: Post) {
 
                 // More Options Button
                 IconButton(
-                    onClick = { /* Handle more options */ }
+                    onClick = { /*SearchDropDownMenu(post = post) */}
                 ) {
                     Icon(imageVector = Icons.Default.MoreVert, contentDescription = "More Options")
                 }
@@ -217,5 +218,53 @@ fun PostItem(post: Post) {
                 color = Color.Gray
             )
         }
+    }
+}
+
+@Composable
+fun SearchDropDownMenu( viewModel:SearchResultsViewModel,post: Post) {
+    var menuExpanded by remember { mutableStateOf(false) }
+    androidx.compose.material3.IconButton(onClick = { menuExpanded = !menuExpanded }) {
+        androidx.compose.material3.Icon(
+            imageVector = Icons.Default.MoreVert,
+            contentDescription = "More Options"
+        )
+    }
+    DropdownMenu(
+        expanded=menuExpanded
+        , onDismissRequest = { menuExpanded = false }
+    ) {
+        DropdownMenuItem(
+            text = {
+                androidx.compose.material3.Text(text = "Delete")
+            },
+            onClick = {
+                //viewModel.deletePost(post = post)
+            }
+        )
+        DropdownMenuItem(
+            text = {
+                androidx.compose.material3.Text(text = "Edit")
+            },
+            onClick = {
+
+            }
+        )
+        DropdownMenuItem(
+            text = {
+                androidx.compose.material3.Text(text = "Save")
+            },
+            onClick = {
+                //to do
+            }
+        )
+        DropdownMenuItem(
+            text = {
+                androidx.compose.material3.Text(text = "Report")
+            },
+            onClick = {
+                // to do
+            }
+        )
     }
 }

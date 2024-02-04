@@ -1,18 +1,35 @@
-package com.gp.posts.presentation.postDetails
+package com.gp.posts.presentation.postsfeed
 
-
-import android.telecom.Call.Details
-import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.magnifier
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Comment
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.ThumbDown
 import androidx.compose.material.icons.filled.ThumbUp
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -20,49 +37,36 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.gp.posts.R
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.gp.posts.presentation.postsfeed.VipFeedViewModel
-import com.gp.socialapp.database.model.PostAttachment
+import com.gp.posts.R
+import com.gp.posts.presentation.postDetails.ExpandableText
+import com.gp.posts.presentation.postDetails.PostDetailsViewModel
+import com.gp.posts.presentation.postDetails.PostDropDownMenu
+import com.gp.posts.presentation.postDetails.UserPostTags
 import com.gp.socialapp.model.Post
-import com.gp.socialapp.model.Tag
+import com.gp.socialapp.util.DateUtils
+
 @Composable
-fun DetailsScreen(viewModel: PostDetailsViewModel, edit:(Post)->Unit){
-    val statePost by viewModel.currentPost.collectAsState()
-    val stateReply by viewModel.currentReplies.collectAsState()
-    Log.d("vip", "DetailsScreen:${statePost.id.toString() +stateReply.toString()} ")
+fun VipScreen(viewModel: VipFeedViewModel,details:(Post)->Unit,edit:(Post)->Unit){
+    val state by viewModel.uiState.collectAsState()
+    LazyColumn( modifier = Modifier.fillMaxWidth(1f)){
+        items(state.posts){
+            PostItem(viewModel =viewModel ,it, details =details , edit = edit )
 
-    Column {
-
-        PostItem(viewModel = viewModel, post =statePost )
-        CommentListScreen(nestedReplyItem = stateReply)
+        }
 
     }
-    
-    }
-
+}
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun PostItem(viewModel: PostDetailsViewModel,post:Post) {
+fun PostItem(viewModel: VipFeedViewModel, post: Post,details:(Post)->Unit,edit:(Post)->Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -99,7 +103,7 @@ fun PostItem(viewModel: PostDetailsViewModel,post:Post) {
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .clip(CircleShape)
-                        .size(80.dp)
+                        .size(40.dp)
                 )
 
                 // User Details Column
@@ -116,14 +120,14 @@ fun PostItem(viewModel: PostDetailsViewModel,post:Post) {
                     )
 
                     Text(
-                        text = post.publishedAt,
+                        text = DateUtils.calculateTimeDifference(post.publishedAt),
                         color = MaterialTheme.colorScheme.secondary,
                         fontSize = 14.sp,
                         modifier = Modifier.padding(top = 4.dp)
                     )
                 }
                 Spacer(modifier = Modifier.weight(1f))
-                PostDropDownMenu(viewModel,post)
+                DropDownMenu(viewModel,post, edit = edit)
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -157,9 +161,6 @@ fun PostItem(viewModel: PostDetailsViewModel,post:Post) {
 
             }
 
-            // FrameLayout
-
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -169,7 +170,7 @@ fun PostItem(viewModel: PostDetailsViewModel,post:Post) {
             ) {
 
                 // Comment Button
-                IconButton(onClick = { /* Handle Comment */ }) {
+                IconButton(onClick = { details(post)}) {
                     Icon(
                         imageVector = Icons.Default.Comment,
                         contentDescription = "Comment",
@@ -186,7 +187,7 @@ fun PostItem(viewModel: PostDetailsViewModel,post:Post) {
                 )
 
                 // Upvote Button
-                IconButton(onClick = { viewModel.upVote(post = post)}) {
+                IconButton(onClick = { viewModel.upVote(post) }) {
                     Icon(
                         imageVector = Icons.Default.ThumbUp,
                         contentDescription = "Upvote",
@@ -203,7 +204,7 @@ fun PostItem(viewModel: PostDetailsViewModel,post:Post) {
                 )
 
                 // DownVote Button
-                IconButton(onClick = { viewModel.downVote(post = post) }) {
+                IconButton(onClick = { viewModel.downVote(post =post )}) {
                     Icon(
                         imageVector = Icons.Default.ThumbDown,
                         contentDescription = "Down Vote",
@@ -215,25 +216,9 @@ fun PostItem(viewModel: PostDetailsViewModel,post:Post) {
         }
     }
 }
-//@Composable
-//fun PostDetails(post: Post) {
-//    val scrollState = rememberScrollState()
-//    val context = LocalContext.current
-//
-//    Surface(modifier = Modifier.fillMaxWidth()) {
-//        LazyColumn(modifier = Modifier.verticalScroll(scrollState)) {
-//            items(sampleData.replies) { reply ->
-//                    this@LazyColumn.item {
-//                        NestedRepliesView(reply)
-//                    }
-//                }
-//            }
-//        }
-//    }
-
 
 @Composable
-fun PostDropDownMenu(viewModel: PostDetailsViewModel,post: Post) {
+fun DropDownMenu(viewModel: VipFeedViewModel,post: Post,edit:(Post)->Unit) {
 
     var menuExpanded by remember { mutableStateOf(false) }
     IconButton(onClick = { menuExpanded = !menuExpanded }) {
@@ -242,50 +227,42 @@ fun PostDropDownMenu(viewModel: PostDetailsViewModel,post: Post) {
             contentDescription = "More Options"
         )
     }
-            DropdownMenu(
-                expanded=menuExpanded
-                , onDismissRequest = { menuExpanded = false }
-            ) {
-                DropdownMenuItem(
-                    text = {
-                        Text(text = "Delete")
-                    },
-                    onClick = {
-                        viewModel.deletePost(post = post)
-                    }
-                )
-                DropdownMenuItem(
-                    text = {
-                        Text(text = "Edit")
-                    },
-                    onClick = {
-                        
-                    }
-                )
-                DropdownMenuItem(
-                    text = {
-                        Text(text = "Save")
-                    },
-                    onClick = {
-                        //to do
-                    }
-                )
-                DropdownMenuItem(
-                    text = {
-                        Text(text = "Report")
-                    },
-                    onClick = {
-                       // to do
-                    }
-                )
+    DropdownMenu(
+        expanded=menuExpanded
+        , onDismissRequest = { menuExpanded = false }
+    ) {
+        DropdownMenuItem(
+            text = {
+                Text(text = "Delete")
+            },
+            onClick = {
+                viewModel.deletePost(post = post)
             }
-        }
+        )
+        DropdownMenuItem(
+            text = {
+                Text(text = "Edit")
+            },
+            onClick = {
+                edit(post)
 
-
-@Preview(showSystemUi = true, backgroundColor = 0xFFFEFEFE, showBackground = true, apiLevel = 30)
-@Composable
-fun ScreenPreview() {
-  //  PostDetails(post = post1)
-
+            }
+        )
+        DropdownMenuItem(
+            text = {
+                Text(text = "Save")
+            },
+            onClick = {
+                //to do
+            }
+        )
+        DropdownMenuItem(
+            text = {
+                Text(text = "Report")
+            },
+            onClick = {
+                // to do
+            }
+        )
+    }
 }
-

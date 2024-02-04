@@ -21,9 +21,10 @@ import com.gp.posts.presentation.postsSearch.SearchResultsViewModel
 import com.gp.socialapp.model.Post
 
 @Composable
-fun suggestScreen(viewModel:SearchResultsViewModel,showDetails:(String)->Unit){
+fun suggestScreen(
+    viewModel:SearchResultsViewModel,
+    showDetails:(String)->Unit){
     val searchResult by viewModel.searchResult.collectAsState(initial = emptyList())
-
     Surface(modifier = Modifier
         .fillMaxSize()
         .padding(4.dp)) {
@@ -34,9 +35,9 @@ fun suggestScreen(viewModel:SearchResultsViewModel,showDetails:(String)->Unit){
 
             }
         }
-
     }
 }
+
 @Composable
 fun suggestItem(title:String,showDetails:(String)->Unit){
     Card(modifier = Modifier
@@ -53,7 +54,6 @@ fun suggestItem(title:String,showDetails:(String)->Unit){
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.Bold
             )
-
         }
 
     }

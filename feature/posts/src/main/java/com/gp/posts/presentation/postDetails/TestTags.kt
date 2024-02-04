@@ -65,24 +65,19 @@ fun TagChip(tag: Tag, onClick: () -> Unit) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun UserPostTags(userPost: Post) {
+fun UserPostTags(userPost: Post,) {
     FlowRow(
         modifier = Modifier
             .fillMaxWidth()
-            .wrapContentSize()
             .padding(top = 8.dp),
         content = {
             for (tag in userPost.tags) {
-                TagChip(tag = tag, onClick = { /* Handle tag click here */ })
+                TagChip(tag = tag, onClick = {  })
             }
         }
     )
 }
 
-data class UserPost(
-    val username: String,
-    val tags: List<Tag>
-)
 val tag :Tag=Tag("test","#fff566")
 @Preview(showSystemUi = true, showBackground = true, backgroundColor = 0xFF84FFFF)
 @Composable

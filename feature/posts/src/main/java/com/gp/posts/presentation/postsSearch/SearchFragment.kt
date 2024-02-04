@@ -9,12 +9,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
-import com.gp.posts.listeners.OnSuggestedPostClickListener
 import com.gp.posts.presentation.postsSearch.SearchResultsViewModel
-import com.gp.posts.presentation.postsSearch.ui.SearchScreen
-import com.gp.posts.presentation.postsSearch.ui.suggestItem
 import com.gp.posts.presentation.postsSearch.ui.suggestScreen
-import com.gp.socialapp.model.Post
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
