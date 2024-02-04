@@ -128,7 +128,6 @@
                 style="@style/Widget.MaterialComponents.Button.Icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:onClick="@{() -> fragment.onAddTagClick()}"
                 android:text="Add"
                 android:textSize="16sp"
                 posts:icon="@drawable/baseline_add_24" />
@@ -205,7 +204,6 @@
             <com.google.android.material.button.MaterialButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:onClick="@{() -> fragment.onPostClick()}"
                 android:text="@string/create_post_button_title"
                 android:layout_margin="8dp"
                 android:layout_weight="1" />

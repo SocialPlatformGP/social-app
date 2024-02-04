@@ -16,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
@@ -96,7 +97,7 @@ class CreatePostViewModel @Inject constructor (
 
     fun addFile(postFile: PostFile) {
         viewModelScope.launch{
-            uiState.value = uiState.value.copy(files = uiState.value.files + listOf(postFile))
+            uiState.update { it.copy(files = it.files + postFile) }
         }
     }
 
@@ -106,4 +107,20 @@ class CreatePostViewModel @Inject constructor (
             uiState.value = uiState.value.copy(files = newFiles)
         }
     }
+
+    fun onTitleChange(title: String) {
+        uiState.update { it.copy(title = title) }
+    }
+
+    fun onBodyChange(body: String) {
+        uiState.update { it.copy(body = body) }
+    }
+
+    fun onAddTag(tag: Set<Tag>) {
+        uiState.update { it.copy(tags = it.tags + tag) }
+    }
+    fun onRemoveTag(tag: Tag) {
+        uiState.update { it.copy(tags = it.tags - tag) }
+    }
+
 }
