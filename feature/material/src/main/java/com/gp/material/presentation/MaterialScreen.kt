@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -35,17 +34,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -58,17 +52,13 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.google.android.play.integrity.internal.x
 import com.gp.material.R
 import com.gp.material.model.FileType
 import com.gp.material.model.MaterialItem
-import com.gp.socialapp.utils.State
-import kotlinx.coroutines.launch
 
 @Composable
 fun MaterialScreen(
@@ -79,7 +69,7 @@ fun MaterialScreen(
     onOpenFile: (MaterialItem) -> Unit,
     onFolderClicked: (String) -> Unit,
     onDropDownItemClicked: (String, MaterialItem) -> Unit,
-    onBackPressed: () ->  Unit,
+    onBackPressed: () -> Unit,
     onNewFileClicked: () -> Unit,
     viewModel: MaterialViewModel,
 ) {
@@ -89,11 +79,11 @@ fun MaterialScreen(
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     Scaffold(
         topBar = {
-            Row (
+            Row(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
-            ){
-                if((currentPath != "materials") && (currentPath != "/materials")){
+            ) {
+                if ((currentPath != "materials") && (currentPath != "/materials")) {
                     IconButton(onClick = { onBackPressed() }) {
                         Icon(
                             imageVector = Icons.Rounded.ArrowBack,
@@ -110,7 +100,7 @@ fun MaterialScreen(
             }
         },
         floatingActionButton = {
-            if(isAdmin){
+            if (isAdmin) {
                 MultiFloatingActionButton(
                     fabIcon = Icons.Filled.Add,
                     items = arrayListOf(
@@ -136,23 +126,24 @@ fun MaterialScreen(
             }
         },
     ) {
-        Box (modifier = modifier.padding(it)){
-            LazyColumn(modifier = Modifier.fillMaxSize()){
-                items(items){item ->
+        Box(modifier = modifier.padding(it)) {
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                items(items) { item ->
                     MaterialItem(
                         item = item,
                         onItemClick = {
-                            if(item.fileType == FileType.FOLDER){
+                            if (item.fileType == FileType.FOLDER) {
                                 onFolderClicked(item.path)
-                            } else{
+                            } else {
                                 onOpenFile(item)
-                            }},
-                        dropDownItems = if(item.fileType == FileType.FOLDER) folderDropDownItems else fileDropDownItem,
-                        onDropDownItemClicked =  onDropDownItemClicked
+                            }
+                        },
+                        dropDownItems = if (item.fileType == FileType.FOLDER) folderDropDownItems else fileDropDownItem,
+                        onDropDownItemClicked = onDropDownItemClicked
                     )
                 }
             }
-            if(isLoading){
+            if (isLoading) {
                 CircularProgressIndicator(
                     modifier = Modifier
                         .align(Alignment.TopCenter)
@@ -161,13 +152,13 @@ fun MaterialScreen(
                     trackColor = MaterialTheme.colorScheme.surfaceVariant,
                 )
             }
-            if(isCreateDialogOpen){
+            if (isCreateDialogOpen) {
                 CreateFolderDialog(
                     onConfirmation = {
                         viewModel.uploadFolder(it)
                         isCreateDialogOpen = false
                     },
-                    onDismissRequest = {isCreateDialogOpen = false})
+                    onDismissRequest = { isCreateDialogOpen = false })
             }
         }
     }
@@ -181,12 +172,12 @@ fun MaterialItem(
     onItemClick: () -> Unit,
     onDropDownItemClicked: (String, MaterialItem) -> Unit,
     dropDownItems: List<String>,
-){
+) {
     var isDropDownMenuVisible by rememberSaveable {
         mutableStateOf(false)
     }
     var pressOffset by remember {
-        mutableStateOf(DpOffset(333.dp,33.dp))
+        mutableStateOf(DpOffset(333.dp, 33.dp))
     }
     var itemHeight by remember {
         mutableStateOf(0.dp)
@@ -196,7 +187,7 @@ fun MaterialItem(
         MutableInteractionSource()
     }
     Column {
-        Row (
+        Row(
             modifier = modifier
                 .padding(horizontal = 8.dp, vertical = 8.dp)
                 .onSizeChanged {
@@ -221,17 +212,18 @@ fun MaterialItem(
                         })
                 },
             verticalAlignment = Alignment.CenterVertically,
-        ){
+        ) {
             Icon(
                 painter = getItemPainterResource(item.fileType),
                 contentDescription = null,
                 tint = Color.Unspecified,
-                modifier = Modifier.size(40.dp))
+                modifier = Modifier.size(40.dp)
+            )
             Spacer(modifier = Modifier.size(16.dp))
-            Column (
+            Column(
                 verticalArrangement = Arrangement.Center,
                 modifier = Modifier.widthIn(max = 260.dp)
-            ){
+            ) {
                 Text(
                     text = item.name,
                     fontWeight = FontWeight.Bold,
@@ -240,9 +232,10 @@ fun MaterialItem(
                 )
                 Text(
                     text = item.size,
-                    style = MaterialTheme.typography.labelMedium)
+                    style = MaterialTheme.typography.labelMedium
+                )
             }
-            Box(modifier = Modifier.fillMaxWidth()){
+            Box(modifier = Modifier.fillMaxWidth()) {
                 IconButton(
                     onClick = {
                         isDropDownMenuVisible = true
@@ -279,6 +272,7 @@ fun MaterialItem(
         }
     }
 }
+
 //@Preview(showBackground = true)
 //@Composable
 //fun MaterialItemPreview(){
@@ -288,19 +282,21 @@ fun MaterialItem(
 //}
 @Composable
 fun getItemPainterResource(type: FileType): Painter {
-    return painterResource(id = when(type) {
-        FileType.AUDIO -> R.drawable.ic_audio
-        FileType.EXCEL -> R.drawable.ic_excel
-        FileType.FOLDER -> R.drawable.ic_folder
-        FileType.IMAGE -> R.drawable.ic_image
-        FileType.PDF -> R.drawable.ic_pdf
-        FileType.PPT -> R.drawable.ic_ppt
-        FileType.TEXT -> R.drawable.ic_text
-        FileType.VIDEO -> R.drawable.ic_video
-        FileType.WORD -> R.drawable.ic_word
-        FileType.ZIP -> R.drawable.ic_zip
-        else -> R.drawable.ic_file
-    })
+    return painterResource(
+        id = when (type) {
+            FileType.AUDIO -> R.drawable.ic_audio
+            FileType.EXCEL -> R.drawable.ic_excel
+            FileType.FOLDER -> R.drawable.ic_folder
+            FileType.IMAGE -> R.drawable.ic_image
+            FileType.PDF -> R.drawable.ic_pdf
+            FileType.PPT -> R.drawable.ic_ppt
+            FileType.TEXT -> R.drawable.ic_text
+            FileType.VIDEO -> R.drawable.ic_video
+            FileType.WORD -> R.drawable.ic_word
+            FileType.ZIP -> R.drawable.ic_zip
+            else -> R.drawable.ic_file
+        }
+    )
 }
 
 @Composable
@@ -309,15 +305,15 @@ fun CreateFolderDialog(
     onDismissRequest: () -> Unit = {},
     onConfirmation: (String) -> Unit,
 ) {
-    var textValue by remember{ mutableStateOf("") }
+    var textValue by remember { mutableStateOf("") }
     Dialog(
         onDismissRequest = {
-        onDismissRequest()
+            onDismissRequest()
         }
     ) {
         // Draw a rectangle shape with rounded corners inside the dialog
         Card(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxWidth()
                 .height(230.dp)
                 .padding(16.dp),
@@ -335,8 +331,8 @@ fun CreateFolderDialog(
                 Spacer(modifier = Modifier.size(8.dp))
                 OutlinedTextField(
                     value = textValue,
-                    onValueChange = {textValue = it},
-                    placeholder = { Text(text = "Folder Name")})
+                    onValueChange = { textValue = it },
+                    placeholder = { Text(text = "Folder Name") })
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),

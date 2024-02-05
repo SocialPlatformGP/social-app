@@ -4,14 +4,12 @@ package com.gp.chat.source.remote
 import android.net.Uri
 import android.util.Log
 import androidx.core.net.toUri
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
@@ -23,23 +21,15 @@ import com.gp.chat.model.NetworkMessage
 import com.gp.chat.model.NetworkRecentChat
 import com.gp.chat.model.RecentChat
 import com.gp.chat.util.ChatMapper.toChatGroup
-import com.gp.chat.util.ChatMapper.toMap
 import com.gp.chat.util.ChatMapper.toModel
 import com.gp.chat.util.ChatMapper.toNetworkMessage
 import com.gp.chat.util.ChatMapper.toRecentChat
-import com.gp.chat.util.RemoveSpecialChar
 import com.gp.chat.util.RemoveSpecialChar.removeSpecialCharacters
 import com.gp.chat.util.RemoveSpecialChar.restoreOriginalEmail
 import com.gp.socialapp.utils.State
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
-import java.util.Date
-import java.util.UUID
-import java.util.concurrent.atomic.AtomicInteger
 
 class MessageFirebaseClient(
     private val database: FirebaseDatabase
@@ -57,8 +47,8 @@ class MessageFirebaseClient(
 
     override fun insertChat(chat: ChatGroup): Flow<State<String>> = callbackFlow {
         val ref = database.reference.child(CHAT).push()
-        val chat = chat.copy(id = ref.key!!, name = "private")
-        ref.setValue(chat)
+        val newChat = chat.copy(id = ref.key!!, name = "private")
+        ref.setValue(newChat)
         val listener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
@@ -127,12 +117,12 @@ class MessageFirebaseClient(
             .addOnSuccessListener { taskSnapshot ->
                 taskSnapshot.metadata!!.reference!!.downloadUrl
                     .addOnSuccessListener { uri ->
-                        val message = message.copy(
+                        val newMessage = message.copy(
                             fileURI = uri,
                             id = key
                         )
 
-                        database.reference.child(MESSAGES).child(message.groupId).child(key)
+                        database.reference.child(MESSAGES).child(newMessage.groupId).child(key)
                             .setValue(
                                 message.toNetworkMessage()
                             ).addOnSuccessListener {
@@ -182,14 +172,14 @@ class MessageFirebaseClient(
         }
     }
 
-    override fun getRecentChats(chatsId: List<String>): Flow<State<List<RecentChat>>> =
+    override fun getRecentChats(chatId: List<String>): Flow<State<List<RecentChat>>> =
         callbackFlow {
             val ref = database.reference.child(RECENT_CHATS)
             val listener = object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
                         val list = mutableListOf<RecentChat>()
-                        for (chatId in chatsId) {
+                        for (chatId in chatId) {
                             val recentChats =
                                 ((snapshot.child(chatId)).getValue(NetworkRecentChat::class.java)
                                     ?.toRecentChat(chatId))
@@ -300,6 +290,7 @@ class MessageFirebaseClient(
                         trySend(State.SuccessWithData("-1"))
                     }
                 }
+
                 override fun onCancelled(error: DatabaseError) {
                     Log.d(TAG, "onCancelled: ${error.message}")
                     trySend(State.Error(error.message))
@@ -399,6 +390,7 @@ class MessageFirebaseClient(
                 }
                 trySend(messages)
             }
+
             override fun onCancelled(error: DatabaseError) {
                 close(error.toException())
             }
@@ -458,7 +450,7 @@ class MessageFirebaseClient(
                 trySend(State.Error("Failed to generate a chat key"))
                 return@callbackFlow
             }
-            if(recentChat.senderPicUrl.isBlank()){
+            if (recentChat.senderPicUrl.isBlank()) {
                 chatRef.setValue(group.copy(picURL = ""))
                     .addOnSuccessListener {
                         database.reference.child(RECENT_CHATS).child(chatKey)
@@ -502,7 +494,10 @@ class MessageFirebaseClient(
                                 chatRef.setValue(group.copy(picURL = uri.toString()))
                                     .addOnSuccessListener {
                                         database.reference.child(RECENT_CHATS).child(chatKey)
-                                            .setValue(recentChat.copy(senderPicUrl = uri.toString()).toRecentChat(chatKey))
+                                            .setValue(
+                                                recentChat.copy(senderPicUrl = uri.toString())
+                                                    .toRecentChat(chatKey)
+                                            )
                                             .addOnSuccessListener {
                                                 val userGroupData = hashMapOf<String, Any>()
                                                 for (user in group.members.entries) {
@@ -588,46 +583,45 @@ class MessageFirebaseClient(
             }
         }
 
-    override fun updateGroupAvatar(uri: Uri, oldURL: String, groupID: String): Flow<State<String>> = callbackFlow {
-        trySend(State.Loading)
-        Firebase.storage
-            .getReference(currentUser!!.uid)
-            .child(groupID)
-            .child(uri.lastPathSegment!!)
-            .putFile(uri)
-            .addOnSuccessListener {
-                it.metadata?.reference?.downloadUrl?.addOnSuccessListener {uri ->
-                    val path1 = "$RECENT_CHATS/$groupID/senderPicUrl"
-                    val path2 = "$CHAT/$groupID/picURL"
-                    val recentChatsRef: DatabaseReference = database.getReference(path1)
-                    val chatsRef: DatabaseReference = database.getReference(path2)
-                    val updateMap = mapOf(
-                        path1 to uri.toString(),
-                        path2 to uri.toString()
-                    )
-                    database.reference.updateChildren(updateMap).addOnSuccessListener {
-                        if(oldURL.isBlank()){
-                            trySend(State.SuccessWithData(uri.toString()))
-                        } else {
-                            val oldRef = Firebase.storage.getReferenceFromUrl(oldURL)
-                            oldRef.delete().addOnSuccessListener {
+    override fun updateGroupAvatar(uri: Uri, oldURL: String, groupID: String): Flow<State<String>> =
+        callbackFlow {
+            trySend(State.Loading)
+            Firebase.storage
+                .getReference(currentUser!!.uid)
+                .child(groupID)
+                .child(uri.lastPathSegment!!)
+                .putFile(uri)
+                .addOnSuccessListener {
+                    it.metadata?.reference?.downloadUrl?.addOnSuccessListener { uri ->
+                        val path1 = "$RECENT_CHATS/$groupID/senderPicUrl"
+                        val path2 = "$CHAT/$groupID/picURL"
+                        val updateMap = mapOf(
+                            path1 to uri.toString(),
+                            path2 to uri.toString()
+                        )
+                        database.reference.updateChildren(updateMap).addOnSuccessListener {
+                            if (oldURL.isBlank()) {
                                 trySend(State.SuccessWithData(uri.toString()))
-                            }.addOnFailureListener{
-                                trySend(State.Error("Failed to delete old image: ${it.message}"))
+                            } else {
+                                val oldRef = Firebase.storage.getReferenceFromUrl(oldURL)
+                                oldRef.delete().addOnSuccessListener {
+                                    trySend(State.SuccessWithData(uri.toString()))
+                                }.addOnFailureListener {
+                                    trySend(State.Error("Failed to delete old image: ${it.message}"))
+                                }
                             }
+                        }.addOnFailureListener {
+                            trySend(State.Error("Failed to update realtime references: ${it.message}"))
                         }
-                    }.addOnFailureListener {
-                        trySend(State.Error("Failed to update realtime references: ${it.message}"))
+                    }?.addOnFailureListener {
+                        trySend(State.Error("Failed to retrieve download link: ${it.message}"))
                     }
-                }?.addOnFailureListener {
-                    trySend(State.Error("Failed to retrieve download link: ${it.message}"))
+                }.addOnFailureListener {
+                    trySend(State.Error("Failed to upload the nem image: ${it.message}"))
                 }
-            }.addOnFailureListener {
-                trySend(State.Error("Failed to upload the nem image: ${it.message}"))
-            }
 
-        awaitClose()
-    }
+            awaitClose()
+        }
 
     override fun addGroupMembers(groupId: String, usersEmails: List<String>): Flow<State<Nothing>> =
         callbackFlow {
@@ -673,23 +667,25 @@ class MessageFirebaseClient(
             awaitClose {}
         }
 
-    override fun changeGroupName(groupID: String, newName: String):Flow<State<Nothing>> = callbackFlow{
-        trySend(State.Loading)
-        Log.d("SEERDE", "changeGroupName: Before calling")
-        database.reference.child(RECENT_CHATS)
-            .child(groupID)
-            .child("title")
-            .setValue(newName)
-            .addOnSuccessListener {
-                database.reference.child(CHAT).child(groupID).child("name").setValue(newName).addOnSuccessListener {
-                    trySend(State.Success)
+    override fun changeGroupName(groupID: String, newName: String): Flow<State<Nothing>> =
+        callbackFlow {
+            trySend(State.Loading)
+            Log.d("SEERDE", "changeGroupName: Before calling")
+            database.reference.child(RECENT_CHATS)
+                .child(groupID)
+                .child("title")
+                .setValue(newName)
+                .addOnSuccessListener {
+                    database.reference.child(CHAT).child(groupID).child("name").setValue(newName)
+                        .addOnSuccessListener {
+                            trySend(State.Success)
+                        }.addOnFailureListener {
+                        trySend(State.Error(it.message!!))
+                    }
                 }.addOnFailureListener {
                     trySend(State.Error(it.message!!))
                 }
-            }.addOnFailureListener {
-                trySend(State.Error(it.message!!))
-            }
-        awaitClose { /* cleanup resources if needed */ }
-    }
+            awaitClose { /* cleanup resources if needed */ }
+        }
 
 }

@@ -1,6 +1,5 @@
 package com.gp.material.source.remote
 
-import android.app.Dialog
 import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
@@ -14,7 +13,6 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageMetadata
 import com.google.firebase.storage.StorageReference
-import com.gp.data.material.R
 import com.gp.material.model.FileType
 import com.gp.material.model.MaterialItem
 import com.gp.material.utils.FileExtensionSets.Companion.getFileType
@@ -27,21 +25,26 @@ import java.util.UUID
 import javax.inject.Inject
 
 
-class MaterialStorageClient @Inject constructor(private val storage: FirebaseStorage):MaterialRemoteDataSource{
+class MaterialStorageClient @Inject constructor(storage: FirebaseStorage) :
+    MaterialRemoteDataSource {
     private val storageRef = storage.reference
 
-    override fun uploadFile(fileLocation: String, file: Uri, context: Context) :Flow<State<Nothing>> = callbackFlow {
+    override fun uploadFile(
+        fileLocation: String,
+        file: Uri,
+        context: Context
+    ): Flow<State<Nothing>> = callbackFlow {
         trySend(State.Loading)
         Log.d("SEERDE", "uploadFile: call received in client")
         val fileName = UUID.randomUUID().toString()
         val path = "$fileLocation/$fileName"
         val fName = getFileName(context.contentResolver, file)
         val userEmail = Firebase.auth.currentUser?.email!!
-        val fileType=getFileTypeFromName(fName)
-        val time=System.currentTimeMillis().toString()
-        val metadata = createStorageMetadata(fileName, fName, path, userEmail,fileType,time)
+        val fileType = getFileTypeFromName(fName)
+        val time = System.currentTimeMillis().toString()
+        val metadata = createStorageMetadata(fileName, fName, path, userEmail, fileType, time)
         val fileRef: StorageReference = storageRef.child("$fileLocation/$fileName")
-        fileRef.putFile(file,metadata).addOnSuccessListener {
+        fileRef.putFile(file, metadata).addOnSuccessListener {
             Log.d("SEERDE", "uploadFile: success")
             trySend(State.Success)
         }.addOnFailureListener {
@@ -50,53 +53,52 @@ class MaterialStorageClient @Inject constructor(private val storage: FirebaseSto
         }
         awaitClose {}
     }
+
     private fun createStorageMetadata(
         id: String,
         fName: String,
         path: String,
         createdBy: String,
         fileType: FileType,
-        time:String
-        ): StorageMetadata {
+        time: String
+    ): StorageMetadata {
         return StorageMetadata.Builder()
             .setCustomMetadata("id", id)
             .setCustomMetadata("fName", fName)
             .setCustomMetadata("path", path)
             .setCustomMetadata("createdBy", createdBy)
-            .setCustomMetadata("fileType",fileType.toString() )
+            .setCustomMetadata("fileType", fileType.toString())
             .setCustomMetadata("time", time)
             .build()
     }
-    private fun uploadFileWithMetadata(
-        fileRef: StorageReference,
-        file: Uri,
-        metadata: StorageMetadata,
-    ) {
-        fileRef.putFile(file, metadata)
-    }
 
+    override fun uploadFolder(fileLocation: String, name: String): Flow<State<Nothing>> =
+        callbackFlow {
+            trySend(State.Loading)
+            val folderId = UUID.randomUUID().toString()
+            val folderPath = "$fileLocation/$name/"
+            val userEmail = Firebase.auth.currentUser?.email!!
+            val placeholderFileName = ".placeholder"
+            val placeholderFilePath = "$folderPath$placeholderFileName"
+            val placeholderFileRef: StorageReference = storageRef.child(placeholderFilePath)
+            val placeholderMetadata = createFolderMetadata(folderId, name, folderPath, userEmail)
 
-    override fun uploadFolder(currentPath: String, name: String): Flow<State<Nothing>> = callbackFlow {
-        trySend(State.Loading)
-        val folderId = UUID.randomUUID().toString()
-        val folderPath = "$currentPath/$name/"
-        val userEmail = Firebase.auth.currentUser?.email!!
-        val placeholderFileName = ".placeholder"
-        val placeholderFilePath = "$folderPath$placeholderFileName"
-        val placeholderFileRef: StorageReference = storageRef.child(placeholderFilePath)
-        val placeholderMetadata = createFolderMetadata(folderId, name, folderPath, userEmail)
+            placeholderFileRef.putBytes(ByteArray(0), placeholderMetadata)
+                .addOnSuccessListener {
+                    trySend(State.Success)
+                }
+                .addOnFailureListener {
+                    trySend(State.Error(it.message!!))
+                }
+            awaitClose()
+        }
 
-        placeholderFileRef.putBytes(ByteArray(0), placeholderMetadata)
-            .addOnSuccessListener {
-                trySend(State.Success)
-            }
-            .addOnFailureListener {
-                trySend(State.Error(it.message!!))
-            }
-        awaitClose()
-    }
-
-    private fun createFolderMetadata(id: String, fName: String, path: String, createdBy: String): StorageMetadata {
+    private fun createFolderMetadata(
+        id: String,
+        fName: String,
+        path: String,
+        createdBy: String
+    ): StorageMetadata {
         return StorageMetadata.Builder()
             .setCustomMetadata("id", id)
             .setCustomMetadata("fName", fName)
@@ -104,7 +106,8 @@ class MaterialStorageClient @Inject constructor(private val storage: FirebaseSto
             .setCustomMetadata("createdBy", createdBy)
             .build()
     }
-    override fun deleteFolder(folderPath: String): Flow<State<Nothing>> = callbackFlow{
+
+    override fun deleteFolder(folderPath: String): Flow<State<Nothing>> = callbackFlow {
         trySend(State.Loading)
         val folderRef: StorageReference = storageRef.child(folderPath)
         folderRef.listAll()
@@ -124,7 +127,6 @@ class MaterialStorageClient @Inject constructor(private val storage: FirebaseSto
             }
         awaitClose()
     }
-
 
 
     private fun getFileName(
@@ -150,6 +152,7 @@ class MaterialStorageClient @Inject constructor(private val storage: FirebaseSto
         }
         return fileName ?: "unknown_file"
     }
+
     override fun getFileTypeFromName(fileName: String): FileType {
         val lowercaseFileName = fileName.lowercase()
 
@@ -158,8 +161,7 @@ class MaterialStorageClient @Inject constructor(private val storage: FirebaseSto
     }
 
 
-
-    override fun deleteFile(fileLocation: String) : Flow<State<Nothing>> = callbackFlow{
+    override fun deleteFile(fileLocation: String): Flow<State<Nothing>> = callbackFlow {
         trySend(State.Loading)
         val storageRef = FirebaseStorage.getInstance().reference
         val fileRef = storageRef.child(fileLocation)
@@ -181,11 +183,12 @@ class MaterialStorageClient @Inject constructor(private val storage: FirebaseSto
         )
         materialItemRef.setValue(materialItemMap)
             .addOnSuccessListener {
-                Log.d("YourActivity", "MaterialItem uploaded successfully") }
+                Log.d("YourActivity", "MaterialItem uploaded successfully")
+            }
             .addOnFailureListener { exception ->
                 Log.e("YourActivity", "Error uploading MaterialItem: $exception")
             }
-        }
+    }
 
     override fun getListOfFiles(path: String): Flow<State<List<MaterialItem>>> = callbackFlow {
         trySend(State.Loading)
@@ -201,12 +204,15 @@ class MaterialStorageClient @Inject constructor(private val storage: FirebaseSto
                 result.addAll(folders.sortedBy { it.name })
                 listResult.items.forEach { item ->
                     item.metadata.addOnSuccessListener { metadata ->
-                        val newItem=createMaterialItemFromMetadata(metadata)
+                        val newItem = createMaterialItemFromMetadata(metadata)
                         metadata.reference?.downloadUrl?.addOnSuccessListener { url ->
                             val updatedItem = newItem.copy(fileUrl = url.toString())
                             files.add(updatedItem)
-                            Log.d("SEERDE", "getListOfFiles: item: ${updatedItem.name}, ${files.size}")
-                            if(files.size == listResult.items.size){
+                            Log.d(
+                                "SEERDE",
+                                "getListOfFiles: item: ${updatedItem.name}, ${files.size}"
+                            )
+                            if (files.size == listResult.items.size) {
                                 result.addAll(files.sortedBy { it.name })
                                 trySend(State.SuccessWithData(result))
                             }
@@ -214,9 +220,12 @@ class MaterialStorageClient @Inject constructor(private val storage: FirebaseSto
                     }
                 }
                 result.addAll(files.sortedBy { it.name })
-                Log.d("SEERDE", "getListOfFiles: ${result.size} - ${listResult.items.size + listResult.prefixes.size}")
+                Log.d(
+                    "SEERDE",
+                    "getListOfFiles: ${result.size} - ${listResult.items.size + listResult.prefixes.size}"
+                )
                 Log.d("SEERDE", "getListOfFiles: $result")
-                if(result.size == listResult.items.size + listResult.prefixes.size){
+                if (result.size == listResult.items.size + listResult.prefixes.size) {
                     trySend(State.SuccessWithData(result))
                 }
             }
@@ -226,15 +235,15 @@ class MaterialStorageClient @Inject constructor(private val storage: FirebaseSto
             }
         awaitClose()
     }
+
     private fun createMaterialItemFromMetadata(metadata: StorageMetadata): MaterialItem {
         val fileName = metadata.getCustomMetadata("fName") ?: ""
         val path = metadata.getCustomMetadata("path") ?: ""
         val creator = metadata.getCustomMetadata("createdBy") ?: ""
         val id = metadata.getCustomMetadata("id") ?: ""
         val type = metadata.getCustomMetadata("fileType") ?: ""
-        val time= metadata.getCustomMetadata("time") ?: ""
+        val time = metadata.getCustomMetadata("time") ?: ""
         val size = metadata.sizeBytes
-        val updatedTime = metadata.updatedTimeMillis
 
         return MaterialItem(
             name = fileName,
@@ -242,19 +251,21 @@ class MaterialStorageClient @Inject constructor(private val storage: FirebaseSto
             createdBy = creator,
             id = id,
             fileType = stringToFileType(type),
-            creationTime=time,
+            creationTime = time,
             size = getFileSizeString(size)
         )
     }
+
     private fun createMaterialItemFromPrefix(prefix: StorageReference): MaterialItem {
-        val fileName = prefix.name ?: ""
-        val path = prefix.path ?: ""
+        val fileName = prefix.name
+        val path = prefix.path
         return MaterialItem(
             name = fileName,
             path = path,
             fileType = FileType.FOLDER
         )
     }
+
     private fun stringToFileType(typeString: String): FileType {
         return try {
             FileType.valueOf(typeString.uppercase())

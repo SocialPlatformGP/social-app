@@ -3,29 +3,24 @@ package com.gp.material.presentation
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.gp.material.model.MaterialItem
 import com.gp.material.repository.MaterialRepository
-import com.gp.material.source.remote.MaterialRemoteDataSource
 import com.gp.socialapp.utils.State
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class MaterialViewModel @Inject constructor(
     private val materialRepo: MaterialRepository
-     ) : ViewModel() {
-    private val _actionState : MutableStateFlow<State<String>> = MutableStateFlow(State.Idle)
+) : ViewModel() {
+    private val _actionState: MutableStateFlow<State<String>> = MutableStateFlow(State.Idle)
     val actionState: StateFlow<State<String>> = _actionState.asStateFlow()
     private val _currentPath = MutableStateFlow("materials")
     private val _isLoading = MutableStateFlow(false)
@@ -33,137 +28,165 @@ class MaterialViewModel @Inject constructor(
     val currentPath = _currentPath.asStateFlow()
     private val _items = MutableStateFlow<List<MaterialItem>>(emptyList())
     val items = _items.asStateFlow()
+
     init {
         viewModelScope.launch {
-            _currentPath.collect{
+            _currentPath.collect {
                 fetchDataFromFirebaseStorage()
             }
         }
     }
+
     fun fetchDataFromFirebaseStorage() {
-        viewModelScope.launch (Dispatchers.IO){
+        viewModelScope.launch(Dispatchers.IO) {
             Log.d("SEERDE", "Viewmodel: fetch call for path: ${_currentPath.value}")
-            materialRepo.getListOfFiles(_currentPath.value).collect{
-                when(it){
+            materialRepo.getListOfFiles(_currentPath.value).collect {
+                when (it) {
                     is State.SuccessWithData -> {
                         Log.d("SEERDE", "Viewmodel: fetch call success data: ${it.data}")
                         _isLoading.value = false
                         _actionState.value = State.Idle
                         _items.value = it.data
                     }
+
                     is State.Error -> {
                         _isLoading.value = false
                         _actionState.value = State.Error("Failed to fetch data from remote host")
                         Log.d("SEERDE", "fetchDataFromFirebaseStorage: error ${it.message}")
                     }
+
                     is State.Loading -> {
                         _isLoading.value = true
                     }
-                    else ->{
+
+                    else -> {
                         Log.d("SEERDE", "received other state: ${it.javaClass}")
                     }
                 }
             }
         }
     }
+
     fun openFolder(path: String) {
         _currentPath.value = path
     }
-    fun getCurrentPath():String{
+
+    fun getCurrentPath(): String {
         return _currentPath.value
     }
+
     fun uploadFile(fileUri: Uri, context: Context) {
         Log.d("SEERDE", "uploadFile: called from vm")
-        viewModelScope.launch (Dispatchers.IO) {
-            materialRepo.uploadFile(_currentPath.value, fileUri, context).collect{
-                when(it) {
+        viewModelScope.launch(Dispatchers.IO) {
+            materialRepo.uploadFile(_currentPath.value, fileUri, context).collect {
+                when (it) {
                     is State.Success -> {
                         _isLoading.value = false
-                        _actionState.value = State.SuccessWithData("File has been uploaded successfully")
+                        _actionState.value =
+                            State.SuccessWithData("File has been uploaded successfully")
                         fetchDataFromFirebaseStorage()
                     }
+
                     is State.Error -> {
                         _isLoading.value = false
                         _actionState.value = State.Error("Failed to upload file")
                         Log.d("SEERDE", "uploadFile: error ${it.message}")
                     }
+
                     is State.Loading -> {
                         _isLoading.value = true
                     }
+
                     else -> {}
                 }
             }
         }
     }
-    fun uploadFolder(name:String){
-        viewModelScope.launch (Dispatchers.IO) {
-            materialRepo.uploadFolder(_currentPath.value, name).collect{
-                when(it) {
+
+    fun uploadFolder(name: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            materialRepo.uploadFolder(_currentPath.value, name).collect {
+                when (it) {
                     is State.Success -> {
                         Log.d("SEERDE", "uploadFolder: create success vm")
                         _isLoading.value = false
-                        _actionState.value = State.SuccessWithData("Folder has been created successfully")
+                        _actionState.value =
+                            State.SuccessWithData("Folder has been created successfully")
                         fetchDataFromFirebaseStorage()
                     }
+
                     is State.Error -> {
                         _isLoading.value = false
                         _actionState.value = State.Error("Failed to create folder")
                         Log.d("SEERDE", "uploadFile: error ${it.message}")
                     }
+
                     is State.Loading -> {
                         _isLoading.value = true
                     }
+
                     else -> {}
                 }
             }
 
         }
     }
-    fun deleteFolder(currentPath:String){
-        viewModelScope.launch (Dispatchers.IO) {
-            materialRepo.deleteFolder(currentPath).collect{
-                when(it){
+
+    fun deleteFolder(currentPath: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            materialRepo.deleteFolder(currentPath).collect {
+                when (it) {
                     is State.Success -> {
                         _isLoading.value = false
-                        _actionState.value = State.SuccessWithData("Folder has been deleted successfully")
+                        _actionState.value =
+                            State.SuccessWithData("Folder has been deleted successfully")
                         fetchDataFromFirebaseStorage()
                     }
+
                     is State.Error -> {
                         _isLoading.value = false
                         _actionState.value = State.Error("Failed to delete folder")
                         Log.d("SEERDE", "uploadFile: error ${it.message}")
                     }
+
                     is State.Loading -> {
                         _isLoading.value = true
                     }
+
                     else -> {}
                 }
             }
         }
     }
+
     fun deleteFile(fileLocation: String) {
-        viewModelScope.launch (Dispatchers.IO) {
-            materialRepo.deleteFile(fileLocation).collect{
-                when(it){
+        viewModelScope.launch(Dispatchers.IO) {
+            materialRepo.deleteFile(fileLocation).collect {
+                when (it) {
                     is State.Success -> {
                         _isLoading.value = false
-                        _actionState.value = State.SuccessWithData("File has been deleted successfully")
+                        _actionState.value =
+                            State.SuccessWithData("File has been deleted successfully")
                         fetchDataFromFirebaseStorage()
                     }
+
                     is State.Error -> {
                         _isLoading.value = false
                         _actionState.value = State.Error("Failed to delete file")
                         Log.d("SEERDE", "uploadFile: error ${it.message}")
                     }
+
                     is State.Loading -> {
                         _isLoading.value = true
                     }
+
                     else -> {}
                 }
             }
         }
     }
-    fun goBack() :Boolean{
+
+    fun goBack(): Boolean {
         val lastSlashIndex = _currentPath.value.lastIndexOf("/")
         return if (lastSlashIndex != 0) {
             _currentPath.value = _currentPath.value.substring(0, lastSlashIndex)
@@ -173,10 +196,11 @@ class MaterialViewModel @Inject constructor(
             false
         }
     }
-    fun getCurrentFolderName(path: String) :String{
+
+    fun getCurrentFolderName(path: String): String {
         val lastSlashIndex = path.lastIndexOf("/")
         return if (lastSlashIndex != 0 && lastSlashIndex != -1) {
-            path.substring(startIndex = lastSlashIndex+1)
+            path.substring(startIndex = lastSlashIndex + 1)
         } else {
             "Home"
         }

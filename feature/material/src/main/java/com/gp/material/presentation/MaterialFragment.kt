@@ -7,13 +7,11 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.PopupMenu
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
@@ -23,17 +21,14 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
-import com.gp.material.R
-import com.gp.material.listener.ClickOnFileClicKListener
 import com.gp.material.model.FileType
 import com.gp.material.model.MaterialItem
 import com.gp.socialapp.utils.State
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class MaterialFragment : Fragment(){
+class MaterialFragment : Fragment() {
     private lateinit var composeView: ComposeView
     private val viewModel: MaterialViewModel by viewModels()
     private val actionUpload = registerForActivityResult(ActivityResultContracts.GetContent()) {
@@ -64,17 +59,28 @@ class MaterialFragment : Fragment(){
                     onFolderClicked = { path -> viewModel.openFolder(path) },
                     folderDropDownItems = listOf("Delete"),
                     fileDropDownItem = listOf("Download", "Share", "Details", "Delete"),
-                    onDropDownItemClicked = {dropDownItem, item ->
+                    onDropDownItemClicked = { dropDownItem, item ->
                         if (item.fileType == FileType.FOLDER) {
-                            if(dropDownItem == "Delete"){
+                            if (dropDownItem == "Delete") {
                                 viewModel.deleteFolder(item.path)
                             }
                         } else {
-                            when(dropDownItem){
-                                "Delete" -> { viewModel.deleteFile(item.path)}
-                                "Download" -> {downloadFile(item)}
-                                "Share" -> {shareLink(item)}
-                                "Details" -> {showDetailsDialog(item)}
+                            when (dropDownItem) {
+                                "Delete" -> {
+                                    viewModel.deleteFile(item.path)
+                                }
+
+                                "Download" -> {
+                                    downloadFile(item)
+                                }
+
+                                "Share" -> {
+                                    shareLink(item)
+                                }
+
+                                "Details" -> {
+                                    showDetailsDialog(item)
+                                }
                             }
                         }
                     },
@@ -86,7 +92,7 @@ class MaterialFragment : Fragment(){
                         }
                     },
                     viewModel = viewModel,
-                    onNewFileClicked = {actionUpload.launch("*/*")}
+                    onNewFileClicked = { actionUpload.launch("*/*") }
                 )
             }
         }
@@ -97,15 +103,18 @@ class MaterialFragment : Fragment(){
                         Snackbar.make(composeView, it.data, Snackbar.LENGTH_LONG)
                             .show()
                     }
+
                     is State.Error -> {
                         Snackbar.make(composeView, it.message, Snackbar.LENGTH_LONG)
                             .show()
                     }
+
                     else -> {}
                 }
             }
         }
     }
+
     private fun openFile(item: MaterialItem) {
         val openFileIntent = Intent(Intent.ACTION_VIEW)
         openFileIntent.setDataAndType(Uri.parse(item.fileUrl), item.fileType.getMimeType())
@@ -133,6 +142,7 @@ class MaterialFragment : Fragment(){
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(item.fileUrl))
         requireContext().startActivity(intent)
     }
+
     private fun showDetailsDialog(item: MaterialItem) {
         val context = requireContext()
         val alertDialogBuilder = AlertDialog.Builder(context)
@@ -156,7 +166,7 @@ class MaterialFragment : Fragment(){
         }
 
         alertDialogBuilder.setNegativeButton("Copy Link") { _, _ ->
-            copyToClipboard("Link", item.fileUrl)
+            "Link".copyToClipboard(item.fileUrl)
             Toast.makeText(context, "Copied", Toast.LENGTH_SHORT).show()
         }
 
@@ -168,10 +178,10 @@ class MaterialFragment : Fragment(){
         alertDialog.show()
     }
 
-    private fun copyToClipboard(label: String, text: String) {
+    private fun String.copyToClipboard(text: String) {
         val context = requireContext()
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        val clip = android.content.ClipData.newPlainText(label, text)
+        val clip = android.content.ClipData.newPlainText(this, text)
         clipboard.setPrimaryClip(clip)
     }
 

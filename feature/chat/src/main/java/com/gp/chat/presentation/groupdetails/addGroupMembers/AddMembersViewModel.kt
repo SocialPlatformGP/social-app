@@ -2,7 +2,6 @@ package com.gp.chat.presentation.groupdetails.addGroupMembers
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.gp.chat.repository.MessageRepository
 import com.gp.socialapp.utils.State
@@ -14,7 +13,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -22,7 +20,7 @@ import javax.inject.Inject
 class AddMembersViewModel @Inject constructor(
     private val userRepo: UserRepository,
     private val chatRepo: MessageRepository
-): ViewModel() {
+) : ViewModel() {
     val uiState = MutableStateFlow(AddMembersUIState())
     private val _allUsers = MutableStateFlow(emptyList<User>())
     private val _selectedUsers = MutableStateFlow(emptyList<User>())
@@ -30,16 +28,21 @@ class AddMembersViewModel @Inject constructor(
     private val _users = MutableStateFlow(emptyList<SelectableUser>())
     val users = _users.asStateFlow()
     private val currentUserEmail = userRepo.getCurrentUserEmail()
-    init{
+
+    init {
         getListOfUsers()
     }
+
     private fun getListOfUsers() {
         viewModelScope.launch(Dispatchers.IO) {
             userRepo.fetchUsers().collect {
                 when (it) {
                     is State.SuccessWithData -> {
                         _allUsers.value = it.data.filter { it.email != currentUserEmail }
-                        Log.d("seerde", "User add Members get all: ${_allUsers.value.map{it.email}}")
+                        Log.d(
+                            "seerde",
+                            "User add Members get all: ${_allUsers.value.map { it.email }}"
+                        )
                         uiState.value = uiState.value.copy(isAllUsersLoaded = true)
                     }
 
@@ -54,14 +57,20 @@ class AddMembersViewModel @Inject constructor(
             }
         }
     }
-    fun submitGroupUsers(groupUsers: List<User>){
-        viewModelScope.launch (Dispatchers.Default){
-            _users.value = _allUsers.value.filter { !(groupUsers.contains(it)) }.map{it.toSelectableUser()}
-            Log.d("seerde", "wtf???not joined User in add members viewmodel: ${_users.value.map{it.data.email}}")
+
+    fun submitGroupUsers(groupUsers: List<User>) {
+        viewModelScope.launch(Dispatchers.Default) {
+            _users.value =
+                _allUsers.value.filter { !(groupUsers.contains(it)) }.map { it.toSelectableUser() }
+            Log.d(
+                "seerde",
+                "wtf???not joined User in add members viewmodel: ${_users.value.map { it.data.email }}"
+            )
         }
     }
+
     fun addMember(user: User) {
-        viewModelScope.launch (Dispatchers.Default){
+        viewModelScope.launch(Dispatchers.Default) {
             Log.d("SEERDE", "addMember: user: $user")
             val updatedUsers = _selectedUsers.value.toMutableList()
             updatedUsers.add(user)
@@ -76,12 +85,15 @@ class AddMembersViewModel @Inject constructor(
             }
             _selectedUsers.value = updatedUsers
             Log.d("SEERDE", "addMember: selected users: ${_selectedUsers.value}")
-            Log.d("seerde", "User status before edit in viewmodel: ${_users.value.find { it.data.email == user.email }!!.isSelected}")
+            Log.d(
+                "seerde",
+                "User status before edit in viewmodel: ${_users.value.find { it.data.email == user.email }!!.isSelected}"
+            )
         }
     }
 
     fun removeMember(user: User) {
-        viewModelScope.launch(Dispatchers.Default){
+        viewModelScope.launch(Dispatchers.Default) {
             val updatedUsers = _selectedUsers.value.toMutableList()
             updatedUsers.remove(user)
             _users.value = _users.value.map {
@@ -94,21 +106,24 @@ class AddMembersViewModel @Inject constructor(
             _selectedUsers.value = updatedUsers
         }
     }
-    fun onAddMembersClick(groupId: String){
-        viewModelScope.launch{
-            val userEmails = selectedUsers.value.map{it.email}
-            Log.d("seerde" , "User emails to add: ${userEmails}")
-            if(userEmails.isNotEmpty()){
-                chatRepo.addGroupMembers(groupId, userEmails).collect{
-                    when(it){
+
+    fun onAddMembersClick(groupId: String) {
+        viewModelScope.launch {
+            val userEmails = selectedUsers.value.map { it.email }
+            Log.d("seerde", "User emails to add: ${userEmails}")
+            if (userEmails.isNotEmpty()) {
+                chatRepo.addGroupMembers(groupId, userEmails).collect {
+                    when (it) {
                         is State.Success -> {
                             uiState.value = uiState.value.copy(isCreated = true)
                             Log.d("seerde", "Adding Members Success")
                         }
+
                         is State.Error -> {
                             Log.d("seerde", "Adding Members Failed: ${it.message}")
                         }
-                        else ->{}
+
+                        else -> {}
                     }
                 }
             }

@@ -84,7 +84,6 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
@@ -100,7 +99,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-import java.util.Stack
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -142,9 +140,11 @@ fun ChatScreen(
         onUpdateMessage = viewModel::setCurrentMessage,
         messages = messages,
         currentMessage = currentMessage,
-        currentUserEmail = viewModel.currentUser.email!!
+        currentUserEmail = viewModel.currentUser.email!!,
+        modifier = modifier
     )
 }
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ChatScreen(
@@ -184,9 +184,11 @@ fun ChatScreen(
         onUpdateMessage = viewModel::updateCurrentMessage,
         messages = messages,
         currentMessage = currentMessage,
-        currentUserEmail = viewModel.currentUser.email!!
+        currentUserEmail = viewModel.currentUser.email!!,
+        modifier = modifier,
     )
 }
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ChatScreen(
@@ -213,7 +215,7 @@ fun ChatScreen(
     val scrollState = rememberLazyListState()
     val configuration = LocalConfiguration.current
     val maxScreenWidthDP = configuration.screenWidthDp.dp
-    val maxScreenHeightDP= configuration.screenHeightDp.dp
+    val maxScreenHeightDP = configuration.screenHeightDp.dp
     Scaffold(
         topBar = {
             Row(
@@ -229,22 +231,26 @@ fun ChatScreen(
                         contentDescription = "Navigate Back"
                     )
                 }
-                Row (
+                Row(
                     modifier = Modifier
                         .clickable { onChatHeaderClicked() }
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically,
-                ){
+                ) {
                     Spacer(modifier = Modifier.size(8.dp))
-                    if(chatImageURL.isNotBlank()){
+                    if (chatImageURL.isNotBlank()) {
                         CircularAvatar(imageURL = chatImageURL, size = 45.dp)
                     } else {
-                        Image(painter = painterResource(id = if (isPrivateChat)
-                            R.drawable.baseline_account_circle_24
-                        else
-                            R.drawable.ic_group),
-                        contentDescription = null)
+                        Image(
+                            painter = painterResource(
+                                id = if (isPrivateChat)
+                                    R.drawable.baseline_account_circle_24
+                                else
+                                    R.drawable.ic_group
+                            ),
+                            contentDescription = null
+                        )
                     }
                     Spacer(modifier = Modifier.size(8.dp))
                     Text(
@@ -283,7 +289,7 @@ fun ChatScreen(
                 onAttachFileClicked = onAttachFileClicked,
                 onAttachImageClicked = onAttachImageClicked,
                 onOpenCameraClicked = onOpenCameraClicked,
-                onSendMessage = { onSendMessage()},
+                onSendMessage = { onSendMessage() },
                 onUpdateMessage = onUpdateMessage,
                 messageState = currentMessage,
             )
@@ -296,12 +302,12 @@ fun MessageInput(
     onAttachFileClicked: () -> Unit,
     onAttachImageClicked: () -> Unit,
     onOpenCameraClicked: () -> Unit,
-    onSendMessage:() -> Unit,
+    onSendMessage: () -> Unit,
     onUpdateMessage: (String) -> Unit,
     messageState: MessageState,
     modifier: Modifier = Modifier,
 ) {
-    var isExpanded by remember{ mutableStateOf(false) }
+    var isExpanded by remember { mutableStateOf(false) }
     val stateTransition: Transition<Boolean> =
         updateTransition(targetState = isExpanded, label = "")
     val rotation: Float by stateTransition.animateFloat(
@@ -316,35 +322,37 @@ fun MessageInput(
     ) {
         if (it) -45f else 0f
     }
-    Column (
+    Column(
         modifier = modifier
             .padding(horizontal = 8.dp)
             .fillMaxWidth()
-    ){
+    ) {
         Divider(
             modifier = Modifier
                 .padding(bottom = 2.dp)
                 .size(2.dp),
             color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
         )
-        Row (
+        Row(
             verticalAlignment = Alignment.CenterVertically
-        ){
+        ) {
             TextField(
                 value = messageState.message,
-                onValueChange = {value -> onUpdateMessage(value)},
+                onValueChange = { value -> onUpdateMessage(value) },
                 placeholder = { Text("Type your message") },
                 modifier = Modifier
                     .weight(1F)
                     .clip(RoundedCornerShape(35.dp)),
-                leadingIcon = { IconButton(onClick = { isExpanded = !isExpanded }) {
-                    Icon(
-                        imageVector = Icons.Filled.Add,
-                        contentDescription = null,
-                        tint = if(isExpanded) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.rotate(rotation)
-                    )
-                }}
+                leadingIcon = {
+                    IconButton(onClick = { isExpanded = !isExpanded }) {
+                        Icon(
+                            imageVector = Icons.Filled.Add,
+                            contentDescription = null,
+                            tint = if (isExpanded) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.rotate(rotation)
+                        )
+                    }
+                }
             )
             IconButton(onClick = { onSendMessage() }) {
                 Icon(
@@ -354,12 +362,12 @@ fun MessageInput(
                 )
             }
         }
-        if(isExpanded){
-            Row (
+        if (isExpanded) {
+            Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
-            ){
+            ) {
                 IconButton(onClick = { onAttachFileClicked() }) {
                     Icon(
                         painterResource(id = R.drawable.baseline_attach_file_24),
@@ -385,21 +393,6 @@ fun MessageInput(
         }
     }
 }
-//@Preview(showBackground = true, showSystemUi = false)
-//@Composable
-//fun MessageInputPreview(){
-//    MaterialTheme {
-//        MessageInput(
-//            onAttachFileClicked = { /*TODO*/ },
-//            onAttachImageClicked = { /*TODO*/ },
-//            onOpenCameraClicked = { /*TODO*/ },
-//            onSendMessage = { /*TODO*/ },
-//            onUpdateMessage = {},
-//            messageState = MessageState(message = "New Message"),
-//        )
-//    }
-//}
-
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MessagesContent(
@@ -425,8 +418,8 @@ fun MessagesContent(
         for ((index, message) in reversedMessages.withIndex()) {
             val previousMessage = reversedMessages.getOrNull(index + 1)
             val isSameSender = previousMessage?.senderId.equals(message.senderId)
-            val  isCurrentUser = message.senderId == currentUserEmail
-            Log.d("seerde","messageMail: ${message.senderId}, currentMail: $currentUserEmail")
+            val isCurrentUser = message.senderId == currentUserEmail
+            Log.d("seerde", "messageMail: ${message.senderId}, currentMail: $currentUserEmail")
             item {
                 MessageItem(
                     message = message,
@@ -505,12 +498,13 @@ fun MessageItem(
     val shortFormat = DateTimeFormatter.ofPattern("HH:mm")
     val dateTime = LocalDateTime.parse(message.timestamp, extendedFormat)
     val timestamp = shortFormat.format(dateTime)
-    val horizontalArrangement = if(isCurrentUser) Arrangement.End else Arrangement.Start
-    val backgroundColor = if(isCurrentUser) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
-    val surfaceShape = if(isCurrentUser){
-        RoundedCornerShape(20.dp, if(!isSameSender)5.dp else 20.dp, 20.dp, 20.dp)
+    val horizontalArrangement = if (isCurrentUser) Arrangement.End else Arrangement.Start
+    val backgroundColor =
+        if (isCurrentUser) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
+    val surfaceShape = if (isCurrentUser) {
+        RoundedCornerShape(20.dp, if (!isSameSender) 5.dp else 20.dp, 20.dp, 20.dp)
     } else {
-        RoundedCornerShape(if(!isSameSender)5.dp else 20.dp, 20.dp, 20.dp, 20.dp)
+        RoundedCornerShape(if (!isSameSender) 5.dp else 20.dp, 20.dp, 20.dp, 20.dp)
     }
     var isDropDownMenuVisible by rememberSaveable {
         mutableStateOf(false)
@@ -532,7 +526,7 @@ fun MessageItem(
             .fillMaxWidth(),
         horizontalArrangement = horizontalArrangement
     ) {
-        if ( !isCurrentUser && !isSameSender && message.senderPfpURL.isNotBlank() && !isPrivateChat) {
+        if (!isCurrentUser && !isSameSender && message.senderPfpURL.isNotBlank() && !isPrivateChat) {
             CircularAvatar(
                 imageURL = message.senderPfpURL,
                 size = 42.dp,
@@ -588,7 +582,7 @@ fun MessageItem(
                         onClick = { onUserClicked(message.senderId) })
                     Spacer(modifier = Modifier.height(4.dp))
                 }
-                if(message.fileType.contains("image") && message.message.isBlank()) {
+                if (message.fileType.contains("image") && message.message.isBlank()) {
                     val imageURL = message.fileURI.toString()
                     ImageMessageWithTimestamp(
                         imageURL = imageURL,
@@ -602,11 +596,18 @@ fun MessageItem(
                             fileURI = message.fileURI,
                             fileType = message.fileType,
                             fileName = message.fileNames,
-                            onFileClicked = { onFileClicked(message.fileURI.toString(), message.fileType, message.fileNames) },
+                            onFileClicked = {
+                                onFileClicked(
+                                    message.fileURI.toString(),
+                                    message.fileType,
+                                    message.fileNames
+                                )
+                            },
                             onImageClicked = { onImageClicked(message.fileURI.toString()) },
-                            maxHeight = maxScreenHeightDP * 0.4f)
+                            maxHeight = maxScreenHeightDP * 0.4f
+                        )
                     }
-                    if(message.message.isNotBlank()){
+                    if (message.message.isNotBlank()) {
                         Text(
                             text = message.message,
                             fontWeight = FontWeight.Light,
@@ -650,20 +651,6 @@ fun MessageItem(
     }
 }
 
-val dummyMessage = Message(
-    id = "1",
-    groupId = "group123",
-    message = "This is a dummy message.",
-    messageDate = "2024-01-28",
-    senderId = "user123",
-    senderName = "John Doe",
-    senderPfpURL = "https://t4.ftcdn.net/jpg/02/52/93/81/360_F_252938192_JQQL8VoqyQVwVB98oRnZl83epseTVaHe.jpg",
-    timestamp = "12:30 PM",
-    fileURI = "".toUri(),
-    fileType = "text",
-    fileNames = "dummyfile.txt"
-)
-
 @Composable
 fun ImageMessageWithTimestamp(
     modifier: Modifier = Modifier,
@@ -677,8 +664,9 @@ fun ImageMessageWithTimestamp(
     var height by remember { mutableStateOf(0f) }
     Card(
         shape = RoundedCornerShape(20.dp),
+        modifier = modifier
     ) {
-        Box{
+        Box {
             MessageImageAttachment(
                 imageURL = imageURL,
                 onImageClicked = { onImageClicked() },
@@ -733,7 +721,8 @@ fun MessageAttachment(
                 MessageImageAttachment(
                     imageURL = fileURI.toString(),
                     onImageClicked = { onImageClicked() },
-                    maxHeight = maxHeight
+                    maxHeight = maxHeight,
+                    modifier = modifier,
                 )
             }
 
@@ -742,6 +731,7 @@ fun MessageAttachment(
                     fileType = fileType,
                     fileName = fileName,
                     onFileClicked = { onFileClicked() },
+                    modifier = modifier,
                 )
             }
         }
@@ -777,7 +767,7 @@ fun getFilePainterResource(fileType: String): Painter {
         id = when {
             fileType.contains("application/pdf") -> R.drawable.ic_pdf
             fileType.contains("audio") -> R.drawable.ic_audio
-            fileType.contains ("video") -> R.drawable.ic_video
+            fileType.contains("video") -> R.drawable.ic_video
             fileType.contains("text") -> R.drawable.ic_text
             fileType.contains("wordprocessingml") || fileType.contains("msword") -> R.drawable.ic_word
             fileType.contains("powerpoint") || fileType.contains("presentation") -> R.drawable.ic_ppt
@@ -796,14 +786,14 @@ fun MessageFileAttachment(
 ) {
 
     Surface(
-        color = Color(0f,0f,0f,0.15f),
+        color = Color(0f, 0f, 0f, 0.15f),
         shape = RoundedCornerShape(20.dp, 20.dp, 20.dp, 20.dp),
     ) {
-        Row (
+        Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier= modifier
+            modifier = modifier
                 .clickable { onFileClicked() }
-                .padding(8.dp)){
+                .padding(8.dp)) {
             Icon(
                 painter = getFilePainterResource(fileType),
                 contentDescription = null,
@@ -820,144 +810,3 @@ fun MessageFileAttachment(
         }
     }
 }
-
-
-//@Preview
-//@Composable
-//fun MessageAttachmentPreview(){
-//    MaterialTheme {
-//        MessageAttachment(
-//            fileURI = "https://t4.ftcdn.net/jpg/02/52/93/81/360_F_252938192_JQQL8VoqyQVwVB98oRnZl83epseTVaHe.jpg".toUri(),
-//            fileType = "image",
-//            fileName = "Apple.jpg",
-//            onFileClicked = { /*TODO*/ })
-//    }
-//}
-//@Preview(showBackground = true)
-//@Composable
-//fun ReceivedMessagePreview(){
-//    MaterialTheme {
-//        ReceivedMessage(
-//            message = dummyMessage,
-//            isPrivateChat = true,
-//            onMessageLongClicked = {},
-//            onFileClicked = { /*TODO*/ },
-//            onImageClicked = { /*TODO*/ },
-//            onUserClicked = {},
-//            isSameSender = false
-//        )
-//    }
-//}
-//@Preview(showBackground = true)
-//@Composable
-//fun SentMessagePreview(){
-//    MaterialTheme {
-//        SentMessage(
-//            message = dummyMessage,
-//            onMessageLongClicked = {},
-//            onFileClicked = { /*TODO*/ },
-//            onImageClicked = { /*TODO*/ },
-//            isSameSender = false
-//        )
-//    }
-//}
-val messageList = listOf(
-    Message(
-        id = "8",
-        groupId = "group1",
-        message = "Goodbye!",
-        messageDate = "Jan 30, 2024",
-        senderId = "user3",
-        senderName = "Alice",
-        senderPfpURL = "https://example.com/user3.jpg",
-        timestamp = "1234567897"
-    ),
-    Message(
-        id = "7",
-        groupId = "group1",
-        message = "See you later!",
-        messageDate = "2024-01-29",
-        senderId = "Jan 29, 2024",
-        senderName = "Jane Doe",
-        senderPfpURL = "https://example.com/user2.jpg",
-        timestamp = "1234567896"
-    ),
-    Message(
-        id = "6",
-        groupId = "group1",
-        message = "How's it going?",
-        messageDate = "Jan 28, 2024",
-        senderId = "user1",
-        senderName = "John Doe",
-        senderPfpURL = "https://example.com/user1.jpg",
-        timestamp = "1234567895",
-    ),
-    Message(
-        id = "5",
-        groupId = "group1",
-        message = "I'm here!",
-        messageDate = "Jan 28, 2024",
-        senderId = "user4",
-        senderName = "Bob",
-        senderPfpURL = "https://example.com/user4.jpg",
-        timestamp = "1234567894"
-    ),
-    Message(
-        id = "4",
-        groupId = "group1",
-        message = "Nice to meet you!",
-        messageDate = "Jan 28, 2024",
-        senderId = "user3",
-        senderName = "Alice",
-        senderPfpURL = "https://example.com/user3.jpg",
-        timestamp = "1234567893"
-    ),
-    Message(
-        id = "3",
-        groupId = "group1",
-        message = "Hello again!",
-        messageDate = "Jan 26, 2024",
-        senderId = "user2",
-        senderName = "Jane Doe",
-        senderPfpURL = "https://example.com/user2.jpg",
-        timestamp = "123456789",
-    ),
-    Message(
-        id = "2",
-        groupId = "group1",
-        message = "I'm doing well, thank you!",
-        messageDate = "Jan 26, 2024",
-        senderId = "user2",
-        senderName = "Jane Doe",
-        senderPfpURL = "https://example.com/user2.jpg",
-        timestamp = "1234567891",
-    ),
-    Message(
-        id = "1",
-        groupId = "group1",
-        message = "Hello, how are you?",
-        messageDate = "Jan 20, 2024",
-        senderId = "user1",
-        senderName = "John Doe",
-        senderPfpURL = "https://example.com/user1.jpg",
-        timestamp = "1234567890",
-    )
-).reversed()
-
-//@RequiresApi(Build.VERSION_CODES.O)
-//@Preview(showBackground = true, showSystemUi = true)
-//@Composable
-//fun MessagesContentPreview() {
-//    MaterialTheme {
-//        MessagesContent(
-//            scrollState = LazyListState(),
-//            messages = messageList,
-//            currentUserEmail = "user1",
-//            isPrivateChat = true,
-//            onMessageLongClicked = {},
-//            onFileClicked = {},
-//            onImageClicked = {},
-//            onUserClicked = {}
-//        )
-//    }
-//}
