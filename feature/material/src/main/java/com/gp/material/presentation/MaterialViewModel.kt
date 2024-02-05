@@ -3,6 +3,7 @@ package com.gp.material.presentation
 import android.content.Context
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -12,6 +13,7 @@ import com.gp.material.source.remote.MaterialRemoteDataSource
 import com.gp.socialapp.utils.State
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,7 +25,11 @@ import javax.inject.Inject
 class MaterialViewModel @Inject constructor(
     private val materialRepo: MaterialRepository
      ) : ViewModel() {
+    private val _actionState : MutableStateFlow<State<String>> = MutableStateFlow(State.Idle)
+    val actionState: StateFlow<State<String>> = _actionState.asStateFlow()
     private val _currentPath = MutableStateFlow("materials")
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading = _isLoading.asStateFlow()
     val currentPath = _currentPath.asStateFlow()
     private val _items = MutableStateFlow<List<MaterialItem>>(emptyList())
     val items = _items.asStateFlow()
@@ -33,8 +39,6 @@ class MaterialViewModel @Inject constructor(
                 fetchDataFromFirebaseStorage()
             }
         }
-        Log.d("SEERDE", "Viewmodel: initial fetch call ")
-//        fetchDataFromFirebaseStorage()
     }
     fun fetchDataFromFirebaseStorage() {
         viewModelScope.launch (Dispatchers.IO){
@@ -43,10 +47,17 @@ class MaterialViewModel @Inject constructor(
                 when(it){
                     is State.SuccessWithData -> {
                         Log.d("SEERDE", "Viewmodel: fetch call success data: ${it.data}")
+                        _isLoading.value = false
+                        _actionState.value = State.Idle
                         _items.value = it.data
                     }
                     is State.Error -> {
+                        _isLoading.value = false
+                        _actionState.value = State.Error("Failed to fetch data from remote host")
                         Log.d("SEERDE", "fetchDataFromFirebaseStorage: error ${it.message}")
+                    }
+                    is State.Loading -> {
+                        _isLoading.value = true
                     }
                     else ->{
                         Log.d("SEERDE", "received other state: ${it.javaClass}")
@@ -67,16 +78,17 @@ class MaterialViewModel @Inject constructor(
             materialRepo.uploadFile(_currentPath.value, fileUri, context).collect{
                 when(it) {
                     is State.Success -> {
-                        //todo stop progress dialog and show snackbar
-                        Log.d("SEERDE", "uploadFile: Success in vm")
+                        _isLoading.value = false
+                        _actionState.value = State.SuccessWithData("File has been uploaded successfully")
                         fetchDataFromFirebaseStorage()
                     }
                     is State.Error -> {
-                        //todo stop progress dialog and show snackbar
+                        _isLoading.value = false
+                        _actionState.value = State.Error("Failed to upload file")
                         Log.d("SEERDE", "uploadFile: error ${it.message}")
                     }
                     is State.Loading -> {
-                        //todo show progress dialog
+                        _isLoading.value = true
                     }
                     else -> {}
                 }
@@ -86,15 +98,20 @@ class MaterialViewModel @Inject constructor(
     fun uploadFolder(name:String){
         viewModelScope.launch (Dispatchers.IO) {
             materialRepo.uploadFolder(_currentPath.value, name).collect{
-                when(it){
+                when(it) {
                     is State.Success -> {
+                        Log.d("SEERDE", "uploadFolder: create success vm")
+                        _isLoading.value = false
+                        _actionState.value = State.SuccessWithData("Folder has been created successfully")
                         fetchDataFromFirebaseStorage()
                     }
-                    is State.Loading -> {
-                        //todo
-                    }
                     is State.Error -> {
-                        Log.d("SEERDE", "uploadFolder: error :${it.message}")
+                        _isLoading.value = false
+                        _actionState.value = State.Error("Failed to create folder")
+                        Log.d("SEERDE", "uploadFile: error ${it.message}")
+                    }
+                    is State.Loading -> {
+                        _isLoading.value = true
                     }
                     else -> {}
                 }
@@ -107,13 +124,17 @@ class MaterialViewModel @Inject constructor(
             materialRepo.deleteFolder(currentPath).collect{
                 when(it){
                     is State.Success -> {
+                        _isLoading.value = false
+                        _actionState.value = State.SuccessWithData("Folder has been deleted successfully")
                         fetchDataFromFirebaseStorage()
                     }
-                    is State.Loading -> {
-                        //todo
-                    }
                     is State.Error -> {
-                        Log.d("SEERDE", "uploadFolder: error :${it.message}")
+                        _isLoading.value = false
+                        _actionState.value = State.Error("Failed to delete folder")
+                        Log.d("SEERDE", "uploadFile: error ${it.message}")
+                    }
+                    is State.Loading -> {
+                        _isLoading.value = true
                     }
                     else -> {}
                 }
@@ -125,13 +146,17 @@ class MaterialViewModel @Inject constructor(
             materialRepo.deleteFile(fileLocation).collect{
                 when(it){
                     is State.Success -> {
+                        _isLoading.value = false
+                        _actionState.value = State.SuccessWithData("File has been deleted successfully")
                         fetchDataFromFirebaseStorage()
                     }
-                    is State.Loading -> {
-                        //todo
-                    }
                     is State.Error -> {
-                        Log.d("SEERDE", "uploadFolder: error :${it.message}")
+                        _isLoading.value = false
+                        _actionState.value = State.Error("Failed to delete file")
+                        Log.d("SEERDE", "uploadFile: error ${it.message}")
+                    }
+                    is State.Loading -> {
+                        _isLoading.value = true
                     }
                     else -> {}
                 }

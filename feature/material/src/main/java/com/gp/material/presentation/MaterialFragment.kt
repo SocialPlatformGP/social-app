@@ -19,12 +19,18 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.snackbar.Snackbar
 import com.gp.material.R
 import com.gp.material.listener.ClickOnFileClicKListener
 import com.gp.material.model.FileType
 import com.gp.material.model.MaterialItem
+import com.gp.socialapp.utils.State
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MaterialFragment : Fragment(){
@@ -82,6 +88,21 @@ class MaterialFragment : Fragment(){
                     viewModel = viewModel,
                     onNewFileClicked = {actionUpload.launch("*/*")}
                 )
+            }
+        }
+        lifecycleScope.launch {
+            viewModel.actionState.flowWithLifecycle(lifecycle).collect {
+                when (it) {
+                    is State.SuccessWithData -> {
+                        Snackbar.make(composeView, it.data, Snackbar.LENGTH_LONG)
+                            .show()
+                    }
+                    is State.Error -> {
+                        Snackbar.make(composeView, it.message, Snackbar.LENGTH_LONG)
+                            .show()
+                    }
+                    else -> {}
+                }
             }
         }
     }

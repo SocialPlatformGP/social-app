@@ -64,7 +64,6 @@ class NewChatFragment : Fragment(), OnUserClickListener {
                     }
 
                     is State.SuccessWithData -> {
-                        Toast.makeText(requireContext(), it.data, Toast.LENGTH_SHORT).show()
                         if (it.data != "-1") {
                             lifecycleScope.launch {
                                 viewModel.users.flowWithLifecycle(lifecycle).collect { users ->

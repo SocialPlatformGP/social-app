@@ -14,8 +14,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,6 +27,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -31,12 +35,17 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -58,6 +67,8 @@ import com.google.android.play.integrity.internal.x
 import com.gp.material.R
 import com.gp.material.model.FileType
 import com.gp.material.model.MaterialItem
+import com.gp.socialapp.utils.State
+import kotlinx.coroutines.launch
 
 @Composable
 fun MaterialScreen(
@@ -75,6 +86,7 @@ fun MaterialScreen(
     val items by viewModel.items.collectAsStateWithLifecycle()
     val currentPath by viewModel.currentPath.collectAsStateWithLifecycle()
     var isCreateDialogOpen by remember { mutableStateOf(false) }
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     Scaffold(
         topBar = {
             Row (
@@ -122,10 +134,10 @@ fun MaterialScreen(
                     backgroundColor = Color.DarkGray
                 )
             }
-        }
+        },
     ) {
-        Box {
-            LazyColumn(modifier = Modifier.padding(it)){
+        Box (modifier = modifier.padding(it)){
+            LazyColumn(modifier = Modifier.fillMaxSize()){
                 items(items){item ->
                     MaterialItem(
                         item = item,
@@ -139,6 +151,15 @@ fun MaterialScreen(
                         onDropDownItemClicked =  onDropDownItemClicked
                     )
                 }
+            }
+            if(isLoading){
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .offset(y = 48.dp),
+                    color = MaterialTheme.colorScheme.secondary,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                )
             }
             if(isCreateDialogOpen){
                 CreateFolderDialog(
@@ -208,31 +229,32 @@ fun MaterialItem(
                 modifier = Modifier.size(40.dp))
             Spacer(modifier = Modifier.size(16.dp))
             Column (
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.widthIn(max = 260.dp)
             ){
                 Text(
                     text = item.name,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
                 )
-                Spacer(modifier = Modifier.size(0.dp))
                 Text(
                     text = item.size,
                     style = MaterialTheme.typography.labelMedium)
             }
-            Box (modifier = Modifier.fillMaxWidth()){
+            Box(modifier = Modifier.fillMaxWidth()){
                 IconButton(
                     onClick = {
                         isDropDownMenuVisible = true
                     },
-                    Modifier.align(Alignment.CenterEnd)) {
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                ) {
                     Icon(
                         imageVector = Icons.Rounded.MoreVert,
-                        contentDescription = null)
+                        contentDescription = null
+                    )
                 }
             }
-
         }
         DropdownMenu(
             expanded = isDropDownMenuVisible,

@@ -655,14 +655,17 @@ class MessageFirebaseClient(
 //                        }
 //                    }
 //            }
+            Log.d("SEERDE", "addGroupMembers: Call reached client")
             val groupUpdate = mutableMapOf<String, Any>()
             usersEmails.forEach { userEmail ->
-                val userKey = RemoveSpecialChar.removeSpecialCharacters(userEmail)
+                val userKey = removeSpecialCharacters(userEmail)
                 groupUpdate["$CHAT/$groupId/members/$userKey"] = false
                 groupUpdate["$CHAT_USER/$userKey/$GROUP/$groupId"] = false
             }
+            Log.d("SEERDE", "addGroupMembers: updates: $groupUpdate")
             database.reference.updateChildren(groupUpdate)
                 .addOnSuccessListener {
+                    Log.d("SEERDE", "addGroupMembers: Success in client")
                     trySend(State.Success)
                 }.addOnFailureListener {
                     trySend(State.Error("Chat group update failed"))

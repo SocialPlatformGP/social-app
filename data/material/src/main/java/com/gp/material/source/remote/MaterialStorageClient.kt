@@ -81,7 +81,7 @@ class MaterialStorageClient @Inject constructor(private val storage: FirebaseSto
         val folderId = UUID.randomUUID().toString()
         val folderPath = "$currentPath/$name/"
         val userEmail = Firebase.auth.currentUser?.email!!
-        val placeholderFileName = "...placeholder"
+        val placeholderFileName = ".placeholder"
         val placeholderFilePath = "$folderPath$placeholderFileName"
         val placeholderFileRef: StorageReference = storageRef.child(placeholderFilePath)
         val placeholderMetadata = createFolderMetadata(folderId, name, folderPath, userEmail)
@@ -128,9 +128,9 @@ class MaterialStorageClient @Inject constructor(private val storage: FirebaseSto
 
 
     private fun getFileName(
-        contentResolver: ContentResolver
-        , fileUri: Uri
-        ): String {
+        contentResolver: ContentResolver,
+        fileUri: Uri
+    ): String {
         var fileName: String? = null
 
         val cursor = contentResolver.query(fileUri, null, null, null, null)

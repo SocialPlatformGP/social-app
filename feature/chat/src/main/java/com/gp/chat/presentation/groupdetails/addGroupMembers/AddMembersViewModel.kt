@@ -14,6 +14,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -61,8 +62,10 @@ class AddMembersViewModel @Inject constructor(
     }
     fun addMember(user: User) {
         viewModelScope.launch (Dispatchers.Default){
-            val updatedUsers = uiState.value.selectedUsers.toMutableList()
+            Log.d("SEERDE", "addMember: user: $user")
+            val updatedUsers = _selectedUsers.value.toMutableList()
             updatedUsers.add(user)
+            Log.d("SEERDE", "addMember: updated users: $updatedUsers")
             _users.value = _users.value.map {
                 if (it.data.email == user.email) {
                     Log.d("seerde", "User status before edit in viewmodel: ${it.isSelected}")
@@ -72,13 +75,14 @@ class AddMembersViewModel @Inject constructor(
                 }
             }
             _selectedUsers.value = updatedUsers
+            Log.d("SEERDE", "addMember: selected users: ${_selectedUsers.value}")
             Log.d("seerde", "User status before edit in viewmodel: ${_users.value.find { it.data.email == user.email }!!.isSelected}")
         }
     }
 
     fun removeMember(user: User) {
         viewModelScope.launch(Dispatchers.Default){
-            val updatedUsers =uiState.value.selectedUsers.toMutableList()
+            val updatedUsers = _selectedUsers.value.toMutableList()
             updatedUsers.remove(user)
             _users.value = _users.value.map {
                 if (it.data.email == user.email) {
@@ -92,13 +96,14 @@ class AddMembersViewModel @Inject constructor(
     }
     fun onAddMembersClick(groupId: String){
         viewModelScope.launch{
-            val userEmails = uiState.value.selectedUsers.map{it.email}
+            val userEmails = selectedUsers.value.map{it.email}
+            Log.d("seerde" , "User emails to add: ${userEmails}")
             if(userEmails.isNotEmpty()){
-                Log.d("seerde" , "User emails to add: ${userEmails}")
                 chatRepo.addGroupMembers(groupId, userEmails).collect{
                     when(it){
                         is State.Success -> {
                             uiState.value = uiState.value.copy(isCreated = true)
+                            Log.d("seerde", "Adding Members Success")
                         }
                         is State.Error -> {
                             Log.d("seerde", "Adding Members Failed: ${it.message}")

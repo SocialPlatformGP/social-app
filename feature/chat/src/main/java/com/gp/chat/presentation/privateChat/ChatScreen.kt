@@ -10,9 +10,11 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -38,6 +40,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -59,10 +62,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -71,6 +77,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
@@ -93,6 +100,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import java.util.Stack
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -222,12 +230,22 @@ fun ChatScreen(
                     )
                 }
                 Row (
-                    modifier = Modifier.clickable { onChatHeaderClicked()}.fillMaxWidth(),
+                    modifier = Modifier
+                        .clickable { onChatHeaderClicked() }
+                        .fillMaxWidth(),
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically,
                 ){
                     Spacer(modifier = Modifier.size(8.dp))
-                    CircularAvatar(imageURL = chatImageURL, size = 45.dp)
+                    if(chatImageURL.isNotBlank()){
+                        CircularAvatar(imageURL = chatImageURL, size = 45.dp)
+                    } else {
+                        Image(painter = painterResource(id = if (isPrivateChat)
+                            R.drawable.baseline_account_circle_24
+                        else
+                            R.drawable.ic_group),
+                        contentDescription = null)
+                    }
                     Spacer(modifier = Modifier.size(8.dp))
                     Text(
                         text = chatTitle,
@@ -300,11 +318,12 @@ fun MessageInput(
     }
     Column (
         modifier = modifier
-            .padding(vertical = 4.dp, horizontal = 8.dp)
+            .padding(horizontal = 8.dp)
             .fillMaxWidth()
     ){
         Divider(
-            modifier = Modifier.padding(bottom = 2.dp)
+            modifier = Modifier
+                .padding(bottom = 2.dp)
                 .size(2.dp),
             color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
         )
@@ -464,83 +483,6 @@ fun DateHeader(
         )
     }
 }
-//@RequiresApi(Build.VERSION_CODES.O)
-//@Preview(showBackground = true)
-//@Composable
-//fun DateHeaderPreview(){
-//    MaterialTheme {
-//        DateHeader(dateString = "Jan 30, 2024")
-//    }
-//}
-
-//@RequiresApi(Build.VERSION_CODES.O)
-//@Composable
-//fun SentMessage(
-//    modifier: Modifier = Modifier,
-//    message: Message,
-//    onMessageLongClicked: (Message) -> Unit,
-//    onFileClicked: (String, String, String) -> Unit,
-//    onImageClicked: (String) -> Unit,
-//    isSameSender: Boolean,
-//) {
-//    val topPadding = if (isSameSender) 2.dp else 12.dp
-//    val extendedFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z")
-//    val shortFormat = DateTimeFormatter.ofPattern("HH:mm")
-//    val dateTime = LocalDateTime.parse(message.timestamp, extendedFormat)
-//    val timestamp = shortFormat.format(dateTime)
-//    val configuration = LocalConfiguration.current
-//    val maxScreenWidthDP = configuration.screenWidthDp.dp
-//    val maxScreenHeightDP= configuration.screenHeightDp.dp
-//    Row(
-//        modifier = modifier
-//            .padding(top = topPadding)
-//            .fillMaxWidth(),
-//        horizontalArrangement = Arrangement.End
-//    ) {
-//        Surface(
-//            color = MaterialTheme.colorScheme.primary,
-//            shape = RoundedCornerShape(20.dp, if(!isSameSender)5.dp else 20.dp, 20.dp, 20.dp),
-//            modifier = modifier
-//                .widthIn(max = maxScreenWidthDP * 0.67f)
-//                .pointerInput(Unit) {
-//                    detectTapGestures(
-//                        onLongPress = {
-//                            onMessageLongClicked(message)
-//                        }
-//                    )
-//                }
-//        ) {
-//            Column(
-//                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-//            ) {
-//                if (message.fileURI.toString().isNotBlank()) {
-//                    MessageAttachment(
-//                        fileURI = message.fileURI,
-//                        fileType = message.fileType,
-//                        fileName = message.fileNames,
-//                        onFileClicked = { onFileClicked(message.fileURI.toString(), message.fileType, message.fileNames) },
-//                        onImageClicked = { onImageClicked(message.fileURI.toString()) },
-//                        maxHeight = maxScreenHeightDP * 0.4f)
-//                }
-//                if(message.message.isNotBlank()){
-//                    Text(
-//                        text = message.message,
-//                        fontWeight = FontWeight.Light,
-//                        fontSize = 18.sp
-//                    )
-//                }
-//                Text(
-//                    text = timestamp,
-//                    fontWeight = FontWeight.W400,
-//                    fontSize = 10.sp,
-//                    color = Color.Gray,
-//                    modifier = Modifier.align(Alignment.End)
-//                )
-//            }
-//        }
-//        Spacer(modifier = Modifier.width(16.dp))
-//    }
-//}
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -582,7 +524,11 @@ fun MessageItem(
     val density = LocalDensity.current
     Row(
         modifier = modifier
-            .padding(top = topPadding, start = if(isPrivateChat) 16.dp else 0.dp, end = if(isPrivateChat) 16.dp else 0.dp)
+            .padding(
+                top = topPadding,
+                start = if (isPrivateChat) 16.dp else 0.dp,
+                end = if (isPrivateChat) 16.dp else 0.dp
+            )
             .fillMaxWidth(),
         horizontalArrangement = horizontalArrangement
     ) {
@@ -625,7 +571,7 @@ fun MessageItem(
         ) {
             Column(
                 modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .padding(horizontal = 4.dp, vertical = 4.dp)
                     .onSizeChanged {
                         itemHieght = with(density) { it.height.toDp() }
                     }
@@ -642,29 +588,42 @@ fun MessageItem(
                         onClick = { onUserClicked(message.senderId) })
                     Spacer(modifier = Modifier.height(4.dp))
                 }
-                if (message.fileURI.toString().isNotBlank()) {
-                    MessageAttachment(
-                        fileURI = message.fileURI,
-                        fileType = message.fileType,
-                        fileName = message.fileNames,
-                        onFileClicked = { onFileClicked(message.fileURI.toString(), message.fileType, message.fileNames) },
-                        onImageClicked = { onImageClicked(message.fileURI.toString()) },
-                        maxHeight = maxScreenHeightDP * 0.4f)
-                }
-                if(message.message.isNotBlank()){
+                if(message.fileType.contains("image") && message.message.isBlank()) {
+                    val imageURL = message.fileURI.toString()
+                    ImageMessageWithTimestamp(
+                        imageURL = imageURL,
+                        onImageClicked = { onImageClicked(imageURL) },
+                        maxHeight = maxScreenHeightDP * 0.4f,
+                        timestamp = timestamp
+                    )
+                } else {
+                    if (message.fileURI.toString().isNotBlank()) {
+                        MessageAttachment(
+                            fileURI = message.fileURI,
+                            fileType = message.fileType,
+                            fileName = message.fileNames,
+                            onFileClicked = { onFileClicked(message.fileURI.toString(), message.fileType, message.fileNames) },
+                            onImageClicked = { onImageClicked(message.fileURI.toString()) },
+                            maxHeight = maxScreenHeightDP * 0.4f)
+                    }
+                    if(message.message.isNotBlank()){
+                        Text(
+                            text = message.message,
+                            fontWeight = FontWeight.Light,
+                            fontSize = 18.sp,
+                            modifier = Modifier.padding(top = 4.dp, start = 4.dp, end = 4.dp)
+                        )
+                    }
                     Text(
-                        text = message.message,
-                        fontWeight = FontWeight.Light,
-                        fontSize = 18.sp
+                        text = timestamp,
+                        fontWeight = FontWeight.W400,
+                        fontSize = 10.sp,
+                        color = Color.Gray,
+                        modifier = Modifier
+                            .align(Alignment.End)
+                            .padding(end = 4.dp, bottom = 4.dp)
                     )
                 }
-                Text(
-                    text = timestamp,
-                    fontWeight = FontWeight.W400,
-                    fontSize = 10.sp,
-                    color = Color.Gray,
-                    modifier = Modifier.align(Alignment.End)
-                )
                 DropdownMenu(
                     expanded = isDropDownMenuVisible,
                     onDismissRequest = {
@@ -706,6 +665,56 @@ val dummyMessage = Message(
 )
 
 @Composable
+fun ImageMessageWithTimestamp(
+    modifier: Modifier = Modifier,
+    imageURL: String,
+    onImageClicked: () -> Unit,
+    maxHeight: Dp,
+    timestamp: String,
+) {
+    val density = LocalDensity.current.density
+    var width by remember { mutableStateOf(0f) }
+    var height by remember { mutableStateOf(0f) }
+    Card(
+        shape = RoundedCornerShape(20.dp),
+    ) {
+        Box{
+            MessageImageAttachment(
+                imageURL = imageURL,
+                onImageClicked = { onImageClicked() },
+                maxHeight = maxHeight,
+                modifier = Modifier.onGloballyPositioned {
+                    width = it.size.width / density
+                    height = it.size.height / density
+                }
+            )
+            Column(
+                Modifier
+                    .size(width.dp, height.dp)
+                    .background(
+                        Brush.linearGradient(
+                            0.875F to Color.Transparent,
+                            1F to Color.DarkGray,
+                            start = Offset.Zero,
+                            end = Offset.Infinite
+                        )
+                    )
+            ) {}
+            Text(
+                text = timestamp,
+                fontWeight = FontWeight.W400,
+                fontSize = 10.sp,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = 8.dp, bottom = 8.dp),
+                color = Color.White,
+                textAlign = TextAlign.End
+            )
+        }
+    }
+}
+
+@Composable
 fun MessageAttachment(
     modifier: Modifier = Modifier,
     fileURI: Uri,
@@ -716,7 +725,7 @@ fun MessageAttachment(
     onImageClicked: () -> Unit = {},
 ) {
     Surface(
-        shape = RoundedCornerShape(5.dp),
+        shape = RoundedCornerShape(20.dp),
         color = Color.Transparent
     ) {
         when {
@@ -788,7 +797,7 @@ fun MessageFileAttachment(
 
     Surface(
         color = Color(0f,0f,0f,0.15f),
-        shape = RoundedCornerShape(5.dp, 5.dp, 5.dp, 5.dp),
+        shape = RoundedCornerShape(20.dp, 20.dp, 20.dp, 20.dp),
     ) {
         Row (
             verticalAlignment = Alignment.CenterVertically,
