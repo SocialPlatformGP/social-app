@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -21,6 +22,7 @@ import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -42,65 +44,54 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.gp.socialapp.model.Post
 import com.gp.posts.R
+import com.gp.posts.presentation.postDetails.ExpandableText
+import com.gp.posts.presentation.postDetails.UserPostTags
+import com.gp.posts.presentation.postsfeed.VipFeedViewModel
+import com.gp.socialapp.util.DateUtils
+import okhttp3.internal.cache2.Relay.Companion.edit
 
 
 @Composable
-fun SearchScreen(viewModel: SearchResultsViewModel,searchQuery:String) {
-    val searchResult by viewModel.searchResult.collectAsState(initial = emptyList())
-
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = Color.Gray
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(8.dp)
-                .fillMaxSize()
-        ) {
-                
-            }
-            Text(
-                text = "Search posts",
-                style = typography.h6,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
-            )
-            LazyColumn(
-
-                modifier = Modifier
-                    .fillMaxWidth()
-
-            ) {
-                items(searchResult.size) { index ->
-                    val post = searchResult[index]
-                    PostItem(post = post)
-                }
-            }
+fun SearchResultScreen(viewModel: SearchResultsViewModel,searchQuery:String) {
+    viewModel.searchPostsByTitle(searchQuery)
+    val state by viewModel.searchResult.collectAsState()
+    LazyColumn( modifier = Modifier.fillMaxWidth(1f)){
+        items(state){
+            PostItem(viewModel =viewModel ,it )
 
         }
+
     }
-
-
+}
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun PostItem(post: Post) {
-    Card(
+fun PostItem(viewModel: SearchResultsViewModel, post: Post) {
+    androidx.compose.material3.Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .wrapContentHeight()
+            .padding(4.dp)
+            .clip(MaterialTheme.shapes.medium)
+            .background(MaterialTheme.colorScheme.background)
+
     ) {
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp)
+                .wrapContentHeight()
+                .padding(16.dp)
         ) {
-            // Header Section
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp)
+                    .padding(vertical = 8.dp),
+
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                // to download the image
+
+                // Circular Image
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(post.userPfp)
@@ -109,120 +100,125 @@ fun PostItem(post: Post) {
                     placeholder = painterResource(R.drawable.pngwing_com),
                     contentDescription = "picture image",
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.clip(CircleShape)
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .size(40.dp)
                 )
 
 
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = post.userName,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 13.sp,
-                    color = Color.Gray
-                )
+                Column(
+                    modifier = Modifier
+                        .padding(start = 8.dp)
+                ) {
+
+                    androidx.compose.material3.Text(
+                        text = post.userName,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+
+                    androidx.compose.material3.Text(
+                        text = DateUtils.calculateTimeDifference(post.publishedAt),
+                        color = MaterialTheme.colorScheme.secondary,
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
                 Spacer(modifier = Modifier.weight(1f))
-                Text(
-                    text = post.publishedAt,
-                    fontSize = 12.sp,
-                    color = Color.Gray
-                )
+                DropDownMenu(viewModel, post)
             }
 
-            // Body
-            Text(
-                text = post.body,
-                fontSize = 14.sp,
-                modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
+            Spacer(modifier = Modifier.height(8.dp))
+
+            androidx.compose.material3.Text(
+                text = post.title,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier
+                    .fillMaxWidth()
             )
 
-            // Title
-            Text(
-                text = post.title,
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp,
-                modifier = Modifier.padding(bottom = 8.dp)
+            Spacer(modifier = Modifier.height(8.dp))
+
+            ExpandableText(
+                text = post.body,
+                modifier = Modifier
+                    .fillMaxWidth()
             )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
+
+
+            FlowRow(
+                Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(top = 8.dp)
             ) {
 
-                post.tags.forEach { tag ->
-                    Box(
-                        modifier = Modifier
-                            .background(Color.Gray, shape = RoundedCornerShape(4.dp))
-                            .clickable { /*handle click ba3den*/ }
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
-                    ) {
-                        Text(text = tag.label, color = Color(android.graphics.Color.parseColor(tag.hexColor)))
-                    }
-                    Spacer(modifier = Modifier.width(4.dp))
-                }
+                UserPostTags(userPost = post)
+
             }
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp, horizontal = 12.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                // Like Button
-                var click=false
-                IconButton(
-                    onClick = {  click=true  }
-                ) {
-                    val icon = if (click) Icons.Default.ThumbUp else Icons.Outlined.ThumbUp
-                    Icon(imageVector = icon, contentDescription = "Like")
-                }
-
-                // Like Count
-                Text(
-                    text = post.votes.toString(),
-                    modifier = Modifier.padding(end = 4.dp),
-                    color = Color.Gray
-                )
-                var clicked=false
-
-                // Dislike Button
-                IconButton(
-                    onClick = { clicked=true }
-                ) {
-                    if (clicked) Icons.Default.ThumbDown
-                    else Icons.Default.ThumbUp
-                }
-
-
                 // Comment Button
-                IconButton(
-                    onClick = { /* Handle comment */ }
-                ) {
-                    Icon(imageVector = Icons.Default.Comment, contentDescription = "Comment")
+                androidx.compose.material3.IconButton(onClick = {  }) {
+                    androidx.compose.material3.Icon(
+                        imageVector = Icons.Default.Comment,
+                        contentDescription = "Comment",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
                 }
 
+                // Reply Count
+                androidx.compose.material3.Text(
+                    text = post.replyCount.toString(),
+                    color = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier
+                        .padding(start = 4.dp)
+                )
 
-                // More Options Button
-                IconButton(
-                    onClick = { /*SearchDropDownMenu(post = post) */}
-                ) {
-                    Icon(imageVector = Icons.Default.MoreVert, contentDescription = "More Options")
+                // Upvote Button
+                androidx.compose.material3.IconButton(onClick = { viewModel.upVote(post) }) {
+                    androidx.compose.material3.Icon(
+                        imageVector = Icons.Default.ThumbUp,
+                        contentDescription = "Upvote",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                // Votes Text
+                androidx.compose.material3.Text(
+                    text = post.votes.toString(),
+                    color = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier
+                        .padding(end = 4.dp)
+                )
+
+                // DownVote Button
+                androidx.compose.material3.IconButton(onClick = { viewModel.downVote(post = post) }) {
+                    androidx.compose.material3.Icon(
+                        imageVector = Icons.Default.ThumbDown,
+                        contentDescription = "Down Vote",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
                 }
             }
 
-
-            // Reply Count
-            Text(
-                text = post.replyCount.toString(),
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.End,
-                color = Color.Gray
-            )
         }
     }
 }
 
 @Composable
-fun SearchDropDownMenu( viewModel:SearchResultsViewModel,post: Post) {
+fun DropDownMenu(viewModel: SearchResultsViewModel, post: Post) {
+
     var menuExpanded by remember { mutableStateOf(false) }
     androidx.compose.material3.IconButton(onClick = { menuExpanded = !menuExpanded }) {
         androidx.compose.material3.Icon(
@@ -239,7 +235,7 @@ fun SearchDropDownMenu( viewModel:SearchResultsViewModel,post: Post) {
                 androidx.compose.material3.Text(text = "Delete")
             },
             onClick = {
-                //viewModel.deletePost(post = post)
+                viewModel.deletePost(post = post)
             }
         )
         DropdownMenuItem(

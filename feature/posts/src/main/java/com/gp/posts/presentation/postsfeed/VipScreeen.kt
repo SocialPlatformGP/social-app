@@ -14,8 +14,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.magnifier
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Comment
 import androidx.compose.material.icons.filled.MoreVert
@@ -37,18 +37,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.gp.posts.R
 import com.gp.posts.presentation.postDetails.ExpandableText
-import com.gp.posts.presentation.postDetails.PostDetailsViewModel
-import com.gp.posts.presentation.postDetails.PostDropDownMenu
 import com.gp.posts.presentation.postDetails.UserPostTags
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.util.DateUtils
@@ -67,6 +67,8 @@ fun VipScreen(viewModel: VipFeedViewModel,details:(Post)->Unit,edit:(Post)->Unit
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun PostItem(viewModel: VipFeedViewModel, post: Post,details:(Post)->Unit,edit:(Post)->Unit) {
+    var isUpvoteFilled by remember { mutableStateOf(false) }
+    var isDownvoteFilled by remember { mutableStateOf(false) }
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -106,7 +108,7 @@ fun PostItem(viewModel: VipFeedViewModel, post: Post,details:(Post)->Unit,edit:(
                         .size(40.dp)
                 )
 
-                // User Details Column
+
                 Column(
                     modifier = Modifier
                         .padding(start = 8.dp)
@@ -160,6 +162,17 @@ fun PostItem(viewModel: VipFeedViewModel, post: Post,details:(Post)->Unit,edit:(
                 UserPostTags(userPost = post)
 
             }
+            if(post.attachments.isNotEmpty()){
+                if (post.attachments.first().type=="IMAGE"){
+                    ImagePager(images = post.attachments)
+                }
+                else{
+                    FileMaterial(fileList = post.attachments, open = { })
+                }
+
+            }
+
+
 
             Row(
                 modifier = Modifier
@@ -186,12 +199,18 @@ fun PostItem(viewModel: VipFeedViewModel, post: Post,details:(Post)->Unit,edit:(
                         .padding(start = 4.dp)
                 )
 
-                // Upvote Button
-                IconButton(onClick = { viewModel.upVote(post) }) {
+                IconButton(
+                    onClick = {
+                        isUpvoteFilled = !isUpvoteFilled
+                        if (isUpvoteFilled) {
+                            isDownvoteFilled = false
+                        }
+                    }
+                ) {
                     Icon(
                         imageVector = Icons.Default.ThumbUp,
                         contentDescription = "Upvote",
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = if (isUpvoteFilled) MaterialTheme.colorScheme.primary else Color.Gray
                     )
                 }
 
@@ -203,12 +222,18 @@ fun PostItem(viewModel: VipFeedViewModel, post: Post,details:(Post)->Unit,edit:(
                         .padding(end = 4.dp)
                 )
 
-                // DownVote Button
-                IconButton(onClick = { viewModel.downVote(post =post )}) {
+                IconButton(
+                    onClick = {
+                        isDownvoteFilled = !isDownvoteFilled
+                        if (isDownvoteFilled) {
+                            isUpvoteFilled = false
+                        }
+                    }
+                ) {
                     Icon(
                         imageVector = Icons.Default.ThumbDown,
                         contentDescription = "Down Vote",
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = if (isDownvoteFilled) MaterialTheme.colorScheme.primary else Color.Gray
                     )
                 }
             }
@@ -266,3 +291,4 @@ fun DropDownMenu(viewModel: VipFeedViewModel,post: Post,edit:(Post)->Unit) {
         )
     }
 }
+
