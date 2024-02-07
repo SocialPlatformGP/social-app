@@ -9,18 +9,14 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
-import com.gp.posts.listeners.OnSuggestedPostClickListener
-import com.gp.posts.presentation.postsSearch.SearchResultsViewModel
-import com.gp.posts.presentation.postsSearch.ui.SearchScreen
-import com.gp.posts.presentation.postsSearch.ui.suggestItem
-import com.gp.posts.presentation.postsSearch.ui.suggestScreen
-import com.gp.socialapp.model.Post
+import com.gp.posts.presentation.postsSearch.SearchViewModel
+import com.gp.posts.presentation.postsSearch.SuggestScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class SearchFragment : Fragment(){
     private lateinit var composeView:ComposeView
-    private val viewModel: SearchResultsViewModel by viewModels()
+    private val viewModel: SearchViewModel by viewModels()
 
 
     fun navigateToFinalResult(query: String?) {
@@ -40,10 +36,7 @@ class SearchFragment : Fragment(){
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         composeView.setContent {
-          suggestScreen(viewModel = viewModel, showDetails ={
-              onClickStar(it)
-          } )
-
+            SuggestScreen(viewModel =viewModel,{onClickStar("")})
         }
     }
 

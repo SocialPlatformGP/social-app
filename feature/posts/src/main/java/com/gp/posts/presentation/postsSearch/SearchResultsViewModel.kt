@@ -32,4 +32,23 @@ class SearchResultsViewModel @Inject constructor(
             }
         }
     }
+
+    fun upVote(post: Post) {
+        viewModelScope.launch(Dispatchers.IO) {
+            postRepo.upVotePost(post)
+        }
+    }
+
+    fun downVote(post: Post) {
+        viewModelScope.launch(Dispatchers.IO) {
+            postRepo.downVotePost(post)
+        }
+    }
+
+    fun deletePost(post: Post) {
+        viewModelScope.launch(Dispatchers.IO) {
+            postRepo.deletePost(post)
+            postRepo.deleteLocalPost(post)
+        }
+    }
 }

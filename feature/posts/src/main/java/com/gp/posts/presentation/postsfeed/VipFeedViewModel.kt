@@ -19,6 +19,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -30,7 +31,7 @@ class VipFeedViewModel @Inject constructor(
 
     var currentUser = MutableStateFlow(NetworkUser())
 
-    private val _uiState = MutableStateFlow<State<List<Post>>>(State.Idle)
+    private val _uiState = MutableStateFlow(FeedPostUiState())
     val uiState
         get() = _uiState.asStateFlow()
     val isSortedByNewest = MutableStateFlow(true)
@@ -39,14 +40,13 @@ class VipFeedViewModel @Inject constructor(
 
         viewModelScope.launch(Dispatchers.IO) {
 
-            _uiState.value = State.Loading
             repository.getAllLocalPosts().collect { posts ->
                 val sortedPosts = if(isSortedByNewest.value){
                     posts.sortedByDescending { DateUtils.convertStringToDate(it.publishedAt) }
                 } else {
                     posts.sortedByDescending { PostPopularityUtils.calculateInteractionValue(it.votes, it.replyCount)}
                 }
-                _uiState.value = State.SuccessWithData(sortedPosts)
+                _uiState.update { it.copy(posts=sortedPosts) }
                 Log.d("TAG258", "New Data: ${sortedPosts}")
             }
         }
@@ -79,9 +79,9 @@ class VipFeedViewModel @Inject constructor(
     fun sortPostsByNewest() {
         viewModelScope.launch{
             isSortedByNewest.value = true
-            val sortedPosts = (uiState.value as State.SuccessWithData).data
+            val sortedPosts = (uiState.value.posts)
                 .sortedByDescending { DateUtils.convertStringToDate(it.publishedAt) }
-            _uiState.value = State.SuccessWithData(sortedPosts)
+            _uiState.update { it.copy(posts = sortedPosts) }
             Log.d("TAG258", "New Data by newest: ${sortedPosts}")
         }
     }
@@ -89,9 +89,9 @@ class VipFeedViewModel @Inject constructor(
     fun sortPostsByPopularity() {
         viewModelScope.launch{
             isSortedByNewest.value = false
-            val sortedPosts = (uiState.value as State.SuccessWithData).data
+            val sortedPosts = uiState.value.posts
                 .sortedByDescending { PostPopularityUtils.calculateInteractionValue(it.votes, it.replyCount)}
-            _uiState.value = State.SuccessWithData(sortedPosts)
+            _uiState.update { it.copy(posts = sortedPosts) }
             Log.d("TAG258", "New Data by popular: ${sortedPosts}")
         }
     }

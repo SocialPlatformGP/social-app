@@ -1,17 +1,21 @@
-package com.gp.posts.presentation.postDetails
+package com.gp.posts.presentation.postsSearch
 
-
-import android.util.Log
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Comment
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.ThumbDown
 import androidx.compose.material.icons.filled.ThumbUp
-import androidx.compose.material3.*
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,44 +23,43 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.gp.posts.R
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.gp.socialapp.model.Post
+import com.gp.posts.R
+import com.gp.posts.presentation.postDetails.ExpandableText
+import com.gp.posts.presentation.postDetails.UserPostTags
+import com.gp.socialapp.util.DateUtils
+
 
 @Composable
-fun DetailsScreen(viewModel: PostDetailsViewModel, edit:(Post)->Unit){
-    val statePost by viewModel.currentPost.collectAsState()
-    val stateReply by viewModel.currentReplies.collectAsState()
-    Log.d("vip", "DetailsScreen:${statePost.id.toString() +stateReply.toString()} ")
-
-    Column {
-
-        PostItem(viewModel = viewModel, post =statePost )
-        CommentListScreen(nestedReplyItem = stateReply)
-
+fun SearchResultScreen(viewModel: SearchResultsViewModel,searchQuery:String,isTag:Boolean) {
+    if(isTag){
+        viewModel.searchPostsByTag(searchQuery)
     }
-    
+    else{
+        viewModel.searchPostsByTitle(searchQuery)
     }
 
+    val state by viewModel.searchResult.collectAsState()
+    LazyColumn( modifier = Modifier.fillMaxWidth(1f)){
+        items(state){
+            PostItem(viewModel =viewModel ,it )
+
+        }
+
+    }
+}
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun PostItem(viewModel: PostDetailsViewModel,post:Post) {
-    Card(
+fun PostItem(viewModel: SearchResultsViewModel, post: Post) {
+    androidx.compose.material3.Card(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
@@ -92,36 +95,36 @@ fun PostItem(viewModel: PostDetailsViewModel,post:Post) {
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .clip(CircleShape)
-                        .size(80.dp)
+                        .size(40.dp)
                 )
 
-                // User Details Column
+
                 Column(
                     modifier = Modifier
                         .padding(start = 8.dp)
                 ) {
 
-                    Text(
+                    androidx.compose.material3.Text(
                         text = post.userName,
                         color = MaterialTheme.colorScheme.primary,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                     )
 
-                    Text(
-                        text = post.publishedAt,
+                    androidx.compose.material3.Text(
+                        text = DateUtils.calculateTimeDifference(post.publishedAt),
                         color = MaterialTheme.colorScheme.secondary,
                         fontSize = 14.sp,
                         modifier = Modifier.padding(top = 4.dp)
                     )
                 }
                 Spacer(modifier = Modifier.weight(1f))
-                PostDropDownMenu(viewModel,post)
+                DropDownMenu(viewModel, post)
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text(
+            androidx.compose.material3.Text(
                 text = post.title,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
@@ -150,9 +153,6 @@ fun PostItem(viewModel: PostDetailsViewModel,post:Post) {
 
             }
 
-            // FrameLayout
-
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -162,8 +162,8 @@ fun PostItem(viewModel: PostDetailsViewModel,post:Post) {
             ) {
 
                 // Comment Button
-                IconButton(onClick = { /* Handle Comment */ }) {
-                    Icon(
+                androidx.compose.material3.IconButton(onClick = {  }) {
+                    androidx.compose.material3.Icon(
                         imageVector = Icons.Default.Comment,
                         contentDescription = "Comment",
                         tint = MaterialTheme.colorScheme.primary
@@ -171,7 +171,7 @@ fun PostItem(viewModel: PostDetailsViewModel,post:Post) {
                 }
 
                 // Reply Count
-                Text(
+                androidx.compose.material3.Text(
                     text = post.replyCount.toString(),
                     color = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier
@@ -179,8 +179,8 @@ fun PostItem(viewModel: PostDetailsViewModel,post:Post) {
                 )
 
                 // Upvote Button
-                IconButton(onClick = { viewModel.upVote(post = post)}) {
-                    Icon(
+                androidx.compose.material3.IconButton(onClick = { viewModel.upVote(post) }) {
+                    androidx.compose.material3.Icon(
                         imageVector = Icons.Default.ThumbUp,
                         contentDescription = "Upvote",
                         tint = MaterialTheme.colorScheme.primary
@@ -188,7 +188,7 @@ fun PostItem(viewModel: PostDetailsViewModel,post:Post) {
                 }
 
                 // Votes Text
-                Text(
+                androidx.compose.material3.Text(
                     text = post.votes.toString(),
                     color = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier
@@ -196,8 +196,8 @@ fun PostItem(viewModel: PostDetailsViewModel,post:Post) {
                 )
 
                 // DownVote Button
-                IconButton(onClick = { viewModel.downVote(post = post) }) {
-                    Icon(
+                androidx.compose.material3.IconButton(onClick = { viewModel.downVote(post = post) }) {
+                    androidx.compose.material3.Icon(
                         imageVector = Icons.Default.ThumbDown,
                         contentDescription = "Down Vote",
                         tint = MaterialTheme.colorScheme.primary
@@ -208,77 +208,52 @@ fun PostItem(viewModel: PostDetailsViewModel,post:Post) {
         }
     }
 }
-//@Composable
-//fun PostDetails(post: Post) {
-//    val scrollState = rememberScrollState()
-//    val context = LocalContext.current
-//
-//    Surface(modifier = Modifier.fillMaxWidth()) {
-//        LazyColumn(modifier = Modifier.verticalScroll(scrollState)) {
-//            items(sampleData.replies) { reply ->
-//                    this@LazyColumn.item {
-//                        NestedRepliesView(reply)
-//                    }
-//                }
-//            }
-//        }
-//    }
-
 
 @Composable
-fun PostDropDownMenu(viewModel: PostDetailsViewModel,post: Post) {
+fun DropDownMenu(viewModel: SearchResultsViewModel, post: Post) {
 
     var menuExpanded by remember { mutableStateOf(false) }
-    IconButton(onClick = { menuExpanded = !menuExpanded }) {
-        Icon(
+    androidx.compose.material3.IconButton(onClick = { menuExpanded = !menuExpanded }) {
+        androidx.compose.material3.Icon(
             imageVector = Icons.Default.MoreVert,
             contentDescription = "More Options"
         )
     }
-            DropdownMenu(
-                expanded=menuExpanded
-                , onDismissRequest = { menuExpanded = false }
-            ) {
-                DropdownMenuItem(
-                    text = {
-                        Text(text = "Delete")
-                    },
-                    onClick = {
-                        viewModel.deletePost(post = post)
-                    }
-                )
-                DropdownMenuItem(
-                    text = {
-                        Text(text = "Edit")
-                    },
-                    onClick = {
-                        
-                    }
-                )
-                DropdownMenuItem(
-                    text = {
-                        Text(text = "Save")
-                    },
-                    onClick = {
-                        //to do
-                    }
-                )
-                DropdownMenuItem(
-                    text = {
-                        Text(text = "Report")
-                    },
-                    onClick = {
-                       // to do
-                    }
-                )
+    DropdownMenu(
+        expanded=menuExpanded
+        , onDismissRequest = { menuExpanded = false }
+    ) {
+        DropdownMenuItem(
+            text = {
+                androidx.compose.material3.Text(text = "Delete")
+            },
+            onClick = {
+                viewModel.deletePost(post = post)
             }
-        }
+        )
+        DropdownMenuItem(
+            text = {
+                androidx.compose.material3.Text(text = "Edit")
+            },
+            onClick = {
 
-
-@Preview(showSystemUi = true, backgroundColor = 0xFFFEFEFE, showBackground = true, apiLevel = 30)
-@Composable
-fun ScreenPreview() {
-  //  PostDetails(post = post1)
-
+            }
+        )
+        DropdownMenuItem(
+            text = {
+                androidx.compose.material3.Text(text = "Save")
+            },
+            onClick = {
+                //to do
+            }
+        )
+        DropdownMenuItem(
+            text = {
+                androidx.compose.material3.Text(text = "Report")
+            },
+            onClick = {
+                // to do
+            }
+        )
+    }
 }
-
