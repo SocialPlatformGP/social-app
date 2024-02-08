@@ -16,6 +16,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -39,10 +40,13 @@ class FeedPostViewModel @Inject constructor(
     val isSortedByNewest = _isSortedByNewest.asStateFlow()
     private val _uiState = MutableStateFlow<State<List<Post>>>(State.Idle)
     val uiState = _uiState.asStateFlow()
+    val _state = MutableStateFlow(FeedPostUIState())
+    val state = _state.asStateFlow()
 
     private fun getAllPosts() {
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.value = State.Loading
+            _state.update { it.copy(state = State.Loading) }
             repository.getAllLocalPosts().collect { posts ->
                 posts.forEach { post ->
                     _tags.addAll(post.tags.map{it.label})
@@ -61,6 +65,7 @@ class FeedPostViewModel @Inject constructor(
                 }
                 withContext(Dispatchers.Main) {
                     _uiState.value = State.SuccessWithData(sortedPosts)
+                    _state.update { it.copy(posts = sortedPosts, state = State.Success) }
                     Log.d("TAG258", "New Data: $sortedPosts")
                 }
             }

@@ -231,26 +231,7 @@ fun CreatePostContent(
             modifier = Modifier.weight(1f),
             errorState = emptyError
         )
-        LazyRow(
-            horizontalArrangement = Arrangement.Start
-        ) {
-            items(selectedTags.toList()) { tag ->
-                Chip(onClick = {
-                    onRemoveTag(tag)
-                }, leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Filled.Cancel, contentDescription = null
-                    )
-                }, colors = ChipDefaults.chipColors(
-                    backgroundColor = Color(android.graphics.Color.parseColor(tag.hexColor)),
-                    contentColor = Color.White
-                )
-                ) {
-                    Text(text = tag.label)
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-            }
-        }
+        FlowTags(selectedTags, onRemoveTag)
         LazyRow(
             horizontalArrangement = Arrangement.Start,
             modifier = Modifier.fillMaxWidth()
@@ -402,6 +383,34 @@ fun CreatePostContent(
     }
 
 
+}
+
+@Composable
+@OptIn(ExperimentalMaterialApi::class)
+ fun FlowTags(
+    selectedTags: Set<Tag>,
+    onRemoveTag: (Tag) -> Unit
+) {
+    LazyRow(
+        horizontalArrangement = Arrangement.Start
+    ) {
+        items(selectedTags.toList()) { tag ->
+            Chip(onClick = {
+                onRemoveTag(tag)
+            }, leadingIcon = {
+                Icon(
+                    imageVector = Icons.Filled.Cancel, contentDescription = null
+                )
+            }, colors = ChipDefaults.chipColors(
+                backgroundColor = Color(android.graphics.Color.parseColor(tag.hexColor)),
+                contentColor = Color.White
+            )
+            ) {
+                Text(text = tag.label)
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+        }
+    }
 }
 
 @Composable
