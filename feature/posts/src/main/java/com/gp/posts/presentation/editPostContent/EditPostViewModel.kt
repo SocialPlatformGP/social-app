@@ -9,6 +9,7 @@ import com.gp.socialapp.repository.PostRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,7 +24,7 @@ data class EditPostUIState(
     var body: String = "",
 )
 
-    val uiState = MutableStateFlow<EditPostUIState>(EditPostUIState())
+    val uiState = MutableStateFlow(EditPostUIState())
     val post = MutableStateFlow<Post?>(null)
 
     fun updatePost(){
@@ -35,12 +36,16 @@ data class EditPostUIState(
                 body = body,
             ))
         }
-    }}
+    }
+    }
+    fun setPost(currentPost: Post){
+        post.update { currentPost }
+    }
     fun updateBody(body: String) {
-        uiState.value = uiState.value.copy(body = body)
+        uiState.update { it.copy(body=body) }
     }
     fun updateTitle(title: String) {
-        uiState.value = uiState.value.copy(body = title)
+        uiState.update { it.copy(title=title) }
     }
 
 }

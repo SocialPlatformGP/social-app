@@ -75,7 +75,7 @@ fun VipScreen(
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(modifier = Modifier.fillMaxWidth()) {
             items(state.posts) { post ->
-                PostItem(viewModel = viewModel, post, details = details, edit = edit)
+                PostItem(viewModel.upVote(post),viewModel = viewModel, post, details = details, edit = edit)
             }
         }
         if (user.administration) {
@@ -93,7 +93,7 @@ fun VipScreen(
 }
 
 @Composable
-fun PostItem(viewModel: VipFeedViewModel, post: Post,details:(Post)->Unit,edit:(Post)->Unit) {
+fun PostItem(upVote:()->Unit,downVote:()->Unit, post: Post,details:(Post)->Unit,edit:(Post)->Unit) {
     var isUpvoteFilled by remember { mutableStateOf(false) }
     var isDownvoteFilled by remember { mutableStateOf(false) }
     Card(

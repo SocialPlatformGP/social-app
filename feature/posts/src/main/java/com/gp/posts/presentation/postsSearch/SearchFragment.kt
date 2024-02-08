@@ -1,6 +1,7 @@
 package com.gp.posts
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -36,12 +37,13 @@ class SearchFragment : Fragment(){
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         composeView.setContent {
-            SuggestScreen(viewModel =viewModel,{onClickStar("")})
+            SuggestScreen(viewModel =viewModel,{onClickStar(it)})
         }
     }
 
      fun onClickStar(model: String) {
         val action = SearchFragmentDirections.actionSuggestPostToSearchFragment2(model, false)
+         Log.d("details", "onClickStar: $model")
         findNavController().navigate(action)
     }
 }

@@ -76,7 +76,7 @@ class VipFeedFragment : Fragment()
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         composeView.setContent {
-            VipScreen(viewModel = viewModel, details = {postClicked(it)}, edit = {post -> edit(post) },{vipToCreate()})
+            VipScreen(viewModel = viewModel, details = {postClicked(it)}, edit = {edit(it) },{vipToCreate()})
         }
 
         //viewModel.getUserById(currentUser?.email!!)

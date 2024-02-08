@@ -29,26 +29,25 @@ import com.gp.socialapp.model.Post
 
 
 @Composable
-fun EditPostScreen(viewModel: EditPostViewModel,post: Post) {
+fun EditPostScreen(viewModel: EditPostViewModel,post: Post,back:()->Unit) {
     val state by viewModel.uiState.collectAsState()
+
     EditPostContent(
-        post = post,
+        back = back,
         state = state,
-        updateTitle = { newTitle ->viewModel.updateTitle(newTitle)},
+        updateTitle = { newTitle -> viewModel.updateTitle(newTitle)},
         updateBody = { newBody -> viewModel.updateBody(newBody)},
         updatePost = { viewModel.updatePost()}
     )
 }
 @Composable
 fun EditPostContent(
-    post: Post,
+    back: () -> Unit,
     state: EditPostViewModel.EditPostUIState,
     updateTitle: (String) -> Unit,
     updateBody: (String) -> Unit,
     updatePost: () -> Unit
 ) {
-    var title by remember { mutableStateOf(post.title) }
-    var body by remember { mutableStateOf(post.body) }
 
     Column(
         modifier = Modifier
@@ -57,9 +56,8 @@ fun EditPostContent(
     ) {
 
         OutlinedTextField(
-            value = title,
-            onValueChange = { title = it
-                            updateTitle(it)},
+            value = state.title,
+            onValueChange = { updateTitle(it)},
             label = { Text(text = "Title") },
             modifier = Modifier
                 .fillMaxWidth()
@@ -70,21 +68,18 @@ fun EditPostContent(
         )
 
         OutlinedTextField(
-            value = body,
-            onValueChange = { body = it
-                            updateBody(it)},
+            value = state.body,
+            onValueChange = { updateBody(it)},
             label = { Text("Content") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
-            keyboardOptions = KeyboardOptions.Default.copy(
-                imeAction = ImeAction.Done
-            ),
         )
 
         Button(
             onClick = {
                 updatePost()
+                back()
             },
             modifier = Modifier
                 .fillMaxWidth()

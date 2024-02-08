@@ -32,6 +32,8 @@ class EditPostFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
 
+
+
         return ComposeView(requireContext()).also {
             composeView=it
         }
@@ -43,22 +45,25 @@ class EditPostFragment : Fragment() {
 //        )
 //        binding.viewModel=viewModel
 //        binding.lifecycleOwner=this
-//        viewModel.post.value=args.post
-//        viewModel.uiState.value.title=args.post.title
-//        viewModel.uiState.value.body=args.post.body
-//        return binding.root
+
     }
 
+    fun back(){
+        findNavController().popBackStack()
+    }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         composeView.setContent {
-            EditPostScreen(viewModel = viewModel,args.post)
+            viewModel.updateBody(args.post.body)
+            viewModel.updateTitle(args.post.title)
+            viewModel.setPost(args.post)
+            EditPostScreen(viewModel = viewModel,args.post,{back()})
         }
 
 //        binding.applyButton.setOnClickListener {
 
-//            viewModel.updatePost()
-//            findNavController().popBackStack()
+//
+
 //        }
     }
 

@@ -1,5 +1,6 @@
 package com.gp.posts.presentation.postsSearch
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -61,6 +62,8 @@ fun SearchResultScreen(viewModel: SearchResultsViewModel,searchQuery:String,isTa
     }
     else{
         viewModel.searchPostsByTitle(searchQuery)
+        Log.d("details", "SearchResultScreen: $searchQuery")
+        Log.d("details", "SearchResultScreen:$isTag ")
     }
 
     val state by viewModel.searchResult.collectAsState()

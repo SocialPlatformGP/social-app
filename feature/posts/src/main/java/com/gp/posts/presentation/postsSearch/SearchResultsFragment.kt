@@ -46,7 +46,6 @@ class SearchResultsFragment : Fragment(){
         super.onViewCreated(view, savedInstanceState)
 
         composeView.setContent {
-
            SearchResultScreen(viewModel = viewModel,args.SearchQuery,args.isTag)
         }
        /* val recyclerView = binding.rvSearchPosts

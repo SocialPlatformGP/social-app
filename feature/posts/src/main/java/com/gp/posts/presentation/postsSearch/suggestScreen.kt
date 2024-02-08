@@ -1,5 +1,6 @@
 package com.gp.posts.presentation.postsSearch
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -121,7 +122,9 @@ fun SuggestScreen(
                     )
 
                     IconButton(
-                        onClick = { searchResultsClicked(searchText) },
+                        onClick = {
+                            Log.d("details", "SuggestScreen: $searchText")
+                            searchResultsClicked(searchText) },
                         modifier = Modifier.padding(start = 4.dp)
                     ) {
                         Icon(
