@@ -36,4 +36,11 @@ data class EditPostUIState(
             ))
         }
     }}
+    fun updateBody(body: String) {
+        uiState.value = uiState.value.copy(body = body)
+    }
+    fun updateTitle(title: String) {
+        uiState.value = uiState.value.copy(body = title)
+    }
+
 }

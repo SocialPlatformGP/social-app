@@ -55,7 +55,7 @@ fun TagChip(tag: Tag, onClick: () -> Unit) {
                 modifier = Modifier
                     .padding(8.dp)
                     .wrapContentSize(),
-                color = Color.White,
+                color = Color.Black,
                 fontWeight = FontWeight.Bold,
                 fontSize = 10.sp
             )

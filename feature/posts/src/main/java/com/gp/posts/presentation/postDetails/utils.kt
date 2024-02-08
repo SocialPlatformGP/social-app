@@ -40,7 +40,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.net.toFile
 import coil.compose.rememberImagePainter
 import coil.imageLoader
@@ -58,7 +60,6 @@ import timber.log.Timber
 
 import kotlin.math.PI
 import kotlin.math.sqrt
-
 @Composable
 fun ExpandableText(
     text: String,
@@ -96,7 +97,11 @@ fun ExpandableText(
             maxLines = if (expanded) Int.MAX_VALUE else minimizedMaxLines,
             overflow = TextOverflow.Ellipsis,
             onTextLayout = { textLayoutResultState.value = it },
-            modifier = Modifier.clickable { expanded = !expanded }
+            modifier = Modifier.clickable { expanded = !expanded },
+            style = TextStyle(
+                fontSize = 16.sp,
+                lineHeight = 20.sp
+            )
         )
         if (!expanded && seeMoreOffset != null) {
             val density = LocalDensity.current

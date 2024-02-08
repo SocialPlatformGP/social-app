@@ -2,7 +2,13 @@ package com.gp.posts.presentation.postDetails
 
 
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -32,37 +38,43 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.gp.posts.presentation.postsfeed.DropDownMenu
+import com.gp.posts.presentation.postsfeed.FileMaterial
+import com.gp.posts.presentation.postsfeed.IMAGE_TYPES
+import com.gp.posts.presentation.postsfeed.ImagePager
 import com.gp.socialapp.model.Post
+import com.gp.socialapp.util.DateUtils
 
 @Composable
-fun DetailsScreen(viewModel: PostDetailsViewModel, edit:(Post)->Unit){
+fun DetailsScreen(viewModel: PostDetailsViewModel, post:Post,edit:(Post)->Unit){
     val statePost by viewModel.currentPost.collectAsState()
     val stateReply by viewModel.currentReplies.collectAsState()
     Log.d("vip", "DetailsScreen:${statePost.id.toString() +stateReply.toString()} ")
 
     Column {
 
-        PostItem(viewModel = viewModel, post =statePost )
+        DetailsPostItem(viewModel = viewModel, post =post )
         CommentListScreen(nestedReplyItem = stateReply)
 
     }
-    
+
     }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun PostItem(viewModel: PostDetailsViewModel,post:Post) {
+fun DetailsPostItem(viewModel: PostDetailsViewModel,post:Post) {
+    var isUpvoteFilled by remember { mutableStateOf(false) }
+    var isDownvoteFilled by remember { mutableStateOf(false) }
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
             .padding(4.dp)
             .clip(MaterialTheme.shapes.medium)
-            .background(MaterialTheme.colorScheme.background)
 
     ) {
 
@@ -70,7 +82,7 @@ fun PostItem(viewModel: PostDetailsViewModel,post:Post) {
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(16.dp)
+                .padding(4.dp)
         ) {
 
             Row(
@@ -81,7 +93,6 @@ fun PostItem(viewModel: PostDetailsViewModel,post:Post) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                // Circular Image
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(post.userPfp)
@@ -92,10 +103,10 @@ fun PostItem(viewModel: PostDetailsViewModel,post:Post) {
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .clip(CircleShape)
-                        .size(80.dp)
+                        .size(40.dp)
                 )
 
-                // User Details Column
+
                 Column(
                     modifier = Modifier
                         .padding(start = 8.dp)
@@ -109,14 +120,14 @@ fun PostItem(viewModel: PostDetailsViewModel,post:Post) {
                     )
 
                     Text(
-                        text = post.publishedAt,
+                        text = DateUtils.calculateTimeDifference(post.publishedAt),
                         color = MaterialTheme.colorScheme.secondary,
                         fontSize = 14.sp,
                         modifier = Modifier.padding(top = 4.dp)
                     )
                 }
                 Spacer(modifier = Modifier.weight(1f))
-                PostDropDownMenu(viewModel,post)
+                DetailsDropDownMenu(viewModel,post)
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -138,20 +149,19 @@ fun PostItem(viewModel: PostDetailsViewModel,post:Post) {
                     .fillMaxWidth()
             )
 
+            UserPostTags(userPost = post)
 
-            FlowRow(
-                Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(top = 8.dp)
-            ) {
+            if(post.attachments.isNotEmpty()){
+                when (post.attachments.first().type) {
+                    in IMAGE_TYPES -> {
+                        ImagePager(images = post.attachments)
+                    }
 
-                UserPostTags(userPost = post)
-
+                    else -> {
+                        FileMaterial(fileList = post.attachments)
+                    }
+                }
             }
-
-            // FrameLayout
-
 
             Row(
                 modifier = Modifier
@@ -161,8 +171,7 @@ fun PostItem(viewModel: PostDetailsViewModel,post:Post) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                // Comment Button
-                IconButton(onClick = { /* Handle Comment */ }) {
+                IconButton(onClick = { }) {
                     Icon(
                         imageVector = Icons.Default.Comment,
                         contentDescription = "Comment",
@@ -170,7 +179,6 @@ fun PostItem(viewModel: PostDetailsViewModel,post:Post) {
                     )
                 }
 
-                // Reply Count
                 Text(
                     text = post.replyCount.toString(),
                     color = MaterialTheme.colorScheme.secondary,
@@ -178,31 +186,47 @@ fun PostItem(viewModel: PostDetailsViewModel,post:Post) {
                         .padding(start = 4.dp)
                 )
 
-                // Upvote Button
-                IconButton(onClick = { viewModel.upVote(post = post)}) {
+                IconButton(
+                    onClick = {
+                        isDownvoteFilled = !isDownvoteFilled
+                        if (isDownvoteFilled) {
+                            isUpvoteFilled = false
+                            viewModel.downVote(post = post)
+                        }
+                    }
+                ) {
                     Icon(
-                        imageVector = Icons.Default.ThumbUp,
-                        contentDescription = "Upvote",
-                        tint = MaterialTheme.colorScheme.primary
+                        imageVector = Icons.Default.ThumbDown,
+                        contentDescription = "Down Vote",
+                        tint = if (isDownvoteFilled) MaterialTheme.colorScheme.primary else Color.Gray
                     )
                 }
 
-                // Votes Text
+
+
                 Text(
                     text = post.votes.toString(),
                     color = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier
                         .padding(end = 4.dp)
                 )
-
-                // DownVote Button
-                IconButton(onClick = { viewModel.downVote(post = post) }) {
+                IconButton(
+                    onClick = {
+                        isUpvoteFilled = !isUpvoteFilled
+                        if (isUpvoteFilled) {
+                            isDownvoteFilled = false
+                            viewModel.upVote(post)
+                        }
+                    }
+                ) {
                     Icon(
-                        imageVector = Icons.Default.ThumbDown,
-                        contentDescription = "Down Vote",
-                        tint = MaterialTheme.colorScheme.primary
+                        imageVector = Icons.Default.ThumbUp,
+                        contentDescription = "Upvote",
+                        tint = if (isUpvoteFilled) MaterialTheme.colorScheme.primary else Color.Gray
                     )
                 }
+
+
             }
 
         }
@@ -226,54 +250,69 @@ fun PostItem(viewModel: PostDetailsViewModel,post:Post) {
 
 
 @Composable
-fun PostDropDownMenu(viewModel: PostDetailsViewModel,post: Post) {
+fun DetailsDropDownMenu(viewModel: PostDetailsViewModel,post: Post) {
 
     var menuExpanded by remember { mutableStateOf(false) }
+    val dropdownMenuHeight = 200.dp
+
     IconButton(onClick = { menuExpanded = !menuExpanded }) {
         Icon(
             imageVector = Icons.Default.MoreVert,
             contentDescription = "More Options"
         )
     }
-            DropdownMenu(
-                expanded=menuExpanded
-                , onDismissRequest = { menuExpanded = false }
-            ) {
-                DropdownMenuItem(
-                    text = {
-                        Text(text = "Delete")
-                    },
-                    onClick = {
-                        viewModel.deletePost(post = post)
-                    }
-                )
-                DropdownMenuItem(
-                    text = {
-                        Text(text = "Edit")
-                    },
-                    onClick = {
-                        
-                    }
-                )
-                DropdownMenuItem(
-                    text = {
-                        Text(text = "Save")
-                    },
-                    onClick = {
-                        //to do
-                    }
-                )
-                DropdownMenuItem(
-                    text = {
-                        Text(text = "Report")
-                    },
-                    onClick = {
-                       // to do
-                    }
-                )
-            }
-        }
 
+    AnimatedVisibility(
+        visible = menuExpanded,
+        enter = fadeIn() + slideInVertically(),
+        exit = fadeOut() + slideOutVertically(),
+        modifier = Modifier.padding(top = 8.dp)
+    ) {
+
+        DropdownMenu(
+            expanded = menuExpanded,
+            onDismissRequest = { menuExpanded = false },
+            modifier = Modifier.heightIn(max = dropdownMenuHeight)
+        ) {
+
+            DropdownMenuItem(
+                onClick = {
+                    viewModel.deletePost(post)
+                    menuExpanded = false
+                },
+                modifier = Modifier.clickable { } ,
+                text = { Text(text = "Delete") }
+            )
+
+            DropdownMenuItem(
+                onClick = {
+
+                    menuExpanded = false
+                },
+                modifier = Modifier.clickable { } ,
+                text = { Text(text = "Edit") }
+            )
+
+            DropdownMenuItem(
+                onClick = {
+
+                    menuExpanded = false
+                },
+                modifier = Modifier.clickable { } ,
+                text = { Text(text = "Save") }
+            )
+
+            DropdownMenuItem(
+                onClick = {
+
+                    menuExpanded = false
+                },
+                modifier = Modifier.clickable { } ,
+                text = { Text(text = "Report") }
+            )
+        }
+    }
+}
 
 @Preview(showSystemUi = true, backgroundColor = 0xFFFEFEFE, showBackground = true, apiLevel = 30)
 @Composable

@@ -234,7 +234,7 @@ fun PostItem(viewModel:FeedPostViewModel,post: Post) {
                         isDownvoteFilled = !isDownvoteFilled
                         if (isDownvoteFilled) {
                             isUpvoteFilled = false
-                            viewModel.upVote(post)
+                            viewModel.downVote(post)
 
                         }
                     }

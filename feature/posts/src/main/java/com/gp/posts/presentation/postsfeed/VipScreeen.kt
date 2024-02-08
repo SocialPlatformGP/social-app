@@ -71,6 +71,7 @@ fun VipScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val user by viewModel.currentUser.collectAsState()
+
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(modifier = Modifier.fillMaxWidth()) {
             items(state.posts) { post ->
@@ -119,7 +120,6 @@ fun PostItem(viewModel: VipFeedViewModel, post: Post,details:(Post)->Unit,edit:(
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                // Circular Image
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(post.userPfp)
@@ -264,7 +264,7 @@ fun PostItem(viewModel: VipFeedViewModel, post: Post,details:(Post)->Unit,edit:(
 fun DropDownMenu(viewModel: VipFeedViewModel, post: Post, edit: (Post) -> Unit) {
 
     var menuExpanded by remember { mutableStateOf(false) }
-    val dropdownMenuHeight = 200.dp // Set the desired height for the dropdown menu
+    val dropdownMenuHeight = 200.dp
 
     IconButton(onClick = { menuExpanded = !menuExpanded }) {
         Icon(
@@ -277,12 +277,12 @@ fun DropDownMenu(viewModel: VipFeedViewModel, post: Post, edit: (Post) -> Unit) 
         visible = menuExpanded,
         enter = fadeIn() + slideInVertically(),
         exit = fadeOut() + slideOutVertically(),
-        modifier = Modifier.padding(top = 8.dp) // Add padding to align dropdown menu with the icon
+        modifier = Modifier.padding(top = 8.dp)
     ) {
         DropdownMenu(
             expanded = menuExpanded,
             onDismissRequest = { menuExpanded = false },
-            modifier = Modifier.heightIn(max = dropdownMenuHeight) // Limit the height of the dropdown menu
+            modifier = Modifier.heightIn(max = dropdownMenuHeight)
         ) {
             DropdownMenuItem(
                 onClick = {
@@ -295,10 +295,10 @@ fun DropDownMenu(viewModel: VipFeedViewModel, post: Post, edit: (Post) -> Unit) 
 
             DropdownMenuItem(
                 onClick = {
-                    edit
+                    edit(post)
                     menuExpanded = false
                 },
-                modifier = Modifier.clickable { } ,// Apply ripple effect
+                modifier = Modifier.clickable { } ,
                 text = { Text(text = "Edit") }
             )
 

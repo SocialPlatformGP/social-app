@@ -1,9 +1,12 @@
 package com.gp.posts.presentation.postsSearch
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -39,18 +42,22 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.gp.posts.R
-
+import com.gp.socialapp.model.Post
+import com.gp.socialapp.util.DateUtils
 @Composable
 fun SuggestScreen(
-    viewModel: SearchViewModel, searchResultsClicked:()-> Unit
+    viewModel: SearchViewModel,
+    searchResultsClicked: (String) -> Unit
 ) {
     var searchText by remember { mutableStateOf("") }
     val state by viewModel.searchResult.collectAsState()
@@ -67,7 +74,7 @@ fun SuggestScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    // Search Text Field with Icon
+
                     TextField(
                         value = searchText,
                         onValueChange = { newText ->
@@ -75,7 +82,7 @@ fun SuggestScreen(
                             viewModel.searchPostsByTitle(newText)
                         },
                         modifier = Modifier
-                            .fillMaxWidth()
+                            .weight(1f)
                             .padding(end = 16.dp),
                         placeholder = { Text("Search") },
                         singleLine = true,
@@ -83,7 +90,7 @@ fun SuggestScreen(
                             Icon(
                                 imageVector = Icons.Default.Search,
                                 contentDescription = null,
-                                tint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
+                                tint = MaterialTheme.colors.onSurface
                             )
                         },
                         trailingIcon = {
@@ -98,35 +105,68 @@ fun SuggestScreen(
                                     Icon(
                                         imageVector = Icons.Default.Clear,
                                         contentDescription = null,
-                                        tint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
+                                        tint = MaterialTheme.colors.onSurface
                                     )
                                 }
                             }
                         },
                         colors = TextFieldDefaults.textFieldColors(
                             backgroundColor = Color.Transparent,
-                            textColor = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
+                            textColor = MaterialTheme.colors.onSurface
                         ),
                         shape = RoundedCornerShape(8.dp),
                         keyboardOptions = KeyboardOptions.Default.copy(
                             imeAction = ImeAction.Done
                         )
                     )
+
+                    IconButton(
+                        onClick = { searchResultsClicked(searchText) },
+                        modifier = Modifier.padding(start = 4.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Search Results",
+                            tint = MaterialTheme.colors.onSurface
+                        )
+                    }
                 }
             }
         }
 
-        items(state) { item ->
-//            SuggestItem(
-//                post = item,
-//                searchText = searchText
-//            )
+        if (state.isNotEmpty() || searchText.isEmpty()) {
+            items(state) { item ->
+                SuggestItem(
+                    post = item,
+                    searchText = searchText
+                )
+            }
+        } else {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+
+                    Text(
+                        text = "NO RESULTS",
+                        style = TextStyle(
+                            color = Color.Red,
+                            fontWeight = FontWeight.Bold
+                        )
+                    )
+                }
+            }
         }
     }
 }
 
+
+
 @Composable
-fun SuggestItem(post: SuggestedItem, searchText: String) {
+fun SuggestItem(post: Post, searchText: String) {
     Surface(
         modifier = Modifier
             .padding(8.dp)
@@ -138,10 +178,10 @@ fun SuggestItem(post: SuggestedItem, searchText: String) {
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            // Display Image
+
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(post.imageUrl)
+                    .data(post.userPfp)
                     .crossfade(true)
                     .build(),
                 placeholder = painterResource(R.drawable.pngwing_com),
@@ -160,7 +200,7 @@ fun SuggestItem(post: SuggestedItem, searchText: String) {
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = post.name,
+                        text = post.userName,
                         style = MaterialTheme.typography.body1,
                         fontWeight = FontWeight.Bold
                     )
@@ -168,7 +208,7 @@ fun SuggestItem(post: SuggestedItem, searchText: String) {
                     Spacer(modifier = Modifier.width(4.dp))
 
                     Text(
-                        text = "4d"//DateUtils.calculateTimeDifference(post.time)
+                        text = DateUtils.calculateTimeDifference(post.publishedAt)
                         ,
                         style = MaterialTheme.typography.subtitle1,
                         color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
@@ -203,23 +243,10 @@ private fun generateAnnotatedTitle(title: String, highlightedText: String): Anno
     }
 }
 
-data class SuggestedItem(
-    val name: String,
-    val title: String,
-    val time: String,
-    val imageUrl: String
-)
-
-
-val suggestedItems = listOf(
-    SuggestedItem("John Doe", "Software Engineer", "2h", "https://example.com/john_doe.jpg"),
-    SuggestedItem("Jane Smith", "UX Designer", "1d", "https://example.com/jane_smith.jpg"),
-
-)
 
 @Preview(showBackground = true)
 @Composable
 fun SuggestItemPreview() {
 
-     SuggestItem(post = suggestedItems.first(), searchText = "SearchQuery")
+     //SuggestItem(post = suggestedItems.first(), searchText = "SearchQuery")
 }

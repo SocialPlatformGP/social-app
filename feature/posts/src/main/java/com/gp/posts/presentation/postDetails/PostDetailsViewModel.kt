@@ -38,6 +38,7 @@ class PostDetailsViewModel @Inject constructor(
     val currentPost get() = _currentPost.asStateFlow()
 
 
+
     fun getPost(post: Post) {
         _currentPost.value = post
         viewModelScope.launch (Dispatchers.IO){

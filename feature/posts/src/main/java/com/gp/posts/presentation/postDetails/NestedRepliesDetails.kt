@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import coil.compose.AsyncImage
 import com.gp.socialapp.model.NestedReplyItem
+import com.gp.socialapp.util.DateUtils
 
 @Composable
 fun CommentListScreen(nestedReplyItem: NestedReplyItem) {
@@ -133,7 +134,7 @@ private fun ReplyItem(comment: NestedReplyItem, level: Int) {
                         .padding(4.dp)
                 )
                 Text(
-                    text = comment.reply?.createdAt ?: "Unknown",
+                    text = DateUtils.calculateTimeDifference(comment.reply?.createdAt.toString()) ,
                     modifier = Modifier.padding(4.dp)
                 )
 

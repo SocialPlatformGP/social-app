@@ -13,6 +13,9 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,22 +25,41 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
 import com.gp.posts.presentation.editPostContent.EditPostViewModel
+import com.gp.socialapp.model.Post
+
 
 @Composable
+fun EditPostScreen(viewModel: EditPostViewModel,post: Post) {
+    val state by viewModel.uiState.collectAsState()
+    EditPostContent(
+        post = post,
+        state = state,
+        updateTitle = { newTitle ->viewModel.updateTitle(newTitle)},
+        updateBody = { newBody -> viewModel.updateBody(newBody)},
+        updatePost = { viewModel.updatePost()}
+    )
+}
+@Composable
 fun EditPostContent(
+    post: Post,
     state: EditPostViewModel.EditPostUIState,
     updateTitle: (String) -> Unit,
     updateBody: (String) -> Unit,
     updatePost: () -> Unit
 ) {
+    var title by remember { mutableStateOf(post.title) }
+    var body by remember { mutableStateOf(post.body) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
+
         OutlinedTextField(
-            value = state.title,
-            onValueChange = { updateTitle(it) },
+            value = title,
+            onValueChange = { title = it
+                            updateTitle(it)},
             label = { Text(text = "Title") },
             modifier = Modifier
                 .fillMaxWidth()
@@ -48,8 +70,9 @@ fun EditPostContent(
         )
 
         OutlinedTextField(
-            value = state.body,
-            onValueChange = { updateBody(it) },
+            value = body,
+            onValueChange = { body = it
+                            updateBody(it)},
             label = { Text("Content") },
             modifier = Modifier
                 .fillMaxWidth()
@@ -72,29 +95,10 @@ fun EditPostContent(
     }
 }
 
-@Composable
-fun EditPostScreen(viewModel: EditPostViewModel) {
-    val state by viewModel.uiState.collectAsState()
-    EditPostContent(
-        state = state,
-        updateTitle = { newTitle ->viewModel.updateTitle(newTitle)},
-        updateBody = { newBody -> viewModel.updateBody(newBody)},
-        updatePost = { viewModel.updatePost()}
-    )
-}
 
-@Preview(showBackground = true, showSystemUi = true)
 
-@Composable
-fun preview() {
-    EditPostContent(state = EditPostViewModel.EditPostUIState(), updateTitle ={} , updateBody ={} ) {
 
-    }
-}
 
-fun EditPostViewModel.updateBody(body: String) {
-    uiState.value = uiState.value.copy(body = body)
-}
-fun EditPostViewModel.updateTitle(title: String) {
-    uiState.value = uiState.value.copy(body = title)
-}
+
+
+

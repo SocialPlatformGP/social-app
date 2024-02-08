@@ -197,7 +197,7 @@ fun FileMaterial(fileList: List<PostAttachment>) {
 @Composable
 fun FileItem(
     file: PostAttachment,
-    size: Dp = 64.dp // Default size of the file icon
+    size: Dp = 44.dp
 ) {
     Card(
         modifier = Modifier
@@ -205,7 +205,7 @@ fun FileItem(
             .padding(8.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(MaterialTheme.colors.surface)
-            .clickable { /* Handle click action */ },
+            .clickable {       },
         elevation = 4.dp
     ) {
         Row(

@@ -118,7 +118,7 @@ class PostDetailsFragment
 
         composeView.setContent {
 
-            DetailsScreen(viewModel = viewModel, edit = { editPost(args.post) })
+            DetailsScreen(viewModel = viewModel,args.post, edit = { editPost(args.post) })
             Log.d("Vip", "postClicked:${args.post.toString()} ")
         }
         // if(args.post.attachments.isNotEmpty()){bindMediaLayout(args.post.attachments)}
