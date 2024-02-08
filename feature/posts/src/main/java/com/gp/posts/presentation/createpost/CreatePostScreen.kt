@@ -44,7 +44,6 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material.icons.filled.Cancel
@@ -85,7 +84,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.net.toUri
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
@@ -94,7 +92,6 @@ import com.gp.socialapp.database.model.PostFile
 import com.gp.socialapp.model.Tag
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreatePostScreen(
     viewModel: CreatePostViewModel,
@@ -106,6 +103,35 @@ fun CreatePostScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val tags by viewModel.tags.collectAsState()
+        CreatePostScreen(
+            state =state ,
+            tags =tags,
+            navigateBack = navigateBack,
+            onAddImageClick = onAddImageClick,
+            onAddVideoClick = onAddVideoClick,
+            onAddFileClick = onAddFileClick,
+            onPreviewFile = onPreviewFile,
+            onTitleChange = { viewModel.onTitleChange(it) },
+            onBodyChange = { viewModel.onBodyChange(it) },
+            onPostClick ={viewModel.onCreatePost()},
+
+        )
+
+}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CreatePostScreen(
+    state: CreatePostUIState,
+    tags: List<Tag>,
+    navigateBack: () -> Unit = {},
+    onAddImageClick: () -> Unit = {},
+    onAddVideoClick: () -> Unit = {},
+    onAddFileClick: () -> Unit = {},
+    onPreviewFile: (PostFile) -> Unit = {},
+    onTitleChange: (String) -> Unit = {},
+    onBodyChange: (String) -> Unit = {},
+    onPostClick: (Set<Tag>) -> Unit = {},
+) {
     Scaffold(
         topBar = {
             CreatePostTopBar(
@@ -116,29 +142,24 @@ fun CreatePostScreen(
         CreatePostContent(
             paddingValues = paddindValues,
             titleValue = state.title,
-            onTitleValueChange = { viewModel.onTitleChange(it) },
+            onTitleValueChange = onTitleChange,
             contentValue = state.body,
-            onContentValueChange = { viewModel.onBodyChange(it) },
-            onPostClick = {
-                val newTags = it.filter { tag -> !tags.contains(tag) }
-                viewModel.insertNewTags(newTags)
-                viewModel.uiState.value.tags = it.toList()
-                viewModel.onCreatePost()
-            },
+            onContentValueChange = onBodyChange,
+            onPostClick = onPostClick,
             onAddImageClick = onAddImageClick,
             onAddVideoClick = onAddVideoClick,
             onAddFileClick = onAddFileClick,
             tags = tags,
             selectedTags = state.tags.toSet(),
-            onAddTag = { viewModel.onAddTag(it) },
-            onRemoveTag = { viewModel.onRemoveTag(it) },
+            onAddTag = {  },
+            onRemoveTag = { },
             selectedFiles = state.files,
-            onRemoveFile = { viewModel.removeFile(it) },
+            onRemoveFile = {  },
             onPreviewFile = onPreviewFile,
+            emptyError =false
         )
     }
 }
-
 
 @Composable
 fun CreatePostTopBar(
@@ -178,6 +199,7 @@ fun CreatePostContent(
     selectedFiles: List<PostFile>,
     onRemoveFile: (PostFile) -> Unit,
     onPreviewFile: (PostFile) -> Unit,
+    emptyError : Boolean = false
 
     ) {
     val bottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
@@ -197,14 +219,17 @@ fun CreatePostContent(
             value = titleValue,
             onValueChange = { onTitleValueChange(it) },
             icon = Icons.Filled.Title,
-            modifier = Modifier.height(height * 0.08f)
+            modifier = Modifier.height(height * 0.08f),
+            errorState = emptyError
+
         )
         CreatePostTextField(
             label = "Content",
             value = contentValue,
             onValueChange = { onContentValueChange(it) },
             icon = Icons.Filled.TextFormat,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
+            errorState = emptyError
         )
         LazyRow(
             horizontalArrangement = Arrangement.Start
@@ -414,7 +439,8 @@ fun CreatePostTextField(
     value: String,
     onValueChange: (String) -> Unit,
     icon: ImageVector,
-    modifier: Modifier
+    modifier: Modifier,
+    errorState :Boolean
 ) {
     TextField(
         value = value,
@@ -433,7 +459,8 @@ fun CreatePostTextField(
         },
         modifier = modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colors.surface)
+            .background(MaterialTheme.colors.surface),
+        isError = errorState
     )
 }
 
@@ -481,35 +508,12 @@ fun ButtonSheetOptions(
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
 fun CreatePostPreview() {
-    CreatePostContent(
-        paddingValues = PaddingValues(),
-        tags = listOf(
-            Tag("Android", "#FF0000"),
-            Tag("Kotlin", "#00E676"),
-            Tag("Compose", "#FFD600"),
-            Tag("Jetpack", "#FF6D00"),
-            Tag("Dagger", "#00E676"),
-            Tag("Hilt", "#FF00FF"),
-        ),
-        selectedTags = setOf(
-            Tag("Android", "#FF0000"),
-            Tag("Kotlin", "#00E676"),
-            Tag("Compose", "#FFD600"),
-            Tag("Jetpack", "#FF6D00"),
-            Tag("Dagger", "#00E676"),
-            Tag("Hilt", "#FF00FF"),
-        ),
-        onAddTag = {},
-        onRemoveTag = {},
-        selectedFiles = listOf(),
-        onPreviewFile = {},
-        onRemoveFile = {},
-
-    )
+    CreatePostScreen(state = CreatePostUIState(), tags = emptyList() )
 }
 
 enum class TagType(val label: String) {
-    New("Add New Tag"), Existing("Select From Existing Tags")
+    New("Add New Tag"),
+    Existing("Select From Existing Tags")
 }
 
 @Composable
@@ -642,12 +646,13 @@ fun PreviewFileItem(
             contentDescription = null,
             modifier = if(icon==Icons.Filled.Image){
                 Modifier
-                .padding(1.dp)
-                .align(Alignment.TopEnd)
+                    .padding(1.dp)
+                    .align(Alignment.TopEnd)
             }else{
                 Modifier
                     .padding(1.dp)
-                    .align(Alignment.TopEnd).fillMaxSize()
+                    .align(Alignment.TopEnd)
+                    .fillMaxSize()
             },
             tint = MaterialTheme.colors.onSurface
         )
@@ -680,17 +685,3 @@ fun PreviewFileItem(
 }
 
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun ff() {
-    PreviewFileItem(
-        file = PostFile(
-            "https://firebasestorage.googleapis.com/v0/b/social-platform-3e56e.appspot.com/o/posts%2FFZUENdUkOpNYgTa1aBNA%2F04f6f8f9-9520-4ea5-8392-0caa2a132a35_IMG-20240131-WA0004.jpg?alt=media&token=4841b6a7-10d7-4384-8a27-9faa0169ef3e".toUri(),
-            "hello gays",
-            MimeType.PNG,
-        ),
-        onRemove = {},
-        onPreviewFileClick = {}
-    )
-
-}
