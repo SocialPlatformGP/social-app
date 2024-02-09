@@ -76,7 +76,13 @@ class VipFeedFragment : Fragment()
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         composeView.setContent {
-            VipScreen(viewModel = viewModel, details = {postClicked(it)}, edit = {edit(it) },{vipToCreate()})
+            VipScreen(
+                viewModel = viewModel,
+                details = {postClicked(it)},
+                edit = {edit(it) },
+                onFabClick = {vipToCreate()},
+                onTagClicked = {onTagClicked(it)}
+                )
         }
 
         //viewModel.getUserById(currentUser?.email!!)
@@ -113,6 +119,10 @@ class VipFeedFragment : Fragment()
 //            }
 //        }
 
+    }
+    fun createPost(){
+        val action = MainFeedFragmentDirections.actionMainFeedFragment2ToCreatePostFragment("vip")
+        findNavController().navigate(action)
     }
 
 

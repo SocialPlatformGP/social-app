@@ -1,5 +1,7 @@
 package com.gp.posts.presentation.postsfeed
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -45,107 +47,139 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
-import com.gp.posts.R
 import com.gp.posts.presentation.postDetails.ExpandableText
 import com.gp.posts.presentation.postDetails.UserPostTags
+import com.gp.posts.presentation.postDetails.imageCaching
 import com.gp.socialapp.database.model.MimeType
-import com.gp.socialapp.database.model.PostAttachment
 import com.gp.socialapp.model.Post
+import com.gp.socialapp.model.Tag
 import com.gp.socialapp.util.DateUtils
+import com.gp.users.model.NetworkUser
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun VipScreen(
     viewModel: VipFeedViewModel,
     details: (Post) -> Unit,
     edit: (Post) -> Unit,
-    onFabClick: () -> Unit
+    onFabClick: () -> Unit,
+    onTagClicked: (Tag)->Unit
 ) {
     val state by viewModel.uiState.collectAsState()
     val user by viewModel.currentUser.collectAsState()
 
+    PostContent(
+        state = state,
+        user = user,
+        deletePost = { viewModel.deletePost(it) },
+        details = details,
+        edit = edit,
+        onUpVote = { viewModel.upVote(it) },
+        onDownVote = { viewModel.downVote(it) },
+        onFabClick = {onFabClick()},
+        onTagClicked = {onTagClicked(it)}
+    )
+}
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun PostContent(
+    state: FeedPostUiState,
+    user: NetworkUser,
+    deletePost: (Post) -> Unit,
+    details: (Post) -> Unit,
+    edit: (Post) -> Unit,
+    onUpVote: (Post) -> Unit,
+    onDownVote: (Post) -> Unit,
+    onFabClick: () -> Unit,
+    onTagClicked: (Tag) -> Unit
+) {
+    val fabVisible = remember { mutableStateOf(false) }
+
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(modifier = Modifier.fillMaxWidth()) {
             items(state.posts) { post ->
-                PostItem(viewModel.upVote(post),viewModel = viewModel, post, details = details, edit = edit)
+                AnimatedVisibility(
+                    visible = post.type == "vip",
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    VipPostItem(
+                        post = post,
+                        deletePost = deletePost,
+                        details = details,
+                        edit = edit,
+                        onUpVote =  onUpVote ,
+                        onDownVote =  onDownVote,
+                        onTagClicked = onTagClicked
+                    )
+                }
             }
         }
         if (user.administration) {
-                FloatingActionButton(
-            onClick = { onFabClick() },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
-        ) {
-            Icon(Icons.Filled.Add, contentDescription = "Add")
+            FloatingActionButton(
+                onClick = {
+                    fabVisible.value = !fabVisible.value
+                    onFabClick()
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp)
+            ) {
+                Icon(Icons.Filled.Add, contentDescription = "Add")
+            }
         }
-
-               }
     }
 }
 
+
 @Composable
-fun PostItem(upVote:()->Unit,downVote:()->Unit, post: Post,details:(Post)->Unit,edit:(Post)->Unit) {
-    var isUpvoteFilled by remember { mutableStateOf(false) }
-    var isDownvoteFilled by remember { mutableStateOf(false) }
+fun VipPostItem(
+    post: Post,
+    deletePost: (Post) -> Unit,
+    details: (Post) -> Unit,
+    edit: (Post) -> Unit,
+    onUpVote: (Post) -> Unit,
+    onDownVote: (Post) -> Unit,
+    onTagClicked: (Tag) -> Unit
+) {
+    var isUpVoteFilled by remember { mutableStateOf(false) }
+    var isDownVoteFilled by remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
             .padding(4.dp)
             .clip(MaterialTheme.shapes.medium)
-
     ) {
-
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
                 .padding(4.dp)
         ) {
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),
-
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(post.userPfp)
-                        .crossfade(true)
-                        .build(),
-                    placeholder = painterResource(R.drawable.pngwing_com),
-                    contentDescription = "picture image",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .size(40.dp)
-                )
-
-
+                imageCaching(imageUri = post.userPfp, modifier = Modifier
+                    .clip(CircleShape)
+                    .size(40.dp) )
                 Column(
-                    modifier = Modifier
-                        .padding(start = 8.dp)
+                    modifier = Modifier.padding(start = 8.dp)
                 ) {
-
                     Text(
                         text = post.userName,
                         color = MaterialTheme.colorScheme.primary,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                     )
-
                     Text(
                         text = DateUtils.calculateTimeDifference(post.publishedAt),
                         color = MaterialTheme.colorScheme.secondary,
@@ -154,36 +188,31 @@ fun PostItem(upVote:()->Unit,downVote:()->Unit, post: Post,details:(Post)->Unit,
                     )
                 }
                 Spacer(modifier = Modifier.weight(1f))
-                DropDownMenu(viewModel,post, edit = edit)
+                DropDownMenu(deletePost = deletePost, post, edit = edit)
             }
-
             Spacer(modifier = Modifier.height(8.dp))
-
             Text(
                 text = post.title,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             ExpandableText(
                 text = post.body,
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             )
 
-            UserPostTags(userPost = post)
+            UserPostTags(userPost = post,onTagClicked)
 
-            if(post.attachments.isNotEmpty()){
+            if (post.attachments.isNotEmpty()) {
                 when (post.attachments.first().type) {
                     in IMAGE_TYPES -> {
                         ImagePager(images = post.attachments)
                     }
-
                     else -> {
                         FileMaterial(fileList = post.attachments)
                     }
@@ -198,7 +227,7 @@ fun PostItem(upVote:()->Unit,downVote:()->Unit, post: Post,details:(Post)->Unit,
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                IconButton(onClick = { details(post)}) {
+                IconButton(onClick = { details(post) }) {
                     Icon(
                         imageVector = Icons.Default.Comment,
                         contentDescription = "Comment",
@@ -209,60 +238,57 @@ fun PostItem(upVote:()->Unit,downVote:()->Unit, post: Post,details:(Post)->Unit,
                 Text(
                     text = post.replyCount.toString(),
                     color = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier
-                        .padding(start = 4.dp)
+                    modifier = Modifier.padding(start = 4.dp)
                 )
 
                 IconButton(
                     onClick = {
-                        isDownvoteFilled = !isDownvoteFilled
-                        if (isDownvoteFilled) {
-                            isUpvoteFilled = false
-                            viewModel.downVote(post = post)
-                        }
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ThumbDown,
-                        contentDescription = "Down Vote",
-                        tint = if (isDownvoteFilled) MaterialTheme.colorScheme.primary else Color.Gray
-                    )
-                }
-
-
-
-                Text(
-                    text = post.votes.toString(),
-                    color = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier
-                        .padding(end = 4.dp)
-                )
-                IconButton(
-                    onClick = {
-                        isUpvoteFilled = !isUpvoteFilled
-                        if (isUpvoteFilled) {
-                            isDownvoteFilled = false
-                            viewModel.upVote(post)
+                        isDownVoteFilled = false
+                        isUpVoteFilled = !isUpVoteFilled
+                        if (!isDownVoteFilled) {
+                            onUpVote(post)
                         }
                     }
                 ) {
                     Icon(
                         imageVector = Icons.Default.ThumbUp,
                         contentDescription = "Upvote",
-                        tint = if (isUpvoteFilled) MaterialTheme.colorScheme.primary else Color.Gray
+                        tint = if (isUpVoteFilled) MaterialTheme.colorScheme.primary else Color.Gray
                     )
                 }
 
+                Text(
+                    text = post.votes.toString(),
+                    color = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.padding(end = 4.dp)
+                )
 
+                IconButton(
+                    onClick = {
+                        isUpVoteFilled = false
+                        isDownVoteFilled = !isDownVoteFilled
+                        if (!isUpVoteFilled) {
+                            onDownVote(post)
+                        }
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ThumbDown,
+                        contentDescription = "Down Vote",
+                        tint = if (isDownVoteFilled) MaterialTheme.colorScheme.primary else Color.Gray
+                    )
+                }
             }
-
         }
     }
 }
 
 @Composable
-fun DropDownMenu(viewModel: VipFeedViewModel, post: Post, edit: (Post) -> Unit) {
-
+fun DropDownMenu(
+    deletePost: (Post) -> Unit,
+    post: Post,
+    edit: (Post) -> Unit
+) {
     var menuExpanded by remember { mutableStateOf(false) }
     val dropdownMenuHeight = 200.dp
 
@@ -286,42 +312,38 @@ fun DropDownMenu(viewModel: VipFeedViewModel, post: Post, edit: (Post) -> Unit) 
         ) {
             DropdownMenuItem(
                 onClick = {
-                   viewModel.deletePost(post)
+                    deletePost(post)
                     menuExpanded = false
                 },
-                modifier = Modifier.clickable { } ,
+                modifier = Modifier.clickable { },
                 text = { Text(text = "Delete") }
             )
-
             DropdownMenuItem(
                 onClick = {
                     edit(post)
                     menuExpanded = false
                 },
-                modifier = Modifier.clickable { } ,
+                modifier = Modifier.clickable { },
                 text = { Text(text = "Edit") }
             )
-
             DropdownMenuItem(
                 onClick = {
-
                     menuExpanded = false
                 },
-                modifier = Modifier.clickable { } ,
+                modifier = Modifier.clickable { },
                 text = { Text(text = "Save") }
             )
-
             DropdownMenuItem(
                 onClick = {
-
                     menuExpanded = false
                 },
-                modifier = Modifier.clickable { } ,
+                modifier = Modifier.clickable { },
                 text = { Text(text = "Report") }
             )
         }
     }
 }
+
 
 val IMAGE_TYPES = listOf(
     MimeType.JPEG.readableType,
@@ -340,40 +362,4 @@ val VIDEO_TYPES = listOf(
     MimeType.MOV.readableType,
     MimeType.WMV.readableType
 )
-@Preview
-@Composable
-fun pre(){
-    val mockAttachments = listOf(
-        PostAttachment(
-            url = "https://example.com/image1.jpg",
-            name = "Image 1",
-            type = "image/jpeg",
-            size = 1024
-        ),
-        PostAttachment(
-            url = "https://example.com/image2.jpg",
-            name = "Image 2",
-            type = "image/jpeg",
-            size = 2048
-        ),
-        PostAttachment(
-            url = "https://example.com/document.pdf",
-            name = "Document",
-            type = "application/pdf",
-            size = 4096
-        ),
-        // Add more mock attachments as needed
-    )
-
-   // FileMaterial(fileList = mockAttachments, open = { })
-
-    // if(post.attachments.isNotEmpty()){
-       // if (post.attachments.first().type=="IMAGE"){
-           // ImagePager(images = mockAttachments)
-        }
-      //  else{
-      //  }
-
-   // }
-
 

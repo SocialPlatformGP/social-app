@@ -10,12 +10,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.ui.tooling.preview.Preview
 
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun FeedOptionsBottomSheet(
     onSortByNewest: () -> Unit,
@@ -108,7 +106,10 @@ fun SortOptionItem(option: SortOption, isSelected: Boolean, onSortSelected: () -
 }
 
 @Composable
-fun FeedOptionsScreen(/*viewModel:VipFeedViewModel*/) {
+fun FeedOptionsScreen(
+    onSortByNewest: () -> Unit,
+    onSortByPopularity: () -> Unit,
+    onDismiss: () -> Unit) {
     var showBottomSheet by remember { mutableStateOf(false) }
 
     Column(
@@ -127,11 +128,11 @@ fun FeedOptionsScreen(/*viewModel:VipFeedViewModel*/) {
         if (showBottomSheet) {
             FeedOptionsBottomSheet(
                 onSortByNewest = {
-                    //  viewModel.sortPostsByNewest()
+                    onSortByNewest()
                     showBottomSheet = false
                 },
                 onSortByPopularity = {
-                    // viewModel.sortPostsByPopularity()
+                    onSortByPopularity
                     showBottomSheet = false
                 },
                 onDismiss = {
@@ -150,5 +151,4 @@ enum class SortOption(val displayName: String) {
 @Preview(showBackground = true, apiLevel = 30, showSystemUi = true, backgroundColor = 0xFFFFFFFF)
 @Composable
 fun FeedOptionsScreenPreview() {
-    FeedOptionsScreen()
 }

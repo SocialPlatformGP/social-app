@@ -56,6 +56,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.gp.posts.R
+import com.gp.posts.presentation.postDetails.imageCaching
 import com.gp.socialapp.database.model.PostAttachment
 import kotlinx.coroutines.delay
 
@@ -71,16 +72,19 @@ fun ImagePager(images: List<PostAttachment>) {
         ManualSlidingCarousel(images = images, itemsCount = images.size) { index ->
             if (images.indices.contains(index)) {
                 val image = images[index]
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(image.url)
-                        .crossfade(true)
-                        .build(),
-                    placeholder = painterResource(R.drawable.pngwing_com),
-                    contentDescription = "picture image",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.height(300.dp).fillMaxWidth()
-                )
+                imageCaching(imageUri = image.url, modifier = Modifier.height(300.dp).fillMaxWidth() )
+//                AsyncImage(
+//                    model = ImageRequest.Builder(LocalContext.current)
+//                        .data(image.url)
+//                        .crossfade(true)
+//                        .build(),
+//                    placeholder = painterResource(R.drawable.pngwing_com),
+//                    contentDescription = "picture image",
+//                    contentScale = ContentScale.Crop,
+//                    modifier = Modifier
+//                        .height(300.dp)
+//                        .fillMaxWidth()
+//                )
             }
         }
     }
@@ -205,7 +209,7 @@ fun FileItem(
             .padding(8.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(MaterialTheme.colors.surface)
-            .clickable {       },
+            .clickable { },
         elevation = 4.dp
     ) {
         Row(

@@ -26,12 +26,13 @@ import androidx.compose.ui.unit.dp
 import com.gp.socialapp.model.Tag
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
+import com.gp.posts.listeners.OnTagClicked
 import com.gp.socialapp.model.Post
 
 
 
 @Composable
-fun TagChip(tag: Tag, onClick: () -> Unit) {
+fun TagChip(tag: Tag, onClick: (Tag) -> Unit) {
     Card(
         modifier = Modifier
             .clickable(
@@ -41,7 +42,7 @@ fun TagChip(tag: Tag, onClick: () -> Unit) {
                     radius = 250.dp,
                     color = Color.Green
                 ),
-                onClick = { onClick }
+                onClick = { onClick(tag) }
             )
             .padding(4.dp)
             .clip(CircleShape)
@@ -65,14 +66,14 @@ fun TagChip(tag: Tag, onClick: () -> Unit) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun UserPostTags(userPost: Post,) {
+fun UserPostTags(userPost: Post,onTagClicked:(Tag)->Unit) {
     FlowRow(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 8.dp),
         content = {
             for (tag in userPost.tags) {
-                TagChip(tag = tag, onClick = {  })
+                TagChip(tag = tag, onClick = { onTagClicked(tag) })
             }
         }
     )

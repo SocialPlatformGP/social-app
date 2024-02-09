@@ -160,7 +160,7 @@ fun PostItem(viewModel: SearchResultsViewModel, post: Post) {
                     .fillMaxWidth()
             )
 
-            UserPostTags(userPost = post)
+            UserPostTags(userPost = post,{ })
 
             if(post.attachments.isNotEmpty()){
                 when (post.attachments.first().type) {

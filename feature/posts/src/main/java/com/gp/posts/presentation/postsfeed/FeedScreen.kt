@@ -59,44 +59,76 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.gp.posts.R
+import com.gp.posts.listeners.OnTagClicked
 import com.gp.posts.presentation.postDetails.ExpandableText
 import com.gp.posts.presentation.postDetails.UserPostTags
+import com.gp.posts.presentation.postDetails.imageCaching
 import com.gp.socialapp.model.Post
+import com.gp.socialapp.model.Tag
 import com.gp.socialapp.util.DateUtils
+import com.gp.users.model.NetworkUser
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun FeedScreen(viewModel: FeedPostViewModel,feedToCreate:()->Unit) {
-    val uiState by viewModel.uiState.collectAsState()
+fun FeedScreen(
+               viewModel: FeedPostViewModel,
+               feedToCreate:()->Unit,
+               details: (Post) -> Unit,
+               edit: (Post) -> Unit,
+               onTagClicked: (Tag)->Unit) {
 
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    feedToCreate
-                }
-            ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
-            }
-        },
-        content = {post->
-            LazyColumn {
-                items(uiState.posts) {
-                    PostItem(viewModel = viewModel, post = it)
-                }
-            }
+    val uiState by viewModel.uiState.collectAsState()
+    FeedContent(
+        state = uiState,
+        deletePost = {viewModel.deletePost(it)},
+        details = details,
+        edit = edit,
+        onUpVote = {viewModel.upVote(it)},
+        onDownVote ={viewModel.downVote(it)} ,
+        onTagClicked = {onTagClicked(it)} )
+
+}
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun FeedContent(
+    state: FeedPostUiState,
+    deletePost: (Post) -> Unit,
+    details: (Post) -> Unit,
+    edit: (Post) -> Unit,
+    onUpVote: (Post) -> Unit,
+    onDownVote: (Post) -> Unit,
+    onTagClicked: (Tag) -> Unit
+) {
+    LazyColumn {
+        items(state.posts) {post->
+            PostItem(
+                deletePost=deletePost,
+                details = details,
+                edit = edit,
+                onUpVote=onUpVote,
+                onDownVote=onDownVote,
+                onTagClicked=onTagClicked,
+                post = post )
         }
-    )
+    }
+
 }
 
 
 
-@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalLayoutApi::class)
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun PostItem(viewModel:FeedPostViewModel,post: Post) {
+fun PostItem(
+    deletePost: (Post) -> Unit,
+    details: (Post) -> Unit,
+    edit: (Post) -> Unit,
+    onUpVote: (Post) -> Unit,
+    onDownVote: (Post) -> Unit,
+    onTagClicked: (Tag) -> Unit,
+    post: Post) {
     var isUpvoteFilled by remember { mutableStateOf(false) }
     var isDownvoteFilled by remember { mutableStateOf(false) }
 
@@ -124,20 +156,9 @@ fun PostItem(viewModel:FeedPostViewModel,post: Post) {
 
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
-                // Circular Image
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(post.userPfp)
-                        .crossfade(true)
-                        .build(),
-                    placeholder = painterResource(R.drawable.pngwing_com),
-                    contentDescription = "picture image",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .size(40.dp)
-                )
+                imageCaching(imageUri = post.userPfp, modifier = Modifier
+                    .clip(CircleShape)
+                    .size(40.dp))
 
                 Column(
                     modifier = Modifier
@@ -159,7 +180,7 @@ fun PostItem(viewModel:FeedPostViewModel,post: Post) {
                     )
                 }
                 Spacer(modifier = Modifier.weight(1f))
-                FeedDropDownMenu(viewModel,post)
+                FeedDropDownMenu(deletePost,edit,post)
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -189,7 +210,7 @@ fun PostItem(viewModel:FeedPostViewModel,post: Post) {
                     .padding(top = 8.dp)
             ) {
 
-                UserPostTags(userPost = post)
+                UserPostTags(userPost = post,onTagClicked)
 
             }
 
@@ -213,8 +234,7 @@ fun PostItem(viewModel:FeedPostViewModel,post: Post) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                // Comment Button
-                IconButton(onClick = { /* Handle Comment */ }) {
+                IconButton(onClick = { details(post) }) {
                     Icon(
                         imageVector = Icons.Default.Comment,
                         contentDescription = "Comment",
@@ -234,7 +254,7 @@ fun PostItem(viewModel:FeedPostViewModel,post: Post) {
                         isDownvoteFilled = !isDownvoteFilled
                         if (isDownvoteFilled) {
                             isUpvoteFilled = false
-                            viewModel.downVote(post)
+                            onDownVote(post)
 
                         }
                     }
@@ -259,7 +279,7 @@ fun PostItem(viewModel:FeedPostViewModel,post: Post) {
                         isUpvoteFilled = !isUpvoteFilled
                         if (isUpvoteFilled) {
                             isDownvoteFilled = false
-                            viewModel.upVote(post)
+                            onUpVote(post)
                         }
                     }
                 ) {
@@ -279,7 +299,10 @@ fun PostItem(viewModel:FeedPostViewModel,post: Post) {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun FeedDropDownMenu(viewModel: FeedPostViewModel, post: Post) {
+fun FeedDropDownMenu(
+    deletePost: (Post) -> Unit,
+    edit: (Post) -> Unit,
+    post: Post) {
 
     var menuExpanded by remember { mutableStateOf(false) }
     val dropdownMenuHeight = 200.dp
@@ -304,7 +327,7 @@ fun FeedDropDownMenu(viewModel: FeedPostViewModel, post: Post) {
         ) {
             DropdownMenuItem(
                 onClick = {
-                    viewModel.deletePost(post)
+                    deletePost(post)
                     menuExpanded = false
                 },
                 modifier = Modifier.clickable { } ,
@@ -313,6 +336,7 @@ fun FeedDropDownMenu(viewModel: FeedPostViewModel, post: Post) {
 
             DropdownMenuItem(
                 onClick = {
+                    edit(post)
                     menuExpanded = false
                 },
                 modifier = Modifier.clickable { } ,

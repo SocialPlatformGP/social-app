@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.lazy.LazyColumn
@@ -38,28 +39,30 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toFile
+import coil.ImageLoader
 import coil.compose.rememberImagePainter
 import coil.imageLoader
 import coil.memory.MemoryCache
 import coil.request.ImageRequest
-import com.gp.posts.R
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
-import timber.log.Timber
+import coil.request.SuccessResult
+import coil.transform.CircleCropTransformation
+import android.content.Context
+import androidx.compose.material.Surface
+import coil.compose.AsyncImage
+import coil.request.CachePolicy
+import coil.request.ErrorResult
 
-import kotlin.math.PI
-import kotlin.math.sqrt
+import coil.transform.Transformation
+import com.gp.posts.R
+import okhttp3.Dispatcher
+
 @Composable
 fun ExpandableText(
     text: String,
@@ -115,5 +118,42 @@ fun ExpandableText(
                     )
             )
         }
+    }
+}
+
+@Composable
+fun imageCaching(imageUri: String,modifier: Modifier) {
+    Surface(modifier = modifier) {
+        val context = LocalContext.current
+        val placeholder = R.drawable.pngwing_com
+        val imageUrl =imageUri.toString()
+
+        val listener = object : ImageRequest.Listener {
+            override fun onError(request: ImageRequest, result: ErrorResult) {
+                super.onError(request, result)
+            }
+
+            override fun onSuccess(request: ImageRequest, result: SuccessResult) {
+                super.onSuccess(request, result)
+            }
+        }
+        val imageRequest = ImageRequest.Builder(context)
+            .data(imageUrl)
+            .listener(listener)
+            .memoryCacheKey(imageUrl)
+            .diskCacheKey(imageUrl)
+            .placeholder(placeholder)
+            .error(placeholder)
+            .fallback(placeholder)
+            .diskCachePolicy(CachePolicy.ENABLED)
+            .memoryCachePolicy(CachePolicy.ENABLED)
+            .build()
+
+        AsyncImage(
+            model = imageRequest,
+            contentDescription = "Image Description",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop,
+        )
     }
 }

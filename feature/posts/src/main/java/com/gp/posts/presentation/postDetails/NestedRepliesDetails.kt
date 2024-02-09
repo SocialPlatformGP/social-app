@@ -51,12 +51,11 @@ import com.gp.socialapp.util.DateUtils
 
 @Composable
 fun CommentListScreen(nestedReplyItem: NestedReplyItem) {
-
-    Box {
+    Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier
+                .fillMaxSize()
                 .systemBarsPadding()
-                .fillMaxSize(),
         ) {
             commentList(comments = listOf(nestedReplyItem))
         }

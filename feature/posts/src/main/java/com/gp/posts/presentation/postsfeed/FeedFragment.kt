@@ -25,6 +25,7 @@ import com.gp.material.utils.FileManager
 import com.gp.socialapp.database.model.MimeType
 import com.gp.socialapp.database.model.PostAttachment
 import com.gp.socialapp.model.Post
+import com.gp.socialapp.model.Tag
 
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -60,7 +61,11 @@ class FeedFragment : Fragment()
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         composeView.setContent {
-            FeedScreen(viewModel = viewModel,{feedToCreate()})
+            FeedScreen(viewModel = viewModel,
+                feedToCreate = {feedToCreate()},
+                details = {onPostClicked(it)},
+                edit = {edit(it)},
+                onTagClicked = {onTagClicked(it)})
             }
 
         }
@@ -76,6 +81,15 @@ class FeedFragment : Fragment()
       val action = MainFeedFragmentDirections.mainFeedFragment2ToPostDetialsFragment(post)
        findNavController().navigate(action)
     }
+    fun onTagClicked(tag: Tag) {
+        val action = MainFeedFragmentDirections.mainFeedFragment2ToSearchFragment2(tag.label, true)
+        findNavController().navigate(action)
+    }
+    fun edit(postitem: Post){
+        val action = MainFeedFragmentDirections.mainFeedFragment2ToEditPostFragment(postitem)
+        findNavController().navigate(action)
+    }
+
 
 }
 
@@ -236,10 +250,7 @@ class FeedFragment : Fragment()
 //        }
 //    }
 //
-//    override fun onTagClicked(tag: Tag) {
-//        val action = MainFeedFragmentDirections.mainFeedFragment2ToSearchFragment2(tag.label, true)
-//        findNavController().navigate(action)
-//    }
+
 //
 
 //
