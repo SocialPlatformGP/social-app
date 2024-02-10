@@ -1,87 +1,106 @@
 package com.gp.posts.presentation.postDetails
 
+
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.Card
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Send
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Comment
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.ThumbDown
+import androidx.compose.material.icons.filled.ThumbUp
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ShapeDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
-
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.times
+import com.gp.posts.presentation.feedUiEvents.ReplyEvent
 import com.gp.socialapp.model.NestedReplyItem
+import com.gp.socialapp.model.Post
 import com.gp.socialapp.model.Reply
+import com.gp.socialapp.model.Tag
 
-data class Reply(
-    val id: String = "",
-    val authorEmail: String,
-    val postId: String,
-    val parentReplyId: String?,
-    val content: String,
-    val votes: Int = 0,
-    val depth: Int,
-    val createdAt: String?,
-    val deleted: Boolean = false,
-    val upvoted: List<String> = emptyList(),
-    val downvoted: List<String> = emptyList(),
-    val collapsed: Boolean = false,
-    val editStatus: Boolean = false
-)
 
-data class NestedReplyItem(
-    var reply: Reply?,
-    var replies: List<NestedReplyItem>
-)
 
-@Composable
-fun NestedRepliesView(nestedReplyItem: NestedReplyItem) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = (nestedReplyItem.reply?.depth ?: 0) * 16.dp)
-            .background(Color.Gray.copy(alpha = 0.1f))
-            .padding(8.dp)
-    ) {
-        item {
-            ReplyItem(nestedReplyItem.reply)
-        }
-
-        items(nestedReplyItem.replies.size) { nestedItem ->
-            this@LazyColumn.item {
-                NestedRepliesView(nestedReplyItem.replies[nestedItem])
-            }
-        }
+fun LazyListScope.commentList(comments: List<NestedReplyItem>, level: Int = 0,onReplyEvent: (ReplyEvent)->Unit) {
+    comments.forEach { comment ->
+        commentItem(comment, level,onReplyEvent)
     }
 }
 
-@Composable
-fun ReplyItem(reply: Reply?) {
-    var isEditing by remember { mutableStateOf(false) }
-    var editedContent by remember { mutableStateOf(reply?.content ?: "") }
+fun LazyListScope.commentItem(comment: NestedReplyItem, level: Int,onReplyEvent: (ReplyEvent)->Unit) {
 
+    item {
+        val ltrLayoutDirection = remember { LayoutDirection.Ltr }
+        CompositionLocalProvider(LocalLayoutDirection provides ltrLayoutDirection) {
+            ReplyItem(comment, level,onReplyEvent)
+        }
+    }
+    commentList(comment.replies, level + 1,onReplyEvent)
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+private fun ReplyItem(
+    comment: NestedReplyItem, level: Int,
+    replyEvent: (ReplyEvent)->Unit
+) {
+    if (comment.reply == null) return
+    val padding = with(LocalDensity.current) { 16.dp.toPx() }
     Card(
+        onClick = { },
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-            .border(BorderStroke(1.dp, Color.Gray), shape = MaterialTheme.shapes.medium)
+            .drawBehind {
+                repeat(level + 1) {
+                    drawLine(
+                        color = Color.Red.copy(alpha = 1f),
+                        start = Offset(it * padding, 0f),
+                        end = Offset(it * padding, size.height),
+                        strokeWidth = 2f
+                    )
+                }
+            }
+            .padding(start = (16.dp * level) + 8.dp, end = 8.dp, bottom = 4.dp),
+        shape = ShapeDefaults.Medium,
+        elevation = 0.dp,
+        border = BorderStroke(1.dp, Color.Gray),
+        backgroundColor = Color.Gray.copy(alpha = 0.1f)
+
     ) {
         Column(
             modifier = Modifier
@@ -89,101 +108,130 @@ fun ReplyItem(reply: Reply?) {
         ) {
             Row(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-                    , verticalAlignment = Alignment.CenterVertically
+                    .fillMaxWidth()
             ) {
-                Text(text = reply?.authorEmail ?: "Unknown", fontWeight = FontWeight.Bold)
-                IconButton(onClick = { isEditing = !isEditing }) {
-                    Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
+                //TODO: Add user profile pic here
+                Image(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = "Random image",
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .clip(CircleShape)
+                        .background(Color.LightGray),//TODO: this color for testing only
+                )
+                Text(
+                    text = if (comment.reply?.authorEmail?.length ?: 0 > 10) comment.reply?.authorEmail?.substring(
+                        0,
+                        10
+                    ) ?: "" else comment.reply?.authorEmail ?: "Unknown",
+                    style = MaterialTheme.typography.body1,
+                    modifier = Modifier
+                        .padding(4.dp),
+                    overflow = if ((comment.reply?.authorEmail?.length ?: 0) > 10) {
+                        TextOverflow.Ellipsis
+                    } else TextOverflow.Clip
+                )
+                Text(
+                    text = com.gp.socialapp.util.DateUtils.calculateTimeDifference(comment.reply?.createdAt!!),
+                    modifier = Modifier.padding(4.dp),
+                    overflow = if ((comment.reply?.createdAt?.length ?: 0) > 10) {
+                        TextOverflow.Ellipsis
+                    } else TextOverflow.Clip
+                )
+
+            }
+
+            Text(
+                text = comment.reply?.content ?: "No body",
+                style = MaterialTheme.typography.body1,
+                modifier = Modifier
+                    .padding(4.dp)
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box {
+                    var visible by remember { mutableStateOf(false) }
+                    IconButton(
+                        onClick = {
+                            visible = true
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.MoreVert,
+                            contentDescription = "More options"
+                        )
+                    }
+                    DropdownMenu(
+                        expanded =visible ,
+                        onDismissRequest = { visible = false },
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Edit") },
+                            onClick = {replyEvent(ReplyEvent.OnReplyEdited(reply = comment.reply!!)) }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Delete") },
+                            onClick = {replyEvent(ReplyEvent.OnReplyDeleted(reply = comment.reply!!)) }
+                        )
+                    }
+                }
+                IconButton(
+                    onClick = {
+                        replyEvent(ReplyEvent.OnAddReply(reply = comment.reply!!))
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Comment,
+                        contentDescription = "Add a comment"
+                    )
+                }
+                IconButton(
+                    onClick = {
+                        replyEvent(ReplyEvent.OnReplyUpVoted(reply = comment.reply!!))
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.ThumbUp,
+                        contentDescription = "Like"
+                    )
+                }
+                Text(text = "0")
+                IconButton(
+                    onClick = {
+                        replyEvent(ReplyEvent.OnReplyDownVoted(reply = comment.reply!!))
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.ThumbDown,
+                        contentDescription = "Share"
+                    )
                 }
             }
 
-            Text(text = reply?.content ?: "No content available")
-
-            // Reply actions (upvote, downvote, etc.) can be added here
-
-            if (isEditing) {
-                EditableReplyContent(
-                    editedContent = editedContent,
-                    onEditContentChange = { editedContent = it },
-                    onSaveClick = {
-                        // Handle save click
-                        isEditing = false
-                    }
-                )
-            }
         }
+
     }
+
 }
 
+
+@Preview(showSystemUi = true, showBackground = true, locale = "en-US")
 @Composable
-fun EditableReplyContent(
-    editedContent: String,
-    onEditContentChange: (String) -> Unit,
-    onSaveClick: () -> Unit
-) {
-    var isEditing by remember { mutableStateOf(false) }
+fun NestedReplyItemPreview() {
 
-    if (isEditing) {
-        BasicTextField(
-            value = editedContent,
-            onValueChange = { onEditContentChange(it) },
-            keyboardOptions = KeyboardOptions.Default.copy(
-                imeAction = ImeAction.Done
-            ),
-            keyboardActions = KeyboardActions(
-                onDone = {
-                    onSaveClick()
-                    isEditing = false
-
-                }
-            ),
-            textStyle = LocalTextStyle.current.copy(fontSize = 16.sp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp)
-        )
-    } else {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp),
-            horizontalArrangement = Arrangement.End
-        ) {
-            IconButton(
-                onClick = {
-                    // Handle edit click
-                    isEditing = true
-                }
-            ) {
-                Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
-            }
-
-            IconButton(
-                onClick = {
-                    // Handle send click
-                    onSaveClick()
-                }
-            ) {
-                Icon(imageVector = Icons.Default.Send, contentDescription = "Send")
-            }
-        }
-    }
 }
 
 val sampleData = NestedReplyItem(
-    reply = Reply(
-        authorEmail = "John Doe",
-        postId = "123",
-        parentReplyId = null,
-        content = "This is the main reply content",
-        depth = 0, createdAt = "6d"
-    ),
+    reply = null,
     replies = listOf(
         NestedReplyItem(
-            reply = Reply(
-                authorEmail = "Alice",
+            reply =Reply(
+                authorEmail = "Alddddddddddddddddddddddddddddddddddddddddddddice",
                 postId = "123",
                 parentReplyId = "1",
                 content = "Nested Reply 1",
@@ -193,7 +241,7 @@ val sampleData = NestedReplyItem(
         ),
         NestedReplyItem(
             reply = Reply(
-                authorEmail = "Bob",
+                authorEmail = "Bo3b",
                 postId = "123",
                 parentReplyId = "2",
                 content = "Nested Reply 2",
@@ -204,10 +252,3 @@ val sampleData = NestedReplyItem(
     )
 )
 
-@Preview(apiLevel = 29)
-@Composable
-fun PreviewNestedRepliesView() {
-    NestedRepliesView(nestedReplyItem = sampleData)
-
-
-}

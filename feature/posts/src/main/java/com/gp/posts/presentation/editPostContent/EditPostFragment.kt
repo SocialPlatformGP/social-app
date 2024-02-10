@@ -1,5 +1,6 @@
 package com.gp.posts.presentation.editPostContent
 
+import EditPostScreen
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.util.Log
@@ -7,6 +8,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.ui.platform.ComposeView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
@@ -21,37 +23,34 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class EditPostFragment : Fragment() {
-    lateinit var binding: FragmentEditPostBinding
     private val args : EditPostFragmentArgs  by navArgs()
+    lateinit var composeView: ComposeView
     private val viewModel:EditPostViewModel by viewModels()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
-        binding=DataBindingUtil.inflate(
-            inflater,
-            R.layout.fragment_edit_post,
-            container,
-            false
+        viewModel.uiState.value = EditPostUIState(
+            title = args.post.title,
+            body = args.post.body
         )
-        binding.viewModel=viewModel
-        binding.lifecycleOwner=this
-        viewModel.post.value=args.post
-        viewModel.uiState.value.title=args.post.title
-        viewModel.uiState.value.body=args.post.body
-        return binding.root
+        viewModel.post.value = args.post
+
+        return ComposeView(requireContext()).also {
+            composeView = it
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.applyButton.setOnClickListener {
-            viewModel.updatePost()
-            findNavController().popBackStack()
+        composeView.setContent {
+            EditPostScreen(
+                viewModel =viewModel,
+                onNavigateBack = {
+                    findNavController().popBackStack()
+                }
+            )
         }
     }
-
-
-
 }

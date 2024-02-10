@@ -102,7 +102,9 @@ fun CreatePostScreen(
     onPreviewFile: (PostFile) -> Unit = {},
 ) {
     val state by viewModel.uiState.collectAsState()
+
     val tags by viewModel.tags.collectAsState()
+
         CreatePostScreen(
             state =state ,
             tags =tags,
@@ -114,6 +116,9 @@ fun CreatePostScreen(
             onTitleChange = { viewModel.onTitleChange(it) },
             onBodyChange = { viewModel.onBodyChange(it) },
             onPostClick ={viewModel.onCreatePost()},
+            onAddTag = {viewModel.onAddTag(it) },
+            onRemoveFile = {viewModel.removeFile(it) },
+            onRemoveTag = {viewModel.onRemoveTag(it) },
 
         )
 
@@ -131,6 +136,9 @@ fun CreatePostScreen(
     onTitleChange: (String) -> Unit = {},
     onBodyChange: (String) -> Unit = {},
     onPostClick: (Set<Tag>) -> Unit = {},
+    onAddTag: (Set<Tag>) -> Unit = {},
+    onRemoveFile: (PostFile) -> Unit = {},
+    onRemoveTag: (Tag) -> Unit = {},
 ) {
     Scaffold(
         topBar = {
@@ -151,10 +159,10 @@ fun CreatePostScreen(
             onAddFileClick = onAddFileClick,
             tags = tags,
             selectedTags = state.tags.toSet(),
-            onAddTag = {  },
-            onRemoveTag = { },
+            onAddTag = onAddTag,
+            onRemoveTag = onRemoveTag,
             selectedFiles = state.files,
-            onRemoveFile = {  },
+            onRemoveFile = onRemoveFile,
             onPreviewFile = onPreviewFile,
             emptyError =false
         )
