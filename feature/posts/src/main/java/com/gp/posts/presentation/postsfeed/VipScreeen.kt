@@ -51,6 +51,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.gp.posts.presentation.postDetails.ExpandableText
 import com.gp.posts.presentation.postDetails.UserPostTags
 import com.gp.posts.presentation.postDetails.imageCaching
@@ -107,6 +109,7 @@ fun PostContent(
                     enter = fadeIn(),
                     exit = fadeOut()
                 ) {
+
                     VipPostItem(
                         post = post,
                         deletePost = deletePost,
@@ -115,11 +118,12 @@ fun PostContent(
                         onUpVote =  onUpVote ,
                         onDownVote =  onDownVote,
                         onTagClicked = onTagClicked
+
                     )
                 }
             }
         }
-        if (user.administration) {
+        //if (user.administration) {
             FloatingActionButton(
                 onClick = {
                     fabVisible.value = !fabVisible.value
@@ -130,7 +134,7 @@ fun PostContent(
                     .padding(16.dp)
             ) {
                 Icon(Icons.Filled.Add, contentDescription = "Add")
-            }
+          //  }
         }
     }
 }
@@ -226,6 +230,8 @@ fun VipPostItem(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                val currentUser= Firebase.auth.currentUser?.email
+
 
                 IconButton(onClick = { details(post) }) {
                     Icon(
@@ -243,17 +249,13 @@ fun VipPostItem(
 
                 IconButton(
                     onClick = {
-                        isDownVoteFilled = false
-                        isUpVoteFilled = !isUpVoteFilled
-                        if (!isDownVoteFilled) {
                             onUpVote(post)
-                        }
                     }
                 ) {
                     Icon(
                         imageVector = Icons.Default.ThumbUp,
                         contentDescription = "Upvote",
-                        tint = if (isUpVoteFilled) MaterialTheme.colorScheme.primary else Color.Gray
+                        tint = if (post.upvoted.contains(currentUser)) MaterialTheme.colorScheme.primary else Color.Gray
                     )
                 }
 
@@ -265,17 +267,13 @@ fun VipPostItem(
 
                 IconButton(
                     onClick = {
-                        isUpVoteFilled = false
-                        isDownVoteFilled = !isDownVoteFilled
-                        if (!isUpVoteFilled) {
                             onDownVote(post)
-                        }
                     }
                 ) {
                     Icon(
                         imageVector = Icons.Default.ThumbDown,
                         contentDescription = "Down Vote",
-                        tint = if (isDownVoteFilled) MaterialTheme.colorScheme.primary else Color.Gray
+                        tint = if (post.downvoted.contains(currentUser)) MaterialTheme.colorScheme.primary else Color.Gray
                     )
                 }
             }

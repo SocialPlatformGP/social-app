@@ -43,6 +43,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.gp.posts.presentation.postsfeed.DropDownMenu
 import com.gp.posts.presentation.postsfeed.FileMaterial
 import com.gp.posts.presentation.postsfeed.IMAGE_TYPES
@@ -58,8 +60,7 @@ fun DetailsScreen(viewModel: PostDetailsViewModel, post:Post,edit:(Post)->Unit){
 
     Column {
 
-        DetailsPostItem(viewModel = viewModel, post =post )
-        CommentListScreen(nestedReplyItem = stateReply)
+        CommentListScreen(replies = stateReply,post=post)
 
     }
 
@@ -170,6 +171,7 @@ fun DetailsPostItem(viewModel: PostDetailsViewModel,post:Post) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                val currentUser= Firebase.auth.currentUser?.email
 
                 IconButton(onClick = { }) {
                     Icon(
@@ -188,17 +190,13 @@ fun DetailsPostItem(viewModel: PostDetailsViewModel,post:Post) {
 
                 IconButton(
                     onClick = {
-                        isDownvoteFilled = !isDownvoteFilled
-                        if (isDownvoteFilled) {
-                            isUpvoteFilled = false
                             viewModel.downVote(post = post)
-                        }
                     }
                 ) {
                     Icon(
                         imageVector = Icons.Default.ThumbDown,
                         contentDescription = "Down Vote",
-                        tint = if (isDownvoteFilled) MaterialTheme.colorScheme.primary else Color.Gray
+                        tint = if (post.downvoted.contains(currentUser)) MaterialTheme.colorScheme.primary else Color.Gray
                     )
                 }
 
@@ -212,17 +210,13 @@ fun DetailsPostItem(viewModel: PostDetailsViewModel,post:Post) {
                 )
                 IconButton(
                     onClick = {
-                        isUpvoteFilled = !isUpvoteFilled
-                        if (isUpvoteFilled) {
-                            isDownvoteFilled = false
                             viewModel.upVote(post)
-                        }
                     }
                 ) {
                     Icon(
                         imageVector = Icons.Default.ThumbUp,
                         contentDescription = "Upvote",
-                        tint = if (isUpvoteFilled) MaterialTheme.colorScheme.primary else Color.Gray
+                        tint = if (post.upvoted.contains(currentUser)) MaterialTheme.colorScheme.primary else Color.Gray
                     )
                 }
 

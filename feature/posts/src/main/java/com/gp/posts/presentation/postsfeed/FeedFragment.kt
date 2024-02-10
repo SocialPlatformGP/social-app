@@ -89,8 +89,6 @@ class FeedFragment : Fragment()
         val action = MainFeedFragmentDirections.mainFeedFragment2ToEditPostFragment(postitem)
         findNavController().navigate(action)
     }
-
-
 }
 
 //

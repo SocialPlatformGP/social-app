@@ -58,6 +58,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.gp.posts.R
 import com.gp.posts.listeners.OnTagClicked
 import com.gp.posts.presentation.postDetails.ExpandableText
@@ -115,8 +117,6 @@ fun FeedContent(
     }
 
 }
-
-
 
 @OptIn(ExperimentalLayoutApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
@@ -233,6 +233,7 @@ fun PostItem(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                val currentUser=Firebase.auth.currentUser?.email
 
                 IconButton(onClick = { details(post) }) {
                     Icon(
@@ -251,18 +252,13 @@ fun PostItem(
 
                 IconButton(
                     onClick = {
-                        isDownvoteFilled = !isDownvoteFilled
-                        if (isDownvoteFilled) {
-                            isUpvoteFilled = false
                             onDownVote(post)
-
-                        }
                     }
                 ) {
                     Icon(
                         imageVector = Icons.Default.ThumbDown,
                         contentDescription = "Down Vote",
-                        tint = if (isDownvoteFilled) MaterialTheme.colorScheme.primary else Color.Gray
+                        tint = if (post.downvoted.contains(currentUser)) MaterialTheme.colorScheme.primary else Color.Gray
                     )
                 }
 
@@ -276,17 +272,13 @@ fun PostItem(
                 )
                 IconButton(
                     onClick = {
-                        isUpvoteFilled = !isUpvoteFilled
-                        if (isUpvoteFilled) {
-                            isDownvoteFilled = false
                             onUpVote(post)
-                        }
                     }
                 ) {
                     Icon(
                         imageVector = Icons.Default.ThumbUp,
                         contentDescription = "Upvote",
-                        tint = if (isUpvoteFilled) MaterialTheme.colorScheme.primary else Color.Gray
+                        tint = if (post.upvoted.contains(currentUser)) MaterialTheme.colorScheme.primary else Color.Gray
                     )
                 }
 
