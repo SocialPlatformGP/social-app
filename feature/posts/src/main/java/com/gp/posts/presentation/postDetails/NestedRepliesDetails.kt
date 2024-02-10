@@ -40,6 +40,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -65,8 +66,8 @@ fun CommentListScreen(
                     deletePost = { },
                     details = { },
                     edit = { },
-                    onUpVote =  { } ,
-                    onDownVote =  { },
+                    onUpVote = { },
+                    onDownVote = { },
                     onTagClicked = { }
                 )
             }
@@ -98,10 +99,10 @@ fun LazyListScope.commentItem(comment: NestedReplyItem, level: Int) {
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun ReplyItem(comment: NestedReplyItem, level: Int) {
-    if(comment.reply == null) return
+    if (comment.reply == null) return
     val padding = with(LocalDensity.current) { 16.dp.toPx() }
     Card(
-        onClick = {  },
+        onClick = { },
         modifier = Modifier
             .drawBehind {
                 repeat(level + 1) {
@@ -114,7 +115,7 @@ private fun ReplyItem(comment: NestedReplyItem, level: Int) {
                 }
             }
             .padding(start = (16.dp * level) + 8.dp, end = 8.dp, bottom = 4.dp)
-            .fillMaxSize(),
+            ,
         shape = ShapeDefaults.Medium,
         elevation = 0.dp,
         border = BorderStroke(1.dp, Color.Gray),
@@ -142,26 +143,27 @@ private fun ReplyItem(comment: NestedReplyItem, level: Int) {
                     text = comment.reply?.authorEmail ?: "Unknown",
                     style = MaterialTheme.typography.body1,
                     modifier = Modifier
-                        .padding(4.dp)
+                        .padding(4.dp),
+                    overflow = if ((comment.reply?.authorEmail?.length ?: 0) > 10) {
+                        TextOverflow.Ellipsis
+                    } else TextOverflow.Clip
                 )
                 Text(
                     text = comment.reply?.createdAt ?: "Unknown",
-                    modifier = Modifier.padding(4.dp)
+                    modifier = Modifier.padding(4.dp),
+                    overflow = if ((comment.reply?.createdAt?.length ?: 0) > 10) {
+                        TextOverflow.Ellipsis
+                    } else TextOverflow.Clip
                 )
 
             }
-            Row(
+
+            Text(
+                text = comment.reply?.content ?: "No body",
+                style = MaterialTheme.typography.body1,
                 modifier = Modifier
-                    .fillMaxWidth()
                     .padding(4.dp)
-            ) {
-                Text(
-                    text = comment.reply?.content ?: "No body",
-                    style = MaterialTheme.typography.body1,
-                    modifier = Modifier
-                        .padding(4.dp)
-                )
-            }
+            )
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -170,7 +172,7 @@ private fun ReplyItem(comment: NestedReplyItem, level: Int) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
-                    onClick = {  }
+                    onClick = { }
                 ) {
                     Icon(
                         imageVector = Icons.Filled.MoreVert,
@@ -178,7 +180,7 @@ private fun ReplyItem(comment: NestedReplyItem, level: Int) {
                     )
                 }
                 IconButton(
-                    onClick = {  }
+                    onClick = { }
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Comment,
@@ -186,7 +188,7 @@ private fun ReplyItem(comment: NestedReplyItem, level: Int) {
                     )
                 }
                 IconButton(
-                    onClick = {  }
+                    onClick = { }
                 ) {
                     Icon(
                         imageVector = Icons.Filled.ThumbUp,
@@ -195,7 +197,7 @@ private fun ReplyItem(comment: NestedReplyItem, level: Int) {
                 }
                 Text(text = "0")
                 IconButton(
-                    onClick = {  }
+                    onClick = { }
                 ) {
                     Icon(
                         imageVector = Icons.Filled.ThumbDown,
@@ -214,14 +216,9 @@ private fun ReplyItem(comment: NestedReplyItem, level: Int) {
 @Preview(showSystemUi = true, showBackground = true, locale = "en-US")
 @Composable
 fun NestedReplyItemPreview() {
-    CommentListScreen(
-        sampleData,
-        Post(
-            authorEmail = "Alice",
-            body = "This is a post",
-            publishedAt = "2d",
-            title = "Post Title",
-        )
+    ReplyItem(
+        comment = sampleData.replies[0],
+        level = 0
     )
 }
 
