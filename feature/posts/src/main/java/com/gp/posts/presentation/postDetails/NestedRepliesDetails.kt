@@ -140,7 +140,7 @@ private fun ReplyItem(comment: NestedReplyItem, level: Int) {
                         .background(Color.LightGray),//TODO: this color for testing only
                 )
                 Text(
-                    text = comment.reply?.authorEmail ?: "Unknown",
+                    text = if(comment.reply?.authorEmail?.length ?: 0 > 10) comment.reply?.authorEmail?.substring(0, 10)?:"" else comment.reply?.authorEmail ?: "Unknown",
                     style = MaterialTheme.typography.body1,
                     modifier = Modifier
                         .padding(4.dp),
@@ -149,7 +149,7 @@ private fun ReplyItem(comment: NestedReplyItem, level: Int) {
                     } else TextOverflow.Clip
                 )
                 Text(
-                    text = comment.reply?.createdAt ?: "Unknown",
+                    text = if(comment.reply?.createdAt?.length ?: 0 > 10) comment.reply?.authorEmail?.substring(0, 10)?:"" else comment.reply?.createdAt ?: "Unknown",
                     modifier = Modifier.padding(4.dp),
                     overflow = if ((comment.reply?.createdAt?.length ?: 0) > 10) {
                         TextOverflow.Ellipsis
