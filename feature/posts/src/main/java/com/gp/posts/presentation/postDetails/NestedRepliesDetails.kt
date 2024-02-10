@@ -149,7 +149,7 @@ private fun ReplyItem(comment: NestedReplyItem, level: Int) {
                     } else TextOverflow.Clip
                 )
                 Text(
-                    text = if(comment.reply?.createdAt?.length ?: 0 > 10) comment.reply?.authorEmail?.substring(0, 10)?:"" else comment.reply?.createdAt ?: "Unknown",
+                    text = com.gp.socialapp.util.DateUtils.calculateTimeDifference(comment.reply?.createdAt!!) ,
                     modifier = Modifier.padding(4.dp),
                     overflow = if ((comment.reply?.createdAt?.length ?: 0) > 10) {
                         TextOverflow.Ellipsis
