@@ -47,11 +47,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.PopupProperties
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
@@ -95,8 +99,7 @@ fun FeedPostItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                top = 8.dp,
-                bottom = 8.dp
+                8.dp
             )
     ) {
         Column(
@@ -133,10 +136,7 @@ fun FeedPostItem(
                 onUpVoteClicked = { postEvent(PostEvent.OnPostUpVoted(post)) },
                 onDownVoteClicked = { postEvent(PostEvent.OnPostDownVoted(post)) },
                 onCommentClicked = {  postEvent(PostEvent.OnCommentClicked(post)) }
-
             )
-
-
         }
     }
 
@@ -234,8 +234,10 @@ fun FlowTags(
     selectedTags: Set<Tag>,
     onTagClicked: (Tag) -> Unit,
 ) {
+    if(selectedTags.isEmpty()) return
     LazyRow(
-        horizontalArrangement = Arrangement.Start
+        horizontalArrangement = Arrangement.Start,
+        modifier = Modifier.padding(8.dp)
     ) {
         items(selectedTags.toList()) { tag ->
             TagItem(onTagClicked, tag)
@@ -272,7 +274,10 @@ fun PostContent(
 ) {
     Column(
         Modifier
-            .padding(8.dp)
+            .padding(
+                top = 8.dp,
+                bottom = 8.dp
+            )
             .fillMaxWidth()
     ) {
         Title(title)
@@ -289,6 +294,7 @@ fun PostContent(
 
 @Composable
 fun Body(body: String) {
+    if (body.isEmpty()) return
     ExpandableText(
         text = body,
         maxLinesCollapsed = 3,
@@ -302,7 +308,12 @@ fun ExpandableText(
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
-    Column(modifier = modifier.fillMaxWidth()) {
+    Column(modifier = modifier.fillMaxWidth().padding(
+        start = 8.dp,
+        end = 8.dp,
+        top = 2.dp,
+        bottom = 4.dp
+    )) {
         Text(
             text = text,
             maxLines = if (expanded) Int.MAX_VALUE else maxLinesCollapsed,
@@ -329,8 +340,17 @@ fun ExpandableText(
 
 @Composable
 private fun Title(title: String) {
+    if (title.isEmpty()) return
     Text(
         text = title,
+        modifier = Modifier.padding(
+            start = 8.dp,
+            end = 8.dp,
+            top = 4.dp,
+            bottom = 2.dp
+        ),
+        fontWeight = FontWeight.Bold,
+        fontSize = 20.sp
     )
 }
 
@@ -342,7 +362,10 @@ fun Attachments(
     onImageClicked: (PostAttachment) -> Unit,
     onDocumentClicked: (PostAttachment) -> Unit
 ) {
-    LazyRow {
+
+    LazyRow (
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ){
         items(attachments) { attachment ->
             AttachmentItem(
                 attachment,
@@ -364,97 +387,107 @@ private fun AttachmentItem(
     onImageClicked: () -> Unit,
     onDocumentClicked: () -> Unit
 ) {
-    var icon by remember { mutableStateOf(Icons.Filled.Image) }
-    when (attachment.type) {
-        in listOf(
-            MimeType.VIDEO.readableType,
-            MimeType.MKV.readableType,
-            MimeType.AVI.readableType,
-            MimeType.MP4.readableType,
-            MimeType.MOV.readableType,
-            MimeType.WMV.readableType
-        ) -> {
-            Icon(
-                imageVector = Icons.Filled.VideoLibrary,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(width = 200.dp, height = 300.dp)
-                    .clickable {
-                        onVideoClicked()
+    val width = LocalConfiguration.current.screenWidthDp.dp
+    Box (
+        modifier = Modifier
+            .size(width = width, height = 300.dp)
+    ){
+        var icon by remember { mutableStateOf(Icons.Filled.Image) }
+        when (attachment.type) {
+            in listOf(
+                MimeType.VIDEO.readableType,
+                MimeType.MKV.readableType,
+                MimeType.AVI.readableType,
+                MimeType.MP4.readableType,
+                MimeType.MOV.readableType,
+                MimeType.WMV.readableType
+            ) -> {
+                Icon(
+                    imageVector = Icons.Filled.VideoLibrary,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(width = 200.dp, height = 300.dp)
+                        .clickable {
+                            onVideoClicked()
+                        }
+                        .align(Alignment.Center)
+                )
+            }
+
+            in listOf(
+                MimeType.PDF.readableType,
+                MimeType.DOCX.readableType,
+                MimeType.XLSX.readableType,
+                MimeType.PPTX.readableType,
+            ) -> {
+                Icon(
+                    imageVector = Icons.Filled.InsertDriveFile,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(width = 200.dp, height = 300.dp)
+                        .clickable {
+                            onDocumentClicked()
+                        }
+                        .align(Alignment.Center)
+                )
+            }
+
+            in listOf(
+                MimeType.JPEG.readableType,
+                MimeType.PNG.readableType,
+                MimeType.GIF.readableType,
+                MimeType.BMP.readableType,
+                MimeType.WEBP.readableType
+            ) -> {
+                icon = Icons.Filled.Image
+                SubcomposeAsyncImage(
+                    model = attachment.url,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .height(300.dp)
+                        .clickable {
+                            onImageClicked()
+                        }
+                        .align(Alignment.Center)
+                    ,
+                    contentScale = ContentScale.FillBounds,
+
+                    ) {
+                    val state = painter.state
+                    if (state is AsyncImagePainter.State.Loading || state is AsyncImagePainter.State.Error) {
+                        CircularProgressIndicator()
+                    } else {
+                        SubcomposeAsyncImageContent()
                     }
-            )
-        }
-
-        in listOf(
-            MimeType.PDF.readableType,
-            MimeType.DOCX.readableType,
-            MimeType.XLSX.readableType,
-            MimeType.PPTX.readableType,
-        ) -> {
-            Icon(
-                imageVector = Icons.Filled.InsertDriveFile,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(width = 200.dp, height = 300.dp)
-                    .clickable {
-                        onDocumentClicked()
-                    }
-            )
-        }
-
-        in listOf(
-            MimeType.JPEG.readableType,
-            MimeType.PNG.readableType,
-            MimeType.GIF.readableType,
-            MimeType.BMP.readableType,
-            MimeType.WEBP.readableType
-        ) -> {
-            icon = Icons.Filled.Image
-            SubcomposeAsyncImage(
-                model = attachment.url,
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(300.dp)
-                    .clickable {
-                        onImageClicked()
-                    },
-                contentScale = ContentScale.FillBounds,
-
-                ) {
-                val state = painter.state
-                if (state is AsyncImagePainter.State.Loading || state is AsyncImagePainter.State.Error) {
-                    CircularProgressIndicator()
-                } else {
-                    SubcomposeAsyncImageContent()
                 }
             }
+
+            in listOf(
+                MimeType.AUDIO.readableType,
+                MimeType.MP3.readableType,
+                MimeType.AAC.readableType,
+                MimeType.WAV.readableType,
+                MimeType.OGG.readableType,
+                MimeType.FLAC.readableType
+            ) -> {
+                icon = Icons.Filled.MusicNote
+            }
+
+            else -> {
+                Icon(
+                    imageVector = Icons.Filled.InsertDriveFile,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(width = 200.dp, height = 300.dp)
+                        .clickable {
+                            onAudioClicked()
+                        }
+                        .align(Alignment.Center)
+                )
+
+            }
+
         }
-
-        in listOf(
-            MimeType.AUDIO.readableType,
-            MimeType.MP3.readableType,
-            MimeType.AAC.readableType,
-            MimeType.WAV.readableType,
-            MimeType.OGG.readableType,
-            MimeType.FLAC.readableType
-        ) -> {
-            icon = Icons.Filled.MusicNote
-        }
-
-        else -> {
-            Icon(
-                imageVector = Icons.Filled.InsertDriveFile,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(width = 200.dp, height = 300.dp)
-                    .clickable {
-                        onAudioClicked()
-                    }
-            )
-
-        }
-
     }
 }
 
@@ -536,7 +569,7 @@ fun OptionButton(
 @Composable
 fun PostDate(publishedAt: String) {
     Text(
-        text = DateUtils.calculateTimeDifference(publishedAt),
+        text = DateUtils.calculateTimeDifference(publishedAt)+" ago",
         modifier = Modifier
             .fillMaxWidth(0.7f)
             .padding(
@@ -579,7 +612,7 @@ fun UserImage(
         modifier = Modifier
             .padding(8.dp)
             .size(40.dp)
-            .background(Color.Gray, CircleShape),
+            .clip(CircleShape),
         contentScale = ContentScale.Crop,
 
         ) {
@@ -599,17 +632,5 @@ fun UserImage(
 @Preview(showBackground = true, showSystemUi = true, apiLevel = 33)
 @Composable
 fun FeedPostPreview() {
-    FeedPostScreen(
-        listOf(
-            Post(
-                id = "1",
-                title = "Title",
-                body = "Bofgchvbjnjkdv,ffffffffffffffffffffffffffffs.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.dy",
-                authorEmail = "authorEmail",
-                publishedAt = "Sun Feb 04 16:47:40 GMT+02:00 2024",
-                userName = "usGGGGGGffffffffffffgggggggggJJJJJJJName",
-            )
-        ),
-        postEvent = {},
-    )
+    UserImage(imageLink = "")
 }

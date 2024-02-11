@@ -214,7 +214,6 @@ fun MainFeedPreview() {
                 ),
 
                 ),
-
             ),
         postEvent = {}
     )

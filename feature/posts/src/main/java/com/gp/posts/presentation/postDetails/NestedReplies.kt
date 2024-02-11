@@ -2,19 +2,25 @@ package com.gp.posts.presentation.postDetails
 
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text2.BasicTextField2
+import androidx.compose.foundation.text2.TextFieldDecorator
 import androidx.compose.material.Card
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.ExperimentalMaterialApi
@@ -28,9 +34,12 @@ import androidx.compose.material.icons.filled.ThumbDown
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -74,7 +83,9 @@ fun LazyListScope.commentItem(comment: NestedReplyItem, level: Int,onReplyEvent:
     commentList(comment.replies, level + 1,onReplyEvent)
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class,
+    ExperimentalFoundationApi::class
+)
 @Composable
 private fun ReplyItem(
     comment: NestedReplyItem, level: Int,
@@ -102,118 +113,119 @@ private fun ReplyItem(
         backgroundColor = Color.Gray.copy(alpha = 0.1f)
 
     ) {
-        Column(
-            modifier = Modifier
-                .padding(8.dp)
-        ) {
-            Row(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .padding(8.dp)
             ) {
-                //TODO: Add user profile pic here
-                Image(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "Random image",
+                Row(
                     modifier = Modifier
-                        .padding(4.dp)
-                        .clip(CircleShape)
-                        .background(Color.LightGray),//TODO: this color for testing only
-                )
+                        .fillMaxWidth()
+                ) {
+                    //TODO: Add user profile pic here
+                    Image(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "Random image",
+                        modifier = Modifier
+                            .padding(4.dp)
+                            .clip(CircleShape)
+                            .background(Color.LightGray),//TODO: this color for testing only
+                    )
+                    Text(
+                        text = if (comment.reply?.authorEmail?.length ?: 0 > 10) comment.reply?.authorEmail?.substring(
+                            0,
+                            10
+                        ) ?: "" else comment.reply?.authorEmail ?: "Unknown",
+                        style = MaterialTheme.typography.body1,
+                        modifier = Modifier
+                            .padding(4.dp),
+                        overflow = if ((comment.reply?.authorEmail?.length ?: 0) > 10) {
+                            TextOverflow.Ellipsis
+                        } else TextOverflow.Clip
+                    )
+                    Text(
+                        text = com.gp.socialapp.util.DateUtils.calculateTimeDifference(comment.reply?.createdAt!!),
+                        modifier = Modifier.padding(4.dp),
+                        overflow = if ((comment.reply?.createdAt?.length ?: 0) > 10) {
+                            TextOverflow.Ellipsis
+                        } else TextOverflow.Clip
+                    )
+
+                }
+
                 Text(
-                    text = if (comment.reply?.authorEmail?.length ?: 0 > 10) comment.reply?.authorEmail?.substring(
-                        0,
-                        10
-                    ) ?: "" else comment.reply?.authorEmail ?: "Unknown",
+                    text = comment.reply?.content ?: "No body",
                     style = MaterialTheme.typography.body1,
                     modifier = Modifier
+                        .padding(4.dp)
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .padding(4.dp),
-                    overflow = if ((comment.reply?.authorEmail?.length ?: 0) > 10) {
-                        TextOverflow.Ellipsis
-                    } else TextOverflow.Clip
-                )
-                Text(
-                    text = com.gp.socialapp.util.DateUtils.calculateTimeDifference(comment.reply?.createdAt!!),
-                    modifier = Modifier.padding(4.dp),
-                    overflow = if ((comment.reply?.createdAt?.length ?: 0) > 10) {
-                        TextOverflow.Ellipsis
-                    } else TextOverflow.Clip
-                )
-
-            }
-
-            Text(
-                text = comment.reply?.content ?: "No body",
-                style = MaterialTheme.typography.body1,
-                modifier = Modifier
-                    .padding(4.dp)
-            )
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(4.dp),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box {
-                    var visible by remember { mutableStateOf(false) }
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box {
+                        var visible by remember { mutableStateOf(false) }
+                        IconButton(
+                            onClick = {
+                                visible = true
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.MoreVert,
+                                contentDescription = "More options"
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = visible,
+                            onDismissRequest = { visible = false },
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Edit") },
+                                onClick = { replyEvent(ReplyEvent.OnReplyEdited(reply = comment.reply!!)) }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Delete") },
+                                onClick = { replyEvent(ReplyEvent.OnReplyDeleted(reply = comment.reply!!)) }
+                            )
+                        }
+                    }
                     IconButton(
                         onClick = {
-                            visible = true
+                            replyEvent(ReplyEvent.OnAddReply(reply = comment.reply!!))
                         }
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.MoreVert,
-                            contentDescription = "More options"
+                            imageVector = Icons.Filled.Comment,
+                            contentDescription = "Add a comment"
                         )
                     }
-                    DropdownMenu(
-                        expanded =visible ,
-                        onDismissRequest = { visible = false },
+                    IconButton(
+                        onClick = {
+                            replyEvent(ReplyEvent.OnReplyUpVoted(reply = comment.reply!!))
+                        }
                     ) {
-                        DropdownMenuItem(
-                            text = { Text("Edit") },
-                            onClick = {replyEvent(ReplyEvent.OnReplyEdited(reply = comment.reply!!)) }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Delete") },
-                            onClick = {replyEvent(ReplyEvent.OnReplyDeleted(reply = comment.reply!!)) }
+                        Icon(
+                            imageVector = Icons.Filled.ThumbUp,
+                            contentDescription = "Like"
                         )
                     }
-                }
-                IconButton(
-                    onClick = {
-                        replyEvent(ReplyEvent.OnAddReply(reply = comment.reply!!))
+                    Text(text = "0")
+                    IconButton(
+                        onClick = {
+                            replyEvent(ReplyEvent.OnReplyDownVoted(reply = comment.reply!!))
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.ThumbDown,
+                            contentDescription = "Share"
+                        )
                     }
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Comment,
-                        contentDescription = "Add a comment"
-                    )
                 }
-                IconButton(
-                    onClick = {
-                        replyEvent(ReplyEvent.OnReplyUpVoted(reply = comment.reply!!))
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.ThumbUp,
-                        contentDescription = "Like"
-                    )
-                }
-                Text(text = "0")
-                IconButton(
-                    onClick = {
-                        replyEvent(ReplyEvent.OnReplyDownVoted(reply = comment.reply!!))
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.ThumbDown,
-                        contentDescription = "Share"
-                    )
-                }
-            }
 
-        }
+
+            }
 
     }
 
@@ -223,6 +235,11 @@ private fun ReplyItem(
 @Preview(showSystemUi = true, showBackground = true, locale = "en-US")
 @Composable
 fun NestedReplyItemPreview() {
+    ReplyItem(
+        comment = sampleData.replies[0] ,
+        level = 0,
+        replyEvent = { ReplyEvent.Initial }
+    )
 
 }
 
