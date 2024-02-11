@@ -145,12 +145,14 @@ class PostDetailsViewModel @Inject constructor(
             is ReplyEvent.OnReplyDeleted -> deleteReply(event.reply)
             is ReplyEvent.OnReplyUpVoted -> replyUpVote(event.reply)
             is ReplyEvent.OnReplyDownVoted -> replyDownVote(event.reply)
-            is ReplyEvent.OnAddReply -> {currentReply = event.reply}
+            is ReplyEvent.OnAddReply -> {
+                currentReply = event.reply
+            }
             is ReplyEvent.OnReplyAdded -> {
-                val reply =  Reply(
-                    postId = currentPost.value.id,
-                    parentReplyId = currentReply?.id,
-                    depth = currentReply?.depth?.plus(1)?:0,
+                val reply = Reply(
+                    postId = currentReply!!.postId,
+                    parentReplyId = currentReply.id,
+                    depth = currentReply.depth.plus(1),
                     content = event.text,
                     createdAt = Date().toString(),
                     authorEmail = currentUser?.email.toString()
