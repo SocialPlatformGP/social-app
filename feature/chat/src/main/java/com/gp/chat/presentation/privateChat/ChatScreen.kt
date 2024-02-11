@@ -248,7 +248,9 @@ fun ChatScreen(
                                 else
                                     R.drawable.ic_group
                             ),
-                            contentDescription = null
+                            contentDescription = null,
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier.size(45.dp)
                         )
                     }
                     Spacer(modifier = Modifier.size(8.dp))
