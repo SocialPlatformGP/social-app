@@ -1,4 +1,5 @@
 package com.gp.posts.presentation.postsSearch
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gp.socialapp.model.Post
@@ -10,11 +11,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+
 @HiltViewModel
-class SearchResultsViewModel @Inject constructor(
+class SearchViewModel @Inject constructor(
     private val postRepo: PostRepository,
-    private val userRepo: UserRepository) : ViewModel() {
-    var searchResult :MutableStateFlow<List<Post>> = MutableStateFlow(listOf())
+    private val userRepo: UserRepository
+) : ViewModel() {
+    var searchResult : MutableStateFlow<List<Post>> = MutableStateFlow(listOf())
     fun searchPostsByTitle(title: String) {
         viewModelScope.launch (Dispatchers.IO){
             postRepo.searchPostsByTitle(title).collect{
@@ -30,25 +33,6 @@ class SearchResultsViewModel @Inject constructor(
                 }
                 searchResult.value = filteredPosts
             }
-        }
-    }
-
-    fun upVote(post: Post) {
-        viewModelScope.launch(Dispatchers.IO) {
-            postRepo.upVotePost(post)
-        }
-    }
-
-    fun downVote(post: Post) {
-        viewModelScope.launch(Dispatchers.IO) {
-            postRepo.downVotePost(post)
-        }
-    }
-
-    fun deletePost(post: Post) {
-        viewModelScope.launch(Dispatchers.IO) {
-            postRepo.deletePost(post)
-            postRepo.deleteLocalPost(post)
         }
     }
 }

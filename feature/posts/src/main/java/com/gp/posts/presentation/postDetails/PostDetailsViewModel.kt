@@ -1,5 +1,6 @@
 package com.gp.posts.presentation.postDetails
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gp.socialapp.model.NestedReplyItem
@@ -37,6 +38,7 @@ class PostDetailsViewModel @Inject constructor(
     val currentPost get() = _currentPost.asStateFlow()
 
 
+
     fun getPost(post: Post) {
         _currentPost.value = post
         viewModelScope.launch (Dispatchers.IO){
@@ -47,6 +49,7 @@ class PostDetailsViewModel @Inject constructor(
     }
 
     fun getRepliesById(id: String) {
+        Log.d("vip", "getRepliesById:$id ")
         viewModelScope.launch(Dispatchers.IO) {
             replyRepository.getReplies(id).collect { replies ->
                 val updatedReplies = replies.map { reply ->

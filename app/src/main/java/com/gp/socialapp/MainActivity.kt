@@ -187,7 +187,7 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
         val currentFragment = navHostFragment.childFragmentManager.fragments[0]
         when (currentFragment) {
             is com.gp.posts.SearchFragment -> {
-                currentFragment.updateSearchQuery(newText)
+                //currentFragment.updateSearchQuery(newText)
             }
 
             is com.gp.posts.presentation.postsSearch.SearchResultsFragment -> {
