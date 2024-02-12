@@ -33,14 +33,12 @@ fun AddMembersScreen(
             users = users,
             onUnselectUser = {
                 viewModel.removeMember(it)
-                Log.d("SEERDE", "CreateGroupChatScreen: OnUnselect $it")
             },
             onUserClick = {user ->
                 if(user.isSelected) {
                     viewModel.addMember(user.data)
                 } else {
                     viewModel.removeMember(user.data)
-                    Log.d("SEERDE", "CreateGroupChatScreen: OnUnselect $user")
                 }
             })
         Spacer(modifier = Modifier.size(8.dp))
