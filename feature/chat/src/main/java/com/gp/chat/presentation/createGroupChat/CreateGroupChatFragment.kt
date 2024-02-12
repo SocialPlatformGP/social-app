@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.ComposeView
@@ -24,12 +25,11 @@ import kotlinx.coroutines.launch
 class CreateGroupChatFragment : Fragment(){
     private val viewModel: CreateGroupChatViewModel by viewModels()
     private lateinit var composeView: ComposeView
-    private val galleryImageResultLauncher = registerForActivityResult(
-        ActivityResultContracts.GetContent()
-    ) {
-        Log.d("zarea3", " in fragment result: ${it.toString()}")
-        viewModel.updateAvatarURL(it.toString())
-
+    private val galleryImageResultLauncher = registerForActivityResult(ActivityResultContracts.PickVisualMedia())
+    {
+        if(it != null){
+            viewModel.updateAvatarURL(it.toString())
+        }
     }
 
     override fun onCreateView(
@@ -50,57 +50,22 @@ class CreateGroupChatFragment : Fragment(){
                 CreateGroupChatScreen(
                     viewModel = viewModel,
                     onChoosePhotoClicked = {
-                        onLoadPictureClick()
-                    },
-                    onCreateGroupClicked = { onCreateGroupClick() })
+                        galleryImageResultLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
+                    })
             }
         }
-    }
-
-    fun onLoadPictureClick() {
-        val items = arrayOf("Take Photo", "Choose Existing Photo")
-        MaterialAlertDialogBuilder(requireContext()).setItems(items) { dialog, which ->
-            when (which) {
-                0 -> {
-                    onTakePhotoSelected()
-                }
-
-                1 -> {
-                    onChoosePhotoSelected()
-                }
-            }
-        }.show()
-    }
-
-    private fun onTakePhotoSelected() {
-        TODO("implement camera capturing")
-    }
-
-    private fun onChoosePhotoSelected() {
-        galleryImageResultLauncher.launch("image/*")
-    }
-
-    fun onCreateGroupClick() {
-        Log.d("EDREES", "onCreateGroupClick: ${viewModel.selectedUsers.value.map { it.email }}")
         lifecycleScope.launch {
-            viewModel.createGroup().flowWithLifecycle(lifecycle).collectLatest {
-                when (it) {
-                    is State.SuccessWithData -> {
-
-                        val action =
-                            CreateGroupChatFragmentDirections.actionCreateGroupChatFragmentToGroupChatFragment(
-                                it.data,
-                                viewModel.name.value,
-                                viewModel.avatarURL.value
-                            )
-                        findNavController().navigate(action)
-                    }
-
-                    is State.Error -> {
-                        Log.e("EDREES", "createGroup() failed: ${it.message}")
-                    }
-
-                    else -> {}
+            viewModel.isCreated.flowWithLifecycle(lifecycle).collectLatest {
+                if(it){
+                    val action =
+                        CreateGroupChatFragmentDirections.actionCreateGroupChatFragmentToGroupChatFragment(
+                            viewModel.groupID.value,
+                            viewModel.name.value,
+                            viewModel.avatarURL.value
+                        )
+                    findNavController().navigate(action)
+                } else {
+                    Log.d("SEERDE", "onViewCreated: group is not created")
                 }
             }
         }

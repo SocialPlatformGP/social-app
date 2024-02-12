@@ -311,7 +311,6 @@ fun CreateFolderDialog(
             onDismissRequest()
         }
     ) {
-        // Draw a rectangle shape with rounded corners inside the dialog
         Card(
             modifier = modifier
                 .fillMaxWidth()
