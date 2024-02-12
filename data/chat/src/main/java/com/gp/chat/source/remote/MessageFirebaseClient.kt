@@ -7,7 +7,6 @@ import androidx.core.net.toUri
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
@@ -84,17 +83,19 @@ class MessageFirebaseClient(
 
 
     override fun sendMessage(message: Message): Flow<State<String>> = callbackFlow {
+        val uri = message.fileURI
+        val messageWithoutURI = message.copy(fileURI = "".toUri())
         database.reference.child(MESSAGES).child(message.groupId).push().setValue(
-            message.toNetworkMessage()
+            messageWithoutURI.toNetworkMessage()
         ) { error, ref ->
             if (error == null) {
-                if (message.fileType != "") {
+                if (messageWithoutURI.fileType != "") {
                     val key = ref.key
                     val storageRef = Firebase.storage
                         .getReference(currentUser!!.uid)
+                        .child(message.groupId)
                         .child(key!!)
-                        .child(message.fileURI.lastPathSegment!!)
-                    putImageInStorage(storageRef, message, key)
+                    uploadMessageFile(storageRef, message, key, uri)
                     trySend(State.SuccessWithData(ref.key!!))
                 } else {
                     trySend(State.SuccessWithData(ref.key!!))
@@ -112,23 +113,21 @@ class MessageFirebaseClient(
     }
 
 
-    private fun putImageInStorage(storageRef: StorageReference, message: Message, key: String) {
-        storageRef.putFile(message.fileURI)
+    private fun uploadMessageFile(storageRef: StorageReference, message: Message, key: String, uri: Uri) {
+        storageRef.putFile(uri)
             .addOnSuccessListener { taskSnapshot ->
                 taskSnapshot.metadata!!.reference!!.downloadUrl
                     .addOnSuccessListener { uri ->
                         val newMessage = message.copy(
                             fileURI = uri,
-                            id = key
                         )
-
                         database.reference.child(MESSAGES).child(newMessage.groupId).child(key)
                             .setValue(
-                                message.toNetworkMessage()
+                                newMessage.toNetworkMessage()
                             ).addOnSuccessListener {
-                                Log.d(TAG, "putImageInStorage: ")
+                                Log.d("seerde", "putImageInStorage: success")
                             }.addOnFailureListener {
-                                Log.d(TAG, "putImageInStorage: ")
+                                Log.d("seerde", "putImageInStorage: failure")
                             }
 
                     }
@@ -401,42 +400,6 @@ class MessageFirebaseClient(
         }
     }
 
-    override fun sendGroupMessage(message: Message, recentChat: RecentChat): Flow<State<Nothing>> =
-        callbackFlow {
-            Log.d("edrees", "Before Sending")
-            trySend(State.Loading)
-            database.reference.child(MESSAGES)
-                .child(message.groupId).push().setValue(
-                    message.toNetworkMessage()
-                ) { error, ref ->
-                    if (error == null) {
-                        if (message.fileType != "") {
-                            val key = ref.key
-                            val storageRef = Firebase.storage
-                                .getReference(currentUser!!.uid)
-                                .child(key!!)
-                                .child(message.fileURI.lastPathSegment!!)
-                            putImageInStorage(storageRef, message, key)
-                        }
-                        val updates = HashMap<String, Any>()
-                        updates["lastMessage"] = recentChat.lastMessage
-                        updates["timestamp"] = recentChat.timestamp
-                        database.reference.child(RECENT_CHATS)
-                            .child(message.groupId)
-                            .updateChildren(updates)
-                            .addOnSuccessListener {
-                                trySend(State.Success)
-                            }.addOnFailureListener {
-                                trySend(State.Error(it.localizedMessage!!))
-                            }
-
-                    } else {
-                        trySend(State.Error(error.message))
-                    }
-                }
-
-            awaitClose()
-        }
 
     override fun createGroupChat(
         group: NetworkChatGroup,
@@ -626,29 +589,6 @@ class MessageFirebaseClient(
     override fun addGroupMembers(groupId: String, usersEmails: List<String>): Flow<State<Nothing>> =
         callbackFlow {
             trySend(State.Loading)
-//            val successCounter = AtomicInteger(0)
-//
-//            fun checkCompletion(counter: Int, totalUpdates: Int) {
-//                if (counter == totalUpdates * 2) {
-//                    trySend(State.Success)
-//                    close()  // Close the flow when all updates are completed
-//                }
-//            }
-//
-//            usersEmails.forEach { userEmail ->
-//                database.reference.child(CHAT_USER)
-//                    .child(RemoveSpecialChar.removeSpecialCharacters(userEmail)).child(GROUP)
-//                    .child(groupId)
-//                    .setValue(false)
-//                    .addOnCompleteListener { task ->
-//                        if (task.isSuccessful) {
-//                            successCounter.incrementAndGet()
-//                            checkCompletion(successCounter.get(), usersEmails.size)
-//                        } else {
-//                            trySend(State.Error("$userEmail update failed"))
-//                        }
-//                    }
-//            }
             Log.d("SEERDE", "addGroupMembers: Call reached client")
             val groupUpdate = mutableMapOf<String, Any>()
             usersEmails.forEach { userEmail ->

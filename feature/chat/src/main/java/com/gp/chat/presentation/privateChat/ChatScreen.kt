@@ -47,10 +47,12 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -83,6 +85,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
@@ -116,7 +119,6 @@ fun ChatScreen(
     onAttachImageClicked: () -> Unit,
     onOpenCameraClicked: () -> Unit,
     dropDownItems: List<DropDownItem>,
-    onDropPDownItemClicked: (DropDownItem, String, String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val messages by viewModel.messages.collectAsStateWithLifecycle()
@@ -134,7 +136,8 @@ fun ChatScreen(
         onAttachImageClicked = onAttachImageClicked,
         onOpenCameraClicked = onOpenCameraClicked,
         dropDownItems = dropDownItems,
-        onDropPDownItemClicked = onDropPDownItemClicked,
+        onEditMessage = viewModel::updateMessage,
+        onDeleteMessage = viewModel::deleteMessage,
         onSendMessage = viewModel::sendMessage,
         onUpdateMessage = viewModel::setCurrentMessage,
         messages = messages,
@@ -160,7 +163,6 @@ fun ChatScreen(
     onAttachImageClicked: () -> Unit,
     onOpenCameraClicked: () -> Unit,
     dropDownItems: List<DropDownItem>,
-    onDropPDownItemClicked: (DropDownItem, String, String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val messages by viewModel.messages.collectAsStateWithLifecycle()
@@ -178,9 +180,10 @@ fun ChatScreen(
         onAttachImageClicked = onAttachImageClicked,
         onOpenCameraClicked = onOpenCameraClicked,
         dropDownItems = dropDownItems,
-        onDropPDownItemClicked = onDropPDownItemClicked,
         onSendMessage = viewModel::onSendMessage,
         onUpdateMessage = viewModel::updateCurrentMessage,
+        onEditMessage = viewModel::updateMessage,
+        onDeleteMessage = viewModel::deleteMessage,
         messages = messages,
         currentMessage = currentMessage,
         currentUserEmail = viewModel.currentUser.email!!,
@@ -203,9 +206,10 @@ fun ChatScreen(
     onAttachImageClicked: () -> Unit,
     onOpenCameraClicked: () -> Unit,
     dropDownItems: List<DropDownItem>,
-    onDropPDownItemClicked: (DropDownItem, String, String) -> Unit,
     onSendMessage: () -> Unit,
+    onDeleteMessage: (String) -> Unit,
     onUpdateMessage: (String) -> Unit,
+    onEditMessage: (String, String) -> Unit,
     messages: List<Message>,
     currentMessage: MessageState,
     currentUserEmail: String,
@@ -215,6 +219,9 @@ fun ChatScreen(
     val configuration = LocalConfiguration.current
     val maxScreenWidthDP = configuration.screenWidthDp.dp
     val maxScreenHeightDP = configuration.screenHeightDp.dp
+    var isEditMessageDialogOpen by rememberSaveable { mutableStateOf(false) }
+    var EditedMessageID by remember { mutableStateOf("") }
+    var EditedMessageBody by remember { mutableStateOf("") }
     Scaffold(
         topBar = {
             Row(
@@ -267,34 +274,59 @@ fun ChatScreen(
             .exclude(WindowInsets.ime),
         modifier = modifier
     ) { paddingValues ->
-        Column(
+        Box (
             Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-        ) {
-            MessagesContent(
-                messages = messages,
-                currentUserEmail = currentUserEmail,
-                isPrivateChat = isPrivateChat,
-                onFileClicked = onFileClicked,
-                onImageClicked = onImageClicked,
-                onUserClicked = onUserClicked,
-                modifier = Modifier.weight(1f),
-                scrollState = scrollState,
-                dropDownItems = dropDownItems,
-                onDropPDownItemClicked = onDropPDownItemClicked,
-                maxScreenWidthDP = maxScreenWidthDP,
-                maxScreenHeightDP = maxScreenHeightDP,
-            )
-            MessageInput(
-                onAttachFileClicked = onAttachFileClicked,
-                onAttachImageClicked = onAttachImageClicked,
-                onOpenCameraClicked = onOpenCameraClicked,
-                onSendMessage = { onSendMessage() },
-                onUpdateMessage = onUpdateMessage,
-                messageState = currentMessage,
-            )
+        ){
+            Column(
+                Modifier.fillMaxSize()
+            ) {
+                MessagesContent(
+                    messages = messages,
+                    currentUserEmail = currentUserEmail,
+                    isPrivateChat = isPrivateChat,
+                    onFileClicked = onFileClicked,
+                    onImageClicked = onImageClicked,
+                    onUserClicked = onUserClicked,
+                    modifier = Modifier.weight(1f),
+                    scrollState = scrollState,
+                    dropDownItems = dropDownItems,
+                    onDropPDownItemClicked = {dropDownItem, messageId, messageBody ->
+                        when (dropDownItem.text) {
+                            "Delete" -> {
+                                onDeleteMessage(messageId)
+                            }
+                            "Update" -> {
+                                EditedMessageID = messageId
+                                EditedMessageBody = messageBody
+                                isEditMessageDialogOpen = true
+                            }
+                        }
+                    },
+                    maxScreenWidthDP = maxScreenWidthDP,
+                    maxScreenHeightDP = maxScreenHeightDP,
+                )
+                MessageInput(
+                    onAttachFileClicked = onAttachFileClicked,
+                    onAttachImageClicked = onAttachImageClicked,
+                    onOpenCameraClicked = onOpenCameraClicked,
+                    onSendMessage = { onSendMessage() },
+                    onUpdateMessage = onUpdateMessage,
+                    messageState = currentMessage,
+                )
+            }
+            if (isEditMessageDialogOpen) {
+                EditMessageDialog(
+                    initialMessage = EditedMessageBody,
+                    onConfirmation = { editedMessage ->
+                        onEditMessage(EditedMessageID, editedMessage)
+                        isEditMessageDialogOpen = false
+                     },
+                    onDismissRequest = {isEditMessageDialogOpen = false})
+            }
         }
+
     }
 }
 
@@ -808,6 +840,63 @@ fun MessageFileAttachment(
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
+        }
+    }
+}
+@Composable
+fun EditMessageDialog(
+    modifier: Modifier = Modifier,
+    initialMessage: String,
+    onDismissRequest: () -> Unit = {},
+    onConfirmation: (String) -> Unit,
+) {
+    var textValue by remember { mutableStateOf(initialMessage) }
+    Dialog(
+        onDismissRequest = {
+            onDismissRequest()
+        }
+    ) {
+        Card(
+            modifier = modifier
+                .fillMaxWidth()
+                .height(230.dp)
+                .padding(16.dp),
+            shape = RoundedCornerShape(16.dp),
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.Start,
+            ) {
+                Text(text = "Edit Message", style = MaterialTheme.typography.headlineSmall)
+                Spacer(modifier = Modifier.size(8.dp))
+                OutlinedTextField(
+                    value = textValue,
+                    onValueChange = { textValue = it },
+                    placeholder = { Text(text = "Folder Name") })
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceAround,
+                ) {
+                    TextButton(
+                        onClick = { onDismissRequest() },
+                        modifier = Modifier.padding(8.dp),
+                    ) {
+                        Text("Cancel")
+                    }
+                    TextButton(
+                        onClick = { onConfirmation(textValue) },
+                        enabled = textValue.isNotBlank(),
+                        modifier = Modifier.padding(8.dp),
+                    ) {
+                        Text("Confirm")
+                    }
+                }
+            }
         }
     }
 }

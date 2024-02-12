@@ -43,7 +43,6 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class GroupChatFragment : Fragment(),
-    OnMessageClickListener,
     OnFileClickListener,
     ImageClickListener
 {
@@ -97,7 +96,7 @@ class GroupChatFragment : Fragment(),
                    isPrivateChat = false,
                    chatTitle = args.title,
                    chatImageURL = args.photoUrl,
-                   onChatHeaderClicked = { navigateToGroupDetails(true)/*Todo check if is admin*/ },
+                   onChatHeaderClicked = { navigateToGroupDetails(viewModel.checkIfAdmin()) },
                    onBackPressed = { findNavController().popBackStack() },
                    onFileClicked = ::onFileClick,
                    onImageClicked = ::onImageClick,
@@ -115,21 +114,9 @@ class GroupChatFragment : Fragment(),
                        findNavController().navigate(action)
                                          },
                    dropDownItems = listOf(DropDownItem("Update"), DropDownItem("Delete")),
-                   onDropPDownItemClicked = ::onDropDownItemClicked
                )
            }
        }
-    }
-    private fun onDropDownItemClicked(dropDownItem: DropDownItem, messageId: String, messageBody: String) {
-        val chatId = args.groupId
-        when (dropDownItem.text) {
-            "Delete" -> {
-                deleteMessage(messageId, chatId)
-            }
-            "Update" -> {
-                updateMessage(messageId, chatId, messageBody)
-            }
-        }
     }
     private fun navigateToGroupDetails(isAdmin: Boolean){
         val action =
@@ -139,34 +126,6 @@ class GroupChatFragment : Fragment(),
             )
         findNavController().navigate(action)
     }
-
-    override fun deleteMessage(messageId: String, chatId: String) {
-        viewModel.deleteMessage(messageId, chatId)
-    }
-
-    override fun updateMessage(messageId: String, chatId: String, body: String) {
-        val editText = EditText(requireContext())
-        val dialogBuilder = AlertDialog.Builder(requireContext())
-        editText.text.append(body)
-
-        // Set up the dialog properties
-        dialogBuilder.setTitle("Edit Message Body")
-            .setMessage("Edit your message:")
-            .setCancelable(true)
-            .setView(editText)
-            .setPositiveButton("Save") { dialogInterface: DialogInterface, i: Int ->
-                viewModel.updateMessage(messageId, chatId, editText.text.toString())
-                Log.d("TAGf", "updateMessage: ${editText.text.toString()}")
-            }
-            .setNegativeButton("Cancel") { dialogInterface: DialogInterface, i: Int ->
-                dialogInterface.dismiss()
-            }
-
-        val alertDialog = dialogBuilder.create()
-        alertDialog.show()
-
-    }
-
     override fun onFileClick(fileURL: String, fileType: String, fileNames: String) {
         Log.d("TAGRT", "onFileClick: $fileURL $fileType $fileNames")
 

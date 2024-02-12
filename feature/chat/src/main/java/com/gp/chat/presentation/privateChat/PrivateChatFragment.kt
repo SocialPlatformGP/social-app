@@ -119,7 +119,6 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
                     chatTitle = chatTitle,
                     chatImageURL = chatImageUrl,
                     dropDownItems = listOf(DropDownItem("Update"), DropDownItem("Delete")),
-                    onDropPDownItemClicked = ::onDropDownItemClicked
                 )
             }
         }
@@ -149,7 +148,7 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
     }
 
     override fun deleteMessage(messageId: String, chatId: String) {
-        viewModel.deleteMessage(messageId, chatId)
+        viewModel.deleteMessage(messageId)
     }
 
     override fun updateMessage(messageId: String, chatId: String, body: String) {
@@ -163,7 +162,7 @@ class PrivateChatFragment : Fragment(), OnMessageClickListener, OnFileClickListe
             .setCancelable(true)
             .setView(editText)
             .setPositiveButton("Save") { dialogInterface: DialogInterface, i: Int ->
-                viewModel.updateMessage(messageId, chatId, editText.text.toString())
+                viewModel.updateMessage(messageId, editText.text.toString())
                 Log.d("TAGf", "updateMessage: ${editText.text}")
             }
             .setNegativeButton("Cancel") { dialogInterface: DialogInterface, i: Int ->
