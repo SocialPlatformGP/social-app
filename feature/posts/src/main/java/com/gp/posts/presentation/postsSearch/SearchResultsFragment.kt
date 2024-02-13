@@ -15,7 +15,6 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gp.posts.R
 import com.gp.posts.adapter.SearchResultAdapter
-import com.gp.posts.databinding.FragmentSearchBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -23,7 +22,6 @@ import kotlinx.coroutines.launch
 class SearchResultsFragment : Fragment(){
     private lateinit var composeView: ComposeView
     private val viewModel: SearchResultsViewModel by viewModels()
-    lateinit var binding: FragmentSearchBinding
     private  val args: SearchResultsFragmentArgs by navArgs()
 
     override fun onCreateView(

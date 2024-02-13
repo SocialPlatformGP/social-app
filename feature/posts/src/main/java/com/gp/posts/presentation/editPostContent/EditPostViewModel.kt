@@ -3,7 +3,6 @@ package com.gp.posts.presentation.editPostContent
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gp.posts.presentation.createpost.CreatePostUIState
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.repository.PostRepository
 import dagger.hilt.android.lifecycle.HiltViewModel

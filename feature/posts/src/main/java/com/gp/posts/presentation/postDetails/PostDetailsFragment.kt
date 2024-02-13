@@ -1,75 +1,32 @@
 package com.gp.posts.presentation.postDetails
 
-import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
-import android.widget.LinearLayout
-import android.widget.PopupMenu
-import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.platform.ComposeView
-import androidx.core.content.ContentProviderCompat.requireContext
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.flowWithLifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
-import com.gp.posts.R
-import com.gp.posts.adapter.FileAttachmentAdapter
-import com.gp.posts.adapter.ImageAttachmentAdapter
-import com.gp.posts.adapter.NestedReplyAdapter
-import com.gp.posts.databinding.FragmentPostDetailsBinding
-import com.gp.posts.listeners.OnAddReplyClicked
-import com.gp.posts.listeners.OnFileClickedListener
-import com.gp.posts.listeners.OnMoreOptionClicked
-import com.gp.posts.listeners.OnReplyCollapsed
-import com.gp.posts.listeners.OnTagClicked
-import com.gp.posts.listeners.VotePressedListener
-import com.gp.socialapp.database.model.MimeType
-import com.gp.socialapp.database.model.PostAttachment
-import com.gp.socialapp.model.NestedReplyItem
-import com.gp.socialapp.model.Post
-import com.gp.socialapp.model.Reply
-import com.gp.socialapp.model.Tag
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
-import okhttp3.internal.cache2.Relay.Companion.edit
-import java.util.Date
-
 
 
 @AndroidEntryPoint
 class PostDetailsFragment
-    : Fragment()//, OnAddReplyClicked,VotePressedListener,OnMoreOptionClicked, OnReplyCollapsed,OnTagClicked
-    {
+    : Fragment(){
 //    lateinit var replyAdapter: NestedReplyAdapter
 //    lateinit var recyclerView: RecyclerView
-       val viewModel: PostDetailsViewModel by viewModels()
-   val args: PostDetailsFragmentArgs by navArgs()
+    val viewModel: PostDetailsViewModel by viewModels()
+    val args: PostDetailsFragmentArgs by navArgs()
+    lateinit var composeView: ComposeView
 //    lateinit var binding: FragmentPostDetailsBinding
 //    lateinit var replyEditText: TextInputEditText
 //    lateinit var replyEditTextLayout: TextInputLayout
 //    lateinit var replyButton: MaterialButton
 //    lateinit var linearLayout: LinearLayout
 //    private val currentUser= Firebase.auth.currentUser
-        lateinit var composeView: ComposeView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -77,24 +34,23 @@ class PostDetailsFragment
     ): View {
 
         viewModel.getRepliesById(args.post.id)
-        // Inflate the layout for this fragment
+//        // Inflate the layout for this fragment
 //         binding =
 //            DataBindingUtil.inflate(inflater, R.layout.fragment_post_details, container, false)
-//        viewModel.getPost(args.post)
+        viewModel.getPost(args.post)
 //
 //        lifecycleScope.launch {
 //            viewModel.currentPost.flowWithLifecycle(lifecycle).collect {
 //                binding.viewModel = viewModel
 //                binding.postitem = it
 //                binding.context = requireContext()
-//               // binding.onTagClick = this@PostDetailsFragment
+//                binding.onTagClick = this@PostDetailsFragment
 //            }
-        ComposeView(requireContext()).also {
-            composeView=it
+        return ComposeView(requireContext()).also {
+            composeView = it
         }
-        return composeView
-//        }
-//
+        }
+
 //        val callback = object : OnBackPressedCallback(true) {
 //            override fun handleOnBackPressed() {
 //                if (linearLayout.visibility == View.VISIBLE) {
@@ -109,21 +65,17 @@ class PostDetailsFragment
 //        binding.lifecycleOwner = this
 //        binding.viewModel = viewModel
 //        return binding.root
-    }
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-
         composeView.setContent {
-
-            DetailsScreen(viewModel = viewModel,args.post, edit = { editPost(args.post) })
-            Log.d("Vip", "postClicked:${args.post.toString()} ")
+            PostDetailsScreen(viewModel = viewModel)
         }
-        // if(args.post.attachments.isNotEmpty()){bindMediaLayout(args.post.attachments)}
-
-
+//        if(args.post.attachments.isNotEmpty()){bindMediaLayout(args.post.attachments)}
+//
+//
 //        recyclerView = view.findViewById(R.id.recyclerView)
 //        recyclerView.itemAnimator = null
 //        replyAdapter = NestedReplyAdapter(
@@ -142,8 +94,8 @@ class PostDetailsFragment
 //
 //            }
 //        }
-
-        //        replyEditText = view.findViewById(R.id.et_comment)
+//
+//        replyEditText = view.findViewById(R.id.et_comment)
 //        replyEditTextLayout = view.findViewById(R.id.tl_comment)
 //        replyButton = view.findViewById(R.id.btn_send)
 //        linearLayout = view.findViewById(R.id.linearLayout)
@@ -160,7 +112,8 @@ class PostDetailsFragment
 //        binding.imageViewDownvotePost.setOnClickListener {
 //            viewModel.downVote(args.post)
 //        }
-//    }
+
+    }
 //
 //    private fun bindMediaLayout(attachments: List<PostAttachment>) {
 //        binding.mediaFramelayout.visibility = View.VISIBLE
@@ -255,7 +208,7 @@ class PostDetailsFragment
 //    }
 //
 //    @RequiresApi(Build.VERSION_CODES.O)
-//     fun onAddReplyClicked(reply: NestedReplyItem) {
+//    override fun onAddReplyClicked(reply: NestedReplyItem) {
 //        val currentReply = reply.reply
 //        replyEditText.requestFocus()
 //        linearLayout.visibility = View.VISIBLE
@@ -281,16 +234,16 @@ class PostDetailsFragment
 //        }
 //    }
 //
-//     fun onUpVotePressed(comment: Reply) {
+//    override fun onUpVotePressed(comment: Reply) {
 //        viewModel.replyUpVote(comment)
 //    }
 //
-//     fun onDownVotePressed(comment: Reply) {
+//    override fun onDownVotePressed(comment: Reply) {
 //        viewModel.replyDownVote(comment)
 //    }
 //
 //
-//     fun onMoreOptionClicked(imageView5: MaterialButton, postitem: Post) {
+//    override fun onMoreOptionClicked(imageView5: MaterialButton, postitem: Post) {
 //        var resourceXml=R.menu.extra_option_menu
 //        if(currentUser?.email!=postitem.authorEmail){
 //            resourceXml=R.menu.extra_option_menu_not_owner
@@ -325,7 +278,7 @@ class PostDetailsFragment
 //        popupMenu.show()
 //    }
 //
-//     fun onMoreOptionClicked(imageView5: MaterialButton, reply: Reply) {
+//    override fun onMoreOptionClicked(imageView5: MaterialButton, reply: Reply) {
 //        var resourceXml=R.menu.extra_option_menu
 //        if(currentUser?.email!=reply.authorEmail){
 //            resourceXml=R.menu.extra_option_menu_not_owner
@@ -378,7 +331,7 @@ class PostDetailsFragment
 //        popupMenu.show()
 //    }
 //
-//     fun onReplyCollapsed(reply: Reply) {
+//    override fun onReplyCollapsed(reply: Reply) {
 //        if(reply.collapsed){
 //            viewModel.collapsedReplies.remove(reply.id)
 //        }else {
@@ -386,18 +339,11 @@ class PostDetailsFragment
 //        }
 //        Log.d("zarea in fragment",viewModel.collapsedReplies.toString())
 //    }
-//
-//    fun onTagClick(tag: Tag) {
+
+//    override fun onTagClicked(tag: Tag) {
 //        val action = PostDetailsFragmentDirections.actionPostDetailsFragmentToSearchFragment2(tag.label, true)
 //        findNavController().navigate(action)
 //    }
 
 
-    }
-
-        fun editPost(postItem: Post) {
-            val action =
-                PostDetailsFragmentDirections.actionPostDetialsFragmentToEditPostFragment(postItem)
-            findNavController().navigate(action)
-            true
-        }}
+}

@@ -16,7 +16,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.gp.posts.R
-import com.gp.posts.databinding.FragmentEditPostBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 import kotlinx.coroutines.launch

@@ -7,8 +7,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import com.gp.posts.presentation.postsfeed.FeedPostItem
 import com.gp.socialapp.model.Post
-import com.gp.posts.presentation.postsfeed.VipPostItem
 
 
 @Composable
@@ -46,13 +46,10 @@ fun SearchResultContent(
 
     LazyColumn( modifier = Modifier.fillMaxWidth(1f)){
         items(state){
-            VipPostItem(    post = it,
-                deletePost = deletePost,
-                details = details,
-                edit = edit,
-                onUpVote =  onUpVote ,
-                onDownVote =  onDownVote,
-                onTagClicked = { })
+            FeedPostItem(
+                post = it,
+                postEvent = {/*TODO*/},
+            )
 
         }
 
