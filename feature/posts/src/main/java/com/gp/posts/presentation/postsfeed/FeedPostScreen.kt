@@ -256,7 +256,7 @@ fun BottomRow(
             contentPadding = PaddingValues(
                 horizontal = 12.dp,
             ),
-            border = BorderStroke(1.dp, Color.LightGray)
+            border = BorderStroke(1.dp, Color.LightGray),
 
             ) {
             Row(
