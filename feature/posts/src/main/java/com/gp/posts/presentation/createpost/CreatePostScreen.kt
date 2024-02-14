@@ -270,8 +270,8 @@ fun CreatePostContent(
 
 
     }
-    ButtonSheetOptions(options = listOf(TagType.New.label, TagType.Existing.label),
-
+    ButtonSheetOptions(
+        options = listOf(TagType.New.label, TagType.Existing.label),
         state = bottomSheetState, onOptionSelected = { option ->
             scope.launch { bottomSheetState.hide() }
             when (option) {
@@ -622,7 +622,6 @@ fun PreviewFileItem(
                 MimeType.BMP,
                 MimeType.WEBP
             ) -> {
-                icon = Icons.Filled.Image
                 SubcomposeAsyncImage(
                     model = file.uri,
                     contentDescription = null,

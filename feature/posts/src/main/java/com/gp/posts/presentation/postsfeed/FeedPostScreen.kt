@@ -1,6 +1,7 @@
 package com.gp.posts.presentation.postsfeed
 
 //import com.gp.posts.fontFamily2
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -14,13 +15,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,26 +36,20 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.InsertDriveFile
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.KeyboardDoubleArrowDown
-import androidx.compose.material.icons.filled.KeyboardDoubleArrowUp
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.ThumbDownAlt
-import androidx.compose.material.icons.filled.ThumbUpAlt
 import androidx.compose.material.icons.filled.VideoLibrary
 import androidx.compose.material.icons.outlined.Chat
-import androidx.compose.material.icons.outlined.ThumbDownAlt
-import androidx.compose.material.icons.outlined.ThumbUpAlt
-import androidx.compose.material.icons.rounded.Chat
-import androidx.compose.material.icons.sharp.Chat
 import androidx.compose.material.icons.twotone.KeyboardDoubleArrowUp
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
@@ -65,11 +63,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -82,9 +76,6 @@ import androidx.compose.ui.window.PopupProperties
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
-import com.gp.posts.R
 import com.gp.posts.adapter.ImagePagerZ
 import com.gp.posts.fontFamily
 import com.gp.posts.fontFamily2
@@ -99,28 +90,37 @@ import com.gp.socialapp.util.DateUtils
 import java.util.Locale
 
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun FeedPostScreen(
     posts: List<Post>,
-    postEvent: (PostEvent) -> Unit
+    postEvent: (PostEvent) -> Unit,
+    currentEmail: String
+
 ) {
+
     Column(modifier = Modifier.fillMaxSize()) {
         LazyColumn {
             items(posts) { post ->
                 FeedPostItem(
                     post = post,
-                    postEvent = postEvent
+                    postEvent = postEvent,
+                    currentEmail = currentEmail
                 )
             }
         }
     }
 }
 
+
+
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun FeedPostItem(
     post: Post,
-    postEvent: (PostEvent) -> Unit
+    postEvent: (PostEvent) -> Unit,
+    currentEmail: String
 ) {
     Card(
         onClick = { postEvent(PostEvent.OnPostClicked(post)) },
@@ -136,14 +136,6 @@ fun FeedPostItem(
                 .fillMaxWidth()
                 .wrapContentHeight()
                 .background(Color.White)
-//                .background(
-//                    Brush.verticalGradient(
-//                        listOf(
-//                            Color.Red.copy(alpha = 0.1f),
-//                            Color.Blue.copy(alpha = 0.1f)
-//                        )
-//                    )
-//                )
         ) {
             TopRow(
                 imageUrl = post.userPfp,
@@ -182,7 +174,10 @@ fun FeedPostItem(
                 votes = post.votes,
                 onUpVoteClicked = { postEvent(PostEvent.OnPostUpVoted(post)) },
                 onDownVoteClicked = { postEvent(PostEvent.OnPostDownVoted(post)) },
-                onCommentClicked = { postEvent(PostEvent.OnCommentClicked(post)) }
+                onCommentClicked = {
+                    postEvent(PostEvent.OnCommentClicked(post.id))
+                },
+                currentEmail = currentEmail
             )
         }
     }
@@ -197,9 +192,9 @@ fun BottomRow(
     votes: Int,
     onUpVoteClicked: () -> Unit,
     onDownVoteClicked: () -> Unit,
-    onCommentClicked: () -> Unit
+    onCommentClicked: () -> Unit,
+    currentEmail: String
 ) {
-//    val currentEmail = Firebase.auth.currentUser?.email
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -220,7 +215,7 @@ fun BottomRow(
             Icon(
                 imageVector = Icons.TwoTone.KeyboardDoubleArrowUp,
                 contentDescription = "UpVote",
-//                    tint = if (upVotes.contains(currentEmail)) Color.Green else Color.Unspecified,
+                tint = if (upVotes.contains(currentEmail)) Color.Green else Color.Unspecified,
                 modifier = Modifier
                     .clickable {
                         onUpVoteClicked()
@@ -249,7 +244,7 @@ fun BottomRow(
             Icon(
                 imageVector = Icons.Filled.KeyboardDoubleArrowDown,
                 contentDescription = "DownVote",
-//                tint = if (downVotes.contains(currentEmail)) Color.Red else Color.Unspecified,
+                tint = if (downVotes.contains(currentEmail)) Color.Red else Color.Unspecified,
                 modifier = Modifier
                     .clickable {
                         onDownVoteClicked()
@@ -265,7 +260,7 @@ fun BottomRow(
             onClick = onCommentClicked,
             contentPadding = PaddingValues(6.dp),
 
-        ) {
+            ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -289,7 +284,7 @@ fun BottomRow(
             onClick = { /*TODO  handle share button in post item*/ },
             contentPadding = PaddingValues()
 
-            ) {
+        ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -368,10 +363,7 @@ fun PostContent(
         Body(body)
         Attachments(
             attachments = attachments,
-            onAudioClicked = { postEvent(PostEvent.OnAudioClicked(it)) },
-            onVideoClicked = { postEvent(PostEvent.OnVideoClicked(it)) },
-            onImageClicked = { postEvent(PostEvent.OnImageClicked(it)) },
-            onDocumentClicked = { postEvent(PostEvent.OnDocumentClicked(it)) }
+            postEvent = postEvent
         )
     }
 }
@@ -446,10 +438,7 @@ private fun Title(title: String) {
 @Composable
 fun Attachments(
     attachments: List<PostAttachment>,
-    onAudioClicked: (PostAttachment) -> Unit,
-    onVideoClicked: (PostAttachment) -> Unit,
-    onImageClicked: (PostAttachment) -> Unit,
-    onDocumentClicked: (PostAttachment) -> Unit
+    postEvent: (PostEvent) -> Unit
 ) {
     val images = attachments.filter {
         it.type in listOf(
@@ -460,15 +449,65 @@ fun Attachments(
             MimeType.WEBP.readableType
         )
     }
-    if (images.isNotEmpty()) {
+    val others = attachments.filter {
+        it.type !in listOf(
+            MimeType.JPEG.readableType,
+            MimeType.PNG.readableType,
+            MimeType.GIF.readableType,
+            MimeType.BMP.readableType,
+            MimeType.WEBP.readableType
+        )
+    }
+    if (others.isNotEmpty()) {
+        ButtonViewFiles(
+            attachments,
+            postEvent
+        )
+    } else if (images.isNotEmpty()) {
         ImagePagerZ(
             pageCount = images.size,
             images = images,
-            onImageClicked = onImageClicked,
+            onImageClicked = { selectedImage ->
+                postEvent(
+                    PostEvent.OnImageClicked(
+                        selectedImage
+                    )
+                )
+            },
         )
     }
 
 }
+
+@Composable
+private fun ButtonViewFiles(
+    attachments: List<PostAttachment>,
+    postEvent: (PostEvent) -> Unit
+) {
+    OutlinedButton(
+        onClick = {
+            postEvent(
+                PostEvent.OnViewFilesAttachmentClicked(attachments)
+            )
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentWidth(align = Alignment.CenterHorizontally),
+        border = BorderStroke(2.dp, MaterialTheme.colors.primary),
+        shape = RoundedCornerShape(8.dp),
+    ) {
+        Text(
+            text = "${attachments.size} File Attached",
+            color = MaterialTheme.colors.primary,
+            fontWeight = FontWeight.Bold,
+            fontFamily = montserratFontFamily,
+            fontSize = 16.sp
+        )
+
+
+    }
+}
+
 
 @Composable
 private fun AttachmentItem(
@@ -478,10 +517,9 @@ private fun AttachmentItem(
     onImageClicked: () -> Unit,
     onDocumentClicked: () -> Unit
 ) {
-    val width = LocalConfiguration.current.screenWidthDp.dp
     Box(
         modifier = Modifier
-            .size(width = width, height = 300.dp)
+            .size(width = 150.dp, height = 225.dp)
     ) {
         var icon by remember { mutableStateOf(Icons.Filled.Image) }
         when (attachment.type) {
@@ -728,15 +766,53 @@ fun VerticalDivider(
 @Preview(showBackground = true, showSystemUi = true, apiLevel = 33)
 @Composable
 fun FeedPostPreview() {
-    FeedPostItem(
-        post =Post(
-            title = "Title",
-            body = "Body",
-            userName = "user Name",
-            publishedAt = "Sun Feb 04 16:47:40 GMT+02:00 2024",
-            authorEmail = "authorEmail",
-        ) ,
-        postEvent = {PostEvent.Initial},
+    FeedPostScreen(
+        posts = listOf(
+            Post(
+                title = "Title",
+                body = "Body",
+                userName = "user Name",
+                publishedAt = "Sun Feb 04 16:47:40 GMT+02:00 2024",
+                authorEmail = "authorEmail",
+                attachments = listOf(
+                    PostAttachment(
+                        url = "https://www.google.com",
+                        type = MimeType.PDF.readableType,
+                        name = "PDF"
+                    )
+                )
+            ),
+            Post(
+                title = "Title",
+                body = "Body",
+                userName = "user Name",
+                publishedAt = "Sun Feb 04 16:47:40 GMT+02:00 2024",
+                authorEmail = "authorEmail",
+            ),
+            Post(
+                title = "Title",
+                body = "Body",
+                userName = "user Name",
+                publishedAt = "Sun Feb 04 16:47:40 GMT+02:00 2024",
+                authorEmail = "authorEmail",
+            ),
+
+            ),
+        postEvent = { PostEvent.Initial },
+        currentEmail = "currentEmail",
     )
+//    FeedPostItem(
+//        post = Post(
+//            title = "Title",
+//            body = "Body",
+//            userName = "user Name",
+//            publishedAt = "Sun Feb 04 16:47:40 GMT+02:00 2024",
+//            authorEmail = "authorEmail",
+//        ),
+//        postEvent = { PostEvent.Initial },
+//        currentEmail = "currentEmail",
+//    )
+
+
 }
 

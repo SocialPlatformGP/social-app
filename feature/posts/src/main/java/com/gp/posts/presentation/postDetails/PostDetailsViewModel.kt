@@ -17,7 +17,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.Date
 import javax.inject.Inject
 
@@ -27,7 +29,7 @@ class PostDetailsViewModel @Inject constructor(
     private val replyRepository: ReplyRepository
 ) : ViewModel() {
     var currentUser = Firebase.auth.currentUser
-    var collapsedReplies = mutableListOf<String>()
+//    var collapsedReplies = mutableListOf<String>()
 
     private val _currentReplies = MutableStateFlow(NestedReplyItem(null, emptyList()))
     val currentReplies = _currentReplies.asStateFlow()
@@ -41,16 +43,13 @@ class PostDetailsViewModel @Inject constructor(
             attachments = emptyList()
         )
     )
-    val currentPost get() = _currentPost.asStateFlow()
+    private val _currentReply = MutableStateFlow(Reply())
+    val currentPost  = _currentPost.asStateFlow()
 
 
     fun getPost(post: Post) {
         _currentPost.value = post
-        viewModelScope.launch(Dispatchers.IO) {
-            postRepository.fetchPostById(post.id).collect {
-                _currentPost.value = it
-            }
-        }
+        Log.d("PostDetailsViewModel","getPost: ${currentPost.value}")
     }
 
 
@@ -59,13 +58,13 @@ class PostDetailsViewModel @Inject constructor(
             replyRepository.getReplies(id).collect { replies ->
                 _currentReplies.value = replies.toNestedReplies()
                 Log.d("inTopVM", "PostDetailsScreen: ${currentReplies.value}")
-
             }
         }
     }
 
     fun insertReply(reply: Reply) {
         viewModelScope.launch(Dispatchers.IO) {
+            Log.d("PostDetailsViewModel","insertReply: $reply")
             replyRepository.insertReply(reply)
         }
     }
@@ -127,7 +126,7 @@ class PostDetailsViewModel @Inject constructor(
             is PostEvent.OnPostDownVoted -> downVote(event.post)
             is PostEvent.onCommentAdded->{
                 val reply =  Reply(
-                    postId = currentPost.value.id,
+                    postId = event.postId,
                     parentReplyId = null,
                     depth = 0,
                     content = event.text,
@@ -144,20 +143,18 @@ class PostDetailsViewModel @Inject constructor(
             is ReplyEvent.OnReplyDeleted -> deleteReply(event.reply)
             is ReplyEvent.OnReplyUpVoted -> replyUpVote(event.reply)
             is ReplyEvent.OnReplyDownVoted -> replyDownVote(event.reply)
-//            is ReplyEvent.OnAddReply -> {
-//                currentReply = event.reply
-//            }
-//            is ReplyEvent.OnReplyAdded -> {
-//                val reply = Reply(
-//                    postId = currentReply!!.postId,
-//                    parentReplyId = currentReply.id,
-//                    depth = currentReply.depth.plus(1),
-//                    content = event.text,
-//                    createdAt = Date().toString(),
-//                    authorEmail = currentUser?.email.toString()
-//                )
-//                insertReply(reply)
-//            }
+
+            is ReplyEvent.OnReplyAdded -> {
+                val reply = Reply(
+                    postId = event.reply.postId,
+                    parentReplyId = event.reply.id,
+                    depth = event.reply.depth + 1,
+                    content = event.text,
+                    createdAt = Date().toString(),
+                    authorEmail = currentUser?.email.toString()
+                )
+                insertReply(reply)
+            }
             else -> {}
         }
     }

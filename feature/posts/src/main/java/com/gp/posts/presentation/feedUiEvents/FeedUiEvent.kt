@@ -17,9 +17,13 @@ sealed class PostEvent() {
     data class OnImageClicked(val attachment: PostAttachment) : PostEvent()
     data class OnVideoClicked(val attachment: PostAttachment) : PostEvent()
     data class OnDocumentClicked(val attachment: PostAttachment) : PostEvent()
-    data class OnCommentClicked(val post: Post) : PostEvent()
-    data class onCommentAdded(val text:String) : PostEvent()
+    data class OnCommentClicked(val postId: String) : PostEvent()
+    data class onCommentAdded(
+        val text:String,
+        val postId: String,
+    ) : PostEvent()
     object Initial : PostEvent()
+    data class OnViewFilesAttachmentClicked(val attachments: List<PostAttachment>) : PostEvent()
 
 }
 
@@ -31,5 +35,8 @@ sealed class ReplyEvent {
     data class OnReplyDownVoted(val reply: Reply) : ReplyEvent()
     data class OnAddReply(val reply: Reply) : ReplyEvent()
     object Initial : ReplyEvent()
-    data class OnReplyAdded(val text: String) : ReplyEvent()
+    data class OnReplyAdded(
+        val text: String,
+        val reply: Reply
+    ) : ReplyEvent()
 }

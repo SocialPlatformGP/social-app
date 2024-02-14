@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -46,9 +47,8 @@ fun ImagePagerZ(
     onImageClicked: (PostAttachment) -> Unit
 ) {
     val width = LocalConfiguration.current.screenWidthDp.dp
-    Column(
+    Box(
         modifier = Modifier.size(width, 400.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         val pagerState = rememberPagerState(
             pageCount = { pageCount },
@@ -72,7 +72,6 @@ fun ImagePagerZ(
             state = pagerState,
             modifier = Modifier
                 .fillMaxSize()
-                .weight(1f)
         ) {
             Box(
                 modifier = Modifier
@@ -105,8 +104,12 @@ fun ImagePagerZ(
         LazyRow(
             state = indicatorScrollState,
             modifier = Modifier
-                .height(35.dp)
-                .width(((6 + 16) * 2 + 3 * (10 + 16)).dp),
+                .offset(y = (-16).dp)
+                .height(25.dp)
+                .width(((6 + 16) * 2 + 3 * (10 + 16)).dp)
+                .background(Color.LightGray.copy(alpha = 0.6f), RoundedCornerShape(16.dp))
+                .align(Alignment.BottomCenter)
+            ,
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {

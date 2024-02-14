@@ -21,7 +21,6 @@ import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,14 +31,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.gp.posts.presentation.feedUiEvents.PostEvent
 import com.gp.posts.presentation.feedUiEvents.ReplyEvent
 import com.gp.posts.presentation.postsfeed.FeedPostItem
+import com.gp.posts.presentation.utils.CurrentUser
 import com.gp.socialapp.model.NestedReplyItem
 import com.gp.socialapp.model.Post
+import com.gp.socialapp.model.Reply
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -49,6 +51,11 @@ fun PostDetailsScreen(
 ) {
     val postState by viewModel.currentPost.collectAsState()
     val repliesState by viewModel.currentReplies.collectAsState()
+    val currentEmail by remember {
+        mutableStateOf(
+            CurrentUser.getCurrentUser()?.email ?: ""
+        )
+    }
     PostDetailsScreen(
         postState,
         repliesState,
@@ -58,6 +65,7 @@ fun PostDetailsScreen(
         onReplyEvent = {
             viewModel.handleReplyEvent(it)
         },
+        currentEmail = currentEmail
     )
     Log.d("inTop", "PostDetailsScreen: $repliesState")
 }
@@ -69,6 +77,7 @@ fun PostDetailsScreen(
     repliesState: NestedReplyItem,
     onPostEvent: (PostEvent) -> Unit,
     onReplyEvent: (ReplyEvent) -> Unit,
+    currentEmail: String
 ) {
     Scaffold { paddingValues ->
         Timber.tag("inTop1").d("PostDetailsScreen: " + repliesState)
@@ -78,6 +87,7 @@ fun PostDetailsScreen(
             replies = repliesState,
             onPostEvent = onPostEvent,
             onReplyEvent = onReplyEvent,
+            currentEmail = currentEmail
         )
     }
 }
@@ -90,12 +100,14 @@ fun PostDetailsContent(
     post: Post,
     onPostEvent: (PostEvent) -> Unit,
     onReplyEvent: (ReplyEvent) -> Unit,
+    currentEmail: String
 ) {
     Box(modifier) {
         val postBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
         val replyBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+        val keyboardController = LocalSoftwareKeyboardController.current
         val scope = rememberCoroutineScope()
-
+        var replyClicked by remember { mutableStateOf(Reply()) }
         LazyColumn(
             modifier = Modifier
                 .systemBarsPadding()
@@ -121,40 +133,51 @@ fun PostDetailsContent(
                             }
                         }
                     },
+                    currentEmail = currentEmail
                 )
             }
-            commentList(comments = listOf(replies), onReplyEvent = {
-                when (it) {
-                    is ReplyEvent.OnAddReply -> {
-                        scope.launch {
-                            if (replyBottomSheetState.isVisible) {
-                                replyBottomSheetState.hide()
-                            } else {
-                                replyBottomSheetState.show()
+            commentList(
+                comments = listOf(replies),
+                onReplyEvent = {
+                    when (it) {
+                        is ReplyEvent.OnAddReply -> {
+                            replyClicked = it.reply
+                            scope.launch {
+                                if (replyBottomSheetState.isVisible) {
+                                    replyBottomSheetState.hide()
+                                    keyboardController?.hide()
+                                } else {
+                                    replyBottomSheetState.show()
+                                }
                             }
                         }
-                    }
 
-                    else -> {
-                        onReplyEvent(it)
+                        else -> {
+                            onReplyEvent(it)
+                        }
                     }
-                }
-            })
+                })
         }
 
         ModalBottomSheetLayout(
-            content = {
+            sheetContent = {
                 var value by remember { mutableStateOf("") }
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)
                 ) {
-                    androidx.compose.material.OutlinedTextField(value = value,
+                    androidx.compose.material.OutlinedTextField(
+                        value = value,
                         onValueChange = { value = it },
                         label = { Text(text = "Add your comment") },
                         keyboardActions = KeyboardActions(onDone = {
-                            onPostEvent(PostEvent.onCommentAdded(value))
+                            onPostEvent(
+                                PostEvent.onCommentAdded(
+                                    value,
+                                    post.id
+                                )
+                            )
                             value = ""
                             scope.launch {
                                 postBottomSheetState.hide()
@@ -162,9 +185,15 @@ fun PostDetailsContent(
                         }),
                         keyboardOptions = KeyboardOptions(
                             imeAction = ImeAction.Done
-                        ))
+                        )
+                    )
                     IconButton(onClick = {
-                        onPostEvent(PostEvent.onCommentAdded(value))
+                        onPostEvent(
+                            PostEvent.onCommentAdded(
+                                value,
+                                post.id
+                            )
+                        )
                         value = ""
                         scope.launch {
                             postBottomSheetState.hide()
@@ -182,34 +211,48 @@ fun PostDetailsContent(
             sheetBackgroundColor = MaterialTheme.colors.surface,
             sheetContentColor = MaterialTheme.colors.onSurface,
             sheetGesturesEnabled = true,
-            sheetContent = {}
+            content = {}
         )
         ModalBottomSheetLayout(
-            content = {
+            sheetContent = {
                 var value by remember { mutableStateOf("") }
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)
                 ) {
-                    androidx.compose.material.OutlinedTextField(value = value,
+                    androidx.compose.material.OutlinedTextField(
+                        value = value,
                         onValueChange = { value = it },
                         label = { Text(text = "Add your comment") },
                         keyboardActions = KeyboardActions(onDone = {
-                            onReplyEvent(ReplyEvent.OnReplyAdded(value))
+                            onReplyEvent(
+                                ReplyEvent.OnReplyAdded(
+                                    value,
+                                    replyClicked
+                                )
+                            )
                             value = ""
                             scope.launch {
                                 replyBottomSheetState.hide()
+                                keyboardController?.hide()
                             }
                         }),
                         keyboardOptions = KeyboardOptions(
                             imeAction = ImeAction.Done
-                        ))
+                        )
+                    )
                     IconButton(onClick = {
-                        onReplyEvent(ReplyEvent.OnReplyAdded(value))
+                        onReplyEvent(
+                            ReplyEvent.OnReplyAdded(
+                                value,
+                                replyClicked
+                            )
+                        )
                         value = ""
                         scope.launch {
                             replyBottomSheetState.hide()
+                            keyboardController?.hide()
                         }
                     }) {
                         Icon(
@@ -224,7 +267,7 @@ fun PostDetailsContent(
             sheetBackgroundColor = MaterialTheme.colors.surface,
             sheetContentColor = MaterialTheme.colors.onSurface,
             sheetGesturesEnabled = true,
-            sheetContent = {}
+            content = {}
         )
 
     }
@@ -245,5 +288,6 @@ fun PreviewPostDetailsScreen() {
         repliesState = sampleData,
         onPostEvent = {},
         onReplyEvent = {},
+        currentEmail = "Author"
     )
 }
