@@ -148,10 +148,6 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
                     hideBottomNav()
                 }
 
-                com.gp.chat.R.id.fullScreenImageDialogFragment -> {
-                    hideBottomNav()
-                }
-
                 else -> {
                     showBottomNav()
                     appBarLayout.visibility = View.VISIBLE

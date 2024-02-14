@@ -2,6 +2,7 @@ package com.gp.material.presentation
 
 import android.util.Log
 import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -14,9 +15,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -52,10 +55,13 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.firebase.firestore.auth.User
 import com.gp.material.R
 import com.gp.material.model.FileType
 import com.gp.material.model.MaterialItem
@@ -64,11 +70,10 @@ import com.gp.material.model.MaterialItem
 fun MaterialScreen(
     modifier: Modifier = Modifier,
     isAdmin: Boolean,
-    folderDropDownItems: List<String>,
-    fileDropDownItem: List<String>,
     onOpenFile: (MaterialItem) -> Unit,
     onFolderClicked: (String) -> Unit,
-    onDropDownItemClicked: (String, MaterialItem) -> Unit,
+    onDownloadFile: (MaterialItem) -> Unit,
+    onShareLink: (MaterialItem) -> Unit,
     onBackPressed: () -> Unit,
     onNewFileClicked: () -> Unit,
     viewModel: MaterialViewModel,
@@ -77,6 +82,36 @@ fun MaterialScreen(
     val currentPath by viewModel.currentPath.collectAsStateWithLifecycle()
     var isCreateDialogOpen by remember { mutableStateOf(false) }
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+    var isFileDetailsDialogOpen by remember { mutableStateOf(false) }
+    var fileWithOpenDetails by remember { mutableStateOf(MaterialItem()) }
+    val folderDropDownItems = listOf("Delete")
+    val fileDropDownItems = listOf("Download", "Share", "Details", "Delete")
+    val onDropDownItemClicked: (String, MaterialItem) -> Unit = { dropDownItem, item ->
+        if (item.fileType == FileType.FOLDER) {
+            if (dropDownItem == "Delete") {
+                viewModel.deleteFolder(item.path)
+            }
+        } else {
+            when (dropDownItem) {
+                "Delete" -> {
+                    viewModel.deleteFile(item.path)
+                }
+
+                "Download" -> {
+                    onDownloadFile(item)
+                }
+
+                "Share" -> {
+                    onShareLink(item)
+                }
+
+                "Details" -> {
+                    fileWithOpenDetails = item
+                    isFileDetailsDialogOpen = true
+                }
+            }
+        }
+    }
     Scaffold(
         topBar = {
             Row(
@@ -138,7 +173,7 @@ fun MaterialScreen(
                                 onOpenFile(item)
                             }
                         },
-                        dropDownItems = if (item.fileType == FileType.FOLDER) folderDropDownItems else fileDropDownItem,
+                        dropDownItems = if (item.fileType == FileType.FOLDER) folderDropDownItems else fileDropDownItems,
                         onDropDownItemClicked = onDropDownItemClicked
                     )
                 }
@@ -159,6 +194,16 @@ fun MaterialScreen(
                         isCreateDialogOpen = false
                     },
                     onDismissRequest = { isCreateDialogOpen = false })
+            }
+            if(isFileDetailsDialogOpen) {
+                FileDetailsDialog(
+                    onDismiss = { isFileDetailsDialogOpen = false },
+                    onOpenFile = {
+                        onOpenFile(fileWithOpenDetails)
+                        isFileDetailsDialogOpen = false
+                    },
+                    file = fileWithOpenDetails
+                )
             }
         }
     }
@@ -273,13 +318,6 @@ fun MaterialItem(
     }
 }
 
-//@Preview(showBackground = true)
-//@Composable
-//fun MaterialItemPreview(){
-//    MaterialTheme {
-//        MaterialItem(item = MaterialItem(name = "Test", size = "10.3 MB"), onItemClick = {}, onOptionMenuClicked = {})
-//    }
-//}
 @Composable
 fun getItemPainterResource(type: FileType): Painter {
     return painterResource(
@@ -353,5 +391,103 @@ fun CreateFolderDialog(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun FileDetailsDialog(
+    modifier: Modifier = Modifier,
+    onDismiss: () -> Unit,
+    onOpenFile: (MaterialItem) -> Unit,
+    file: MaterialItem,
+) {
+    Dialog(onDismissRequest = { onDismiss() }) {
+        Card (
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            shape = RoundedCornerShape(4.dp),
+        ){
+            Column (
+                modifier = Modifier.padding(16.dp)
+            ){
+                Row (
+                    verticalAlignment = Alignment.CenterVertically,
+                ){
+                    Icon(
+                        painter = getItemPainterResource(file.fileType),
+                        contentDescription = null,
+                        tint = Color.Unspecified,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = file.name,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+                Column (
+                    modifier = Modifier.padding(start = 32.dp)
+                ){
+                    Spacer(modifier = Modifier.height(8.dp))
+                    DetailsDialogField(
+                        title = "Location",
+                        value = file.path.substringBeforeLast("/").replaceFirst("/materials" , "Home")
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    DetailsDialogField(
+                        title = "Size",
+                        value = file.size
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    DetailsDialogField(
+                        title = "Created By",
+                        value = file.createdBy
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    DetailsDialogField(
+                        title = "Created At",
+                        value = file.creationTime
+                    )
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceAround,
+                ) {
+                    TextButton(
+                        onClick = { onDismiss() },
+                    ) {
+                        Text("Cancel")
+                    }
+                    TextButton(
+                        onClick = { onOpenFile(file) },
+                    ) {
+                        Text("Open File")
+                    }
+                }
+            }
+
+        }
+    }
+
+}
+@Composable
+fun DetailsDialogField(
+    modifier: Modifier = Modifier,
+    title: String,
+    value: String,
+) {
+    Column (modifier = modifier){
+        Text(
+            text = title,
+            color = Color.Gray,
+            fontSize = 12.sp
+            )
+        Text(
+            text = value,
+            fontSize = 18.sp,
+        )
     }
 }

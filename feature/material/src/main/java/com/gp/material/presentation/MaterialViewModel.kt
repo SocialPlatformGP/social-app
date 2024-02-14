@@ -39,11 +39,10 @@ class MaterialViewModel @Inject constructor(
 
     fun fetchDataFromFirebaseStorage() {
         viewModelScope.launch(Dispatchers.IO) {
-            Log.d("SEERDE", "Viewmodel: fetch call for path: ${_currentPath.value}")
             materialRepo.getListOfFiles(_currentPath.value).collect {
                 when (it) {
                     is State.SuccessWithData -> {
-                        Log.d("SEERDE", "Viewmodel: fetch call success data: ${it.data}")
+                        _items.value = emptyList()
                         _isLoading.value = false
                         _actionState.value = State.Idle
                         _items.value = it.data
@@ -52,7 +51,6 @@ class MaterialViewModel @Inject constructor(
                     is State.Error -> {
                         _isLoading.value = false
                         _actionState.value = State.Error("Failed to fetch data from remote host")
-                        Log.d("SEERDE", "fetchDataFromFirebaseStorage: error ${it.message}")
                     }
 
                     is State.Loading -> {
@@ -76,7 +74,6 @@ class MaterialViewModel @Inject constructor(
     }
 
     fun uploadFile(fileUri: Uri, context: Context) {
-        Log.d("SEERDE", "uploadFile: called from vm")
         viewModelScope.launch(Dispatchers.IO) {
             materialRepo.uploadFile(_currentPath.value, fileUri, context).collect {
                 when (it) {
@@ -108,7 +105,6 @@ class MaterialViewModel @Inject constructor(
             materialRepo.uploadFolder(_currentPath.value, name).collect {
                 when (it) {
                     is State.Success -> {
-                        Log.d("SEERDE", "uploadFolder: create success vm")
                         _isLoading.value = false
                         _actionState.value =
                             State.SuccessWithData("Folder has been created successfully")

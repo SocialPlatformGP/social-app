@@ -78,10 +78,10 @@ class MaterialStorageClient @Inject constructor(storage: FirebaseStorage) :
             val folderId = UUID.randomUUID().toString()
             val folderPath = "$fileLocation/$name/"
             val userEmail = Firebase.auth.currentUser?.email!!
-            val placeholderFileName = ".placeholder"
+            val placeholderFileName = "placeholderdontnameanythinglikethis"
             val placeholderFilePath = "$folderPath$placeholderFileName"
             val placeholderFileRef: StorageReference = storageRef.child(placeholderFilePath)
-            val placeholderMetadata = createFolderMetadata(folderId, name, folderPath, userEmail)
+            val placeholderMetadata = createFolderMetadata(folderId, placeholderFileName, folderPath, userEmail)
 
             placeholderFileRef.putBytes(ByteArray(0), placeholderMetadata)
                 .addOnSuccessListener {
@@ -201,30 +201,28 @@ class MaterialStorageClient @Inject constructor(storage: FirebaseStorage) :
                     val newItem = createMaterialItemFromPrefix(prefix)
                     folders.add(newItem)
                 }
-                result.addAll(folders.sortedBy { it.name })
+                result.addAll(folders.sortedBy { it.name.lowercase() })
                 listResult.items.forEach { item ->
                     item.metadata.addOnSuccessListener { metadata ->
                         val newItem = createMaterialItemFromMetadata(metadata)
-                        metadata.reference?.downloadUrl?.addOnSuccessListener { url ->
-                            val updatedItem = newItem.copy(fileUrl = url.toString())
-                            files.add(updatedItem)
-                            Log.d(
-                                "SEERDE",
-                                "getListOfFiles: item: ${updatedItem.name}, ${files.size}"
-                            )
-                            if (files.size == listResult.items.size) {
-                                result.addAll(files.sortedBy { it.name })
+                        if(newItem.name != "placeholderdontnameanythinglikethis") {
+                            metadata.reference?.downloadUrl?.addOnSuccessListener { url ->
+                                val updatedItem = newItem.copy(fileUrl = url.toString())
+                                files.add(updatedItem)
+                                if (files.size == listResult.items.size) {
+                                    result.addAll(files.sortedBy { it.name })
+                                    trySend(State.SuccessWithData(result))
+                                }
+                            }
+                        } else {
+                            if (files.size == listResult.items.size - 1) {
+                                result.addAll(files.sortedBy { it.name.lowercase() })
                                 trySend(State.SuccessWithData(result))
                             }
                         }
                     }
                 }
-                result.addAll(files.sortedBy { it.name })
-                Log.d(
-                    "SEERDE",
-                    "getListOfFiles: ${result.size} - ${listResult.items.size + listResult.prefixes.size}"
-                )
-                Log.d("SEERDE", "getListOfFiles: $result")
+                result.addAll(files.sortedBy { it.name.lowercase() })
                 if (result.size == listResult.items.size + listResult.prefixes.size) {
                     trySend(State.SuccessWithData(result))
                 }

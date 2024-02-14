@@ -43,8 +43,7 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class GroupChatFragment : Fragment(),
-    OnFileClickListener,
-    ImageClickListener
+    OnFileClickListener
 {
     private lateinit var composeView: ComposeView
     private val viewModel: GroupChatViewModel by viewModels()
@@ -93,25 +92,16 @@ class GroupChatFragment : Fragment(),
            MaterialTheme {
                ChatScreen(
                    viewModel = viewModel,
-                   isPrivateChat = false,
                    chatTitle = args.title,
                    chatImageURL = args.photoUrl,
                    onChatHeaderClicked = { navigateToGroupDetails(viewModel.checkIfAdmin()) },
                    onBackPressed = { findNavController().popBackStack() },
                    onFileClicked = ::onFileClick,
-                   onImageClicked = ::onImageClick,
                    onUserClicked = {/*TODO("navigate to user profile")*/},
                    onAttachFileClicked = { openDocument.launch("*/*") },
                    onAttachImageClicked = { openGallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)) },
-                   onOpenCameraClicked = {
-                       val action =
-                       GroupChatFragmentDirections.actionGroupChatFragmentToCameraPreviewFragment(
-                           chatId = args.groupId,
-                           senderName = args.title,
-                           senderPic = args.photoUrl,
-                           isPrivateChat = false
-                       )
-                       findNavController().navigate(action)
+                   onOpenCameraClicked ={
+                                        /*todo*/
                                          },
                    dropDownItems = listOf(DropDownItem("Update"), DropDownItem("Delete")),
                )
@@ -134,11 +124,4 @@ class GroupChatFragment : Fragment(),
         Log.d("TAGRT", "onFileClick: $fileURL $fileType $fileNames")
     }
 
-    override fun onImageClick(imageUrl: String) {
-        val action =
-            GroupChatFragmentDirections.actionGroupChatFragmentToFullScreenImageDialogFragment(
-                imageUrl
-            )
-        findNavController().navigate(action)
-    }
 }
