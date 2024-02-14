@@ -38,8 +38,10 @@ class FeedPostViewModel @Inject constructor(
 
     private val _isSortedByNewest = MutableStateFlow(true)
     val isSortedByNewest = _isSortedByNewest.asStateFlow()
-    private val _uiState = MutableStateFlow(FeedPostUiState())
+    private val _uiState = MutableStateFlow<State<List<Post>>>(State.Idle)
     val uiState = _uiState.asStateFlow()
+    val _state = MutableStateFlow(FeedPostUIState())
+    val state = _state.asStateFlow()
 
     private fun getAllPosts() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -60,7 +62,8 @@ class FeedPostViewModel @Inject constructor(
                     filteredPosts.sortedByDescending { PostPopularityUtils.calculateInteractionValue(it.votes, it.replyCount) }
                 }
                 withContext(Dispatchers.Main) {
-                    _uiState.update { it.copy(posts = sortedPosts) }
+                    _uiState.value = State.SuccessWithData(sortedPosts)
+                    _state.update { it.copy(posts = sortedPosts, state = State.Success) }
                     Log.d("TAG258", "New Data: $sortedPosts")
                 }
             }

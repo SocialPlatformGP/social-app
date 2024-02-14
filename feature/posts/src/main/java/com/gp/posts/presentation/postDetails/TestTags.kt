@@ -26,23 +26,22 @@ import androidx.compose.ui.unit.dp
 import com.gp.socialapp.model.Tag
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
-import com.gp.posts.listeners.OnTagClicked
 import com.gp.socialapp.model.Post
 
 
 
 @Composable
-fun TagChip(tag: Tag, onClick: (Tag) -> Unit) {
+fun TagChip(tag: Tag, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .clickable(
-                interactionSource =  MutableInteractionSource(),
+                interactionSource = MutableInteractionSource(),
                 indication = rememberRipple(
                     bounded = true,
                     radius = 250.dp,
                     color = Color.Green
                 ),
-                onClick = { onClick(tag) }
+                onClick = { onClick }
             )
             .padding(4.dp)
             .clip(CircleShape)
@@ -56,7 +55,7 @@ fun TagChip(tag: Tag, onClick: (Tag) -> Unit) {
                 modifier = Modifier
                     .padding(8.dp)
                     .wrapContentSize(),
-                color = Color.Black,
+                color = Color.White,
                 fontWeight = FontWeight.Bold,
                 fontSize = 10.sp
             )
@@ -66,19 +65,24 @@ fun TagChip(tag: Tag, onClick: (Tag) -> Unit) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun UserPostTags(userPost: Post,onTagClicked:(Tag)->Unit) {
+fun UserPostTags(userPost: Post) {
     FlowRow(
         modifier = Modifier
             .fillMaxWidth()
+            .wrapContentSize()
             .padding(top = 8.dp),
         content = {
             for (tag in userPost.tags) {
-                TagChip(tag = tag, onClick = { onTagClicked(tag) })
+                TagChip(tag = tag, onClick = { /* Handle tag click here */ })
             }
         }
     )
 }
 
+data class UserPost(
+    val username: String,
+    val tags: List<Tag>
+)
 val tag :Tag=Tag("test","#fff566")
 @Preview(showSystemUi = true, showBackground = true, backgroundColor = 0xFF84FFFF)
 @Composable

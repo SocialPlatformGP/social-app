@@ -32,8 +32,8 @@ object DateUtils {
 
                 return when {
                     monthsDifference > 0 -> "$monthsDifference months"
-                    daysDifference > 0 -> "$daysDifference days"
-                    hoursDifference > 0 -> "$hoursDifference hours"
+                    daysDifference > 0 -> "$daysDifference d"
+                    hoursDifference > 0 -> "$hoursDifference h"
                     minutesDifference > 0 -> "$minutesDifference minutes"
                     else -> "less than a minute"
                 }
