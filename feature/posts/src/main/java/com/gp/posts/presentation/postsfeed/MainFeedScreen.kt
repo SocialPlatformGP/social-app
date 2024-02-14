@@ -134,7 +134,8 @@ fun MainFeedScreen(
     )
     FilesBottomSheet(
         currentAttachments = currentAttachments,
-        bottomSheetState = bottomSheetState
+        bottomSheetState = bottomSheetState,
+        postEvent = postEvent
     )
 }
 

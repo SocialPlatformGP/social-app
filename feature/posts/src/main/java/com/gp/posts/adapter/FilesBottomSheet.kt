@@ -4,6 +4,7 @@ package com.gp.posts.adapter
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -41,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.gp.posts.presentation.feedUiEvents.PostEvent
 import com.gp.socialapp.database.model.MimeType
 import com.gp.socialapp.database.model.PostAttachment
 
@@ -48,7 +50,8 @@ import com.gp.socialapp.database.model.PostAttachment
 @OptIn(ExperimentalMaterialApi::class)
 fun FilesBottomSheet(
     currentAttachments: List<PostAttachment>,
-    bottomSheetState: ModalBottomSheetState
+    bottomSheetState: ModalBottomSheetState,
+    postEvent: (PostEvent) -> Unit
 ) {
     ModalBottomSheetLayout(
         sheetContent = {
@@ -73,6 +76,7 @@ fun FilesBottomSheet(
                         var color by remember {
                             mutableStateOf(Color.Black)
                         }
+
                         when (it.type) {
                             in listOf(
                                 MimeType.MKV.readableType,
@@ -80,8 +84,16 @@ fun FilesBottomSheet(
                                 MimeType.MOV.readableType,
                                 MimeType.AVI.readableType,
                             ) -> {
-                                icon = Icons.Filled.VideoFile
-                                color = Color.Blue
+                                Image(
+                                    imageVector = Icons.Filled.VideoFile,
+                                    contentDescription = "video file",
+                                    modifier = Modifier.size(75.dp)
+                                        .clickable { postEvent(PostEvent.OnVideoClicked(it)) },
+                                    colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(
+                                        Color.Blue.copy(alpha = 0.7f)
+                                    )
+                                )
+
                             }
 
                             in listOf(
@@ -89,8 +101,16 @@ fun FilesBottomSheet(
                                 MimeType.PNG.readableType,
                                 MimeType.GIF.readableType,
                             ) -> {
-                                icon = Icons.Filled.Image
-                                color = Color.Magenta
+
+                                Image(
+                                    imageVector = Icons.Filled.Image,
+                                    contentDescription = "image file",
+                                    modifier = Modifier.size(75.dp)
+                                        .clickable { postEvent(PostEvent.OnImageClicked(it)) },
+                                    colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(
+                                        Color.Green.copy(alpha = 0.7f)
+                                    )
+                                )
                             }
 
                             in listOf(
@@ -98,12 +118,27 @@ fun FilesBottomSheet(
                                 MimeType.XLSX.readableType,
                                 MimeType.PPTX.readableType,
                             ) -> {
-                                icon = Icons.Filled.InsertDriveFile
+                                Image(
+                                    imageVector = Icons.Filled.InsertDriveFile,
+                                    contentDescription = "document file",
+                                    modifier = Modifier.size(75.dp)
+                                        .clickable { postEvent(PostEvent.OnDocumentClicked(it)) },
+                                    colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(
+                                        Color.Blue.copy(alpha = 0.7f)
+                                    )
+                                )
                             }
 
                             MimeType.PDF.readableType -> {
-                                icon = Icons.Filled.PictureAsPdf
-                                color = Color.Red
+                                Image(
+                                    imageVector = Icons.Filled.PictureAsPdf,
+                                    contentDescription = "pdf file",
+                                    modifier = Modifier.size(75.dp)
+                                        .clickable { postEvent(PostEvent.OnDocumentClicked(it)) },
+                                    colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(
+                                        Color.Red.copy(alpha = 0.7f)
+                                    )
+                                )
                             }
 
                             in listOf(
@@ -111,9 +146,15 @@ fun FilesBottomSheet(
                                 MimeType.RAR.readableType,
                                 MimeType.TAR.readableType,
                             ) -> {
-                                icon = Icons.Filled.FolderZip
-                                //brown
-                                color = Color(0xFF8B4513)
+                                Image(
+                                    imageVector = Icons.Filled.FolderZip,
+                                    contentDescription = "zip file",
+                                    modifier = Modifier.size(75.dp)
+                                        .clickable { postEvent(PostEvent.OnDocumentClicked(it)) },
+                                    colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(
+                                        Color.Yellow.copy(alpha = 0.7f)
+                                    )
+                                )
                             }
 
                             in listOf(
@@ -121,21 +162,30 @@ fun FilesBottomSheet(
                                 MimeType.WAV.readableType,
                                 MimeType.FLAC.readableType,
                             ) -> {
-                                icon = Icons.Filled.AudioFile
-                                //audio file color
-                                color = Color(0xFFA9A9A9)
+                                Image(
+                                    imageVector = Icons.Filled.AudioFile,
+                                    contentDescription = "audio file",
+                                    modifier = Modifier.size(75.dp)
+                                        .clickable { postEvent(PostEvent.OnAudioClicked(it)) },
+                                    colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(
+                                        Color.Cyan.copy(alpha = 0.7f)
+                                    )
+                                )
                             }
 
                             else -> {
-
+                                Image(
+                                    imageVector = Icons.Filled.InsertDriveFile,
+                                    contentDescription = "document file",
+                                    modifier = Modifier.size(75.dp)
+                                        .clickable { postEvent(PostEvent.OnDocumentClicked(it)) },
+                                    colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(
+                                        Color.Blue.copy(alpha = 0.7f)
+                                    )
+                                )
                             }
                         }
-                        Image(
-                            imageVector = icon,
-                            contentDescription = "video file",
-                            modifier = Modifier.size(75.dp),
-                            colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(color.copy(alpha = 0.7f))
-                        )
+
                         Spacer(modifier = Modifier.size(8.dp))
                         Column(
                             modifier = Modifier
@@ -208,7 +258,8 @@ fun ff() {
                 url = "url"
             ),
         ),
-        bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Expanded)
+        bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Expanded),
+        postEvent = { PostEvent.Initial }
     )
 
 }

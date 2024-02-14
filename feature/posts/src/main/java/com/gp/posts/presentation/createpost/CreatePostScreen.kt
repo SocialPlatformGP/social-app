@@ -69,7 +69,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -102,69 +101,55 @@ fun CreatePostScreen(
     onPreviewFile: (PostFile) -> Unit = {},
 ) {
     val state by viewModel.uiState.collectAsState()
-
     val tags by viewModel.tags.collectAsState()
-
-        CreatePostScreen(
-            state =state ,
-            tags =tags,
-            navigateBack = navigateBack,
-            onAddImageClick = onAddImageClick,
-            onAddVideoClick = onAddVideoClick,
-            onAddFileClick = onAddFileClick,
-            onPreviewFile = onPreviewFile,
-            onTitleChange = { viewModel.onTitleChange(it) },
-            onBodyChange = { viewModel.onBodyChange(it) },
-            onPostClick ={viewModel.onCreatePost()},
-            onAddTag = {viewModel.onAddTag(it) },
-            onRemoveFile = {viewModel.removeFile(it) },
-            onRemoveTag = {viewModel.onRemoveTag(it) },
+    CreatePostScreen(
+        state = state,
+        tags = tags,
+        createPostEvent = { event ->
+            when (event) {
+                is CreatePostEvents.NavigateBack -> navigateBack()
+                is CreatePostEvents.OnAddImageClicked -> onAddImageClick()
+                is CreatePostEvents.OnAddVideoClicked -> onAddVideoClick()
+                is CreatePostEvents.OnAddFileClicked -> onAddFileClick()
+                is CreatePostEvents.OnPreviewClicked -> onPreviewFile(event.file)
+                is CreatePostEvents.OnTitleChanged -> viewModel.onTitleChange(event.newTitle)
+                is CreatePostEvents.OnBodyChanged -> viewModel.onBodyChange(event.newBody)
+                is CreatePostEvents.OnCreatePostClicked -> viewModel.onCreatePost()
+                is CreatePostEvents.OnTagAdded -> viewModel.onAddTag(event.tags)
+                is CreatePostEvents.OnTagRemoved -> viewModel.onRemoveTag(event.tag)
+                is CreatePostEvents.OnFileRemoved -> viewModel.removeFile(event.file)
+                else -> Unit
+            }
+        },
 
         )
 
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreatePostScreen(
     state: CreatePostUIState,
     tags: List<Tag>,
-    navigateBack: () -> Unit = {},
-    onAddImageClick: () -> Unit = {},
-    onAddVideoClick: () -> Unit = {},
-    onAddFileClick: () -> Unit = {},
-    onPreviewFile: (PostFile) -> Unit = {},
-    onTitleChange: (String) -> Unit = {},
-    onBodyChange: (String) -> Unit = {},
-    onPostClick: (Set<Tag>) -> Unit = {},
-    onAddTag: (Set<Tag>) -> Unit = {},
-    onRemoveFile: (PostFile) -> Unit = {},
-    onRemoveTag: (Tag) -> Unit = {},
+    createPostEvent: (CreatePostEvents) -> Unit,
 ) {
     Scaffold(
         topBar = {
             CreatePostTopBar(
-                onBackClick = navigateBack
+                onBackClick = { createPostEvent(CreatePostEvents.NavigateBack) }
             )
         },
     ) { paddindValues ->
         CreatePostContent(
             paddingValues = paddindValues,
             titleValue = state.title,
-            onTitleValueChange = onTitleChange,
             contentValue = state.body,
-            onContentValueChange = onBodyChange,
-            onPostClick = onPostClick,
-            onAddImageClick = onAddImageClick,
-            onAddVideoClick = onAddVideoClick,
-            onAddFileClick = onAddFileClick,
             tags = tags,
             selectedTags = state.tags.toSet(),
-            onAddTag = onAddTag,
-            onRemoveTag = onRemoveTag,
             selectedFiles = state.files,
-            onRemoveFile = onRemoveFile,
-            onPreviewFile = onPreviewFile,
-            emptyError =false
+            emptyError = false,
+            createPostEvent = createPostEvent
+
         )
     }
 }
@@ -187,29 +172,19 @@ fun CreatePostTopBar(
 @OptIn(
     ExperimentalMaterialApi::class,
     ExperimentalLayoutApi::class,
-    ExperimentalComposeUiApi::class
 )
 @Composable
 fun CreatePostContent(
     paddingValues: PaddingValues,
     titleValue: String = "",
-    onTitleValueChange: (String) -> Unit = {},
     contentValue: String = "",
-    onContentValueChange: (String) -> Unit = {},
-    onPostClick: (Set<Tag>) -> Unit = {},
-    onAddImageClick: () -> Unit = {},
-    onAddVideoClick: () -> Unit = {},
-    onAddFileClick: () -> Unit = {},
     tags: List<Tag>,
     selectedTags: Set<Tag>,
-    onAddTag: (Set<Tag>) -> Unit,
-    onRemoveTag: (Tag) -> Unit,
     selectedFiles: List<PostFile>,
-    onRemoveFile: (PostFile) -> Unit,
-    onPreviewFile: (PostFile) -> Unit,
-    emptyError : Boolean = false
+    emptyError: Boolean = false,
+    createPostEvent: (CreatePostEvents) -> Unit
 
-    ) {
+) {
     val bottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val scope = rememberCoroutineScope()
     var existingTagsDialogState by remember { mutableStateOf(false) }
@@ -225,7 +200,7 @@ fun CreatePostContent(
         CreatePostTextField(
             label = "Title",
             value = titleValue,
-            onValueChange = { onTitleValueChange(it) },
+            onValueChange = { createPostEvent(CreatePostEvents.OnTitleChanged(it)) },
             icon = Icons.Filled.Title,
             modifier = Modifier.height(height * 0.08f),
             errorState = emptyError
@@ -234,12 +209,12 @@ fun CreatePostContent(
         CreatePostTextField(
             label = "Content",
             value = contentValue,
-            onValueChange = { onContentValueChange(it) },
+            onValueChange = { createPostEvent(CreatePostEvents.OnBodyChanged(it)) },
             icon = Icons.Filled.TextFormat,
             modifier = Modifier.weight(1f),
             errorState = emptyError
         )
-        FlowTags(selectedTags, onRemoveTag)
+        FlowTags(selectedTags, createPostEvent)
         LazyRow(
             horizontalArrangement = Arrangement.Start,
             modifier = Modifier.fillMaxWidth()
@@ -247,8 +222,7 @@ fun CreatePostContent(
             items(selectedFiles) { file ->
                 PreviewFileItem(
                     file = file,
-                    onRemove = onRemoveFile,
-                    onPreviewFileClick = onPreviewFile
+                    createPostEvent
                 )
             }
         }
@@ -262,10 +236,10 @@ fun CreatePostContent(
         ) {
             CreatePostButton(label = "Add Tag",
                 onClick = { scope.launch { bottomSheetState.show() } })
-            CreatePostAction(icon = Icons.Filled.Image, onClick = onAddImageClick)
-            CreatePostAction(icon = Icons.Filled.VideoFile, onClick = onAddVideoClick)
-            CreatePostAction(icon = Icons.Filled.AttachFile, onClick = onAddFileClick)
-            CreatePostButton(label = "Post", onClick = { onPostClick(selectedTags) })
+            CreatePostAction(icon = Icons.Filled.Image, onClick = { createPostEvent(CreatePostEvents.OnAddImageClicked) })
+            CreatePostAction(icon = Icons.Filled.VideoFile, onClick = { createPostEvent(CreatePostEvents.OnAddVideoClicked) })
+            CreatePostAction(icon = Icons.Filled.AttachFile, onClick = { createPostEvent(CreatePostEvents.OnAddFileClicked) })
+            CreatePostButton(label = "Post", onClick = { createPostEvent(CreatePostEvents.OnCreatePostClicked) })
         }
 
 
@@ -318,7 +292,7 @@ fun CreatePostContent(
             },
             confirmButton = {
                 Button(onClick = {
-                    onAddTag(tempTags)
+                    createPostEvent(CreatePostEvents.OnTagAdded(tempTags.toSet()))
                     existingTagsDialogState = false
                 }) {
                     Text(text = "Add")
@@ -377,7 +351,7 @@ fun CreatePostContent(
             },
             confirmButton = {
                 Button(onClick = {
-                    onAddTag(setOf(tempTag))
+                    createPostEvent(CreatePostEvents.OnTagAdded(setOf(tempTag)))
                     newTagDialogState = false
                 }) {
                     Text(text = "Add")
@@ -395,16 +369,16 @@ fun CreatePostContent(
 
 @Composable
 @OptIn(ExperimentalMaterialApi::class)
- fun FlowTags(
+fun FlowTags(
     selectedTags: Set<Tag>,
-    onRemoveTag: (Tag) -> Unit
+    createPostEvent: (CreatePostEvents) -> Unit
 ) {
     LazyRow(
         horizontalArrangement = Arrangement.Start
     ) {
         items(selectedTags.toList()) { tag ->
             Chip(onClick = {
-                onRemoveTag(tag)
+                createPostEvent(CreatePostEvents.OnTagRemoved(tag))
             }, leadingIcon = {
                 Icon(
                     imageVector = Icons.Filled.Cancel, contentDescription = null
@@ -457,7 +431,7 @@ fun CreatePostTextField(
     onValueChange: (String) -> Unit,
     icon: ImageVector,
     modifier: Modifier,
-    errorState :Boolean
+    errorState: Boolean
 ) {
     TextField(
         value = value,
@@ -525,7 +499,7 @@ fun ButtonSheetOptions(
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
 fun CreatePostPreview() {
-    CreatePostScreen(state = CreatePostUIState(), tags = emptyList() )
+    CreatePostScreen(state = CreatePostUIState(), tags = emptyList(),{})
 }
 
 enum class TagType(val label: String) {
@@ -579,8 +553,7 @@ fun ColorItem(color: Color, onColorSelected: (Color) -> Unit) {
 @Composable
 fun PreviewFileItem(
     file: PostFile,
-    onRemove: (PostFile) -> Unit = {},
-    onPreviewFileClick: (PostFile) -> Unit
+    createPostEvent: (CreatePostEvents) -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -589,7 +562,7 @@ fun PreviewFileItem(
             .height(105.dp)
             .clip(MaterialTheme.shapes.medium)
             .background(MaterialTheme.colors.surface)
-            .clickable { onPreviewFileClick(file) }
+            .clickable { createPostEvent(CreatePostEvents.OnPreviewClicked(file)) }
             .border(1.dp, MaterialTheme.colors.onSurface, MaterialTheme.shapes.medium)
 
     ) {
@@ -660,11 +633,11 @@ fun PreviewFileItem(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            modifier = if(icon==Icons.Filled.Image){
+            modifier = if (icon == Icons.Filled.Image) {
                 Modifier
                     .padding(1.dp)
                     .align(Alignment.TopEnd)
-            }else{
+            } else {
                 Modifier
                     .padding(1.dp)
                     .align(Alignment.TopEnd)
@@ -673,7 +646,7 @@ fun PreviewFileItem(
             tint = MaterialTheme.colors.onSurface
         )
         IconButton(
-            onClick = {onRemove(file)},
+            onClick = { createPostEvent(CreatePostEvents.OnFileRemoved(file)) },
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .background(Color.Transparent)

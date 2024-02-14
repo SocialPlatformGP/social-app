@@ -88,7 +88,7 @@ fun ImagePagerZ(
                     contentDescription = null,
                     modifier = Modifier
                         .align(Alignment.Center),
-                    contentScale = ContentScale.FillBounds,
+                    contentScale = ContentScale.Crop,
 
                     ) {
                     val state = painter.state

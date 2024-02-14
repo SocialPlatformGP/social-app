@@ -20,11 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -36,8 +32,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Image
@@ -128,7 +122,7 @@ fun FeedPostItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                8.dp
+                4.dp
             ),
     ) {
         Column(
@@ -210,7 +204,8 @@ fun BottomRow(
     ) {
         OutlinedButton(
             onClick = onUpVoteClicked,
-            contentPadding = PaddingValues(6.dp)
+            contentPadding = PaddingValues(6.dp),
+            border = BorderStroke(1.dp, Color.LightGray),
         ) {
             Icon(
                 imageVector = Icons.TwoTone.KeyboardDoubleArrowUp,
@@ -258,7 +253,10 @@ fun BottomRow(
         Spacer(modifier = Modifier.width(16.dp))
         OutlinedButton(
             onClick = onCommentClicked,
-            contentPadding = PaddingValues(6.dp),
+            contentPadding = PaddingValues(
+                horizontal = 12.dp,
+            ),
+            border = BorderStroke(1.dp, Color.LightGray)
 
             ) {
             Row(
@@ -268,7 +266,7 @@ fun BottomRow(
                     imageVector = Icons.Outlined.Chat,
                     contentDescription = "UpVote",
                 )
-                Spacer(modifier = Modifier.width(16.dp))
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = commentCount.toString(),
                     style = TextStyle(
@@ -282,7 +280,8 @@ fun BottomRow(
         Spacer(modifier = Modifier.weight(1f))
         OutlinedButton(
             onClick = { /*TODO  handle share button in post item*/ },
-            contentPadding = PaddingValues()
+            contentPadding = PaddingValues(),
+            border = BorderStroke(1.dp, Color.LightGray)
 
         ) {
             Row(
@@ -492,14 +491,14 @@ private fun ButtonViewFiles(
         },
         modifier = Modifier
             .fillMaxWidth()
-            .wrapContentWidth(align = Alignment.CenterHorizontally),
+            .padding(horizontal = 8.dp),
         border = BorderStroke(2.dp, MaterialTheme.colors.primary),
         shape = RoundedCornerShape(8.dp),
     ) {
         Text(
-            text = "${attachments.size} File Attached",
+            text = "+ ${attachments.size} File Attached",
             color = MaterialTheme.colors.primary,
-            fontWeight = FontWeight.Bold,
+//            fontWeight = FontWeight.Bold,
             fontFamily = montserratFontFamily,
             fontSize = 16.sp
         )
