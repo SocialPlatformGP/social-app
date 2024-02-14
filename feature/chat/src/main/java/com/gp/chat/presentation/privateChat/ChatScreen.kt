@@ -47,10 +47,12 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -65,6 +67,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -79,14 +82,18 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
+import com.google.android.play.integrity.internal.c
 import com.gp.chat.R
 import com.gp.chat.model.Message
 import com.gp.chat.presentation.groupchat.GroupChatViewModel
@@ -104,37 +111,34 @@ import java.util.Locale
 @Composable
 fun ChatScreen(
     viewModel: PrivateChatViewModel,
-    isPrivateChat: Boolean,
     chatTitle: String,
     chatImageURL: String,
     onChatHeaderClicked: () -> Unit,
     onBackPressed: () -> Unit,
     onFileClicked: (String, String, String) -> Unit,
-    onImageClicked: (String) -> Unit,
     onUserClicked: (String) -> Unit,
     onAttachFileClicked: () -> Unit,
     onAttachImageClicked: () -> Unit,
     onOpenCameraClicked: () -> Unit,
     dropDownItems: List<DropDownItem>,
-    onDropPDownItemClicked: (DropDownItem, String, String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val messages by viewModel.messages.collectAsStateWithLifecycle()
     val currentMessage by viewModel.currentMessage.collectAsStateWithLifecycle()
     ChatScreen(
-        isPrivateChat = isPrivateChat,
+        isPrivateChat = true,
         chatTitle = chatTitle,
         chatImageURL = chatImageURL,
         onChatHeaderClicked = onChatHeaderClicked,
         onBackPressed = onBackPressed,
         onFileClicked = onFileClicked,
-        onImageClicked = onImageClicked,
         onUserClicked = onUserClicked,
         onAttachFileClicked = onAttachFileClicked,
         onAttachImageClicked = onAttachImageClicked,
         onOpenCameraClicked = onOpenCameraClicked,
         dropDownItems = dropDownItems,
-        onDropPDownItemClicked = onDropPDownItemClicked,
+        onEditMessage = viewModel::updateMessage,
+        onDeleteMessage = viewModel::deleteMessage,
         onSendMessage = viewModel::sendMessage,
         onUpdateMessage = viewModel::setCurrentMessage,
         messages = messages,
@@ -148,39 +152,36 @@ fun ChatScreen(
 @Composable
 fun ChatScreen(
     viewModel: GroupChatViewModel,
-    isPrivateChat: Boolean,
     chatTitle: String,
     chatImageURL: String,
     onChatHeaderClicked: () -> Unit,
     onBackPressed: () -> Unit,
     onFileClicked: (String, String, String) -> Unit,
-    onImageClicked: (String) -> Unit,
     onUserClicked: (String) -> Unit,
     onAttachFileClicked: () -> Unit,
     onAttachImageClicked: () -> Unit,
     onOpenCameraClicked: () -> Unit,
     dropDownItems: List<DropDownItem>,
-    onDropPDownItemClicked: (DropDownItem, String, String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val messages by viewModel.messages.collectAsStateWithLifecycle()
     val currentMessage by viewModel.currentMessageState.collectAsStateWithLifecycle()
     ChatScreen(
-        isPrivateChat = isPrivateChat,
+        isPrivateChat = false,
         chatTitle = chatTitle,
         chatImageURL = chatImageURL,
         onChatHeaderClicked = onChatHeaderClicked,
         onBackPressed = onBackPressed,
         onFileClicked = onFileClicked,
-        onImageClicked = onImageClicked,
         onUserClicked = onUserClicked,
         onAttachFileClicked = onAttachFileClicked,
         onAttachImageClicked = onAttachImageClicked,
         onOpenCameraClicked = onOpenCameraClicked,
         dropDownItems = dropDownItems,
-        onDropPDownItemClicked = onDropPDownItemClicked,
         onSendMessage = viewModel::onSendMessage,
         onUpdateMessage = viewModel::updateCurrentMessage,
+        onEditMessage = viewModel::updateMessage,
+        onDeleteMessage = viewModel::deleteMessage,
         messages = messages,
         currentMessage = currentMessage,
         currentUserEmail = viewModel.currentUser.email!!,
@@ -197,15 +198,15 @@ fun ChatScreen(
     onChatHeaderClicked: () -> Unit,
     onBackPressed: () -> Unit,
     onFileClicked: (String, String, String) -> Unit,
-    onImageClicked: (String) -> Unit,
     onUserClicked: (String) -> Unit,
     onAttachFileClicked: () -> Unit,
     onAttachImageClicked: () -> Unit,
     onOpenCameraClicked: () -> Unit,
     dropDownItems: List<DropDownItem>,
-    onDropPDownItemClicked: (DropDownItem, String, String) -> Unit,
     onSendMessage: () -> Unit,
+    onDeleteMessage: (String) -> Unit,
     onUpdateMessage: (String) -> Unit,
+    onEditMessage: (String, String) -> Unit,
     messages: List<Message>,
     currentMessage: MessageState,
     currentUserEmail: String,
@@ -215,6 +216,11 @@ fun ChatScreen(
     val configuration = LocalConfiguration.current
     val maxScreenWidthDP = configuration.screenWidthDp.dp
     val maxScreenHeightDP = configuration.screenHeightDp.dp
+    var isImagePreviewDialogOpen by rememberSaveable { mutableStateOf(false) }
+    var previewedImageURL by rememberSaveable { mutableStateOf("") }
+    var isEditMessageDialogOpen by rememberSaveable { mutableStateOf(false) }
+    var EditedMessageID by remember { mutableStateOf("") }
+    var EditedMessageBody by remember { mutableStateOf("") }
     Scaffold(
         topBar = {
             Row(
@@ -267,34 +273,68 @@ fun ChatScreen(
             .exclude(WindowInsets.ime),
         modifier = modifier
     ) { paddingValues ->
-        Column(
+        Box (
             Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-        ) {
-            MessagesContent(
-                messages = messages,
-                currentUserEmail = currentUserEmail,
-                isPrivateChat = isPrivateChat,
-                onFileClicked = onFileClicked,
-                onImageClicked = onImageClicked,
-                onUserClicked = onUserClicked,
-                modifier = Modifier.weight(1f),
-                scrollState = scrollState,
-                dropDownItems = dropDownItems,
-                onDropPDownItemClicked = onDropPDownItemClicked,
-                maxScreenWidthDP = maxScreenWidthDP,
-                maxScreenHeightDP = maxScreenHeightDP,
-            )
-            MessageInput(
-                onAttachFileClicked = onAttachFileClicked,
-                onAttachImageClicked = onAttachImageClicked,
-                onOpenCameraClicked = onOpenCameraClicked,
-                onSendMessage = { onSendMessage() },
-                onUpdateMessage = onUpdateMessage,
-                messageState = currentMessage,
-            )
+        ){
+            Column(
+                Modifier.fillMaxSize()
+            ) {
+                MessagesContent(
+                    messages = messages,
+                    currentUserEmail = currentUserEmail,
+                    isPrivateChat = isPrivateChat,
+                    onFileClicked = onFileClicked,
+                    onImageClicked = { url ->
+                        previewedImageURL = url
+                        isImagePreviewDialogOpen = true
+                    },
+                    onUserClicked = onUserClicked,
+                    modifier = Modifier.weight(1f),
+                    scrollState = scrollState,
+                    dropDownItems = dropDownItems,
+                    onDropPDownItemClicked = {dropDownItem, messageId, messageBody ->
+                        when (dropDownItem.text) {
+                            "Delete" -> {
+                                onDeleteMessage(messageId)
+                            }
+                            "Update" -> {
+                                EditedMessageID = messageId
+                                EditedMessageBody = messageBody
+                                isEditMessageDialogOpen = true
+                            }
+                        }
+                    },
+                    maxScreenWidthDP = maxScreenWidthDP,
+                    maxScreenHeightDP = maxScreenHeightDP,
+                )
+                MessageInput(
+                    onAttachFileClicked = onAttachFileClicked,
+                    onAttachImageClicked = onAttachImageClicked,
+                    onOpenCameraClicked = onOpenCameraClicked,
+                    onSendMessage = { onSendMessage() },
+                    onUpdateMessage = onUpdateMessage,
+                    messageState = currentMessage,
+                )
+            }
+            if (isEditMessageDialogOpen) {
+                EditMessageDialog(
+                    initialMessage = EditedMessageBody,
+                    onConfirmation = { editedMessage ->
+                        onEditMessage(EditedMessageID, editedMessage)
+                        isEditMessageDialogOpen = false
+                     },
+                    onDismissRequest = {isEditMessageDialogOpen = false})
+            }
+            if (isImagePreviewDialogOpen) {
+                ImagePreviewDialog(
+                    imageURL = previewedImageURL,
+                    onDismissRequest = {isImagePreviewDialogOpen = false}
+                )
+            }
         }
+
     }
 }
 
@@ -503,9 +543,9 @@ fun MessageItem(
     val backgroundColor =
         if (isCurrentUser) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
     val surfaceShape = if (isCurrentUser) {
-        RoundedCornerShape(20.dp, if (!isSameSender) 5.dp else 20.dp, 20.dp, 20.dp)
+        RoundedCornerShape(13.dp, if (!isSameSender) 2.dp else 13.dp, 13.dp, 13.dp)
     } else {
-        RoundedCornerShape(if (!isSameSender) 5.dp else 20.dp, 20.dp, 20.dp, 20.dp)
+        RoundedCornerShape(if (!isSameSender) 2.dp else 13.dp, 13.dp, 13.dp, 13.dp)
     }
     var isDropDownMenuVisible by rememberSaveable {
         mutableStateOf(false)
@@ -580,8 +620,8 @@ fun MessageItem(
                         ),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        onClick = { onUserClicked(message.senderId) })
-                    Spacer(modifier = Modifier.height(4.dp))
+                        onClick = { onUserClicked(message.senderId) },
+                        modifier = Modifier.padding(horizontal = 4.dp))
                 }
                 if (message.fileType.contains("image") && message.message.isBlank()) {
                     val imageURL = message.fileURI.toString()
@@ -612,7 +652,7 @@ fun MessageItem(
                         Text(
                             text = message.message,
                             fontWeight = FontWeight.Light,
-                            fontSize = 18.sp,
+                            fontSize = 16.sp,
                             modifier = Modifier.padding(top = 4.dp, start = 4.dp, end = 4.dp)
                         )
                     }
@@ -649,6 +689,41 @@ fun MessageItem(
                 }
             }
         }
+    }
+}
+
+val message = Message(
+    id = "1",
+    groupId = "periculis",
+    message = "tibique tibique tibique tibique",
+    messageDate = "praesent",
+    senderId = "est",
+    senderName = "Annette Patel",
+    senderPfpURL = "https://search.yahoo.com/search?p=invenire",
+    timestamp = "2024-02-12 14:51:19 GMT+02:00",
+    fileURI ="".toUri(),
+    fileType = "",
+    fileNames = ""
+)
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Preview
+@Composable
+fun MessageItemPreview() {
+    MaterialTheme{
+        MessageItem(
+            message = message,
+            onFileClicked = {_, _, _ ->},
+            onImageClicked = {},
+            onUserClicked = {},
+            dropDownItems = emptyList(),
+            onDropPDownItemClicked = {_, _, _ ->},
+            isPrivateChat = false,
+            isSameSender = false,
+            isCurrentUser = false,
+            maxScreenWidthDP = 400.dp,
+            maxScreenHeightDP = 700.dp
+        )
     }
 }
 
@@ -808,6 +883,101 @@ fun MessageFileAttachment(
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
+        }
+    }
+}
+@Composable
+fun EditMessageDialog(
+    modifier: Modifier = Modifier,
+    initialMessage: String,
+    onDismissRequest: () -> Unit = {},
+    onConfirmation: (String) -> Unit,
+) {
+    var textValue by remember { mutableStateOf(initialMessage) }
+    Dialog(
+        onDismissRequest = {
+            onDismissRequest()
+        }
+    ) {
+        Card(
+            modifier = modifier
+                .fillMaxWidth()
+                .height(230.dp)
+                .padding(16.dp),
+            shape = RoundedCornerShape(16.dp),
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.Start,
+            ) {
+                Text(text = "Edit Message", style = MaterialTheme.typography.headlineSmall)
+                Spacer(modifier = Modifier.size(8.dp))
+                OutlinedTextField(
+                    value = textValue,
+                    onValueChange = { textValue = it },
+                    placeholder = { Text(text = "Folder Name") })
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceAround,
+                ) {
+                    TextButton(
+                        onClick = { onDismissRequest() },
+                        modifier = Modifier.padding(8.dp),
+                    ) {
+                        Text("Cancel")
+                    }
+                    TextButton(
+                        onClick = { onConfirmation(textValue) },
+                        enabled = textValue.isNotBlank(),
+                        modifier = Modifier.padding(8.dp),
+                    ) {
+                        Text("Confirm")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ImagePreviewDialog(
+    modifier: Modifier = Modifier,
+    imageURL: String,
+    onDismissRequest: () -> Unit = {},
+) {
+    Dialog(
+        onDismissRequest = {
+            onDismissRequest()
+        }
+    ) {
+        Card(
+            modifier = modifier
+                .padding(16.dp),
+        ) {
+            Column(
+//                modifier = Modifier
+//                    .fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.Start,
+            ) {
+                val imageRequest =
+                    ImageRequest.Builder(LocalContext.current).data(imageURL).dispatcher(Dispatchers.IO)
+                        .memoryCacheKey(imageURL).diskCacheKey(imageURL).diskCachePolicy(CachePolicy.ENABLED)
+                        .memoryCachePolicy(CachePolicy.ENABLED).build()
+                AsyncImage(
+                    model = imageRequest,
+                    contentDescription = null,
+                    placeholder = painterResource(id = R.drawable.placeholder_black),
+                    contentScale = ContentScale.FillWidth,
+                    modifier = modifier
+                        .clickable { onDismissRequest() },
+                )
+            }
         }
     }
 }

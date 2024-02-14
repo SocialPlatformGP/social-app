@@ -43,9 +43,7 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class GroupChatFragment : Fragment(),
-    OnMessageClickListener,
-    OnFileClickListener,
-    ImageClickListener
+    OnFileClickListener
 {
     private lateinit var composeView: ComposeView
     private val viewModel: GroupChatViewModel by viewModels()
@@ -94,42 +92,21 @@ class GroupChatFragment : Fragment(),
            MaterialTheme {
                ChatScreen(
                    viewModel = viewModel,
-                   isPrivateChat = false,
                    chatTitle = args.title,
                    chatImageURL = args.photoUrl,
-                   onChatHeaderClicked = { navigateToGroupDetails(true)/*Todo check if is admin*/ },
+                   onChatHeaderClicked = { navigateToGroupDetails(viewModel.checkIfAdmin()) },
                    onBackPressed = { findNavController().popBackStack() },
                    onFileClicked = ::onFileClick,
-                   onImageClicked = ::onImageClick,
                    onUserClicked = {/*TODO("navigate to user profile")*/},
                    onAttachFileClicked = { openDocument.launch("*/*") },
                    onAttachImageClicked = { openGallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)) },
-                   onOpenCameraClicked = {
-                       val action =
-                       GroupChatFragmentDirections.actionGroupChatFragmentToCameraPreviewFragment(
-                           chatId = args.groupId,
-                           senderName = args.title,
-                           senderPic = args.photoUrl,
-                           isPrivateChat = false
-                       )
-                       findNavController().navigate(action)
+                   onOpenCameraClicked ={
+                                        /*todo*/
                                          },
                    dropDownItems = listOf(DropDownItem("Update"), DropDownItem("Delete")),
-                   onDropPDownItemClicked = ::onDropDownItemClicked
                )
            }
        }
-    }
-    private fun onDropDownItemClicked(dropDownItem: DropDownItem, messageId: String, messageBody: String) {
-        val chatId = args.groupId
-        when (dropDownItem.text) {
-            "Delete" -> {
-                deleteMessage(messageId, chatId)
-            }
-            "Update" -> {
-                updateMessage(messageId, chatId, messageBody)
-            }
-        }
     }
     private fun navigateToGroupDetails(isAdmin: Boolean){
         val action =
@@ -139,34 +116,6 @@ class GroupChatFragment : Fragment(),
             )
         findNavController().navigate(action)
     }
-
-    override fun deleteMessage(messageId: String, chatId: String) {
-        viewModel.deleteMessage(messageId, chatId)
-    }
-
-    override fun updateMessage(messageId: String, chatId: String, body: String) {
-        val editText = EditText(requireContext())
-        val dialogBuilder = AlertDialog.Builder(requireContext())
-        editText.text.append(body)
-
-        // Set up the dialog properties
-        dialogBuilder.setTitle("Edit Message Body")
-            .setMessage("Edit your message:")
-            .setCancelable(true)
-            .setView(editText)
-            .setPositiveButton("Save") { dialogInterface: DialogInterface, i: Int ->
-                viewModel.updateMessage(messageId, chatId, editText.text.toString())
-                Log.d("TAGf", "updateMessage: ${editText.text.toString()}")
-            }
-            .setNegativeButton("Cancel") { dialogInterface: DialogInterface, i: Int ->
-                dialogInterface.dismiss()
-            }
-
-        val alertDialog = dialogBuilder.create()
-        alertDialog.show()
-
-    }
-
     override fun onFileClick(fileURL: String, fileType: String, fileNames: String) {
         Log.d("TAGRT", "onFileClick: $fileURL $fileType $fileNames")
 
@@ -175,11 +124,4 @@ class GroupChatFragment : Fragment(),
         Log.d("TAGRT", "onFileClick: $fileURL $fileType $fileNames")
     }
 
-    override fun onImageClick(imageUrl: String) {
-        val action =
-            GroupChatFragmentDirections.actionGroupChatFragmentToFullScreenImageDialogFragment(
-                imageUrl
-            )
-        findNavController().navigate(action)
-    }
 }

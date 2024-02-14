@@ -9,10 +9,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.gp.chat.model.ChatGroup
 import com.gp.chat.model.Message
 import com.gp.chat.model.RecentChat
 import com.gp.chat.presentation.privateChat.MessageState
 import com.gp.chat.repository.MessageRepository
+import com.gp.chat.util.RemoveSpecialChar
 import com.gp.socialapp.utils.State
 import com.gp.users.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,9 +31,9 @@ import javax.inject.Inject
 @HiltViewModel
 class GroupChatViewModel @Inject constructor(
     private val messageRepo: MessageRepository,
-    private val userRepo: UserRepository
 ) : ViewModel() {
     private val _messages = MutableStateFlow(emptyList<Message>())
+    private val _groupDetails = MutableStateFlow(ChatGroup())
     val messages = _messages.asStateFlow()
     private val _currentMessageState = MutableStateFlow(MessageState())
     val currentMessageState = _currentMessageState.asStateFlow()
@@ -40,14 +42,30 @@ class GroupChatViewModel @Inject constructor(
     private lateinit var title: String
     private lateinit var photoUrl: String
 
+
     fun setData(chatId: String, title: String, photoUrl: String) {
         this.chatId = chatId
         this.title = title
         this.photoUrl = photoUrl
         Log.d("zarea1", "setData: getting chat id $chatId")
         fetchGroupChatMessages()
+        fetchGroupDetails()
     }
-
+    private fun fetchGroupDetails(){
+        viewModelScope.launch (Dispatchers.IO) {
+            messageRepo.getGroupDetails(chatId).collect{
+                when(it){
+                    is State.SuccessWithData -> {
+                        _groupDetails.value = it.data
+                    }
+                    is State.Error -> {
+                        Log.d("SEERDE", "fetchGroupDetails: ${it.message}")
+                    }
+                    else -> {}
+                }
+            }
+        }
+    }
     fun fetchGroupChatMessages() {
         viewModelScope.launch(Dispatchers.IO) {
             Log.d("zarea1", "fetchGroupChatMessages: getting chat id $chatId")
@@ -63,6 +81,11 @@ class GroupChatViewModel @Inject constructor(
             _currentMessageState.value = _currentMessageState.value.copy(message = message)
         }
     }
+    fun checkIfAdmin() : Boolean {
+        val map = _groupDetails.value.members
+        val key = RemoveSpecialChar.removeSpecialCharacters(currentUser.email?:"")
+        return map.containsKey(key) && map.getValue(key)
+    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun onSendMessage() {
@@ -76,7 +99,6 @@ class GroupChatViewModel @Inject constructor(
 
             viewModelScope.launch(Dispatchers.IO) {
                 val message = Message(
-                    id = "",
                     groupId = chatId,
                     message = currentMessageState.value.message,
                     messageDate = DateTimeFormatter.ofPattern("MMM dd, yyyy", Locale.ENGLISH)
@@ -85,32 +107,19 @@ class GroupChatViewModel @Inject constructor(
                     senderName = currentUser.displayName!!,
                     senderPfpURL = currentUser.photoUrl.toString(),
                     timestamp = formatted,
-                    fileURI = currentMessageState.value.fileUri ?: "".toUri(),
-                    fileType = currentMessageState.value.fileType ?: "",
-                    fileNames = currentMessageState.value.fileName ?: ""
+                    fileURI = currentMessageState.value.fileUri,
+                    fileType = currentMessageState.value.fileType,
+                    fileNames = currentMessageState.value.fileName
                 )
-                val recentChat = RecentChat(
-                    lastMessage = if (currentMessageState.value.fileType == "") {
-                        "${currentUser.displayName}: ${currentMessageState.value.message}"
-                    } else {
-                        "${currentUser.displayName}: ${currentMessageState.value.fileName}"
-                    },
-                    timestamp = message.timestamp
-                )
-                messageRepo.sendGroupMessage(message, recentChat).collect {
+                messageRepo.sendMessage(message).collect {
                     when (it) {
-                        is State.Success -> {
+                        is State.SuccessWithData -> {
                             Log.d("zarea2", "in success   $chatId")
-                            _currentMessageState.value = MessageState()
-                            Log.d("seerde", "Success")
+                            updateRecent(message.timestamp)
                         }
-
-
                         is State.Error -> {
                             Log.d("seerde", "Error: ${it.message}")
                         }
-
-
                         else -> {
                             Log.d("seerde", "Loading")
                         }
@@ -122,42 +131,30 @@ class GroupChatViewModel @Inject constructor(
 
     @RequiresApi(Build.VERSION_CODES.O)
 
-    private fun updateRecent() {
-        val currentTime: ZonedDateTime = now()
-
+    private fun updateRecent(timestamp: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val recentChat = RecentChat(
                 lastMessage =
-                if (currentMessageState.value.fileType == "text") {
+                if (currentMessageState.value.fileType == "") {
                     currentMessageState.value.message
                 } else {
                     currentMessageState.value.fileName
                 },
-                timestamp = currentTime.toString(),
-
+                timestamp = timestamp,
                 )
             Log.d("zarea2", "calling update recent in vm  $chatId")
             messageRepo.updateRecentChat(recentChat, chatId).collect {
                 when (it) {
                     is State.SuccessWithData -> {
-                        Log.d("zarea2", "successful with data ${it.data}")
-                        _currentMessageState.value =
-                            _currentMessageState.value.copy(error = "recent updated")
                         Log.d("zarea2", "data in state before ${currentMessageState.value}")
                         _currentMessageState.value = MessageState()
                         Log.d("zarea2", "data in state after ${currentMessageState.value}")
                     }
-
                     is State.Error -> {
                         _currentMessageState.value =
                             _currentMessageState.value.copy(error = it.message)
                     }
-
-                    is State.Loading -> {
-                        _currentMessageState.value =
-                            _currentMessageState.value.copy(error = "recent updating")
-                    }
-
+                    is State.Loading -> {}
                     else -> {}
                 }
             }
@@ -174,11 +171,12 @@ class GroupChatViewModel @Inject constructor(
         onSendMessage()
     }
 
-    fun deleteMessage(messageId: String, chatId: String) {
+    fun deleteMessage(messageId: String,) {
         messageRepo.deleteMessage(messageId, chatId)
     }
 
-    fun updateMessage(messageId: String, chatId: String, updatedText: String) {
+    fun updateMessage(messageId: String, updatedText: String) {
+        //TODO(UPDATE RECENT CHAT)
         messageRepo.updateMessage(messageId, chatId, updatedText)
     }
 }

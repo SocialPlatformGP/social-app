@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.PickVisualMediaRequest
 import com.gp.socialapp.utils.State
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.MaterialTheme
@@ -30,13 +31,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class GroupDetailsFragment : Fragment(), OnGroupMemberClicked {
+class GroupDetailsFragment : Fragment(){
     private val viewModel: GroupDetailsViewModel by viewModels()
     private val args: GroupDetailsFragmentArgs by navArgs()
     private lateinit var composeView: ComposeView
-    private val isAdmin = true
     private val galleryImageResultLauncher = registerForActivityResult(
-        ActivityResultContracts.GetContent()
+        ActivityResultContracts.PickVisualMedia()
     ) {
        viewModel.updateAvatar(it)
     }
@@ -55,76 +55,25 @@ class GroupDetailsFragment : Fragment(), OnGroupMemberClicked {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.getUsersList(args.groupId)
-        this.listFragments("SEERDE")
         composeView.setContent {
             MaterialTheme {
-                GroupDetailsScreen(viewModel = viewModel,
-                    isAdmin = isAdmin,
-                    onChangeAvatarClicked = { onEditPictureClick() },
+                GroupDetailsScreen(
+                    viewModel = viewModel,
+                    isAdmin = args.isAdmin,
+                    onChangeAvatarClicked = { galleryImageResultLauncher.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)
+                    ) },
                     onAddMembersClicked = { onAddMembersClicked() },
-                    onUserClicked = { onMemberClicked(it) })
+                    onViewProfile = {/*TODO navigate to user profile*/},
+                    onMessageUser = {onMessageUser(it)},
+                    onRemoveMember ={onRemoveGroupMember(it)} ,
+                )
             }
-        }
-    }
-    fun Fragment.listFragments(tag: String) {
-        val fm = (requireParentFragment() as NavHostFragment).childFragmentManager
-        fm.fragments.forEachIndexed { index, fragment ->
-            Log.d(tag, "Fragment $index: ${fragment.javaClass.simpleName}")
         }
     }
 
     private fun onRemoveGroupMember(user: User) {
         viewModel.removeGroupMember(args.groupId, user)
-    }
-
-    fun onEditPictureClick() {
-        val items = arrayOf("Take Photo", "Choose Existing Photo")
-        MaterialAlertDialogBuilder(requireContext()).setItems(items) { dialog, which ->
-            when (which) {
-                0 -> {
-                    onTakePhotoSelected()
-                }
-
-                1 -> {
-                    onChoosePhotoSelected()
-                }
-            }
-        }.show()
-    }
-
-    private fun onTakePhotoSelected() {
-//        TODO("implement camera capturing")
-    }
-
-    private fun onChoosePhotoSelected() {
-        galleryImageResultLauncher.launch("image/*")
-    }
-
-    override fun onMemberClicked(user: User) {
-        val items = if (isAdmin && user.email != viewModel.currentUserEmail) {
-            arrayOf("View Profile", "Message", "Remove from Group")
-        } else {
-            arrayOf("View Profile", "Message")
-        }
-        MaterialAlertDialogBuilder(requireContext()).setItems(items) { dialog, which ->
-            when (items[which]) {
-                "View Profile" -> {
-                    //TODO("Navigate to profile")
-                }
-
-                "Message" -> {
-                    onMessageUser(user)
-                }
-
-                "Remove from Group" -> {
-                    MaterialAlertDialogBuilder(requireContext()).setTitle("Are you sure you want to remove ${user.firstName + user.lastName}?")
-                        .setPositiveButton("Remove") { dialog, which ->
-                            onRemoveGroupMember(user)
-                        }.setNegativeButton("Cancel") { _, _ ->
-                        }.show()
-                }
-            }
-        }.show()
     }
 
     private fun onMessageUser(user: User) {

@@ -64,7 +64,6 @@ class PrivateChatViewModel @Inject constructor(
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun getMessages() {
-        Log.d("SEERDE", "getMessages: called $chatId")
         viewModelScope.launch(Dispatchers.IO) {
                         val currentTime: ZonedDateTime =now()
             val  formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z", Locale.ENGLISH)
@@ -72,12 +71,10 @@ class PrivateChatViewModel @Inject constructor(
             messageRepository.getMessages(chatId).collect {
                 when (it) {
                     is State.SuccessWithData -> {
-                        Log.d("SEERDE", "getMessages: ${it.data}")
                         _messages.value = it.data
                     }
 
                     is State.Error -> {
-                        Log.d("SEERDE", "getMessages: ${it.message}")
                         if (it.message == "No messages found") {
                             messageRepository.insertRecentChat(
                                 RecentChat(
@@ -174,11 +171,11 @@ class PrivateChatViewModel @Inject constructor(
     }
 
 
-    fun deleteMessage(messageId: String, chatId: String) {
+    fun deleteMessage(messageId: String,) {
         messageRepository.deleteMessage(messageId, chatId)
     }
 
-    fun updateMessage(messageId: String, chatId: String, updatedText: String) {
+    fun updateMessage(messageId: String, updatedText: String) {
         messageRepository.updateMessage(messageId, chatId, updatedText)
     }
 

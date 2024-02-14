@@ -56,34 +56,8 @@ class MaterialFragment : Fragment() {
                 MaterialScreen(
                     isAdmin = true,
                     onOpenFile = { item -> openFile(item) },
-                    onFolderClicked = { path -> viewModel.openFolder(path) },
-                    folderDropDownItems = listOf("Delete"),
-                    fileDropDownItem = listOf("Download", "Share", "Details", "Delete"),
-                    onDropDownItemClicked = { dropDownItem, item ->
-                        if (item.fileType == FileType.FOLDER) {
-                            if (dropDownItem == "Delete") {
-                                viewModel.deleteFolder(item.path)
-                            }
-                        } else {
-                            when (dropDownItem) {
-                                "Delete" -> {
-                                    viewModel.deleteFile(item.path)
-                                }
-
-                                "Download" -> {
-                                    downloadFile(item)
-                                }
-
-                                "Share" -> {
-                                    shareLink(item)
-                                }
-
-                                "Details" -> {
-                                    showDetailsDialog(item)
-                                }
-                            }
-                        }
-                    },
+                    onFolderClicked = { path ->
+                        viewModel.openFolder(path) },
                     onBackPressed = {
                         if (viewModel.goBack()) {
                             viewModel.fetchDataFromFirebaseStorage()
@@ -91,6 +65,8 @@ class MaterialFragment : Fragment() {
                             findNavController().navigateUp()
                         }
                     },
+                    onDownloadFile = ::downloadFile,
+                    onShareLink = ::shareLink,
                     viewModel = viewModel,
                     onNewFileClicked = { actionUpload.launch("*/*") }
                 )
@@ -142,42 +118,6 @@ class MaterialFragment : Fragment() {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(item.fileUrl))
         requireContext().startActivity(intent)
     }
-
-    private fun showDetailsDialog(item: MaterialItem) {
-        val context = requireContext()
-        val alertDialogBuilder = AlertDialog.Builder(context)
-        alertDialogBuilder.setTitle("Details")
-
-        val message = """
-        Path: ${item.path}
-        FileType: ${item.fileType}
-        Name: ${item.name}
-        Created By: ${item.createdBy}
-        File URL: ${item.fileUrl}
-        Creation Time: ${item.creationTime}
-        Size: ${item.size}
-    """.trimIndent()
-
-        alertDialogBuilder.setMessage(message)
-
-        alertDialogBuilder.setPositiveButton("Open Link") { _, _ ->
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(item.fileUrl))
-            context.startActivity(intent)
-        }
-
-        alertDialogBuilder.setNegativeButton("Copy Link") { _, _ ->
-            "Link".copyToClipboard(item.fileUrl)
-            Toast.makeText(context, "Copied", Toast.LENGTH_SHORT).show()
-        }
-
-        alertDialogBuilder.setNeutralButton("Cancel") { dialog, _ ->
-            dialog.dismiss()
-        }
-
-        val alertDialog = alertDialogBuilder.create()
-        alertDialog.show()
-    }
-
     private fun String.copyToClipboard(text: String) {
         val context = requireContext()
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager

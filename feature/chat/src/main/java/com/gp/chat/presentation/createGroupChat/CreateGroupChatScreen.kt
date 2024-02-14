@@ -67,7 +67,6 @@ import com.gp.users.model.User
 fun CreateGroupChatScreen(
     viewModel: CreateGroupChatViewModel,
     onChoosePhotoClicked: () -> Unit,
-    onCreateGroupClicked: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val name by viewModel.name.collectAsStateWithLifecycle()
@@ -139,7 +138,7 @@ fun CreateGroupChatScreen(
             onClick = {
                 isError = name.isBlank()
                 if (!isError){
-                    onCreateGroupClicked()
+                    viewModel.createGroup()
                 }
             },
             modifier = Modifier.heightIn(40.dp, 41.dp)

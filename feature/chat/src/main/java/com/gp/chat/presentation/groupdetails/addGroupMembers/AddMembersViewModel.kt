@@ -62,33 +62,21 @@ class AddMembersViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.Default) {
             _users.value =
                 _allUsers.value.filter { !(groupUsers.contains(it)) }.map { it.toSelectableUser() }
-            Log.d(
-                "seerde",
-                "wtf???not joined User in add members viewmodel: ${_users.value.map { it.data.email }}"
-            )
         }
     }
 
     fun addMember(user: User) {
         viewModelScope.launch(Dispatchers.Default) {
-            Log.d("SEERDE", "addMember: user: $user")
             val updatedUsers = _selectedUsers.value.toMutableList()
             updatedUsers.add(user)
-            Log.d("SEERDE", "addMember: updated users: $updatedUsers")
             _users.value = _users.value.map {
                 if (it.data.email == user.email) {
-                    Log.d("seerde", "User status before edit in viewmodel: ${it.isSelected}")
                     it.copy(isSelected = true)
                 } else {
                     it
                 }
             }
             _selectedUsers.value = updatedUsers
-            Log.d("SEERDE", "addMember: selected users: ${_selectedUsers.value}")
-            Log.d(
-                "seerde",
-                "User status before edit in viewmodel: ${_users.value.find { it.data.email == user.email }!!.isSelected}"
-            )
         }
     }
 
@@ -110,13 +98,11 @@ class AddMembersViewModel @Inject constructor(
     fun onAddMembersClick(groupId: String) {
         viewModelScope.launch {
             val userEmails = selectedUsers.value.map { it.email }
-            Log.d("seerde", "User emails to add: ${userEmails}")
             if (userEmails.isNotEmpty()) {
                 chatRepo.addGroupMembers(groupId, userEmails).collect {
                     when (it) {
                         is State.Success -> {
                             uiState.value = uiState.value.copy(isCreated = true)
-                            Log.d("seerde", "Adding Members Success")
                         }
 
                         is State.Error -> {

@@ -1,6 +1,7 @@
 package com.gp.chat.presentation.createGroupChat
 
 import android.util.Log
+import android.util.MutableBoolean
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gp.chat.repository.MessageRepository
@@ -13,6 +14,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -21,6 +23,10 @@ class CreateGroupChatViewModel @Inject constructor(
     private val userRepo: UserRepository,
     private val chatRepo: MessageRepository
 ) : ViewModel() {
+    private val _isCreated = MutableStateFlow(false)
+    val isCreated = _isCreated.asStateFlow()
+    private val _groupID = MutableStateFlow("")
+    val groupID = _groupID.asStateFlow()
     private val _name = MutableStateFlow("")
     val name = _name.asStateFlow()
     private val _avatarURL = MutableStateFlow("")
@@ -103,10 +109,26 @@ class CreateGroupChatViewModel @Inject constructor(
     }
 
 
-    fun createGroup() = chatRepo.createGroupChat(
-        name = _name.value,
-        avatarLink = _avatarURL.value,
-        members = _selectedUsers.value.map { it.email },
-        currentUserEmail = currentUserEmail
-    )
+    fun createGroup() {
+        viewModelScope.launch {
+            chatRepo.createGroupChat(
+                name = _name.value,
+                avatarLink = _avatarURL.value,
+                members = _selectedUsers.value.map { it.email },
+                currentUserEmail = currentUserEmail
+            ).collect{
+                when(it) {
+                    is State.SuccessWithData ->{
+                        _groupID.value = it.data
+                        _isCreated.value = true
+                    }
+                    is State.Error ->{
+                        Log.d("SEERDE", "createGroup: ${it.message}")
+                    }
+                    is State.Loading ->{}
+                    else -> {}
+                }
+            }
+        }
+    }
 }
