@@ -69,6 +69,37 @@ fun CreateGroupChatScreen(
     val selectedUsers by viewModel.selectedUsers.collectAsStateWithLifecycle()
     val users by viewModel.users.collectAsStateWithLifecycle()
     var isError by rememberSaveable { mutableStateOf(false) }
+    CreateGroupChatScreen(
+        modifier = modifier,
+        name = name,
+        avatarURL = avatarURL,
+        selectedUsers = selectedUsers,
+        users = users,
+        isError = isError,
+        onChoosePhotoClicked = onChoosePhotoClicked,
+        onChangeError = {isError = it},
+        onUpdateName = { viewModel.updateName(it) },
+        onRemoveMember = {viewModel.removeMember(it)},
+        onAddMember = { viewModel.addMember(it) },
+        onCreateGroup = {viewModel.createGroup()}
+    )
+}
+
+@Composable
+fun CreateGroupChatScreen(
+    modifier: Modifier = Modifier,
+    name: String,
+    avatarURL: String,
+    selectedUsers: List<User>,
+    users: List<SelectableUser>,
+    isError: Boolean,
+    onChoosePhotoClicked: () -> Unit,
+    onChangeError: (Boolean) -> Unit,
+    onUpdateName: (String) -> Unit,
+    onRemoveMember: (User) -> Unit,
+    onAddMember: (User) -> Unit,
+    onCreateGroup: () -> Unit,
+) {
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween,
@@ -80,10 +111,8 @@ fun CreateGroupChatScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = modifier
                 .fillMaxWidth()
-//            .padding(8.dp)
         ) {
             GroupAvatarSection(
-//                modifier = Modifier.weight(0.3F),
                 avatarURL = avatarURL,
                 isModifiable = true,
                 onChoosePhotoClicked = onChoosePhotoClicked
@@ -102,8 +131,8 @@ fun CreateGroupChatScreen(
                     }
                 },
                 onValueChange ={
-                    isError = false
-                    viewModel.updateName(it)
+                    onChangeError(false)
+                    onUpdateName(it)
                 },
                 label = {
                     Text(text = "Group Name")
@@ -112,28 +141,25 @@ fun CreateGroupChatScreen(
                 modifier = Modifier
                     .fillMaxWidth(),)
             ChooseGroupMembersSection(
-//                modifier = Modifier.weight(1F),
+                modifier = Modifier.weight(1F),
                 selectedUsers = selectedUsers,
                 users = users,
                 onUnselectUser = {
-                    viewModel.removeMember(it)
-                    Log.d("SEERDE", "CreateGroupChatScreen: OnUnselect $it")
+                    onRemoveMember(it)
                 },
                 onUserClick = {user ->
                     if(user.isSelected) {
-                        viewModel.addMember(user.data)
+                        onAddMember(user.data)
                     } else {
-                        viewModel.removeMember(user.data)
-                        Log.d("SEERDE", "CreateGroupChatScreen: OnUnselect $user")
+                        onRemoveMember(user.data)
                     }
                 })
         }
-        //TODO("give weight to each composable in the column")
         Button(
             onClick = {
-                isError = name.isBlank()
+                onChangeError(name.isBlank())
                 if (!isError){
-                    viewModel.createGroup()
+                    onCreateGroup()
                 }
             },
             modifier = Modifier.heightIn(40.dp, 41.dp)
@@ -143,7 +169,7 @@ fun CreateGroupChatScreen(
                 style = MaterialTheme.typography.labelLarge)
         }
     }
-
+    
 }
 @Composable
 fun GroupAvatarSection(

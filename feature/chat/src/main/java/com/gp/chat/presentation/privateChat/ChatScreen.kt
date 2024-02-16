@@ -560,9 +560,7 @@ fun MessageItem(
     Row(
         modifier = modifier
             .padding(
-                top = topPadding,
-                start = if (isPrivateChat) 16.dp else 0.dp,
-                end = if (isPrivateChat) 16.dp else 0.dp
+                top = topPadding
             )
             .fillMaxWidth(),
         horizontalArrangement = horizontalArrangement
@@ -587,6 +585,8 @@ fun MessageItem(
                     .clickable { onUserClicked(message.senderId) })
         } else if (!isCurrentUser && message.senderPfpURL.isNotBlank() && !isPrivateChat) {
             Spacer(modifier = Modifier.width(74.dp))
+        } else if(isPrivateChat && !isCurrentUser){
+            Spacer(modifier = Modifier.width(16.dp))
         }
         Surface(
             color = backgroundColor,
@@ -688,6 +688,9 @@ fun MessageItem(
 
                 }
             }
+        }
+        if(isCurrentUser){
+            Spacer(modifier = Modifier.width(16.dp))
         }
     }
 }

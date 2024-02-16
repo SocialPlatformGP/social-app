@@ -45,12 +45,13 @@ fun NewChatScreen(
 ) {
     val searchText by viewModel.searchText.collectAsStateWithLifecycle()
     val users by viewModel.users.collectAsStateWithLifecycle()
+    val keyboardController = LocalSoftwareKeyboardController.current
     NewChatScreen(
         searchText = searchText,
         onSearchTextChange = viewModel::onSearchTextChange,
         users = users,
         onUserClick = onUserClick,
-        keyboardController = LocalSoftwareKeyboardController.current,
+        keyboardController = keyboardController,
         onBackPressed = onBackPressed,
         modifier = modifier
     )

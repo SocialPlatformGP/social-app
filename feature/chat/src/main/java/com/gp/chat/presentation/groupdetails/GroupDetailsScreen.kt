@@ -91,13 +91,68 @@ fun GroupDetailsScreen(
     var isRemoveMemberDialogOpen by rememberSaveable {
         mutableStateOf(false)
     }
-    Log.d("seerde", "Name: $name")
-    Box(
+    GroupDetailsScreen(
+        modifier = modifier,
+        avatarURL = avatarURL,
+        isAdmin = isAdmin,
+        onChangeAvatarClicked = onChangeAvatarClicked,
+        name = name,
+        onChangeName = { viewModel.updateGroupName(it) },
+        members = members,
+        admins = admins,
+        onAddMembersClicked = onAddMembersClicked,
+        onUserClicked = {
+            clickedUser = it
+            isUserClickedDialogOpen = true
+        },
+        isRemoveMemberDialogOpen = isRemoveMemberDialogOpen,
+        onDismissRemoveMembersDialog = { isRemoveMemberDialogOpen = false },
+        onConfirmMemberRemoval = {
+            onRemoveMember(clickedUser)
+            isRemoveMemberDialogOpen = false
+        },
+        clickedUser = clickedUser,
+        isUserClickedDialogOpen = isUserClickedDialogOpen,
+        isCurrentUser = clickedUser.email == viewModel.currentUserEmail,
+        onRemoveMemberClicked = {
+            isRemoveMemberDialogOpen = true
+            isUserClickedDialogOpen = false
+        },
+        onMessageUser = onMessageUser,
+        onDismissUserClickedDialog = { isUserClickedDialogOpen = false },
+        onViewProfile = onViewProfile
+    )
+}
 
-    ) {
+@Composable
+fun GroupDetailsScreen(
+    modifier: Modifier = Modifier,
+    avatarURL: String,
+    isAdmin: Boolean,
+    onChangeAvatarClicked: () -> Unit,
+    name: String,
+    onChangeName: (String) -> Unit,
+    members: List<User>,
+    admins: List< String>,
+    onAddMembersClicked: () -> Unit,
+    onUserClicked: (User) -> Unit,
+    isRemoveMemberDialogOpen: Boolean,
+    onDismissRemoveMembersDialog: () -> Unit,
+    onConfirmMemberRemoval: () -> Unit,
+    clickedUser: User,
+    isUserClickedDialogOpen: Boolean,
+    isCurrentUser: Boolean,
+    onRemoveMemberClicked: () -> Unit,
+    onMessageUser: (User) -> Unit,
+    onDismissUserClickedDialog: () -> Unit,
+    onViewProfile: (User) -> Unit,
+) {
+    Box(
+        modifier = modifier
+    ){
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
@@ -109,7 +164,7 @@ fun GroupDetailsScreen(
             GroupNameSection(
                 name = name,
                 isModifiable = isAdmin,
-                onChangeName = viewModel::updateGroupName
+                onChangeName = onChangeName
             )
             Divider(modifier = Modifier.height(2.dp))
             GroupMembersSection(
@@ -117,40 +172,31 @@ fun GroupDetailsScreen(
                 admins = admins,
                 isAdmin = isAdmin,
                 onAddMembersClicked = onAddMembersClicked,
-                onUserClicked = {
-                    clickedUser = it
-                    isUserClickedDialogOpen = true
-                }
+                onUserClicked = onUserClicked
             )
         }
         if(isRemoveMemberDialogOpen){
             RemoveMemberAlertDialog(
-                onDismissRequest = { isRemoveMemberDialogOpen = false },
-                onConfirmation = {
-                    onRemoveMember(clickedUser)
-                    isRemoveMemberDialogOpen = false
-                },
+                onDismissRequest = onDismissRemoveMembersDialog,
+                onConfirmation = onConfirmMemberRemoval,
                 dialogTitle = "Are you sure you want to remove ${clickedUser.firstName} ${clickedUser.lastName} from this group?"
             )
         }
         if (isUserClickedDialogOpen) {
             UserClickedDialog(
                 isAdmin = isAdmin,
-                isCurrentUser = clickedUser.email == viewModel.currentUserEmail,
+                isCurrentUser = isCurrentUser,
                 user = clickedUser,
-                onRemoveMember = {
-                    isRemoveMemberDialogOpen = true
-                    isUserClickedDialogOpen = false
-                },
+                onRemoveMember = onRemoveMemberClicked,
                 onMessageUser = {
                     onMessageUser(it)
-                    isUserClickedDialogOpen = false
+                    onDismissUserClickedDialog()
                 },
                 onViewProfile = {
                     onViewProfile(it)
-                    isUserClickedDialogOpen = false
+                    onDismissUserClickedDialog()
                 },
-                onDismiss = { isUserClickedDialogOpen = false}
+                onDismiss = { onDismissUserClickedDialog()}
             )
         }
     }
@@ -324,7 +370,7 @@ fun UserClickedDialog(
     isCurrentUser: Boolean,
     user: User,
     onDismiss: () -> Unit,
-    onRemoveMember: (User) -> Unit,
+    onRemoveMember: () -> Unit,
     onMessageUser: (User) -> Unit,
     onViewProfile: (User) -> Unit,
 ) {
@@ -381,7 +427,7 @@ fun UserClickedDialog(
                                 .padding(horizontal = 16.dp, vertical = 8.dp)
                                 .fillMaxSize()
                                 .clickable {
-                                    onRemoveMember(user)
+                                    onRemoveMember()
                                 })
                     }
                 }

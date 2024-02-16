@@ -16,6 +16,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gp.chat.presentation.createGroupChat.ChooseGroupMembersSection
 import com.gp.chat.presentation.groupdetails.addGroupMembers.AddMembersViewModel
+import com.gp.users.model.SelectableUser
+import com.gp.users.model.User
 
 @Composable
 fun AddMembersScreen(
@@ -25,6 +27,25 @@ fun AddMembersScreen(
 ) {
     val selectedUsers by viewModel.selectedUsers.collectAsStateWithLifecycle()
     val users by viewModel.users.collectAsStateWithLifecycle()
+    AddMembersScreen(
+        modifier = modifier,
+        selectedUsers = selectedUsers,
+        users = users,
+        onRemoveMember = viewModel::removeMember,
+        onAddMember = viewModel::addMember,
+        onAddMembersClicked = onAddMembersClicked
+    )
+}
+
+@Composable
+fun AddMembersScreen(
+    modifier: Modifier = Modifier,
+    selectedUsers: List<User>,
+    users: List<SelectableUser>,
+    onRemoveMember: (User) -> Unit,
+    onAddMember: (User) -> Unit,
+    onAddMembersClicked: () -> Unit,
+) {
     Column (
         horizontalAlignment = Alignment.CenterHorizontally
     ){
@@ -32,13 +53,13 @@ fun AddMembersScreen(
             selectedUsers = selectedUsers,
             users = users,
             onUnselectUser = {
-                viewModel.removeMember(it)
+                onRemoveMember(it)
             },
             onUserClick = {user ->
                 if(user.isSelected) {
-                    viewModel.addMember(user.data)
+                    onAddMember(user.data)
                 } else {
-                    viewModel.removeMember(user.data)
+                    onRemoveMember(user.data)
                 }
             })
         Spacer(modifier = Modifier.size(8.dp))
@@ -49,6 +70,5 @@ fun AddMembersScreen(
         ) {
             Text(text = "Add Selected Members")
         }
-
     }
 }
