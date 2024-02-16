@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
@@ -18,14 +17,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.gp.chat.listener.OnUserClickListener
 import com.gp.chat.presentation.theme.AppTheme
 import com.gp.socialapp.utils.State
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class NewChatFragment : Fragment(), OnUserClickListener {
+class NewChatFragment : Fragment(){
     private val viewModel: NewChatViewModel by viewModels()
     private lateinit var composeView: ComposeView
 
@@ -55,7 +53,7 @@ class NewChatFragment : Fragment(), OnUserClickListener {
     }
 
 
-    override fun onUserClicked(userEmail: String) {
+    private fun onUserClicked(userEmail: String) {
         viewModel.createChat(userEmail)
         lifecycleScope.launch {
             viewModel.createNewChatState.flowWithLifecycle(lifecycle).collect {

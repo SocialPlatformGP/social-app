@@ -2,12 +2,10 @@ package com.gp.chat.presentation.home
 
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
@@ -16,14 +14,13 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.gp.chat.R
-import com.gp.chat.listener.OnRecentChatClicked
 import com.gp.chat.model.RecentChat
 import com.gp.chat.presentation.theme.AppTheme
 import com.gp.chat.utils.FabItem
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class ChatHome : Fragment(), OnRecentChatClicked {
+class ChatHome : Fragment() {
     private val viewModel: HomeViewModel by viewModels()
     private lateinit var composeView: ComposeView
 
@@ -75,7 +72,7 @@ class ChatHome : Fragment(), OnRecentChatClicked {
         }
     }
 
-    override fun onClick(recentChat: RecentChat) {
+    private fun onClick(recentChat: RecentChat) {
         with(recentChat) {
             val action = if (recentChat.privateChat) {
                 ChatHomeDirections.actionChatHomeToPrivateChatFragment(
@@ -95,7 +92,7 @@ class ChatHome : Fragment(), OnRecentChatClicked {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    override fun onDropDownItemClicked(dropDownItem: DropDownItem, recentChat: RecentChat) {
+    private fun onDropDownItemClicked(dropDownItem: DropDownItem, recentChat: RecentChat) {
         when (dropDownItem.text) {
             "Leave" -> {
                 viewModel.leaveGroup(recentChat.id)

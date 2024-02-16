@@ -4,7 +4,6 @@ import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.ktx.auth
@@ -16,7 +15,6 @@ import com.gp.chat.presentation.privateChat.MessageState
 import com.gp.chat.repository.MessageRepository
 import com.gp.chat.util.RemoveSpecialChar
 import com.gp.socialapp.utils.State
-import com.gp.users.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -51,21 +49,25 @@ class GroupChatViewModel @Inject constructor(
         fetchGroupChatMessages()
         fetchGroupDetails()
     }
-    private fun fetchGroupDetails(){
-        viewModelScope.launch (Dispatchers.IO) {
-            messageRepo.getGroupDetails(chatId).collect{
-                when(it){
+
+    private fun fetchGroupDetails() {
+        viewModelScope.launch(Dispatchers.IO) {
+            messageRepo.getGroupDetails(chatId).collect {
+                when (it) {
                     is State.SuccessWithData -> {
                         _groupDetails.value = it.data
                     }
+
                     is State.Error -> {
                         Log.d("SEERDE", "fetchGroupDetails: ${it.message}")
                     }
+
                     else -> {}
                 }
             }
         }
     }
+
     fun fetchGroupChatMessages() {
         viewModelScope.launch(Dispatchers.IO) {
             Log.d("zarea1", "fetchGroupChatMessages: getting chat id $chatId")
@@ -76,14 +78,16 @@ class GroupChatViewModel @Inject constructor(
             }
         }
     }
-    fun updateCurrentMessage(message: String){
-        viewModelScope.launch (Dispatchers.IO){
+
+    fun updateCurrentMessage(message: String) {
+        viewModelScope.launch(Dispatchers.IO) {
             _currentMessageState.value = _currentMessageState.value.copy(message = message)
         }
     }
-    fun checkIfAdmin() : Boolean {
+
+    fun checkIfAdmin(): Boolean {
         val map = _groupDetails.value.members
-        val key = RemoveSpecialChar.removeSpecialCharacters(currentUser.email?:"")
+        val key = RemoveSpecialChar.removeSpecialCharacters(currentUser.email ?: "")
         return map.containsKey(key) && map.getValue(key)
     }
 
@@ -93,8 +97,8 @@ class GroupChatViewModel @Inject constructor(
         if (currentMessageState.value.message.isEmpty() && currentMessageState.value.fileType == "") {
             return
         } else {
-            val currentTime: ZonedDateTime =now()
-            val  formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z", Locale.ENGLISH)
+            val currentTime: ZonedDateTime = now()
+            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z", Locale.ENGLISH)
             val formatted = currentTime.format(formatter)
 
             viewModelScope.launch(Dispatchers.IO) {
@@ -117,9 +121,11 @@ class GroupChatViewModel @Inject constructor(
                             Log.d("zarea2", "in success   $chatId")
                             updateRecent(message.timestamp)
                         }
+
                         is State.Error -> {
                             Log.d("seerde", "Error: ${it.message}")
                         }
+
                         else -> {
                             Log.d("seerde", "Loading")
                         }
@@ -141,7 +147,7 @@ class GroupChatViewModel @Inject constructor(
                     currentMessageState.value.fileName
                 },
                 timestamp = timestamp,
-                )
+            )
             Log.d("zarea2", "calling update recent in vm  $chatId")
             messageRepo.updateRecentChat(recentChat, chatId).collect {
                 when (it) {
@@ -150,10 +156,12 @@ class GroupChatViewModel @Inject constructor(
                         _currentMessageState.value = MessageState()
                         Log.d("zarea2", "data in state after ${currentMessageState.value}")
                     }
+
                     is State.Error -> {
                         _currentMessageState.value =
                             _currentMessageState.value.copy(error = it.message)
                     }
+
                     is State.Loading -> {}
                     else -> {}
                 }
@@ -171,7 +179,7 @@ class GroupChatViewModel @Inject constructor(
         onSendMessage()
     }
 
-    fun deleteMessage(messageId: String,) {
+    fun deleteMessage(messageId: String) {
         messageRepo.deleteMessage(messageId, chatId)
     }
 

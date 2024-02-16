@@ -2,12 +2,10 @@ package com.gp.chat.presentation.groupdetails
 
 import android.content.res.Configuration
 import android.util.Log
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,20 +17,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.GroupAdd
 import androidx.compose.material.icons.rounded.Create
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -48,12 +40,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -63,7 +52,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.google.android.play.integrity.internal.t
 import com.gp.chat.R
 import com.gp.chat.presentation.createGroupChat.GroupAvatarSection
 import com.gp.chat.presentation.createGroupChat.GroupMemberItem
@@ -138,7 +126,7 @@ fun GroupDetailsScreen(
     name: String,
     onChangeName: (String) -> Unit,
     members: List<User>,
-    admins: List< String>,
+    admins: List<String>,
     onAddMembersClicked: () -> Unit,
     onUserClicked: (User) -> Unit,
     isRemoveMemberDialogOpen: Boolean,
@@ -154,7 +142,7 @@ fun GroupDetailsScreen(
 ) {
     Box(
         modifier = modifier
-    ){
+    ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
@@ -180,7 +168,7 @@ fun GroupDetailsScreen(
                 onUserClicked = onUserClicked
             )
         }
-        if(isRemoveMemberDialogOpen){
+        if (isRemoveMemberDialogOpen) {
             RemoveMemberAlertDialog(
                 onDismissRequest = onDismissRemoveMembersDialog,
                 onConfirmation = onConfirmMemberRemoval,
@@ -201,7 +189,7 @@ fun GroupDetailsScreen(
                     onViewProfile(it)
                     onDismissUserClickedDialog()
                 },
-                onDismiss = { onDismissUserClickedDialog()}
+                onDismiss = { onDismissUserClickedDialog() }
             )
         }
     }
@@ -379,19 +367,19 @@ fun UserClickedDialog(
     onViewProfile: (User) -> Unit,
 ) {
     Dialog(onDismissRequest = { onDismiss() }) {
-        Card (
+        Card(
             modifier = modifier
                 .fillMaxWidth()
                 .heightIn(min = 100.dp, max = 225.dp)
                 .padding(16.dp),
             shape = RoundedCornerShape(16.dp),
-        ){
-            LazyColumn (
+        ) {
+            LazyColumn(
                 modifier = Modifier
                     .padding(16.dp),
                 horizontalAlignment = Alignment.Start,
                 verticalArrangement = Arrangement.SpaceEvenly
-            ){
+            ) {
                 item {
                     Text(
                         text = "View Profile",
@@ -419,7 +407,7 @@ fun UserClickedDialog(
                                 onMessageUser(user)
                             })
                 }
-                if(isAdmin && !isCurrentUser) {
+                if (isAdmin && !isCurrentUser) {
                     item {
                         Text(
                             text = "Remove from Group",
@@ -474,45 +462,49 @@ fun RemoveMemberAlertDialog(
         }
     )
 }
+
 @Preview(name = "Light Mode")
 @Preview(name = "Dark Mode", uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun GroupDetailsPreview() {
     val members = listOf<User>(
         User(
-                firstName = "Marshall",
-                lastName = "Bonner",
-                profilePictureURL = "",
-                phoneNumber = "(773) 502-1779",
-                email = "humberto.howe@example.com",
-                bio = "Life is roblox",
-            ),
+            firstName = "Marshall",
+            lastName = "Bonner",
+            profilePictureURL = "",
+            phoneNumber = "(773) 502-1779",
+            email = "humberto.howe@example.com",
+            bio = "Life is roblox",
+        ),
         User(
-                firstName = "Neil",
-                lastName = "Mercer",
-                profilePictureURL = "",
-                phoneNumber = "(761) 954-8085",
-                email = "kristie.ayers@example.com",
-                bio = "Bring out the lobster",
-            ),
+            firstName = "Neil",
+            lastName = "Mercer",
+            profilePictureURL = "",
+            phoneNumber = "(761) 954-8085",
+            email = "kristie.ayers@example.com",
+            bio = "Bring out the lobster",
+        ),
         User(
-                firstName = "Phoebe",
-                lastName = "Barnes",
-                profilePictureURL = "",
-                phoneNumber = "(644) 812-8554",
-                email = "lillian.mcmahon@example.com",
-                bio = "They didn't believe in us ...",
-            ),
+            firstName = "Phoebe",
+            lastName = "Barnes",
+            profilePictureURL = "",
+            phoneNumber = "(644) 812-8554",
+            email = "lillian.mcmahon@example.com",
+            bio = "They didn't believe in us ...",
+        ),
         User(
-                firstName = "Beverley",
-                lastName = "Sheppard",
-                profilePictureURL = "",
-                phoneNumber = "(267) 216-7670",
-                email = "leonard.mills@example.com",
-                bio = "God did!",
-            )
+            firstName = "Beverley",
+            lastName = "Sheppard",
+            profilePictureURL = "",
+            phoneNumber = "(267) 216-7670",
+            email = "leonard.mills@example.com",
+            bio = "God did!",
+        )
     )
-    val admins = listOf<String>("leonard.mills@example.com", "kristie.ayers@example.com",).map{RemoveSpecialChar.removeSpecialCharacters(it)}
+    val admins = listOf<String>(
+        "leonard.mills@example.com",
+        "kristie.ayers@example.com",
+    ).map { RemoveSpecialChar.removeSpecialCharacters(it) }
     AppTheme {
         GroupDetailsScreen(
             avatarURL = "",

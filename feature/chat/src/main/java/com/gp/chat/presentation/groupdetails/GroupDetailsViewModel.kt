@@ -2,11 +2,8 @@ package com.gp.chat.presentation.groupdetails
 
 import android.net.Uri
 import android.util.Log
-import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.UserProfileChangeRequest
-import com.google.firebase.auth.auth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.gp.chat.model.ChatGroup
@@ -20,7 +17,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -28,7 +24,7 @@ import javax.inject.Inject
 class GroupDetailsViewModel @Inject constructor(
     private val userRepo: UserRepository,
     private val messageRepo: MessageRepository
-) : ViewModel(){
+) : ViewModel() {
     val currentUserEmail = Firebase.auth.currentUser!!.email!!
     private val _haveChatWithUserState = MutableStateFlow<State<String>>(State.Idle)
     val haveChatWithUserState = _haveChatWithUserState.asStateFlow()
@@ -52,7 +48,8 @@ class GroupDetailsViewModel @Inject constructor(
                         groupDetails.value = it.data
                         _avatarURL.value = it.data.picURL
                         _groupName.value = it.data.name
-                        _admins.value = it.data.members.filter { member -> member.value }.keys.toList()
+                        _admins.value =
+                            it.data.members.filter { member -> member.value }.keys.toList()
                         userRepo.getUsersByEmails(
                             it.data.members.keys.map { RemoveSpecialChar.restoreOriginalEmail(it) }
                         ).collect {
@@ -92,17 +89,20 @@ class GroupDetailsViewModel @Inject constructor(
             }
         }
     }
-    fun updateAvatar(uri: Uri?){
-        if(uri != null){
+
+    fun updateAvatar(uri: Uri?) {
+        if (uri != null) {
             viewModelScope.launch(Dispatchers.IO) {
-                messageRepo.updateGroupAvatar(uri, avatarURL.value, groupID = groupID).collect{
-                    when(it){
+                messageRepo.updateGroupAvatar(uri, avatarURL.value, groupID = groupID).collect {
+                    when (it) {
                         is State.SuccessWithData -> {
                             _avatarURL.value = it.data
                         }
+
                         is State.Error -> {
                             Log.e("SEERDE", "updateAvatar: ${it.message}")
                         }
+
                         else -> {}
                     }
                 }
@@ -114,22 +114,25 @@ class GroupDetailsViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             Log.d("SEERDE", "messageUser: call reached viewmodel")
             messageRepo.haveChatWithUser(
-                removeSpecialCharacters(userEmail), removeSpecialCharacters(currentUserEmail)).collect{
+                removeSpecialCharacters(userEmail), removeSpecialCharacters(currentUserEmail)
+            ).collect {
                 when (it) {
                     is State.SuccessWithData -> {
                         Log.d("SEERDE", "messageUser: success in viewmodel: data:${it.data}")
                         _haveChatWithUserState.value = State.SuccessWithData(it.data)
                     }
+
                     is State.Error -> {
-                        Log.e("SEERDE", "messageUser: ${it.message}", )
+                        Log.e("SEERDE", "messageUser: ${it.message}")
                     }
+
                     else -> {}
                 }
             }
         }
     }
 
-    fun createNewChat(receiverEmail: String){
+    fun createNewChat(receiverEmail: String) {
         viewModelScope.launch(Dispatchers.IO) {
             messageRepo.insertChat(
                 ChatGroup(
@@ -142,15 +145,18 @@ class GroupDetailsViewModel @Inject constructor(
             ).collect {
                 when (it) {
                     is State.SuccessWithData -> {
-                        insertUserToChat(removeSpecialCharacters(currentUserEmail), it.data,
+                        insertUserToChat(
+                            removeSpecialCharacters(currentUserEmail), it.data,
                             removeSpecialCharacters(receiverEmail)
                         )
                         insertPrivateChat(receiverEmail, it.data)
                         _haveChatWithUserState.value = State.SuccessWithData(it.data)
                     }
+
                     is State.Error -> {
-                        Log.e("SEERDE", "createNewChat: ${it.message}", )
+                        Log.e("SEERDE", "createNewChat: ${it.message}")
                     }
+
                     else -> {}
                 }
 
@@ -165,8 +171,8 @@ class GroupDetailsViewModel @Inject constructor(
                 senderEmail,
                 receiverEmail
             ).collect {
-                if(it is State.Error) {
-                    Log.e("SEERDE", "insertUserToChat: ", )
+                if (it is State.Error) {
+                    Log.e("SEERDE", "insertUserToChat: ")
                 }
             }
         }
@@ -179,8 +185,8 @@ class GroupDetailsViewModel @Inject constructor(
                 removeSpecialCharacters(receiverEmail),
                 chatId
             ).collect {
-                if(it is State.Error) {
-                    Log.e("SEERDE", "insertUserToChat: ", )
+                if (it is State.Error) {
+                    Log.e("SEERDE", "insertUserToChat: ")
                 }
             }
         }
@@ -194,6 +200,7 @@ class GroupDetailsViewModel @Inject constructor(
                         Log.d("seerde", "User Removed Successfully")
                         getUsersList(key)
                     }
+
                     else -> {}
                 }
             }

@@ -1,14 +1,13 @@
 package com.gp.chat.presentation.groupdetails
 
 import android.content.res.Configuration
-import android.util.Log
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -50,10 +49,10 @@ fun AddMembersScreen(
     onAddMember: (User) -> Unit,
     onAddMembersClicked: () -> Unit,
 ) {
-    Column (
+    Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.fillMaxSize()
-    ){
+    ) {
         ChooseGroupMembersSection(
             modifier = Modifier.padding(top = 8.dp),
             selectedUsers = selectedUsers,
@@ -61,8 +60,8 @@ fun AddMembersScreen(
             onUnselectUser = {
                 onRemoveMember(it)
             },
-            onUserClick = {user ->
-                if(user.isSelected) {
+            onUserClick = { user ->
+                if (user.isSelected) {
                     onAddMember(user.data)
                 } else {
                     onRemoveMember(user.data)
@@ -74,7 +73,11 @@ fun AddMembersScreen(
             enabled = selectedUsers.isNotEmpty(),
             modifier = Modifier.padding(horizontal = 16.dp)
         ) {
-            Text(text = "Add Selected Members")
+            Text(
+                text = "Add Selected Members",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onPrimary
+            )
         }
     }
 }
@@ -154,8 +157,8 @@ fun AddMembersScreenPreview() {
     )
     AppTheme {
         AddMembersScreen(
-//            selectedUsers = selectedUsers,
-            selectedUsers = emptyList(),
+            selectedUsers = selectedUsers,
+//            selectedUsers = emptyList(),
             users = users,
             onRemoveMember = {},
             onAddMember = {},

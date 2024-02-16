@@ -169,7 +169,9 @@ fun CreateGroupChatScreen(
         ) {
             Text(
                 text = "Create Group",
-                style = MaterialTheme.typography.labelLarge)
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onPrimary
+            )
         }
     }
 }
@@ -392,8 +394,7 @@ fun CreateGroupChatScreenPreview() {
             phoneNumber = "(773) 502-1779",
             email = "humberto.howe@example.com",
             bio = "Life is roblox",
-        ),
-        User(
+        ), User(
             firstName = "Phoebe",
             lastName = "Barnes",
             profilePictureURL = "",

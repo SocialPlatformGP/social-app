@@ -1,7 +1,6 @@
 package com.gp.chat.presentation.createGroupChat
 
 import android.util.Log
-import android.util.MutableBoolean
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gp.chat.repository.MessageRepository
@@ -14,7 +13,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -116,16 +114,18 @@ class CreateGroupChatViewModel @Inject constructor(
                 avatarLink = _avatarURL.value,
                 members = _selectedUsers.value.map { it.email },
                 currentUserEmail = currentUserEmail
-            ).collect{
-                when(it) {
-                    is State.SuccessWithData ->{
+            ).collect {
+                when (it) {
+                    is State.SuccessWithData -> {
                         _groupID.value = it.data
                         _isCreated.value = true
                     }
-                    is State.Error ->{
+
+                    is State.Error -> {
                         Log.d("SEERDE", "createGroup: ${it.message}")
                     }
-                    is State.Loading ->{}
+
+                    is State.Loading -> {}
                     else -> {}
                 }
             }

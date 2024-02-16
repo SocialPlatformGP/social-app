@@ -10,7 +10,6 @@ import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.updateTransition
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -35,7 +34,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
@@ -57,6 +55,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -273,11 +272,11 @@ fun ChatScreen(
             .exclude(WindowInsets.ime),
         modifier = modifier
     ) { paddingValues ->
-        Box (
+        Box(
             Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-        ){
+        ) {
             Column(
                 Modifier.fillMaxSize()
             ) {
@@ -294,11 +293,12 @@ fun ChatScreen(
                     modifier = Modifier.weight(1f),
                     scrollState = scrollState,
                     dropDownItems = dropDownItems,
-                    onDropPDownItemClicked = {dropDownItem, messageId, messageBody ->
+                    onDropPDownItemClicked = { dropDownItem, messageId, messageBody ->
                         when (dropDownItem.text) {
                             "Delete" -> {
                                 onDeleteMessage(messageId)
                             }
+
                             "Update" -> {
                                 EditedMessageID = messageId
                                 EditedMessageBody = messageBody
@@ -324,13 +324,13 @@ fun ChatScreen(
                     onConfirmation = { editedMessage ->
                         onEditMessage(EditedMessageID, editedMessage)
                         isEditMessageDialogOpen = false
-                     },
-                    onDismissRequest = {isEditMessageDialogOpen = false})
+                    },
+                    onDismissRequest = { isEditMessageDialogOpen = false })
             }
             if (isImagePreviewDialogOpen) {
                 ImagePreviewDialog(
                     imageURL = previewedImageURL,
-                    onDismissRequest = {isImagePreviewDialogOpen = false}
+                    onDismissRequest = { isImagePreviewDialogOpen = false }
                 )
             }
         }
@@ -368,12 +368,12 @@ fun MessageInput(
             .padding(horizontal = 8.dp, vertical = 2.dp)
             .fillMaxWidth()
     ) {
-        Divider(
-            modifier = Modifier
-                .padding(bottom = 2.dp)
-                .size(2.dp),
-            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-        )
+//        Divider(
+//            modifier = Modifier
+//                .padding(bottom = 2.dp)
+//                .size(2.dp),
+//            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+//        )
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -434,6 +434,7 @@ fun MessageInput(
         }
     }
 }
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MessagesContent(
@@ -578,7 +579,7 @@ fun MessageItem(
             )
         } else if (!isCurrentUser && message.senderPfpURL.isNotBlank() && !isPrivateChat) {
             Spacer(modifier = Modifier.width(48.dp))
-        } else if(isPrivateChat && !isCurrentUser){
+        } else if (isPrivateChat && !isCurrentUser) {
             Spacer(modifier = Modifier.width(8.dp))
         }
         Surface(
@@ -615,7 +616,8 @@ fun MessageItem(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         onClick = { onUserClicked(message.senderId) },
-                        modifier = Modifier.padding(horizontal = 4.dp))
+                        modifier = Modifier.padding(horizontal = 4.dp)
+                    )
                 }
                 if (message.fileType.contains("image") && message.message.isBlank()) {
                     val imageURL = message.fileURI.toString()
@@ -646,6 +648,7 @@ fun MessageItem(
                         Text(
                             text = message.message,
                             fontWeight = FontWeight.Light,
+                            color = contentColorFor(backgroundColor = backgroundColor),
                             fontSize = 16.sp,
                             modifier = Modifier.padding(top = 4.dp, start = 4.dp, end = 4.dp)
                         )
@@ -654,7 +657,7 @@ fun MessageItem(
                         text = timestamp,
                         fontWeight = FontWeight.W400,
                         fontSize = 10.sp,
-                        color = Color.Gray,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier
                             .align(Alignment.End)
                             .padding(end = 4.dp, bottom = 4.dp)
@@ -683,7 +686,7 @@ fun MessageItem(
                 }
             }
         }
-        if(isCurrentUser){
+        if (isCurrentUser) {
             Spacer(modifier = Modifier.width(8.dp))
         }
     }
@@ -869,6 +872,7 @@ fun MessageFileAttachment(
         }
     }
 }
+
 @Composable
 fun EditMessageDialog(
     modifier: Modifier = Modifier,
@@ -949,8 +953,10 @@ fun ImagePreviewDialog(
                 horizontalAlignment = Alignment.Start,
             ) {
                 val imageRequest =
-                    ImageRequest.Builder(LocalContext.current).data(imageURL).dispatcher(Dispatchers.IO)
-                        .memoryCacheKey(imageURL).diskCacheKey(imageURL).diskCachePolicy(CachePolicy.ENABLED)
+                    ImageRequest.Builder(LocalContext.current).data(imageURL)
+                        .dispatcher(Dispatchers.IO)
+                        .memoryCacheKey(imageURL).diskCacheKey(imageURL)
+                        .diskCachePolicy(CachePolicy.ENABLED)
                         .memoryCachePolicy(CachePolicy.ENABLED).build()
                 AsyncImage(
                     model = imageRequest,
@@ -975,7 +981,7 @@ val messages = listOf(
         senderName = "Annette Patel",
         senderPfpURL = "",
         timestamp = "2024-02-12 14:51:19 GMT+02:00",
-        fileURI ="".toUri(),
+        fileURI = "".toUri(),
         fileType = "",
         fileNames = ""
     ),
@@ -988,7 +994,7 @@ val messages = listOf(
         senderName = "Annette Patel",
         senderPfpURL = "",
         timestamp = "2024-02-12 14:52:19 GMT+02:00",
-        fileURI ="".toUri(),
+        fileURI = "".toUri(),
         fileType = "",
         fileNames = ""
     )
@@ -1013,7 +1019,7 @@ fun ChatScreenPreview() {
                 chatImageURL = "",
                 onChatHeaderClicked = { /*TODO*/ },
                 onBackPressed = { /*TODO*/ },
-                onFileClicked = {_, _, _ ->},
+                onFileClicked = { _, _, _ -> },
                 onUserClicked = {},
                 onAttachFileClicked = { /*TODO*/ },
                 onAttachImageClicked = { /*TODO*/ },
@@ -1022,7 +1028,7 @@ fun ChatScreenPreview() {
                 onSendMessage = { /*TODO*/ },
                 onDeleteMessage = {},
                 onUpdateMessage = {},
-                onEditMessage = {_, _ ->},
+                onEditMessage = { _, _ -> },
                 messages = messages,
                 currentMessage = MessageState(message = "Current Message"),
                 currentUserEmail = "mohamededrees234@hotmail.com"

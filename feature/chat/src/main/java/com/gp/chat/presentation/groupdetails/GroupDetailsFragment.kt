@@ -7,39 +7,33 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.PickVisualMediaRequest
-import com.gp.socialapp.utils.State
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavController
-import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.gp.chat.listener.OnGroupMemberClicked
-import com.gp.chat.presentation.groupdetails.addGroupMembers.AddMembersFragment
 import com.gp.chat.presentation.theme.AppTheme
+import com.gp.socialapp.utils.State
 import com.gp.users.model.User
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class GroupDetailsFragment : Fragment(){
+class GroupDetailsFragment : Fragment() {
     private val viewModel: GroupDetailsViewModel by viewModels()
     private val args: GroupDetailsFragmentArgs by navArgs()
     private lateinit var composeView: ComposeView
     private val galleryImageResultLauncher = registerForActivityResult(
         ActivityResultContracts.PickVisualMedia()
     ) {
-       viewModel.updateAvatar(it)
+        viewModel.updateAvatar(it)
     }
 
     override fun onCreateView(
@@ -61,13 +55,15 @@ class GroupDetailsFragment : Fragment(){
                 GroupDetailsScreen(
                     viewModel = viewModel,
                     isAdmin = args.isAdmin,
-                    onChangeAvatarClicked = { galleryImageResultLauncher.launch(
-                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)
-                    ) },
+                    onChangeAvatarClicked = {
+                        galleryImageResultLauncher.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)
+                        )
+                    },
                     onAddMembersClicked = { onAddMembersClicked() },
-                    onViewProfile = {/*TODO navigate to user profile*/},
-                    onMessageUser = {onMessageUser(it)},
-                    onRemoveMember ={onRemoveGroupMember(it)} ,
+                    onViewProfile = {/*TODO navigate to user profile*/ },
+                    onMessageUser = { onMessageUser(it) },
+                    onRemoveMember = { onRemoveGroupMember(it) },
                 )
             }
         }
@@ -79,18 +75,18 @@ class GroupDetailsFragment : Fragment(){
 
     private fun onMessageUser(user: User) {
         Log.d("SEERDE", "onMessageUser: onMessageUser called")
-        lifecycleScope.launch (Dispatchers.IO){
+        lifecycleScope.launch(Dispatchers.IO) {
             viewModel.haveChatWithUserState.flowWithLifecycle(lifecycle).collect {
-                when (it){
+                when (it) {
                     is State.SuccessWithData -> {
-                        if(it.data != "-1") {
+                        if (it.data != "-1") {
                             Log.d("SEERDE", "onMessageUser: received success response")
                             val currentSender = Firebase.auth.currentUser
                             val action =
                                 GroupDetailsFragmentDirections.actionGroupDetailsFragmentToPrivateChatFragment(
                                     chatId = it.data,
                                     receiverName = user.firstName + " " + user.lastName,
-                                    receiverPic = user.profilePictureURL ?: "",
+                                    receiverPic = user.profilePictureURL,
                                     senderPic = currentSender?.photoUrl.toString(),
                                     senderName = currentSender?.displayName!!
                                 )
@@ -100,9 +96,11 @@ class GroupDetailsFragment : Fragment(){
                             viewModel.createNewChat(user.email)
                         }
                     }
+
                     is State.Error -> {
-                        Log.e("SEERDE", "onMessageUser: ${it.message}", )
+                        Log.e("SEERDE", "onMessageUser: ${it.message}")
                     }
+
                     else -> {}
                 }
             }

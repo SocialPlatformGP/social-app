@@ -3,7 +3,6 @@ package com.gp.chat.presentation.privateChat
 import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -55,7 +54,8 @@ class PrivateChatViewModel @Inject constructor(
         getMessages()
 
     }
-    fun setCurrentMessage(message: String){
+
+    fun setCurrentMessage(message: String) {
         viewModelScope.launch {
             currentMessage.value = currentMessage.value.copy(message = message)
         }
@@ -65,8 +65,8 @@ class PrivateChatViewModel @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     private fun getMessages() {
         viewModelScope.launch(Dispatchers.IO) {
-                        val currentTime: ZonedDateTime =now()
-            val  formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z", Locale.ENGLISH)
+            val currentTime: ZonedDateTime = now()
+            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z", Locale.ENGLISH)
             val formatted = currentTime.format(formatter)
             messageRepository.getMessages(chatId).collect {
                 when (it) {
@@ -97,14 +97,15 @@ class PrivateChatViewModel @Inject constructor(
             }
         }
     }
+
     @SuppressLint("SimpleDateFormat")
     @RequiresApi(Build.VERSION_CODES.O)
     fun sendMessage() {
         if (currentMessage.value.message.isEmpty() && currentMessage.value.fileType == "") {
             return
         } else {
-            val currentTime: ZonedDateTime =now()
-            val  formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z", Locale.ENGLISH)
+            val currentTime: ZonedDateTime = now()
+            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z", Locale.ENGLISH)
             val formatted = currentTime.format(formatter)
             viewModelScope.launch(Dispatchers.IO) {
                 val message = Message(
@@ -112,11 +113,12 @@ class PrivateChatViewModel @Inject constructor(
                     senderName = currentUser.displayName!!,
                     senderPfpURL = currentUser.photoUrl.toString(),
                     groupId = chatId,
-                    messageDate = DateTimeFormatter.ofPattern("MMM dd, yyyy", Locale.ENGLISH).format(currentTime),
+                    messageDate = DateTimeFormatter.ofPattern("MMM dd, yyyy", Locale.ENGLISH)
+                        .format(currentTime),
                     message = currentMessage.value.message,
                     timestamp = formatted,
-                    fileURI = currentMessage.value.fileUri ,
-                    fileType = currentMessage.value.fileType ,
+                    fileURI = currentMessage.value.fileUri,
+                    fileType = currentMessage.value.fileType,
                     fileNames = currentMessage.value.fileName
                 )
 
@@ -145,7 +147,7 @@ class PrivateChatViewModel @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     private fun updateRecent(timestamp: String) {
 
-        viewModelScope.launch (Dispatchers.IO){
+        viewModelScope.launch(Dispatchers.IO) {
             val recentChat = RecentChat(
                 lastMessage =
                 if (currentMessage.value.fileType == "") {
@@ -160,7 +162,7 @@ class PrivateChatViewModel @Inject constructor(
                 senderName = senderName,
                 receiverPicUrl = receiverPic,
                 senderPicUrl = senderPic,
-                )
+            )
             messageRepository.updateRecentChat(recentChat, chatId).collect {
                 if (it is State.SuccessWithData) {
                     currentMessage.value = MessageState()
@@ -171,7 +173,7 @@ class PrivateChatViewModel @Inject constructor(
     }
 
 
-    fun deleteMessage(messageId: String,) {
+    fun deleteMessage(messageId: String) {
         messageRepository.deleteMessage(messageId, chatId)
     }
 

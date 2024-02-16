@@ -66,61 +66,56 @@ fun NewChatScreen(
     onBackPressed: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Scaffold(
-        modifier = modifier,
-        topBar = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-            ) {
-                IconButton(onClick = { onBackPressed() }) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        tint = MaterialTheme.colorScheme.onSurface,
-                        contentDescription = "Navigate Back"
-                    )
-                }
-                Spacer(modifier = Modifier.width(4.dp))
-                SearchBar(
-                    query = searchText,
-                    onQueryChange = onSearchTextChange,
-                    onSearch = { /*keyboardController?.hide()*/ },
-                    active = false,
-                    placeholder = {
-                        Text(text = "Search Users")
-                    },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            tint = MaterialTheme.colorScheme.onSurface,
-                            contentDescription = null
-                        )
-                    },
-                    trailingIcon = {
-                        if (searchText.isNotEmpty()) {
-                            IconButton(onClick = { onSearchTextChange("") }) {
-                                Icon(
-                                    imageVector = Icons.Default.Close,
-                                    tint = MaterialTheme.colorScheme.onSurface,
-                                    contentDescription = "Clear search"
-                                )
-                            }
-                        }
-                    },
-                    content = {},
-                    onActiveChange = {},
-                    tonalElevation = 6.dp,
-                    modifier = Modifier
-                        .fillMaxWidth()
+    Scaffold(modifier = modifier, topBar = {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+        ) {
+            IconButton(onClick = { onBackPressed() }) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    tint = MaterialTheme.colorScheme.onSurface,
+                    contentDescription = "Navigate Back"
                 )
             }
-        },
-        content = { paddingValues ->
-            NewChatContent(users, onUserClick, Modifier.padding(paddingValues))
+            Spacer(modifier = Modifier.width(4.dp))
+            SearchBar(
+                query = searchText,
+                onQueryChange = onSearchTextChange,
+                onSearch = { /*keyboardController?.hide()*/ },
+                active = false,
+                placeholder = {
+                    Text(text = "Search Users")
+                },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        tint = MaterialTheme.colorScheme.onSurface,
+                        contentDescription = null
+                    )
+                },
+                trailingIcon = {
+                    if (searchText.isNotEmpty()) {
+                        IconButton(onClick = { onSearchTextChange("") }) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                tint = MaterialTheme.colorScheme.onSurface,
+                                contentDescription = "Clear search"
+                            )
+                        }
+                    }
+                },
+                content = {},
+                onActiveChange = {},
+                tonalElevation = 6.dp,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
-    )
+    }, content = { paddingValues ->
+        NewChatContent(users, onUserClick, Modifier.padding(paddingValues))
+    })
 }
 
 @Composable
@@ -130,8 +125,7 @@ fun NewChatContent(
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
-        modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(8.dp)
+        modifier = modifier.fillMaxSize(), contentPadding = PaddingValues(8.dp)
     ) {
         items(users) { user ->
             UserItem(user = user, onUserClick = onUserClick)
@@ -155,8 +149,7 @@ fun UserItem(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         CircularAvatar(
-            imageURL = user.profilePictureURL,
-            size = 55.dp
+            imageURL = user.profilePictureURL, size = 55.dp
         )
         Spacer(modifier = modifier.width(12.dp))
         Text(
@@ -185,8 +178,7 @@ fun NewChatScreenPreview() {
             phoneNumber = "(773) 502-1779",
             email = "humberto.howe@example.com",
             bio = "Life is roblox",
-        ),
-        User(
+        ), User(
             firstName = "Phoebe",
             lastName = "Barnes",
             profilePictureURL = "",
@@ -195,9 +187,8 @@ fun NewChatScreenPreview() {
             bio = "They didn't believe in us ...",
         )
     )
-    AppTheme{
-        NewChatScreen(
-            searchText = "Search Text",
+    AppTheme {
+        NewChatScreen(searchText = "Search Text",
             onSearchTextChange = {},
             users = users,
             onUserClick = {},

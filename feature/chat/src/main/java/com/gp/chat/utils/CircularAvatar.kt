@@ -29,18 +29,18 @@ fun CircularAvatar(
     imageURL: String,
     size: Dp,
     modifier: Modifier = Modifier,
-    @DrawableRes placeHolderDrawable:Int = R.drawable.baseline_account_circle_24,
+    @DrawableRes placeHolderDrawable: Int = R.drawable.baseline_account_circle_24,
     onClick: () -> Unit = {},
 ) {
     val avatarModifier = modifier
         .size(size)
         .clip(CircleShape)
         .clickable { onClick() }
-    if(imageURL.isNotBlank()){
+    if (imageURL.isNotBlank()) {
         val imageRequest =
             ImageRequest.Builder(LocalContext.current).data(imageURL).dispatcher(Dispatchers.IO)
-                .memoryCacheKey(imageURL).diskCacheKey(imageURL).diskCachePolicy(CachePolicy.ENABLED)
-                .memoryCachePolicy(CachePolicy.ENABLED).build()
+                .memoryCacheKey(imageURL).diskCacheKey(imageURL)
+                .diskCachePolicy(CachePolicy.ENABLED).memoryCachePolicy(CachePolicy.ENABLED).build()
         AsyncImage(
             model = imageRequest,
             contentDescription = null,
@@ -56,6 +56,7 @@ fun CircularAvatar(
         )
     }
 }
+
 @Composable
 fun CircularAvatar(
     imageURL: String,
@@ -68,11 +69,11 @@ fun CircularAvatar(
         .size(size)
         .clip(CircleShape)
         .clickable { onClick() }
-    if(imageURL.isNotBlank()){
+    if (imageURL.isNotBlank()) {
         val imageRequest =
             ImageRequest.Builder(LocalContext.current).data(imageURL).dispatcher(Dispatchers.IO)
-                .memoryCacheKey(imageURL).diskCacheKey(imageURL).diskCachePolicy(CachePolicy.ENABLED)
-                .memoryCachePolicy(CachePolicy.ENABLED).build()
+                .memoryCacheKey(imageURL).diskCacheKey(imageURL)
+                .diskCachePolicy(CachePolicy.ENABLED).memoryCachePolicy(CachePolicy.ENABLED).build()
         AsyncImage(
             model = imageRequest,
             contentDescription = null,
@@ -84,7 +85,8 @@ fun CircularAvatar(
             imageVector = placeHolderImageVector,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.outline,
-            modifier = avatarModifier)
+            modifier = avatarModifier
+        )
     }
 }
 
@@ -94,9 +96,7 @@ fun CircularAvatar(
 fun CircularAvatarPreview() {
     AppTheme {
         CircularAvatar(
-            imageURL = "",
-            size = 50.dp,
-            placeHolderDrawable = R.drawable.ic_group
+            imageURL = "", size = 50.dp, placeHolderDrawable = R.drawable.ic_group
         )
     }
 }

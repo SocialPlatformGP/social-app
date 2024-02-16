@@ -18,8 +18,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddMembersViewModel @Inject constructor(
-    private val userRepo: UserRepository,
-    private val chatRepo: MessageRepository
+    private val userRepo: UserRepository, private val chatRepo: MessageRepository
 ) : ViewModel() {
     val uiState = MutableStateFlow(AddMembersUIState())
     private val _allUsers = MutableStateFlow(emptyList<User>())

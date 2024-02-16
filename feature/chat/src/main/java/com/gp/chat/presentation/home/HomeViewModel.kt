@@ -53,9 +53,7 @@ class HomeViewModel @Inject constructor(
 
                     is State.Error -> {
                         _chatHomeState.value = _chatHomeState.value.copy(
-                            isLoading = false,
-                            isError = true,
-                            errorMessage = result.message
+                            isLoading = false, isError = true, errorMessage = result.message
                         )
                     }
 
@@ -84,22 +82,18 @@ class HomeViewModel @Inject constructor(
                         if (result.data.isNotEmpty()) {
                             _recentChats.value = result.data.sortedByDescending {
                                 ZonedDateTime.parse(
-                                    it.timestamp,
-                                    formatter
+                                    it.timestamp, formatter
                                 )
                             }
                             _chatHomeState.value = _chatHomeState.value.copy(
-                                isLoading = false,
-                                isError = false
+                                isLoading = false, isError = false
                             )
                         }
                     }
 
                     is State.Error -> {
                         _chatHomeState.value = _chatHomeState.value.copy(
-                            isLoading = false,
-                            isError = true,
-                            errorMessage = result.message
+                            isLoading = false, isError = true, errorMessage = result.message
                         )
                     }
 

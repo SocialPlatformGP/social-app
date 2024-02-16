@@ -91,24 +91,22 @@ fun ChatHomeScreen(
     fabItems: ArrayList<FabItem>,
     modifier: Modifier = Modifier
 ) {
-    Scaffold(
-        topBar = { },
-        floatingActionButton = {
-            MultiFloatingActionButton(
-                fabIcon = Icons.Filled.Add,
-                items = fabItems,
-                backgroundColor = MaterialTheme.colorScheme.tertiaryContainer
-            )
-        }, content = {
-            ChatHomeScreenContent(
-                chats = chats,
-                state = state,
-                onRecentChatClicked = onRecentChatClicked,
-                dropDownItems = dropDownItems,
-                onDropPDownItemClicked = onDropPDownItemClicked,
-                modifier.padding(it)
-            )
-        })
+    Scaffold(topBar = { }, floatingActionButton = {
+        MultiFloatingActionButton(
+            fabIcon = Icons.Filled.Add,
+            items = fabItems,
+            backgroundColor = MaterialTheme.colorScheme.tertiaryContainer
+        )
+    }, content = {
+        ChatHomeScreenContent(
+            chats = chats,
+            state = state,
+            onRecentChatClicked = onRecentChatClicked,
+            dropDownItems = dropDownItems,
+            onDropPDownItemClicked = onDropPDownItemClicked,
+            modifier.padding(it)
+        )
+    })
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -122,17 +120,11 @@ fun ChatHomeScreenContent(
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
-        contentPadding = PaddingValues(8.dp),
-        modifier = modifier
-            .fillMaxWidth()
+        contentPadding = PaddingValues(8.dp), modifier = modifier.fillMaxWidth()
     ) {
         items(chats) { chat ->
             ChatItem(
-                chat,
-                state?.currentUser,
-                onRecentChatClicked,
-                dropDownItems,
-                onDropPDownItemClicked
+                chat, state?.currentUser, onRecentChatClicked, dropDownItems, onDropPDownItemClicked
             )
         }
     }
@@ -162,7 +154,7 @@ fun ChatItem(
         MutableInteractionSource()
     }
     val imageURL = when {
-        chatItem.privateChat && chatItem.senderPicUrl == currentUser?.photoUrl.toString()-> {
+        chatItem.privateChat && chatItem.senderPicUrl == currentUser?.photoUrl.toString() -> {
             chatItem.receiverPicUrl
         }
 
@@ -185,55 +177,43 @@ fun ChatItem(
     }
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z", Locale.ENGLISH)
     val timestamp = DateUtils.getTimeStamp(ZonedDateTime.parse(chatItem.timestamp, formatter))
-    Column(
-        modifier = modifier
-            .padding(start = 8.dp, end = 8.dp, top = 16.dp)
-            .fillMaxWidth()
-            .onSizeChanged {
-                itemHieght = with(density) { it.height.toDp() }
-            }
-            .indication(interactionSource = interactionSource, LocalIndication.current)
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onLongPress = {
-                        if (!chatItem.privateChat) {
-                            isDropDownMenuVisible = true
-                            pressOffset = DpOffset(it.x.toDp(), it.y.toDp())
-                        }
-                    },
-                    onTap = {
-                        onChatClicked(chatItem)
-                    },
-                    onPress = {
-                        val press = PressInteraction.Press(it)
-                        interactionSource.emit(press)
-                        tryAwaitRelease()
-                        interactionSource.emit(PressInteraction.Release(press))
-                    })
-            }
-    ) {
+    Column(modifier = modifier
+        .padding(start = 8.dp, end = 8.dp, top = 16.dp)
+        .fillMaxWidth()
+        .onSizeChanged {
+            itemHieght = with(density) { it.height.toDp() }
+        }
+        .indication(interactionSource = interactionSource, LocalIndication.current)
+        .pointerInput(Unit) {
+            detectTapGestures(onLongPress = {
+                if (!chatItem.privateChat) {
+                    isDropDownMenuVisible = true
+                    pressOffset = DpOffset(it.x.toDp(), it.y.toDp())
+                }
+            }, onTap = {
+                onChatClicked(chatItem)
+            }, onPress = {
+                val press = PressInteraction.Press(it)
+                interactionSource.emit(press)
+                tryAwaitRelease()
+                interactionSource.emit(PressInteraction.Release(press))
+            })
+        }) {
         Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = modifier
-                .fillMaxWidth()
+            verticalAlignment = Alignment.CenterVertically, modifier = modifier.fillMaxWidth()
         ) {
-            if(chatItem.privateChat) {
+            if (chatItem.privateChat) {
                 CircularAvatar(
-                    imageURL,
-                    55.dp,
-                    placeHolderImageVector = Icons.Filled.AccountCircle
+                    imageURL, 55.dp, placeHolderImageVector = Icons.Filled.AccountCircle
                 )
             } else {
                 CircularAvatar(
-                    imageURL = imageURL,
-                    size = 55.dp,
-                    placeHolderDrawable = R.drawable.ic_group
+                    imageURL = imageURL, size = 55.dp, placeHolderDrawable = R.drawable.ic_group
                 )
             }
             Spacer(Modifier.width(12.dp))
             Column(
-                horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.SpaceEvenly
+                horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.SpaceEvenly
             ) {
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -267,28 +247,23 @@ fun ChatItem(
         }
         Divider(
             thickness = 1.dp,
-            modifier = modifier
-                .padding(top = 16.dp),
-            color= MaterialTheme.colorScheme.onSurfaceVariant
+            modifier = modifier.padding(top = 16.dp),
+            color = MaterialTheme.colorScheme.outlineVariant
         )
         DropdownMenu(
-            expanded = isDropDownMenuVisible,
-            onDismissRequest = {
+            expanded = isDropDownMenuVisible, onDismissRequest = {
                 isDropDownMenuVisible = false
-            },
-            offset = pressOffset.copy(
+            }, offset = pressOffset.copy(
                 y = pressOffset.y - itemHieght
             )
         ) {
             dropDownItems.forEach { item ->
-                DropdownMenuItem(
-                    text = {
-                        Text(text = item.text)
-                    },
-                    onClick = {
-                        isDropDownMenuVisible = false
-                        onItemClicked(item, chatItem)
-                    })
+                DropdownMenuItem(text = {
+                    Text(text = item.text)
+                }, onClick = {
+                    isDropDownMenuVisible = false
+                    onItemClicked(item, chatItem)
+                })
             }
 
         }
@@ -316,8 +291,7 @@ fun ChatHomeScreenPreview() {
             privateChat = false,
             senderPicUrl = "",
             receiverPicUrl = ""
-        ),
-        RecentChat(
+        ), RecentChat(
             id = "sed",
             lastMessage = "leo",
             timestamp = "2024-02-15 20:38:52 GMT+02:00",
@@ -327,8 +301,7 @@ fun ChatHomeScreenPreview() {
             privateChat = true,
             senderPicUrl = "",
             receiverPicUrl = ""
-        ),
-        RecentChat(
+        ), RecentChat(
             id = "sed",
             lastMessage = "leo",
             timestamp = "2024-02-12 20:38:52 GMT+02:00",
@@ -338,8 +311,7 @@ fun ChatHomeScreenPreview() {
             privateChat = false,
             senderPicUrl = "",
             receiverPicUrl = ""
-        ),
-        RecentChat(
+        ), RecentChat(
             id = "sed",
             lastMessage = "leo",
             timestamp = "2024-02-02 20:38:52 GMT+02:00",
@@ -359,7 +331,7 @@ fun ChatHomeScreenPreview() {
             state = null,
             onRecentChatClicked = {},
             dropDownItems = dropDownItems,
-            onDropPDownItemClicked = {_, _ ->},
+            onDropPDownItemClicked = { _, _ -> },
             fabItems = fabItems,
         )
     }

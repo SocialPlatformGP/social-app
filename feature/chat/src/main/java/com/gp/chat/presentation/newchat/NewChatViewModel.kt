@@ -23,8 +23,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NewChatViewModel @Inject constructor(
-    private val userRepository: UserRepository,
-    private val messageRepository: MessageRepository
+    private val userRepository: UserRepository, private val messageRepository: MessageRepository
 ) : ViewModel() {
     private val senderEmail = removeSpecialCharacters(Firebase.auth.currentUser?.email!!)
     val createNewChatState = MutableStateFlow<State<String>>(State.Idle)
@@ -58,7 +57,8 @@ class NewChatViewModel @Inject constructor(
             userRepository.fetchUsers().collect {
                 Log.d("TAG", "getAllUsers: $it")
                 if (it is State.SuccessWithData) {
-                    _users.value = it.data.filter { removeSpecialCharacters( it.email) != senderEmail }
+                    _users.value =
+                        it.data.filter { removeSpecialCharacters(it.email) != senderEmail }
                 }
             }
         }
@@ -96,10 +96,8 @@ class NewChatViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             messageRepository.insertChat(
                 ChatGroup(
-                    name = "Private Chat",
-                    members = mapOf(
-                        senderEmail to true,
-                        removeSpecialCharacters(receiverEmail) to true
+                    name = "Private Chat", members = mapOf(
+                        senderEmail to true, removeSpecialCharacters(receiverEmail) to true
                     )
                 )
             ).collect {
@@ -116,9 +114,7 @@ class NewChatViewModel @Inject constructor(
     fun insertUserToChat(senderEmail: String, chatId: String, receiverEmail: String) {
         viewModelScope.launch(Dispatchers.IO) {
             messageRepository.insertChatToUser(
-                chatId,
-                removeSpecialCharacters(senderEmail),
-                receiverEmail
+                chatId, removeSpecialCharacters(senderEmail), receiverEmail
             ).collect {
                 createNewChatState.value = it
             }
@@ -128,9 +124,7 @@ class NewChatViewModel @Inject constructor(
     fun insertPrivateChat(receiverEmail: String, chatId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             messageRepository.insertPrivateChat(
-                senderEmail,
-                removeSpecialCharacters(receiverEmail),
-                chatId
+                senderEmail, removeSpecialCharacters(receiverEmail), chatId
             ).collect {
                 createNewChatState.value = it
 
