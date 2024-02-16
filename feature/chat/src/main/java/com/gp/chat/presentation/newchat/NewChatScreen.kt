@@ -26,8 +26,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -50,7 +48,7 @@ fun NewChatScreen(
         onSearchTextChange = viewModel::onSearchTextChange,
         users = users,
         onUserClick = onUserClick,
-        keyboardController = LocalSoftwareKeyboardController.current,
+//        keyboardController = LocalSoftwareKeyboardController.current,
         onBackPressed = onBackPressed,
         modifier = modifier
     )
@@ -63,7 +61,6 @@ fun NewChatScreen(
     onSearchTextChange: (String) -> Unit,
     users: List<User>,
     onUserClick: (User) -> Unit,
-    keyboardController: SoftwareKeyboardController?,
     onBackPressed: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -76,6 +73,7 @@ fun NewChatScreen(
                     .fillMaxWidth()
                     .padding(8.dp)
             ) {
+//                val keyboardController = LocalSoftwareKeyboardController.current
                 IconButton(onClick = { onBackPressed() }) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
@@ -87,7 +85,7 @@ fun NewChatScreen(
                 SearchBar(
                     query = searchText,
                     onQueryChange = onSearchTextChange,
-                    onSearch = { keyboardController?.hide() },
+                    onSearch = {  },
                     active = false,
                     placeholder = {
                         Text(text = "Search Users")

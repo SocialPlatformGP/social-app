@@ -86,7 +86,6 @@ import com.gp.socialapp.util.DateUtils
 import java.util.Locale
 
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun FeedPostScreen(
     posts: List<Post>,

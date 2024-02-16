@@ -176,8 +176,7 @@ fun CreatePostTopBar(
             IconButton(
                 onClick = {
                     createPostEvent(CreatePostEvents.OnCreatePostClicked)
-                    onBackClick()
-                          },
+                },
             ) {
                 Icon(
                     imageVector = Icons.Filled.Check, contentDescription = null
