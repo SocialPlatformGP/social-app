@@ -2,7 +2,6 @@ package com.gp.socialapp
 
 import android.app.SearchManager
 import android.content.Intent
-import android.icu.lang.UCharacter.GraphemeClusterBreak.V
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -234,7 +233,7 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
     fun showBottomNav() {
         val params = bottomNavigationView.layoutParams as ViewGroup.LayoutParams
         val dpToPx = resources.displayMetrics.density // Conversion factor
-        val heightInPixels = (80 * dpToPx).toInt()
+        val heightInPixels = (60 * dpToPx).toInt()
         params.height = heightInPixels
         bottomNavigationView.layoutParams = params
         binding.appBarMain.contentInAppBarMain.height = heightInPixels

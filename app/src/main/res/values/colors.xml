@@ -3,10 +3,10 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFF</color>
     <color name="seed">#21653c</color>
-    <color name="md_theme_light_primary">#006D3A</color>
+    <color name="md_theme_light_primary">#222f86</color>
     <color name="md_theme_light_onPrimary">#FFFFFF</color>
     <color name="md_theme_light_primaryContainer">#99F6B4</color>
-    <color name="md_theme_light_onPrimaryContainer">#00210E</color>
+    <color name="md_theme_light_onPrimaryContainer">#FFFFFF</color>
     <color name="md_theme_light_secondary">#006C49</color>
     <color name="md_theme_light_onSecondary">#FFFFFF</color>
     <color name="md_theme_light_secondaryContainer">#7AFAC0</color>

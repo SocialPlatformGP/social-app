@@ -167,7 +167,10 @@ fun EditPostTopBar(
         },
         actions = {
             IconButton(
-                onClick = { editPostEvents(EditPostEvents.OnApplyEditClicked) },
+                onClick = {
+                    editPostEvents(EditPostEvents.OnApplyEditClicked)
+                    editPostEvents(EditPostEvents.NavigateBack)
+                          },
             ) {
                 Icon(
                     imageVector = Icons.Filled.Check, contentDescription = null

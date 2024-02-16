@@ -4,26 +4,19 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Scaffold
+import androidx.compose.material.Surface
 import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
 import androidx.compose.material.TabRowDefaults
@@ -57,6 +50,9 @@ import com.gp.posts.presentation.feedUiEvents.PostEvent
 import com.gp.posts.presentation.utils.CurrentUser
 import com.gp.socialapp.database.model.PostAttachment
 import com.gp.socialapp.model.Post
+import com.gp.socialapp.theme.AppTheme
+import com.gp.socialapp.theme.LightColorScheme
+import com.gp.socialapp.theme.logoColor
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -153,6 +149,7 @@ fun MainFeedScreen(
                 postEvent(PostEvent.OnAddPost)
             }
         },
+        backgroundColor = LightColorScheme.surfaceVariant
     ) { paddingValues ->
         MainFeedContent(
             paddingValues = paddingValues,
@@ -180,9 +177,10 @@ fun MainFeedContent(
         modifier = Modifier
             .padding(paddingValues)
             .fillMaxSize()
-            .background(color = Color.LightGray.copy(alpha = 0.5f))
+//            .background(color = Color.LightGray.copy(alpha = 0.5f))
     ) {
         TabRow(
+            modifier = Modifier.height(40.dp).fillMaxWidth(),
             selectedTabIndex = selectedTabIndex,
             indicator = { tabPositions ->
                 TabRowDefaults.Indicator(
@@ -191,11 +189,12 @@ fun MainFeedContent(
                         .tabIndicatorOffset(tabPositions[selectedTabIndex])
                         .padding(horizontal = 50.dp)
                         .clip(CircleShape)
-                        .align(Alignment.CenterHorizontally),
+                        .align(Alignment.CenterHorizontally)
+                    ,
                     height = 4.dp
                 )
-
-            }
+            },
+            backgroundColor = logoColor ,
         ) {
             tabItems.forEachIndexed { index, tabItem ->
                 Tab(
@@ -219,10 +218,6 @@ fun MainFeedContent(
         HorizontalPager(
             state = pagerState,
             modifier = Modifier
-                .padding(
-                    top = 8.dp,
-                    bottom = 8.dp
-                )
                 .fillMaxWidth()
         ) { index ->
             when (index) {
@@ -270,31 +265,36 @@ fun Fab(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun MainFeedPreview() {
-    MainFeedScreen(
-        FeedPostUIState(
-            posts = listOf(
-                Post(
-                    userName = "John Doe5",
-                    authorEmail = "d",
-                    publishedAt = "2021-09-01T00:00:00Z",
-                    type = "vip",
-                    title = "Title",
-                    body = "Body",
-                ),
-                Post(
-                    userName = "John Doe",
-                    authorEmail = "d",
-                    publishedAt = "2021-09-01T00:00:00Z",
-                    type = "all",
-                    title = "Title",
-                    body = "Body",
-                ),
+    AppTheme {
+        Surface {
+            MainFeedScreen(
+                FeedPostUIState(
+                    posts = listOf(
+                        Post(
+                            userName = "John Doe5",
+                            authorEmail = "d",
+                            publishedAt = "2021-09-01T00:00:00Z",
+                            type = "vip",
+                            title = "Title",
+                            body = "Body",
+                        ),
+                        Post(
+                            userName = "John Doe",
+                            authorEmail = "d",
+                            publishedAt = "2021-09-01T00:00:00Z",
+                            type = "all",
+                            title = "Title",
+                            body = "Body",
+                        ),
 
+                        ),
                 ),
-        ),
-        postEvent = {},
-        currentEmail = "d"
-    )
+                postEvent = {},
+                currentEmail = "d"
+            )
+        }
+    }
+
 }
 
 data class TabItem(val title: String, val imageVector: ImageVector)

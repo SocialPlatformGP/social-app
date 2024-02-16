@@ -15,6 +15,7 @@ import com.gp.posts.R
 import com.gp.posts.presentation.feedUiEvents.PostEvent
 import com.gp.socialapp.database.model.MimeType
 import com.gp.socialapp.database.model.PostAttachment
+import com.gp.socialapp.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 //val taps = arrayOf(
@@ -40,46 +41,49 @@ class MainFeedFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         composeView.setContent {
-            MainFeedScreen(
-                viewModel = viewModel,
-                postEvent = { action ->
-                    when (action) {
-                        is PostEvent.OnAddPost -> {
-                            findNavController().navigate(R.id.action_mainFeedFragment2_to_createPostFragment)
-                        }
+            AppTheme {
+                MainFeedScreen(
+                    viewModel = viewModel,
+                    postEvent = { action ->
+                        when (action) {
+                            is PostEvent.OnAddPost -> {
+                                findNavController().navigate(R.id.action_mainFeedFragment2_to_createPostFragment)
+                            }
 
-                        is PostEvent.OnPostClicked -> {
-                            val action = MainFeedFragmentDirections.mainFeedFragment2ToPostDetialsFragment(action.post)
-                            findNavController().navigate(action)
-                        }
-                        is PostEvent.OnPostEdited -> {
-                            val action = MainFeedFragmentDirections.mainFeedFragment2ToEditPostFragment(action.post)
-                            findNavController().navigate(action)
-                        }
-                        is PostEvent.OnTagClicked -> {
-                            val action = MainFeedFragmentDirections.mainFeedFragment2ToSearchFragment2(
-                                action.tag.label,
-                                true
-                            )
-                            findNavController().navigate(action)
-                        }
-                        is PostEvent.OnAudioClicked -> {
-                            onFileClicked(action.attachment)
-                        }
-                        is PostEvent.OnDocumentClicked -> {
-                            onFileClicked(action.attachment)
-                        }
-                        is PostEvent.OnImageClicked -> {
-                            onFileClicked(action.attachment)
-                        }
-                        is PostEvent.OnVideoClicked -> {
-                            onFileClicked(action.attachment)
-                        }
-                        else -> {}
+                            is PostEvent.OnPostClicked -> {
+                                val action = MainFeedFragmentDirections.mainFeedFragment2ToPostDetialsFragment(action.post)
+                                findNavController().navigate(action)
+                            }
+                            is PostEvent.OnPostEdited -> {
+                                val action = MainFeedFragmentDirections.mainFeedFragment2ToEditPostFragment(action.post)
+                                findNavController().navigate(action)
+                            }
+                            is PostEvent.OnTagClicked -> {
+                                val action = MainFeedFragmentDirections.mainFeedFragment2ToSearchFragment2(
+                                    action.tag.label,
+                                    true
+                                )
+                                findNavController().navigate(action)
+                            }
+                            is PostEvent.OnAudioClicked -> {
+                                onFileClicked(action.attachment)
+                            }
+                            is PostEvent.OnDocumentClicked -> {
+                                onFileClicked(action.attachment)
+                            }
+                            is PostEvent.OnImageClicked -> {
+                                onFileClicked(action.attachment)
+                            }
+                            is PostEvent.OnVideoClicked -> {
+                                onFileClicked(action.attachment)
+                            }
+                            else -> {}
 
+                        }
                     }
-                }
-            )
+                )
+            }
+
         }
     }
 

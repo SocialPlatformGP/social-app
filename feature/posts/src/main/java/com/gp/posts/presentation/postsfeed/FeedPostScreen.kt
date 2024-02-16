@@ -1,8 +1,6 @@
 package com.gp.posts.presentation.postsfeed
 
 //import com.gp.posts.fontFamily2
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,7 +29,7 @@ import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Image
@@ -80,6 +78,9 @@ import com.gp.socialapp.database.model.MimeType
 import com.gp.socialapp.database.model.PostAttachment
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.model.Tag
+import com.gp.socialapp.theme.AppTheme
+import com.gp.socialapp.theme.LightColorScheme
+import com.gp.socialapp.theme.logoColor
 import com.gp.socialapp.util.DateUtils
 import java.util.Locale
 
@@ -94,19 +95,20 @@ fun FeedPostScreen(
 ) {
 
     Column(modifier = Modifier.fillMaxSize()) {
-        LazyColumn {
+        LazyColumn(
+            contentPadding = PaddingValues( vertical = 8.dp),
+        ) {
             items(posts) { post ->
                 FeedPostItem(
                     post = post,
                     postEvent = postEvent,
                     currentEmail = currentEmail
                 )
+                Spacer(modifier = Modifier.size(6.dp))
             }
         }
     }
 }
-
-
 
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -118,18 +120,19 @@ fun FeedPostItem(
 ) {
     Card(
         onClick = { postEvent(PostEvent.OnPostClicked(post)) },
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(4.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(
-                4.dp
-            ),
+//            .padding(
+//                4.dp
+//            ),,
+        ,backgroundColor = LightColorScheme.background
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .background(Color.White)
+//                .background(Color.White)
         ) {
             TopRow(
                 imageUrl = post.userPfp,
@@ -156,10 +159,10 @@ fun FeedPostItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
-                        start = 8.dp,
-                        end = 8.dp,
-                        bottom = 8.dp
-                    )
+                        start = 8.dp, end = 8.dp, bottom = 8.dp
+                    ),
+                thickness = 0.5.dp,
+                color = Color.Gray
             )
             BottomRow(
                 upVotes = post.upvoted,
@@ -193,9 +196,7 @@ fun BottomRow(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                start = 8.dp,
-                end = 8.dp,
-                bottom = 8.dp
+                start = 8.dp, end = 8.dp, bottom = 8.dp
             )
             .sizeIn(
                 maxHeight = 35.dp
@@ -205,7 +206,7 @@ fun BottomRow(
         OutlinedButton(
             onClick = onUpVoteClicked,
             contentPadding = PaddingValues(6.dp),
-            border = BorderStroke(1.dp, Color.LightGray),
+//            border = BorderStroke(1.dp, Color.LightGray),
         ) {
             Icon(
                 imageVector = Icons.TwoTone.KeyboardDoubleArrowUp,
@@ -256,7 +257,7 @@ fun BottomRow(
             contentPadding = PaddingValues(
                 horizontal = 12.dp,
             ),
-            border = BorderStroke(1.dp, Color.LightGray),
+//            border = BorderStroke(1.dp, Color.LightGray),
 
             ) {
             Row(
@@ -281,7 +282,7 @@ fun BottomRow(
         OutlinedButton(
             onClick = { /*TODO  handle share button in post item*/ },
             contentPadding = PaddingValues(),
-            border = BorderStroke(1.dp, Color.LightGray)
+//            border = BorderStroke(1.dp, Color.LightGray)
 
         ) {
             Row(
@@ -289,7 +290,7 @@ fun BottomRow(
             ) {
                 Icon(
                     imageVector = Icons.Default.Share,
-                    contentDescription = "UpVote"
+                    contentDescription = "UpVote",
                 )
             }
         }
@@ -387,10 +388,7 @@ fun ExpandableText(
         modifier = modifier
             .fillMaxWidth()
             .padding(
-                start = 8.dp,
-                end = 8.dp,
-                top = 2.dp,
-                bottom = 4.dp
+                start = 8.dp, end = 8.dp, top = 2.dp, bottom = 4.dp
             )
     ) {
         Text(
@@ -399,7 +397,8 @@ fun ExpandableText(
             modifier = modifier.clickable { expanded = !expanded },
             overflow = if (expanded) TextOverflow.Clip else TextOverflow.Ellipsis,
             fontFamily = merriweatherFamilyBody,
-            fontSize = 14.sp
+            fontSize = 14.sp,
+            color = Color.Gray
         )
         if (expanded) {
             IconButton(
@@ -492,12 +491,12 @@ private fun ButtonViewFiles(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp),
-        border = BorderStroke(2.dp, MaterialTheme.colors.primary),
+//        border = BorderStroke(2.dp, MaterialTheme.colors.primary),
         shape = RoundedCornerShape(8.dp),
     ) {
         Text(
             text = "+ ${attachments.size} File Attached",
-            color = MaterialTheme.colors.primary,
+//            color = MaterialTheme.colors.primary,
 //            fontWeight = FontWeight.Bold,
             fontFamily = montserratFontFamily,
             fontSize = 16.sp
@@ -602,7 +601,7 @@ private fun TopRow(
 ) {
     //TODO: Add edit status
     Row(
-        modifier = Modifier.background(Color.Transparent),
+//        modifier = Modifier.background(Color.Transparent),
         verticalAlignment = Alignment.CenterVertically
     ) {
         UserImage(imageUrl)
@@ -645,6 +644,7 @@ fun OptionButton(
             Icon(
                 imageVector = Icons.Default.MoreHoriz,
                 contentDescription = "More Options",
+                tint = logoColor
             )
         }
         DropdownMenu(
@@ -751,55 +751,60 @@ fun UserImage(
 @Composable
 fun VerticalDivider(
     modifier: Modifier = Modifier,
-    color: Color = MaterialTheme.colors.onSurface.copy(alpha = 0.12f),
+//    color: Color = MaterialTheme.colors.onSurface.copy(alpha = 0.12f),
     thickness: Dp = 1.dp
 ) {
     Box(
         modifier
             .fillMaxHeight()
             .width(thickness)
-            .background(color = color)
+//            .background(color = color)
     )
 }
 
 @Preview(showBackground = true, showSystemUi = true, apiLevel = 33)
 @Composable
 fun FeedPostPreview() {
-    FeedPostScreen(
-        posts = listOf(
-            Post(
-                title = "Title",
-                body = "Body",
-                userName = "user Name",
-                publishedAt = "Sun Feb 04 16:47:40 GMT+02:00 2024",
-                authorEmail = "authorEmail",
-                attachments = listOf(
-                    PostAttachment(
-                        url = "https://www.google.com",
-                        type = MimeType.PDF.readableType,
-                        name = "PDF"
-                    )
-                )
-            ),
-            Post(
-                title = "Title",
-                body = "Body",
-                userName = "user Name",
-                publishedAt = "Sun Feb 04 16:47:40 GMT+02:00 2024",
-                authorEmail = "authorEmail",
-            ),
-            Post(
-                title = "Title",
-                body = "Body",
-                userName = "user Name",
-                publishedAt = "Sun Feb 04 16:47:40 GMT+02:00 2024",
-                authorEmail = "authorEmail",
-            ),
+    AppTheme {
+        Surface {
+            FeedPostScreen(
+                posts = listOf(
+                    Post(
+                        title = "Title",
+                        body = "Body",
+                        userName = "user Name",
+                        publishedAt = "Sun Feb 04 16:47:40 GMT+02:00 2024",
+                        authorEmail = "authorEmail",
+                        attachments = listOf(
+                            PostAttachment(
+                                url = "https://www.google.com",
+                                type = MimeType.PDF.readableType,
+                                name = "PDF"
+                            )
+                        )
+                    ),
+                    Post(
+                        title = "Title",
+                        body = "Body",
+                        userName = "user Name",
+                        publishedAt = "Sun Feb 04 16:47:40 GMT+02:00 2024",
+                        authorEmail = "authorEmail",
+                    ),
+                    Post(
+                        title = "Title",
+                        body = "Body",
+                        userName = "user Name",
+                        publishedAt = "Sun Feb 04 16:47:40 GMT+02:00 2024",
+                        authorEmail = "authorEmail",
+                    ),
 
-            ),
-        postEvent = { PostEvent.Initial },
-        currentEmail = "currentEmail",
-    )
+                    ),
+                postEvent = { PostEvent.Initial },
+                currentEmail = "currentEmail",
+            )
+        }
+    }
+
 //    FeedPostItem(
 //        post = Post(
 //            title = "Title",

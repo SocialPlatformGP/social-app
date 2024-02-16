@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
     <style name="AppTheme" parent="Theme.Material3.Light.NoActionBar">
         <item name="colorPrimary">@color/md_theme_light_primary</item>
         <item name="colorOnPrimary">@color/md_theme_light_onPrimary</item>
@@ -27,4 +27,14 @@
         <item name="colorSurfaceInverse">@color/md_theme_light_inverseSurface</item>
         <item name="colorPrimaryInverse">@color/md_theme_light_inversePrimary</item>
     </style>
+    <style name="Widget.Material3.AppBarLayout2" parent="Widget.Material3.AppBarLayout">
+    <item name="android:background">@color/md_theme_light_primary</item>
+    <item name="android:elevation">4dp</item>
+</style>
+    <style name="bottomNav" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="itemIconTint">#ffffff</item>
+        <item name="android:layout_height">8dp</item>
+        <item name="android:minHeight">30dp</item>    </style>
 </resources>
+
+

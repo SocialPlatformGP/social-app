@@ -89,6 +89,7 @@ import coil.compose.SubcomposeAsyncImageContent
 import com.gp.socialapp.database.model.MimeType
 import com.gp.socialapp.database.model.PostFile
 import com.gp.socialapp.model.Tag
+import com.gp.socialapp.theme.AppTheme
 import kotlinx.coroutines.launch
 
 @Composable
@@ -499,7 +500,10 @@ fun ButtonSheetOptions(
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
 fun CreatePostPreview() {
-    CreatePostScreen(state = CreatePostUIState(), tags = emptyList(),{})
+        AppTheme {
+        Surface {
+            CreatePostScreen(state = CreatePostUIState(), tags = emptyList(), {})
+        }}
 }
 
 enum class TagType(val label: String) {
