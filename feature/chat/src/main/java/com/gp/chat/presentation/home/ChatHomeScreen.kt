@@ -1,11 +1,9 @@
 package com.gp.chat.presentation.home
 
-import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalIndication
-import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -49,7 +47,6 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.rememberAsyncImagePainter
 import com.google.firebase.auth.FirebaseUser
 import com.gp.chat.R
 import com.gp.chat.model.RecentChat
@@ -102,7 +99,7 @@ fun ChatHomeScreen(
             MultiFloatingActionButton(
                 fabIcon = Icons.Filled.Add,
                 items = fabItems,
-                backgroundColor = Color.DarkGray
+                backgroundColor = Color(0xff222f86)
             )
         }, content = {
             ChatHomeScreenContent(
@@ -271,7 +268,10 @@ fun ChatItem(
             }
         }
         Divider(
-            thickness = 1.dp, modifier = modifier.padding(top = 16.dp)
+            thickness = 1.dp,
+            modifier = modifier
+                .padding(top = 16.dp),
+            color= Color(0xFF222f86)
         )
         DropdownMenu(
             expanded = isDropDownMenuVisible,

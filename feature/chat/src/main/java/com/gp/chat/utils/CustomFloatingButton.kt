@@ -115,7 +115,7 @@ fun MultiFloatingActionButton(
                     }) {
                     translate(150f, top = 300f) {
                         scale(5f) {}
-                        drawCircle(Color.LightGray, radius = 200.dp.toPx(), alpha = 0.6f)
+                        drawCircle(Color(0xff222f86), radius = 200.dp.toPx(), alpha = 0.6f)
 
                     }
                 }
@@ -182,7 +182,8 @@ fun SmallFloatingActionButtonRow(
                 text = item.label,
                 modifier = Modifier
                     .padding(start = 6.dp, end = 6.dp, top = 4.dp, bottom = 4.dp)
-                    .clickable(onClick = { item.onFabItemClicked() })
+                    .clickable(onClick = { item.onFabItemClicked() }),
+                color = Color.White
             )
         }
         SmallFloatingActionButton(
@@ -190,7 +191,7 @@ fun SmallFloatingActionButtonRow(
             modifier = Modifier
                 .padding(4.dp),
             onClick = { item.onFabItemClicked() },
-            containerColor = item.backgroundColor,
+            containerColor = Color(0xff222f86),
             contentColor = Color.White
         ) {
             Icon(

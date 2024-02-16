@@ -59,6 +59,7 @@ import androidx.compose.material.icons.filled.VideoLibrary
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -90,6 +91,7 @@ import com.gp.socialapp.database.model.MimeType
 import com.gp.socialapp.database.model.PostFile
 import com.gp.socialapp.model.Tag
 import com.gp.socialapp.theme.AppTheme
+import com.gp.socialapp.theme.logoColor
 import kotlinx.coroutines.launch
 
 @Composable
@@ -137,7 +139,8 @@ fun CreatePostScreen(
     Scaffold(
         topBar = {
             CreatePostTopBar(
-                onBackClick = { createPostEvent(CreatePostEvents.NavigateBack) }
+                onBackClick = { createPostEvent(CreatePostEvents.NavigateBack) },
+                createPostEvent = createPostEvent
             )
         },
     ) { paddindValues ->
@@ -158,6 +161,7 @@ fun CreatePostScreen(
 @Composable
 fun CreatePostTopBar(
     onBackClick: () -> Unit = {},
+    createPostEvent: (CreatePostEvents) -> Unit
 ) {
     TopAppBar(title = { Text(text = "Create Post") }, navigationIcon = {
         IconButton(
@@ -167,7 +171,22 @@ fun CreatePostTopBar(
                 imageVector = Icons.Filled.ArrowBackIosNew, contentDescription = null
             )
         }
-    })
+    },
+        actions = {
+            IconButton(
+                onClick = {
+                    createPostEvent(CreatePostEvents.OnCreatePostClicked)
+                    onBackClick()
+                          },
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Check, contentDescription = null
+                )
+            }
+        },
+        backgroundColor = logoColor,
+        contentColor = Color.White
+    )
 }
 
 @OptIn(
@@ -235,12 +254,18 @@ fun CreatePostContent(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            CreatePostButton(label = "Add Tag",
+            OutlinedCreatePostButton(label = "Add Tag",
                 onClick = { scope.launch { bottomSheetState.show() } })
-            CreatePostAction(icon = Icons.Filled.Image, onClick = { createPostEvent(CreatePostEvents.OnAddImageClicked) })
-            CreatePostAction(icon = Icons.Filled.VideoFile, onClick = { createPostEvent(CreatePostEvents.OnAddVideoClicked) })
-            CreatePostAction(icon = Icons.Filled.AttachFile, onClick = { createPostEvent(CreatePostEvents.OnAddFileClicked) })
-            CreatePostButton(label = "Post", onClick = { createPostEvent(CreatePostEvents.OnCreatePostClicked) })
+            CreatePostAction(
+                icon = Icons.Filled.Image,
+                onClick = { createPostEvent(CreatePostEvents.OnAddImageClicked) })
+            CreatePostAction(
+                icon = Icons.Filled.VideoFile,
+                onClick = { createPostEvent(CreatePostEvents.OnAddVideoClicked) })
+            CreatePostAction(
+                icon = Icons.Filled.AttachFile,
+                onClick = { createPostEvent(CreatePostEvents.OnAddFileClicked) })
+//            CreatePostButton(label = "Post", onClick = { createPostEvent(CreatePostEvents.OnCreatePostClicked) })
         }
 
 
@@ -413,6 +438,23 @@ private fun CreatePostButton(
 }
 
 @Composable
+private fun OutlinedCreatePostButton(
+    onClick: () -> Unit = {},
+    label: String,
+) {
+    OutlinedButton(
+        onClick = onClick, shape = RoundedCornerShape(16.dp)
+    ) {
+        Text(
+            text = label, modifier = Modifier.padding(
+                top = 3.dp, bottom = 3.dp, start = 4.dp, end = 4.dp
+            ),
+            color = logoColor
+        )
+    }
+}
+
+@Composable
 private fun CreatePostAction(
     icon: ImageVector, onClick: () -> Unit = {}
 ) {
@@ -420,7 +462,7 @@ private fun CreatePostAction(
         onClick = onClick,
     ) {
         Icon(
-            imageVector = icon, contentDescription = null, tint = MaterialTheme.colors.onSurface
+            imageVector = icon, contentDescription = null, tint = logoColor
         )
     }
 }
@@ -446,7 +488,7 @@ fun CreatePostTextField(
                     .fillMaxHeight()
                     .wrapContentHeight(Alignment.Top)
                     .padding(16.dp),
-                tint = MaterialTheme.colors.onSurface
+                tint = logoColor
             )
         },
         modifier = modifier
@@ -500,10 +542,11 @@ fun ButtonSheetOptions(
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
 fun CreatePostPreview() {
-        AppTheme {
+    AppTheme {
         Surface {
             CreatePostScreen(state = CreatePostUIState(), tags = emptyList(), {})
-        }}
+        }
+    }
 }
 
 enum class TagType(val label: String) {

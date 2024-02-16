@@ -96,7 +96,6 @@ private fun ReplyItem(
         shape = ShapeDefaults.Medium,
         elevation = 0.dp,
         border = BorderStroke(1.dp, Color.Gray),
-        backgroundColor = Color.Gray.copy(alpha = 0.1f)
 
     ) {
             Column(

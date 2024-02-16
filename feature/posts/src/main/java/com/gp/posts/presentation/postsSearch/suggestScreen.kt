@@ -2,7 +2,6 @@ package com.gp.posts.presentation.postsSearch
 
 import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -47,7 +46,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -251,5 +249,7 @@ private fun generateAnnotatedTitle(title: String, highlightedText: String): Anno
 @Composable
 fun SuggestItemPreview() {
 
-     //SuggestItem(post = suggestedItems.first(), searchText = "SearchQuery")
+     SuggestItem(post = Post(
+         userName = "userName",
+     ), searchText = "SearchQuery")
 }

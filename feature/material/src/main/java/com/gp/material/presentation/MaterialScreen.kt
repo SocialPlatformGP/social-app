@@ -2,7 +2,6 @@ package com.gp.material.presentation
 
 import android.util.Log
 import androidx.compose.foundation.LocalIndication
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -15,7 +14,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -55,13 +53,11 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.google.firebase.firestore.auth.User
 import com.gp.material.R
 import com.gp.material.model.FileType
 import com.gp.material.model.MaterialItem
@@ -142,7 +138,7 @@ fun MaterialScreen(
                         FabItem(
                             icon = painterResource(id = R.drawable.baseline_create_new_folder_24),
                             label = "Create Folder",
-                            backgroundColor = Color.DarkGray,
+                            backgroundColor = Color(0xff222f86),
                             onFabItemClicked = {
                                 isCreateDialogOpen = true
                             }

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.OutlinedTextField
@@ -30,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -79,19 +81,21 @@ fun RegistrationContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentWidth(Alignment.CenterHorizontally),
-            fontSize = 36.sp
+            fontSize = 36.sp,
+            color=Color(0xff222f86)
         )
         OutlinedTextField(
             value = state.email,
             onValueChange = { onEmailChange(it) },
-            label = { Text(text = "Email") },
+            label = { Text(text = "Email",color=Color(0xff222f86).copy( alpha = 0.7f)) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp),
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Filled.Email,
-                    contentDescription = null
+                    contentDescription = null,
+                    tint = Color(0xff222f86)
                 )
             },
             singleLine = true,
@@ -100,14 +104,15 @@ fun RegistrationContent(
         OutlinedTextField(
             value = state.password,
             onValueChange = { onPasswordChange(it) },
-            label = { Text(text = "Password") },
+            label = { Text(text = "Password",color=Color(0xff222f86).copy( alpha = 0.7f)) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp),
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Filled.Lock,
-                    contentDescription = null
+                    contentDescription = null,
+                    tint = Color(0xff222f86)
                 )
             },
             singleLine = true,
@@ -120,21 +125,22 @@ fun RegistrationContent(
                 val description = if (passwordVisible) "Hide password" else "Show password"
 
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                    Icon(imageVector = image, description)
+                    Icon(imageVector = image, description, tint = Color(0xff222f86))
                 }
             }
         )
         OutlinedTextField(
             value = state.rePassword,
             onValueChange = { onRePasswordChange(it) },
-            label = { Text(text = "Re-Password") },
+            label = { Text(text = "Re-Password",color=Color(0xff222f86).copy( alpha = 0.7f)) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp),
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Filled.Lock,
-                    contentDescription = null
+                    contentDescription = null,
+                    tint = Color(0xff222f86)
                 )
             },
             singleLine = true,
@@ -147,7 +153,7 @@ fun RegistrationContent(
                 val description = if (passwordVisible) "Hide password" else "Show password"
 
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                    Icon(imageVector = image, description)
+                    Icon(imageVector = image, description, tint = Color(0xff222f86))
                 }
             }
         )
@@ -156,7 +162,11 @@ fun RegistrationContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 32.dp)
-                .height(52.dp)
+                .height(52.dp),
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = Color(0xff222f86),
+                contentColor = Color.White
+            )
         ) {
             Text(
                 text = "Create Account",
@@ -181,7 +191,8 @@ fun RegistrationContent(
             ){
                 Text(
                     text = "Sign In",
-                    fontSize = 18.sp
+                    fontSize = 18.sp,
+                    color = Color(0xff222f86)
                 )
             }
 

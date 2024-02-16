@@ -115,7 +115,7 @@ fun MultiFloatingActionButton(
                     }) {
                     translate(150f, top = 300f) {
                         scale(5f) {}
-                        drawCircle(Color.LightGray, radius = 200.dp.toPx(), alpha = 0.6f)
+                        drawCircle(Color(0xff222f86), radius = 200.dp.toPx(), alpha = 0.6f)
 
                     }
                 }
@@ -135,7 +135,7 @@ fun MultiFloatingActionButton(
                 }
                 FloatingActionButton(
                     shape = CircleShape,
-                    containerColor = backgroundColor,
+                    containerColor = Color(0xff222f86),
                     onClick = {
                         stateChange()
                     }) {
@@ -187,7 +187,8 @@ fun SmallFloatingActionButtonRow(
                     .clickable(onClick = {
                         item.onFabItemClicked()
                         onDismiss()
-                    })
+                    }),
+                color = Color.White
             )
         }
         SmallFloatingActionButton(
@@ -198,7 +199,7 @@ fun SmallFloatingActionButtonRow(
                 item.onFabItemClicked()
                 onDismiss()
             },
-            containerColor = item.backgroundColor,
+            containerColor = Color(0xff222f86),
             contentColor = Color.White
         ) {
             Icon(

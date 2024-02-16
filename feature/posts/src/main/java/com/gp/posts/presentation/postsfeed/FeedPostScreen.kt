@@ -1,6 +1,7 @@
 package com.gp.posts.presentation.postsfeed
 
 //import com.gp.posts.fontFamily2
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -206,7 +207,7 @@ fun BottomRow(
         OutlinedButton(
             onClick = onUpVoteClicked,
             contentPadding = PaddingValues(6.dp),
-//            border = BorderStroke(1.dp, Color.LightGray),
+            border = BorderStroke(1.dp, Color.LightGray),
         ) {
             Icon(
                 imageVector = Icons.TwoTone.KeyboardDoubleArrowUp,
@@ -257,7 +258,7 @@ fun BottomRow(
             contentPadding = PaddingValues(
                 horizontal = 12.dp,
             ),
-//            border = BorderStroke(1.dp, Color.LightGray),
+            border = BorderStroke(1.dp, Color.LightGray),
 
             ) {
             Row(
@@ -282,7 +283,7 @@ fun BottomRow(
         OutlinedButton(
             onClick = { /*TODO  handle share button in post item*/ },
             contentPadding = PaddingValues(),
-//            border = BorderStroke(1.dp, Color.LightGray)
+            border = BorderStroke(1.dp, Color.LightGray)
 
         ) {
             Row(
@@ -493,13 +494,15 @@ private fun ButtonViewFiles(
             .padding(horizontal = 8.dp),
 //        border = BorderStroke(2.dp, MaterialTheme.colors.primary),
         shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(2.dp, logoColor),
     ) {
         Text(
             text = "+ ${attachments.size} File Attached",
 //            color = MaterialTheme.colors.primary,
 //            fontWeight = FontWeight.Bold,
             fontFamily = montserratFontFamily,
-            fontSize = 16.sp
+            fontSize = 16.sp,
+            color = logoColor
         )
 
 

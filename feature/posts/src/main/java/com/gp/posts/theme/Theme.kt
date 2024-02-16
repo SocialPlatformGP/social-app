@@ -14,6 +14,7 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -78,8 +79,9 @@ import com.example.compose.md_theme_light_surfaceTint
 import com.example.compose.md_theme_light_surfaceVariant
 import com.example.compose.md_theme_light_tertiary
 import com.example.compose.md_theme_light_tertiaryContainer
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
- val LightColorScheme = lightColorScheme(
+val LightColorScheme = lightColorScheme(
     primary = md_theme_light_primary,
     onPrimary = md_theme_light_onPrimary,
     primaryContainer = md_theme_light_primaryContainer,
@@ -112,7 +114,7 @@ import com.example.compose.md_theme_light_tertiaryContainer
 )
 val logoColor = md_theme_light_logoBackgroundColor
 
- val DarkColorScheme = darkColorScheme(
+val DarkColorScheme = darkColorScheme(
     primary = md_theme_dark_primary,
     onPrimary = md_theme_dark_onPrimary,
     primaryContainer = md_theme_dark_primaryContainer,
@@ -172,6 +174,16 @@ internal fun AppTheme(
         LocalThemeIsDark provides isDarkState
     ) {
         val isDark by isDarkState
+        val systemUiController = rememberSystemUiController()
+        if (isDark) {
+            systemUiController.setSystemBarsColor(
+                color = Color.Transparent
+            )
+        } else {
+            systemUiController.setSystemBarsColor(
+                color = Color.White
+            )
+        }
         MaterialTheme(
             colorScheme = if (isDark) DarkColorScheme else LightColorScheme,
             typography = AppTypography,

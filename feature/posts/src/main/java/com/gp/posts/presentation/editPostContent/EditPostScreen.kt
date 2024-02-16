@@ -1,4 +1,3 @@
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -60,7 +59,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -92,6 +90,7 @@ import com.gp.socialapp.database.model.MimeType
 import com.gp.socialapp.database.model.PostAttachment
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.model.Tag
+import com.gp.socialapp.theme.logoColor
 import kotlinx.coroutines.launch
 
 
@@ -99,10 +98,10 @@ import kotlinx.coroutines.launch
 fun EditPostScreen(
     viewModel: EditPostViewModel,
     back: () -> Unit,
-    onAddImageClick: () -> Unit ,
-    onAddVideoClick: () -> Unit ,
-    onAddFileClick: () -> Unit ,
-    onPreviewFile: (PostAttachment) -> Unit={},
+    onAddImageClick: () -> Unit,
+    onAddVideoClick: () -> Unit,
+    onAddFileClick: () -> Unit,
+    onPreviewFile: (PostAttachment) -> Unit = {},
 ) {
     val post by viewModel.post.collectAsState()
     val channelTags by viewModel.tags.collectAsState()
@@ -116,7 +115,9 @@ fun EditPostScreen(
                 is EditPostEvents.OnAddVideoClicked -> onAddVideoClick()
                 is EditPostEvents.OnAddFileClicked -> onAddFileClick()
                 is EditPostEvents.OnPreviewClicked -> onPreviewFile(it.file)
-                else->{viewModel.handleEvent(it)}
+                else -> {
+                    viewModel.handleEvent(it)
+                }
             }
 
         }
@@ -154,14 +155,14 @@ fun EditPostScreen(
 fun EditPostTopBar(
     editPostEvents: (EditPostEvents) -> Unit
 ) {
-    TopAppBar(
-        title = { Text(text = "Edit Post") },
+    androidx.compose.material.TopAppBar(
+        title = { Text(text = "Edit Post", color = Color.White, fontSize = 20.sp) },
         navigationIcon = {
             IconButton(
                 onClick = { editPostEvents(EditPostEvents.NavigateBack) },
             ) {
                 Icon(
-                    imageVector = Icons.Filled.ArrowBackIosNew, contentDescription = null
+                    imageVector = Icons.Filled.ArrowBackIosNew, contentDescription = null, tint = Color.White
                 )
             }
         },
@@ -170,13 +171,14 @@ fun EditPostTopBar(
                 onClick = {
                     editPostEvents(EditPostEvents.OnApplyEditClicked)
                     editPostEvents(EditPostEvents.NavigateBack)
-                          },
+                },
             ) {
                 Icon(
-                    imageVector = Icons.Filled.Check, contentDescription = null
+                    imageVector = Icons.Filled.Check, contentDescription = null, tint = Color.White
                 )
             }
-        }
+        },
+        backgroundColor = logoColor,
     )
 }
 
@@ -428,6 +430,7 @@ private fun EditPostOutlinedButton(
                 top = 3.dp, bottom = 3.dp, start = 4.dp, end = 4.dp
             ),
             style = MaterialTheme.typography.button,
+            color = logoColor
         )
     }
 }
@@ -440,7 +443,7 @@ private fun EditPostAction(
         onClick = onClick,
     ) {
         Icon(
-            imageVector = icon, contentDescription = null, tint = MaterialTheme.colors.onSurface
+            imageVector = icon, contentDescription = null, tint = logoColor
         )
     }
 }
@@ -466,7 +469,7 @@ fun EditPostTextField(
                     .fillMaxHeight()
                     .wrapContentHeight(Alignment.Top)
                     .padding(16.dp),
-                tint = MaterialTheme.colors.onSurface
+                tint = logoColor
             )
         },
         modifier = modifier
