@@ -1,7 +1,7 @@
 package com.gp.chat.presentation.createGroupChat
 
+import android.content.res.Configuration
 import android.net.Uri
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,6 +25,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.rounded.Create
 import androidx.compose.material3.Button
@@ -49,11 +51,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
 import com.gp.chat.R
+import com.gp.chat.presentation.theme.AppTheme
 import com.gp.chat.utils.CircularAvatar
 import com.gp.users.model.SelectableUser
 import com.gp.users.model.User
@@ -141,7 +145,6 @@ fun CreateGroupChatScreen(
                 modifier = Modifier
                     .fillMaxWidth(),)
             ChooseGroupMembersSection(
-                modifier = Modifier.weight(1F),
                 selectedUsers = selectedUsers,
                 users = users,
                 onUnselectUser = {
@@ -169,7 +172,6 @@ fun CreateGroupChatScreen(
                 style = MaterialTheme.typography.labelLarge)
         }
     }
-    
 }
 @Composable
 fun GroupAvatarSection(
@@ -178,26 +180,33 @@ fun GroupAvatarSection(
     onChoosePhotoClicked: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val backgroundColor = Color.LightGray
+    val backgroundColor = MaterialTheme.colorScheme.surfaceVariant
     val contentColor = contentColorFor(backgroundColor)
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .fillMaxWidth()) {
-        Image(
-            painter = if(avatarURL.isBlank()){
-                painterResource(id = R.drawable.ic_group)
-                } else{
-                rememberAsyncImagePainter(
+        if(avatarURL.isBlank()){
+            Icon(
+                painter = painterResource(id = R.drawable.ic_group),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.outline,
+                modifier = Modifier
+                    .size(100.dp)
+                    .clip(CircleShape)
+            )
+        } else {
+            Image(
+                painter = rememberAsyncImagePainter(
                     model = Uri.parse(avatarURL)
-                )
-            },
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .size(100.dp)
-                .clip(CircleShape)
-        )
+                ),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(100.dp)
+                    .clip(CircleShape)
+            )
+        }
         if (isModifiable) {
             IconButton(
                 onClick = {onChoosePhotoClicked()},
@@ -256,6 +265,8 @@ fun SelectedMemberItem(
     onUnselect: (User) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val backgroundColor = MaterialTheme.colorScheme.surfaceVariant
+    val contentColor = contentColorFor(backgroundColor)
     Column(
         modifier = modifier.padding(horizontal = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -263,16 +274,22 @@ fun SelectedMemberItem(
         Box (
             contentAlignment = Alignment.Center
         ){
-            CircularAvatar(imageURL = user.profilePictureURL, size = 50.dp)
+            CircularAvatar(
+                imageURL = user.profilePictureURL,
+                size = 50.dp,
+                placeHolderImageVector = Icons.Filled.AccountCircle
+            )
             IconButton(
                 onClick = { onUnselect(user) },
                 modifier = Modifier
                     .offset(x = 18.dp, y = 18.dp)
-                    .background(color = Color.LightGray, shape = CircleShape)
+                    .background(color = backgroundColor, shape = CircleShape)
                     .size(20.dp)) {
                 Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_close),
-                    contentDescription = null)
+                    imageVector = Icons.Filled.Cancel,
+                    contentDescription = null,
+                    tint = contentColor
+                )
             }
         }
         Text(
@@ -302,7 +319,8 @@ fun GroupMemberItem(
     ) {
         CircularAvatar(
             imageURL = user.data.profilePictureURL,
-            size = 55.dp
+            size = 55.dp,
+            placeHolderImageVector = Icons.Filled.AccountCircle
         )
         Spacer(modifier = modifier.width(12.dp))
         Column (
@@ -344,19 +362,105 @@ fun GroupMemberItem(
 }
 @Composable
 fun CircleCheckbox(modifier: Modifier = Modifier,selected: Boolean, enabled: Boolean = true, onChecked: () -> Unit) {
-    val color = MaterialTheme.colorScheme
+    val colors = MaterialTheme.colorScheme
     val imageVector = if (selected) Icons.Filled.CheckCircle else ImageVector.vectorResource(R.drawable.circle_outline)
-    val tint = if (selected) color.primary.copy(alpha = 0.8f) else Color.White.copy(alpha = 0.8f)
-    val background = if (selected) Color.White else Color.Transparent
+    val tint = if (selected) colors.primary.copy(alpha = 0.8f) else Color.White.copy(alpha = 0.8f)
+    val background = if (selected) colors.primaryContainer else Color.Transparent
 
     IconButton(
         onClick = { onChecked() },
         modifier = modifier.size(24.dp),
         enabled = enabled
     ) {
-        Icon(imageVector = imageVector, tint = tint,
+        Icon(
+            imageVector = imageVector,
+            tint = tint,
             modifier = Modifier.background(background, shape = CircleShape),
             contentDescription = "checkbox")
     }
 }
 
+@Preview(name = "Light", showBackground = true, showSystemUi = true)
+@Preview(name = "Dark Mode",showBackground = true, showSystemUi = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun CreateGroupChatScreenPreview() {
+    val selectedUsers = listOf<User>(
+        User(
+            firstName = "Marshall",
+            lastName = "Bonner",
+            profilePictureURL = "",
+            phoneNumber = "(773) 502-1779",
+            email = "humberto.howe@example.com",
+            bio = "Life is roblox",
+        ),
+        User(
+            firstName = "Phoebe",
+            lastName = "Barnes",
+            profilePictureURL = "",
+            phoneNumber = "(644) 812-8554",
+            email = "lillian.mcmahon@example.com",
+            bio = "They didn't believe in us ...",
+        )
+    )
+    val users = listOf<SelectableUser>(
+        SelectableUser(
+            data = User(
+                firstName = "Marshall",
+                lastName = "Bonner",
+                profilePictureURL = "",
+                phoneNumber = "(773) 502-1779",
+                email = "humberto.howe@example.com",
+                bio = "Life is roblox",
+            ),
+            isSelected = true
+        ),
+        SelectableUser(
+            data = User(
+                firstName = "Neil",
+                lastName = "Mercer",
+                profilePictureURL = "",
+                phoneNumber = "(761) 954-8085",
+                email = "kristie.ayers@example.com",
+                bio = "Bring out the lobster",
+            ),
+            isSelected = false
+        ),
+        SelectableUser(
+            data = User(
+                firstName = "Phoebe",
+                lastName = "Barnes",
+                profilePictureURL = "",
+                phoneNumber = "(644) 812-8554",
+                email = "lillian.mcmahon@example.com",
+                bio = "They didn't believe in us ...",
+            ),
+            isSelected = true
+        ),
+        SelectableUser(
+            data = User(
+                firstName = "Beverley",
+                lastName = "Sheppard",
+                profilePictureURL = "",
+                phoneNumber = "(267) 216-7670",
+                email = "leonard.mills@example.com",
+                bio = "God did!",
+            ),
+            isSelected = false
+        )
+    )
+    AppTheme {
+        CreateGroupChatScreen(
+            name = "Group Name",
+            avatarURL = "",
+            selectedUsers = selectedUsers,
+            users = users,
+            isError = false,
+            onChoosePhotoClicked = { /*TODO*/ },
+            onChangeError = {},
+            onUpdateName = {},
+            onRemoveMember = {},
+            onAddMember = {},
+            onCreateGroup = {}
+        )
+    }
+}

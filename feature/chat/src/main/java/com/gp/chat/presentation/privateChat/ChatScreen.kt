@@ -1,5 +1,6 @@
 package com.gp.chat.presentation.privateChat
 
+import android.content.res.Configuration
 import android.net.Uri
 import android.os.Build
 import android.util.Log
@@ -16,6 +17,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -37,6 +39,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Send
@@ -67,7 +70,6 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -93,11 +95,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
-import com.google.android.play.integrity.internal.c
 import com.gp.chat.R
 import com.gp.chat.model.Message
 import com.gp.chat.presentation.groupchat.GroupChatViewModel
 import com.gp.chat.presentation.home.DropDownItem
+import com.gp.chat.presentation.theme.AppTheme
 import com.gp.chat.util.DateUtils.getDateHeader
 import com.gp.chat.utils.CircularAvatar
 import kotlinx.coroutines.Dispatchers
@@ -244,19 +246,17 @@ fun ChatScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Spacer(modifier = Modifier.size(8.dp))
-                    if (chatImageURL.isNotBlank()) {
-                        CircularAvatar(imageURL = chatImageURL, size = 45.dp)
+                    if (isPrivateChat) {
+                        CircularAvatar(
+                            imageURL = chatImageURL,
+                            size = 45.dp,
+                            placeHolderImageVector = Icons.Filled.AccountCircle
+                        )
                     } else {
-                        Image(
-                            painter = painterResource(
-                                id = if (isPrivateChat)
-                                    R.drawable.baseline_account_circle_24
-                                else
-                                    R.drawable.ic_group
-                            ),
-                            contentDescription = null,
-                            contentScale = ContentScale.Fit,
-                            modifier = Modifier.size(45.dp)
+                        CircularAvatar(
+                            imageURL = chatImageURL,
+                            size = 45.dp,
+                            placeHolderDrawable = R.drawable.ic_group
                         )
                     }
                     Spacer(modifier = Modifier.size(8.dp))
@@ -365,7 +365,7 @@ fun MessageInput(
     }
     Column(
         modifier = modifier
-            .padding(horizontal = 8.dp)
+            .padding(horizontal = 8.dp, vertical = 2.dp)
             .fillMaxWidth()
     ) {
         Divider(
@@ -453,6 +453,7 @@ fun MessagesContent(
     val reversedMessages = messages.asReversed()
     LazyColumn(
         modifier = modifier.fillMaxSize(),
+        contentPadding = PaddingValues(bottom = 2.dp),
         reverseLayout = true,
         state = scrollState,
     ) {
@@ -565,28 +566,20 @@ fun MessageItem(
             .fillMaxWidth(),
         horizontalArrangement = horizontalArrangement
     ) {
-        if (!isCurrentUser && !isSameSender && message.senderPfpURL.isNotBlank() && !isPrivateChat) {
+        if (!isCurrentUser && !isSameSender && !isPrivateChat) {
             CircularAvatar(
                 imageURL = message.senderPfpURL,
-                size = 42.dp,
+                size = 32.dp,
                 onClick = { onUserClicked(message.senderId) },
+                placeHolderImageVector = Icons.Filled.AccountCircle,
                 modifier = Modifier
-                    .padding(horizontal = 16.dp)
+                    .padding(horizontal = 8.dp)
                     .align(Alignment.Top)
             )
-        } else if (!isCurrentUser && !isSameSender && !isPrivateChat) {
-            Image(
-                painter = painterResource(id = R.drawable.baseline_account_circle_24),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = modifier
-                    .size(42.dp)
-                    .clip(CircleShape)
-                    .clickable { onUserClicked(message.senderId) })
         } else if (!isCurrentUser && message.senderPfpURL.isNotBlank() && !isPrivateChat) {
-            Spacer(modifier = Modifier.width(74.dp))
+            Spacer(modifier = Modifier.width(48.dp))
         } else if(isPrivateChat && !isCurrentUser){
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(8.dp))
         }
         Surface(
             color = backgroundColor,
@@ -616,7 +609,8 @@ fun MessageItem(
                         text = AnnotatedString(message.senderName),
                         style = TextStyle(
                             fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
                         ),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -690,45 +684,31 @@ fun MessageItem(
             }
         }
         if(isCurrentUser){
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(8.dp))
         }
     }
 }
 
-val message = Message(
-    id = "1",
-    groupId = "periculis",
-    message = "tibique tibique tibique tibique",
-    messageDate = "praesent",
-    senderId = "est",
-    senderName = "Annette Patel",
-    senderPfpURL = "https://search.yahoo.com/search?p=invenire",
-    timestamp = "2024-02-12 14:51:19 GMT+02:00",
-    fileURI ="".toUri(),
-    fileType = "",
-    fileNames = ""
-)
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview
-@Composable
-fun MessageItemPreview() {
-    MaterialTheme{
-        MessageItem(
-            message = message,
-            onFileClicked = {_, _, _ ->},
-            onImageClicked = {},
-            onUserClicked = {},
-            dropDownItems = emptyList(),
-            onDropPDownItemClicked = {_, _, _ ->},
-            isPrivateChat = false,
-            isSameSender = false,
-            isCurrentUser = false,
-            maxScreenWidthDP = 400.dp,
-            maxScreenHeightDP = 700.dp
-        )
-    }
-}
+//@RequiresApi(Build.VERSION_CODES.O)
+//@Preview
+//@Composable
+//fun MessageItemPreview() {
+//    AppTheme{
+//        MessageItem(
+//            message = message,
+//            onFileClicked = {_, _, _ ->},
+//            onImageClicked = {},
+//            onUserClicked = {},
+//            dropDownItems = emptyList(),
+//            onDropPDownItemClicked = {_, _, _ ->},
+//            isPrivateChat = false,
+//            isSameSender = false,
+//            isCurrentUser = false,
+//            maxScreenWidthDP = 400.dp,
+//            maxScreenHeightDP = 700.dp
+//        )
+//    }
+//}
 
 @Composable
 fun ImageMessageWithTimestamp(
@@ -981,6 +961,72 @@ fun ImagePreviewDialog(
                         .clickable { onDismissRequest() },
                 )
             }
+        }
+    }
+}
+
+val messages = listOf(
+    Message(
+        id = "1",
+        groupId = "periculis",
+        message = "Hello, How are you?",
+        messageDate = "Feb 04, 2024",
+        senderId = "mohamededrees234@hotmail.com",
+        senderName = "Annette Patel",
+        senderPfpURL = "",
+        timestamp = "2024-02-12 14:51:19 GMT+02:00",
+        fileURI ="".toUri(),
+        fileType = "",
+        fileNames = ""
+    ),
+    Message(
+        id = "1",
+        groupId = "periculis",
+        message = "I'm fine what about you",
+        messageDate = "Feb 04, 2024",
+        senderId = "mohamededrees2345@hotmail.com",
+        senderName = "Annette Patel",
+        senderPfpURL = "",
+        timestamp = "2024-02-12 14:52:19 GMT+02:00",
+        fileURI ="".toUri(),
+        fileType = "",
+        fileNames = ""
+    )
+)
+
+
+@Preview(name = "Light", showBackground = true, showSystemUi = true)
+@Preview(
+    name = "Dark",
+    showBackground = true,
+    showSystemUi = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun ChatScreenPreview() {
+    AppTheme {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            ChatScreen(
+                isPrivateChat = false,
+                chatTitle = "John Elton",
+                chatImageURL = "",
+                onChatHeaderClicked = { /*TODO*/ },
+                onBackPressed = { /*TODO*/ },
+                onFileClicked = {_, _, _ ->},
+                onUserClicked = {},
+                onAttachFileClicked = { /*TODO*/ },
+                onAttachImageClicked = { /*TODO*/ },
+                onOpenCameraClicked = { /*TODO*/ },
+                dropDownItems = emptyList(),
+                onSendMessage = { /*TODO*/ },
+                onDeleteMessage = {},
+                onUpdateMessage = {},
+                onEditMessage = {_, _ ->},
+                messages = messages,
+                currentMessage = MessageState(message = "Current Message"),
+                currentUserEmail = "mohamededrees234@hotmail.com"
+            )
         }
     }
 }

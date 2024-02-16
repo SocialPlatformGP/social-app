@@ -25,6 +25,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.gp.chat.listener.OnGroupMemberClicked
 import com.gp.chat.presentation.groupdetails.addGroupMembers.AddMembersFragment
+import com.gp.chat.presentation.theme.AppTheme
 import com.gp.users.model.User
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -56,7 +57,7 @@ class GroupDetailsFragment : Fragment(){
         super.onViewCreated(view, savedInstanceState)
         viewModel.getUsersList(args.groupId)
         composeView.setContent {
-            MaterialTheme {
+            AppTheme {
                 GroupDetailsScreen(
                     viewModel = viewModel,
                     isAdmin = args.isAdmin,

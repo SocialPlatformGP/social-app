@@ -15,6 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.gp.chat.presentation.groupdetails.AddMembersScreen
+import com.gp.chat.presentation.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -48,7 +49,7 @@ class AddMembersFragment : Fragment() {
             }
         }
         composeView.setContent {
-            MaterialTheme {
+            AppTheme {
                 AddMembersScreen(viewModel = viewModel, onAddMembersClicked = { onAddMembers() })
             }
         }

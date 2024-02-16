@@ -18,6 +18,7 @@ import androidx.navigation.fragment.findNavController
 import com.gp.chat.R
 import com.gp.chat.listener.OnRecentChatClicked
 import com.gp.chat.model.RecentChat
+import com.gp.chat.presentation.theme.AppTheme
 import com.gp.chat.utils.FabItem
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -41,7 +42,7 @@ class ChatHome : Fragment(), OnRecentChatClicked {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         composeView.setContent {
-            MaterialTheme {
+            AppTheme {
                 ChatHomeScreen(viewModel = viewModel, onRecentChatClicked = { recentChat ->
                     onClick(recentChat)
                 }, onDropPDownItemClicked = { dropDownItem, recentChat ->

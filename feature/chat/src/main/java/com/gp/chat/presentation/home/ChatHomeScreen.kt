@@ -1,8 +1,8 @@
 package com.gp.chat.presentation.home
 
+import android.content.res.Configuration
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.indication
@@ -15,16 +15,16 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,14 +35,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -50,6 +47,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.firebase.auth.FirebaseUser
 import com.gp.chat.R
 import com.gp.chat.model.RecentChat
+import com.gp.chat.presentation.theme.AppTheme
 import com.gp.chat.util.DateUtils
 import com.gp.chat.utils.CircularAvatar
 import com.gp.chat.utils.FabItem
@@ -86,7 +84,7 @@ fun ChatHomeScreen(
 @Composable
 fun ChatHomeScreen(
     chats: List<RecentChat>,
-    state: ChatHomeState,
+    state: ChatHomeState?,
     onRecentChatClicked: (RecentChat) -> Unit,
     dropDownItems: List<DropDownItem>,
     onDropPDownItemClicked: (DropDownItem, RecentChat) -> Unit,
@@ -99,7 +97,7 @@ fun ChatHomeScreen(
             MultiFloatingActionButton(
                 fabIcon = Icons.Filled.Add,
                 items = fabItems,
-                backgroundColor = Color(0xff222f86)
+                backgroundColor = MaterialTheme.colorScheme.tertiaryContainer
             )
         }, content = {
             ChatHomeScreenContent(
@@ -117,7 +115,7 @@ fun ChatHomeScreen(
 @Composable
 fun ChatHomeScreenContent(
     chats: List<RecentChat>,
-    state: ChatHomeState,
+    state: ChatHomeState?,
     onRecentChatClicked: (RecentChat) -> Unit,
     dropDownItems: List<DropDownItem>,
     onDropPDownItemClicked: (DropDownItem, RecentChat) -> Unit,
@@ -131,7 +129,7 @@ fun ChatHomeScreenContent(
         items(chats) { chat ->
             ChatItem(
                 chat,
-                state.currentUser,
+                state?.currentUser,
                 onRecentChatClicked,
                 dropDownItems,
                 onDropPDownItemClicked
@@ -144,7 +142,7 @@ fun ChatHomeScreenContent(
 @Composable
 fun ChatItem(
     chatItem: RecentChat,
-    currentUser: FirebaseUser,
+    currentUser: FirebaseUser?,
     onChatClicked: (RecentChat) -> Unit,
     dropDownItems: List<DropDownItem>,
     onItemClicked: (DropDownItem, RecentChat) -> Unit,
@@ -164,7 +162,7 @@ fun ChatItem(
         MutableInteractionSource()
     }
     val imageURL = when {
-        chatItem.privateChat && chatItem.senderPicUrl == currentUser.photoUrl.toString()-> {
+        chatItem.privateChat && chatItem.senderPicUrl == currentUser?.photoUrl.toString()-> {
             chatItem.receiverPicUrl
         }
 
@@ -173,7 +171,7 @@ fun ChatItem(
         }
     }
     val name = when {
-        chatItem.privateChat && chatItem.senderPicUrl == currentUser.photoUrl.toString() -> {
+        chatItem.privateChat && chatItem.senderPicUrl == currentUser?.photoUrl.toString() -> {
             chatItem.receiverName
         }
 
@@ -219,18 +217,18 @@ fun ChatItem(
             modifier = modifier
                 .fillMaxWidth()
         ) {
-            if(imageURL.isBlank()) {
-                val drawable = if(chatItem.privateChat) R.drawable.baseline_account_circle_24 else R.drawable.ic_group
-                Image(
-                    painterResource(id = drawable),
-                    contentDescription = null,
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier
-                        .size(55.dp)
-                        .clip(CircleShape)
+            if(chatItem.privateChat) {
+                CircularAvatar(
+                    imageURL,
+                    55.dp,
+                    placeHolderImageVector = Icons.Filled.AccountCircle
                 )
             } else {
-                CircularAvatar(imageURL, 55.dp, modifier)
+                CircularAvatar(
+                    imageURL = imageURL,
+                    size = 55.dp,
+                    placeHolderDrawable = R.drawable.ic_group
+                )
             }
             Spacer(Modifier.width(12.dp))
             Column(
@@ -253,7 +251,7 @@ fun ChatItem(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         fontSize = 12.sp,
-                        color = Color.Gray
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
@@ -262,7 +260,7 @@ fun ChatItem(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     fontSize = 14.sp,
-                    color = Color.Gray
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
             }
@@ -271,7 +269,7 @@ fun ChatItem(
             thickness = 1.dp,
             modifier = modifier
                 .padding(top = 16.dp),
-            color= Color(0xFF222f86)
+            color= MaterialTheme.colorScheme.onSurfaceVariant
         )
         DropdownMenu(
             expanded = isDropDownMenuVisible,
@@ -294,6 +292,76 @@ fun ChatItem(
             }
 
         }
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Preview(name = "Light", showBackground = true, showSystemUi = true)
+@Preview(
+    name = "Dark",
+    showBackground = true,
+    showSystemUi = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+fun ChatHomeScreenPreview() {
+    val chats = listOf<RecentChat>(
+        RecentChat(
+            id = "sed",
+            lastMessage = "leo",
+            timestamp = "2024-02-16 20:38:52 GMT+02:00",
+            title = "nisi",
+            senderName = "Alton Russo",
+            receiverName = "Debora Shannon",
+            privateChat = false,
+            senderPicUrl = "",
+            receiverPicUrl = ""
+        ),
+        RecentChat(
+            id = "sed",
+            lastMessage = "leo",
+            timestamp = "2024-02-15 20:38:52 GMT+02:00",
+            title = "nisi",
+            senderName = "Alton Russo",
+            receiverName = "Debora Shannon",
+            privateChat = true,
+            senderPicUrl = "",
+            receiverPicUrl = ""
+        ),
+        RecentChat(
+            id = "sed",
+            lastMessage = "leo",
+            timestamp = "2024-02-12 20:38:52 GMT+02:00",
+            title = "nisi",
+            senderName = "Alton Russo",
+            receiverName = "Debora Shannon",
+            privateChat = false,
+            senderPicUrl = "",
+            receiverPicUrl = ""
+        ),
+        RecentChat(
+            id = "sed",
+            lastMessage = "leo",
+            timestamp = "2024-02-02 20:38:52 GMT+02:00",
+            title = "nisi",
+            senderName = "Alton Russo",
+            receiverName = "Debora Shannon",
+            privateChat = false,
+            senderPicUrl = "",
+            receiverPicUrl = ""
+        )
+    )
+    val dropDownItems = listOf<DropDownItem>()
+    val fabItems = arrayListOf<FabItem>()
+    AppTheme {
+        ChatHomeScreen(
+            chats = chats,
+            state = null,
+            onRecentChatClicked = {},
+            dropDownItems = dropDownItems,
+            onDropPDownItemClicked = {_, _ ->},
+            fabItems = fabItems,
+        )
     }
 }
 

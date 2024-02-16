@@ -1,5 +1,6 @@
 package com.gp.chat.presentation.newchat
 
+import android.content.res.Configuration
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -26,12 +27,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.gp.chat.presentation.theme.AppTheme
 import com.gp.chat.utils.CircularAvatar
 import com.gp.users.model.User
 
@@ -45,13 +46,11 @@ fun NewChatScreen(
 ) {
     val searchText by viewModel.searchText.collectAsStateWithLifecycle()
     val users by viewModel.users.collectAsStateWithLifecycle()
-    val keyboardController = LocalSoftwareKeyboardController.current
     NewChatScreen(
         searchText = searchText,
         onSearchTextChange = viewModel::onSearchTextChange,
         users = users,
         onUserClick = onUserClick,
-        keyboardController = keyboardController,
         onBackPressed = onBackPressed,
         modifier = modifier
     )
@@ -64,7 +63,6 @@ fun NewChatScreen(
     onSearchTextChange: (String) -> Unit,
     users: List<User>,
     onUserClick: (User) -> Unit,
-    keyboardController: SoftwareKeyboardController?,
     onBackPressed: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -88,7 +86,7 @@ fun NewChatScreen(
                 SearchBar(
                     query = searchText,
                     onQueryChange = onSearchTextChange,
-                    onSearch = { keyboardController?.hide() },
+                    onSearch = { /*keyboardController?.hide()*/ },
                     active = false,
                     placeholder = {
                         Text(text = "Search Users")
@@ -167,5 +165,42 @@ fun UserItem(
             overflow = TextOverflow.Ellipsis,
             fontSize = 20.sp
         )
+    }
+}
+
+@Preview(name = "Light", showBackground = true, showSystemUi = true)
+@Preview(
+    name = "Dark",
+    showBackground = true,
+    showSystemUi = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+fun NewChatScreenPreview() {
+    val users = listOf<User>(
+        User(
+            firstName = "Marshall",
+            lastName = "Bonner",
+            profilePictureURL = "",
+            phoneNumber = "(773) 502-1779",
+            email = "humberto.howe@example.com",
+            bio = "Life is roblox",
+        ),
+        User(
+            firstName = "Phoebe",
+            lastName = "Barnes",
+            profilePictureURL = "",
+            phoneNumber = "(644) 812-8554",
+            email = "lillian.mcmahon@example.com",
+            bio = "They didn't believe in us ...",
+        )
+    )
+    AppTheme{
+        NewChatScreen(
+            searchText = "Search Text",
+            onSearchTextChange = {},
+            users = users,
+            onUserClick = {},
+            onBackPressed = { /*TODO*/ })
     }
 }

@@ -19,6 +19,7 @@ import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.gp.chat.listener.OnUserClickListener
+import com.gp.chat.presentation.theme.AppTheme
 import com.gp.socialapp.utils.State
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -43,7 +44,7 @@ class NewChatFragment : Fragment(), OnUserClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         composeView.setContent {
-            MaterialTheme {
+            AppTheme {
                 NewChatScreen(viewModel = viewModel, onUserClick = { user ->
                     onUserClicked(user.email)
                 }, onBackPressed = {

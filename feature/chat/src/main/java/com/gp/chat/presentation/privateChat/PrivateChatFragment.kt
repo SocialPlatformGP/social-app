@@ -12,7 +12,6 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
@@ -23,6 +22,7 @@ import com.gp.chat.listener.ImageClickListener
 import com.gp.chat.listener.OnFileClickListener
 import com.gp.chat.listener.OnMessageClickListener
 import com.gp.chat.presentation.home.DropDownItem
+import com.gp.chat.presentation.theme.AppTheme
 import com.gp.material.utils.FileManager
 import com.gp.material.utils.FileUtils.getFileName
 import com.gp.material.utils.FileUtils.getMimeTypeFromUri
@@ -90,7 +90,7 @@ class PrivateChatFragment : Fragment(), OnFileClickListener{
         val chatTitle = if (args.senderPic == viewModel.currentUser.photoUrl.toString()) args.receiverName else args.senderName
         val chatImageUrl = if (args.senderPic == viewModel.currentUser.photoUrl.toString()) args.receiverPic else args.senderPic
         composeView.setContent {
-            MaterialTheme {
+            AppTheme {
                 ChatScreen(
                     viewModel = viewModel,
                     onChatHeaderClicked = { /*TODO("Navigating to profile")*/ },

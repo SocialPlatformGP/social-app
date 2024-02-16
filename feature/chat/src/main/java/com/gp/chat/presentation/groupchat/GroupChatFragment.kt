@@ -34,6 +34,7 @@ import com.gp.chat.utils.MyScrollToBottomObserver
 import com.gp.chat.listener.OnFileClickListener
 import com.gp.chat.presentation.home.DropDownItem
 import com.gp.chat.presentation.privateChat.ChatScreen
+import com.gp.chat.presentation.theme.AppTheme
 import com.gp.material.utils.FileManager
 import com.gp.material.utils.FileUtils.getFileName
 import com.gp.material.utils.FileUtils.getMimeTypeFromUri
@@ -89,7 +90,7 @@ class GroupChatFragment : Fragment(),
         super.onViewCreated(view, savedInstanceState)
         viewModel.setData(args.groupId, args.title, args.photoUrl)
        composeView.setContent {
-           MaterialTheme {
+           AppTheme {
                ChatScreen(
                    viewModel = viewModel,
                    chatTitle = args.title,

@@ -1,5 +1,6 @@
 package com.gp.chat.presentation.groupdetails
 
+import android.content.res.Configuration
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -23,6 +24,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.GroupAdd
 import androidx.compose.material.icons.rounded.Create
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -62,10 +67,10 @@ import com.google.android.play.integrity.internal.t
 import com.gp.chat.R
 import com.gp.chat.presentation.createGroupChat.GroupAvatarSection
 import com.gp.chat.presentation.createGroupChat.GroupMemberItem
+import com.gp.chat.presentation.theme.AppTheme
 import com.gp.chat.util.RemoveSpecialChar
 import com.gp.users.model.SelectableUser
 import com.gp.users.model.User
-import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
 @Composable
 fun GroupDetailsScreen(
@@ -345,13 +350,12 @@ fun AddMembersSection(
             },
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.ic_add_user),
+        Icon(
+            painterResource(id = R.drawable.add_people_circle),
             contentDescription = null,
-            contentScale = ContentScale.None,
+            tint = MaterialTheme.colorScheme.outline,
             modifier = Modifier
                 .size(55.dp)
-                .clip(CircleShape)
         )
         Spacer(modifier = modifier.width(12.dp))
         Text(
@@ -470,19 +474,65 @@ fun RemoveMemberAlertDialog(
         }
     )
 }
-
-
-@Preview
+@Preview(name = "Light Mode")
+@Preview(name = "Dark Mode", uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun UserClickedDialogPreview() {
-    MaterialTheme {
-        UserClickedDialog(
+fun GroupDetailsPreview() {
+    val members = listOf<User>(
+        User(
+                firstName = "Marshall",
+                lastName = "Bonner",
+                profilePictureURL = "",
+                phoneNumber = "(773) 502-1779",
+                email = "humberto.howe@example.com",
+                bio = "Life is roblox",
+            ),
+        User(
+                firstName = "Neil",
+                lastName = "Mercer",
+                profilePictureURL = "",
+                phoneNumber = "(761) 954-8085",
+                email = "kristie.ayers@example.com",
+                bio = "Bring out the lobster",
+            ),
+        User(
+                firstName = "Phoebe",
+                lastName = "Barnes",
+                profilePictureURL = "",
+                phoneNumber = "(644) 812-8554",
+                email = "lillian.mcmahon@example.com",
+                bio = "They didn't believe in us ...",
+            ),
+        User(
+                firstName = "Beverley",
+                lastName = "Sheppard",
+                profilePictureURL = "",
+                phoneNumber = "(267) 216-7670",
+                email = "leonard.mills@example.com",
+                bio = "God did!",
+            )
+    )
+    val admins = listOf<String>("leonard.mills@example.com", "kristie.ayers@example.com",).map{RemoveSpecialChar.removeSpecialCharacters(it)}
+    AppTheme {
+        GroupDetailsScreen(
+            avatarURL = "",
             isAdmin = true,
+            onChangeAvatarClicked = { /*TODO*/ },
+            name = "Testawya",
+            onChangeName = {},
+            members = members,
+            admins = admins,
+            onAddMembersClicked = { /*TODO*/ },
+            onUserClicked = {},
+            isRemoveMemberDialogOpen = false,
+            onDismissRemoveMembersDialog = { /*TODO*/ },
+            onConfirmMemberRemoval = { /*TODO*/ },
+            clickedUser = User(),
+            isUserClickedDialogOpen = false,
             isCurrentUser = false,
-            user = User(),
-            onRemoveMember = {},
+            onRemoveMemberClicked = { /*TODO*/ },
             onMessageUser = {},
-            onDismiss = {},
+            onDismissUserClickedDialog = { /*TODO*/ },
             onViewProfile = {}
         )
     }

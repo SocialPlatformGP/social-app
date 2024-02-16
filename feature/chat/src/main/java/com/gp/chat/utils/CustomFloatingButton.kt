@@ -25,6 +25,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -128,7 +129,8 @@ fun MultiFloatingActionButton(
                     SmallFloatingActionButtonRow(
                         item = item,
                         stateTransition = stateTransition,
-                        showLabel = showLabels
+                        showLabel = showLabels,
+                        backgroundColor = backgroundColor
                     )
                     Spacer(modifier = Modifier.height(20.dp))
                 }
@@ -141,7 +143,7 @@ fun MultiFloatingActionButton(
                     Icon(
                         imageVector = fabIcon,
                         contentDescription = null,
-                        tint = Color.White,
+                        tint = contentColorFor(backgroundColor),
                         modifier = Modifier.rotate(rotation)
                     )
                 }
@@ -157,6 +159,7 @@ fun MultiFloatingActionButton(
 fun SmallFloatingActionButtonRow(
     item: FabItem,
     showLabel: Boolean,
+    backgroundColor: Color,
     stateTransition: Transition<MultiFabState>
 ) {
     val alpha: Float by stateTransition.animateFloat(
@@ -191,11 +194,12 @@ fun SmallFloatingActionButtonRow(
             modifier = Modifier
                 .padding(4.dp),
             onClick = { item.onFabItemClicked() },
-            containerColor = Color(0xff222f86),
+            containerColor = backgroundColor,
             contentColor = Color.White
         ) {
             Icon(
                 painter = item.icon,
+                tint = contentColorFor(backgroundColor = backgroundColor),
                 contentDescription = item.label
             )
         }

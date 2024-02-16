@@ -16,6 +16,7 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.gp.chat.presentation.theme.AppTheme
 import com.gp.socialapp.utils.State
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -46,7 +47,7 @@ class CreateGroupChatFragment : Fragment(){
         Log.d("EDREES", "onViewCreated: ")
         super.onViewCreated(view, savedInstanceState)
         composeView.setContent {
-            MaterialTheme {
+            AppTheme {
                 CreateGroupChatScreen(
                     viewModel = viewModel,
                     onChoosePhotoClicked = {

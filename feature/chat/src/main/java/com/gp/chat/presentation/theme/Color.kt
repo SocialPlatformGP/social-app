@@ -1,4 +1,4 @@
-package com.example.compose
+package com.gp.chat.presentation.theme
 import androidx.compose.ui.graphics.Color
 
 val md_theme_light_primary = Color(0xFF4A57AE)
@@ -54,7 +54,7 @@ val md_theme_dark_onBackground = Color(0xFFE4E1E6)
 val md_theme_dark_surface = Color(0xFF1B1B1F)
 val md_theme_dark_onSurface = Color(0xFFE4E1E6)
 val md_theme_dark_surfaceVariant = Color(0xFF46464F)
-val md_theme_dark_onSurfaceVariant = Color(0xFFA2A0A8)
+val md_theme_dark_onSurfaceVariant = Color(0xFFC7C5D0)
 val md_theme_dark_outline = Color(0xFF90909A)
 val md_theme_dark_inverseOnSurface = Color(0xFF1B1B1F)
 val md_theme_dark_inverseSurface = Color(0xFFE4E1E6)
