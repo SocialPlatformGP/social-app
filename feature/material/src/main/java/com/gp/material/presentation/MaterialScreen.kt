@@ -1,5 +1,6 @@
 package com.gp.material.presentation
 
+import android.content.res.Configuration
 import android.util.Log
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -53,6 +54,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -61,6 +63,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gp.material.R
 import com.gp.material.model.FileType
 import com.gp.material.model.MaterialItem
+import com.gp.material.theme.AppTheme
 
 @Composable
 fun MaterialScreen(
@@ -108,7 +111,54 @@ fun MaterialScreen(
             }
         }
     }
+    MaterialScreen(
+        currentPath = currentPath,
+        onBackPressed = onBackPressed,
+        currentFolderName = viewModel.getCurrentFolderName(currentPath),
+        isAdmin = isAdmin,
+        isCreateDialogOpen = isCreateDialogOpen,
+        onShowCreateDialog = { isCreateDialogOpen = true },
+        onDismissCreateDialog = { isCreateDialogOpen = false },
+        onNewFileClicked = onNewFileClicked,
+        items = items,
+        onFolderClicked = onFolderClicked,
+        onOpenFile = onOpenFile,
+        folderDropDownItems = folderDropDownItems,
+        fileDropDownItems = fileDropDownItems,
+        onDropDownItemClicked = onDropDownItemClicked,
+        isLoading = isLoading,
+        onUploadFolder = viewModel::uploadFolder,
+        isFileDetailsDialogOpen = isFileDetailsDialogOpen,
+        onDismissFileDetailsDialog = { isFileDetailsDialogOpen = false },
+        fileWithOpenDetails = fileWithOpenDetails
+    )
+}
+
+@Composable
+fun MaterialScreen(
+    modifier: Modifier = Modifier,
+    currentPath: String,
+    onBackPressed: () -> Unit,
+    currentFolderName: String,
+    isAdmin: Boolean,
+    isCreateDialogOpen: Boolean,
+    onShowCreateDialog: () -> Unit,
+    onDismissCreateDialog: () -> Unit,
+    onNewFileClicked: () -> Unit,
+    items: List<MaterialItem>,
+    onFolderClicked: (String) -> Unit,
+    onOpenFile: (MaterialItem) -> Unit,
+    folderDropDownItems: List<String>,
+    fileDropDownItems: List<String>,
+    onDropDownItemClicked: (String, MaterialItem) -> Unit,
+    isLoading: Boolean,
+    onUploadFolder: (String) -> Unit,
+    isFileDetailsDialogOpen: Boolean,
+    onDismissFileDetailsDialog: () -> Unit,
+    fileWithOpenDetails: MaterialItem,
+) {
     Scaffold(
+        modifier = modifier.fillMaxSize(),
         topBar = {
             Row(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
@@ -125,7 +175,7 @@ fun MaterialScreen(
                     Spacer(modifier = Modifier.size(40.dp))
                 }
                 Text(
-                    text = viewModel.getCurrentFolderName(currentPath),
+                    text = currentFolderName,
                     style = MaterialTheme.typography.titleMedium
                 )
             }
@@ -139,25 +189,23 @@ fun MaterialScreen(
                             icon = painterResource(id = R.drawable.baseline_create_new_folder_24),
                             label = "Create Folder",
                             backgroundColor = Color(0xff222f86),
-                            onFabItemClicked = {
-                                isCreateDialogOpen = true
-                            }
+                            onFabItemClicked = onShowCreateDialog
                         ),
                         FabItem(
                             icon = painterResource(id = R.drawable.baseline_upload_file_24),
                             label = "Upload File",
                             backgroundColor = Color.DarkGray,
-                            onFabItemClicked = {
-                                onNewFileClicked()
-                            }
+                            onFabItemClicked = onNewFileClicked
                         )
                     ),
-                    backgroundColor = Color.DarkGray
+                    backgroundColor = MaterialTheme.colorScheme.tertiaryContainer
                 )
             }
         },
     ) {
-        Box(modifier = modifier.padding(it)) {
+        Box(modifier = modifier
+            .padding(it)
+            .fillMaxSize()) {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(items) { item ->
                     MaterialItem(
@@ -186,24 +234,24 @@ fun MaterialScreen(
             if (isCreateDialogOpen) {
                 CreateFolderDialog(
                     onConfirmation = {
-                        viewModel.uploadFolder(it)
-                        isCreateDialogOpen = false
+                        onUploadFolder(it)
+                        onDismissCreateDialog()
                     },
-                    onDismissRequest = { isCreateDialogOpen = false })
+                    onDismissRequest = onDismissCreateDialog
+                )
             }
-            if(isFileDetailsDialogOpen) {
+            if (isFileDetailsDialogOpen) {
                 FileDetailsDialog(
-                    onDismiss = { isFileDetailsDialogOpen = false },
+                    onDismiss = onDismissFileDetailsDialog,
                     onOpenFile = {
                         onOpenFile(fileWithOpenDetails)
-                        isFileDetailsDialogOpen = false
+                        onDismissFileDetailsDialog()
                     },
                     file = fileWithOpenDetails
                 )
             }
         }
     }
-
 }
 
 @Composable
@@ -230,7 +278,7 @@ fun MaterialItem(
     Column {
         Row(
             modifier = modifier
-                .padding(horizontal = 8.dp, vertical = 8.dp)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
                 .onSizeChanged {
                     itemHeight = with(density) { it.height.toDp() }
                 }
@@ -260,7 +308,7 @@ fun MaterialItem(
                 tint = Color.Unspecified,
                 modifier = Modifier.size(40.dp)
             )
-            Spacer(modifier = Modifier.size(16.dp))
+            Spacer(modifier = Modifier.size(12.dp))
             Column(
                 verticalArrangement = Arrangement.Center,
                 modifier = Modifier.widthIn(max = 260.dp)
@@ -398,18 +446,18 @@ fun FileDetailsDialog(
     file: MaterialItem,
 ) {
     Dialog(onDismissRequest = { onDismiss() }) {
-        Card (
+        Card(
             modifier = modifier
                 .fillMaxWidth()
                 .padding(16.dp),
             shape = RoundedCornerShape(4.dp),
-        ){
-            Column (
+        ) {
+            Column(
                 modifier = Modifier.padding(16.dp)
-            ){
-                Row (
+            ) {
+                Row(
                     verticalAlignment = Alignment.CenterVertically,
-                ){
+                ) {
                     Icon(
                         painter = getItemPainterResource(file.fileType),
                         contentDescription = null,
@@ -423,13 +471,14 @@ fun FileDetailsDialog(
                         fontWeight = FontWeight.Medium
                     )
                 }
-                Column (
+                Column(
                     modifier = Modifier.padding(start = 32.dp)
-                ){
+                ) {
                     Spacer(modifier = Modifier.height(8.dp))
                     DetailsDialogField(
                         title = "Location",
-                        value = file.path.substringBeforeLast("/").replaceFirst("/materials" , "Home")
+                        value = file.path.substringBeforeLast("/")
+                            .replaceFirst("/materials", "Home")
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     DetailsDialogField(
@@ -469,21 +518,81 @@ fun FileDetailsDialog(
     }
 
 }
+
 @Composable
 fun DetailsDialogField(
     modifier: Modifier = Modifier,
     title: String,
     value: String,
 ) {
-    Column (modifier = modifier){
+    Column(modifier = modifier) {
         Text(
             text = title,
             color = Color.Gray,
             fontSize = 12.sp
-            )
+        )
         Text(
             text = value,
             fontSize = 18.sp,
+        )
+    }
+}
+
+@Preview(name = "Light", showBackground = true, showSystemUi = true)
+@Preview(
+    name = "Dark",
+    showBackground = true,
+    showSystemUi = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+fun MaterialScreenPreview() {
+    val items = listOf<MaterialItem>(
+        MaterialItem(
+            name = "Folder 1",
+            fileType = FileType.FOLDER,
+        ),
+        MaterialItem(
+            name = "Folder 2",
+            fileType = FileType.FOLDER,
+        ),
+        MaterialItem(
+            name = "File PDF",
+            fileType = FileType.PDF,
+            size = "2 MB"
+        ),
+        MaterialItem(
+            name = "File Video",
+            fileType = FileType.VIDEO,
+            size = "6.5 MB",
+        ),
+        MaterialItem(
+            name = "File Image",
+            fileType = FileType.IMAGE,
+            size = "6.5 MB",
+        )
+    )
+    AppTheme {
+        MaterialScreen(
+            currentPath = "materials",
+            onBackPressed = { /*TODO*/ },
+            currentFolderName = "Home",
+            isAdmin = true,
+            isCreateDialogOpen = false,
+            onShowCreateDialog = { /*TODO*/ },
+            onDismissCreateDialog = { /*TODO*/ },
+            onNewFileClicked = { /*TODO*/ },
+            items = items,
+            onFolderClicked = {},
+            onOpenFile = {},
+            folderDropDownItems = emptyList(),
+            fileDropDownItems = emptyList(),
+            onDropDownItemClicked = { _, _ -> },
+            isLoading = false,
+            onUploadFolder = {},
+            isFileDetailsDialogOpen = true,
+            onDismissFileDetailsDialog = { /*TODO*/ },
+            fileWithOpenDetails = MaterialItem(name = "Preview File", path = "/materials/ggg/")
         )
     }
 }
