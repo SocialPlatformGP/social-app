@@ -12,6 +12,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.gp.material.utils.FileManager
 import com.gp.posts.R
+import com.gp.posts.presentation.feedUiEvents.NavigationActions
 import com.gp.posts.presentation.feedUiEvents.PostEvent
 import com.gp.socialapp.database.model.MimeType
 import com.gp.socialapp.database.model.PostAttachment
@@ -44,6 +45,22 @@ class MainFeedFragment : Fragment() {
             AppTheme {
                 MainFeedScreen(
                     viewModel = viewModel,
+                    navigationActions = { action ->
+                        when (action) {
+                            is NavigationActions.NavigateToSearch -> {
+                                val action = MainFeedFragmentDirections.mainFeedFragment2ToSearchFragment2(
+                                    "",
+                                    false
+                                )
+                                findNavController().navigate(action)
+                            }
+                            is NavigationActions.NavigateToChat -> {
+                                findNavController().navigate(com.gp.chat.R.id.chat_nav_graph)
+                            }
+                            else -> {}
+
+                        }
+                    },
                     postEvent = { action ->
                         when (action) {
                             is PostEvent.OnAddPost -> {

@@ -5,8 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
@@ -17,7 +15,6 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -55,26 +52,12 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
         drawerLayout = findViewById(R.id.drawerLayout)
         navView = findViewById(R.id.nav_view)
-        bottomNavigationView = findViewById(R.id.bottomNavigationView)
-        toolbar = findViewById(R.id.toolbar)
-        appBarLayout = findViewById(R.id.app_bar)
-
-        setSupportActionBar(toolbar)
 
         navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
         navController = navHostFragment.findNavController()
-        appBarConfiguration = AppBarConfiguration(
-            setOf(
-                R.id.post_nav_graph,
-                R.id.chat_nav_graph,
-            ), drawerLayout
-        )
 
-        setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
-        bottomNavigationView.setupWithNavController(navController)
-
 
         navView.setNavigationItemSelectedListener {
             when (it.itemId) {
@@ -104,55 +87,8 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
                 }
             }
         }
-        navController.addOnDestinationChangedListener { _, destination, _ ->
 
-            when (destination.id) {
-                com.gp.chat.R.id.privateChatFragment -> {
-                    hideBottomNav()
-                    toolbar.menu.clear()
 
-                }
-
-                com.gp.chat.R.id.groupChatFragment -> {
-                    hideBottomNav()
-                    toolbar.menu.clear()
-
-                }
-
-                com.gp.posts.R.id.suggest_post -> {
-                    hideBottomNav()
-                }
-
-                com.gp.posts.R.id.searchFragment2 -> {
-                    hideBottomNav()
-                }
-
-                com.gp.posts.R.id.createPostFragment -> {
-                    hideBottomNav()
-                    appBarLayout.visibility = View.GONE
-
-                }
-
-                com.gp.chat.R.id.newChat -> {
-                    hideBottomNav()
-                    appBarLayout.visibility = View.GONE
-
-                }
-
-                com.gp.posts.R.id.postDetailsFragment -> {
-                    hideBottomNav()
-                }
-
-                com.gp.chat.R.id.createGroupChatFragment -> {
-                    hideBottomNav()
-                }
-
-                else -> {
-                    showBottomNav()
-                    appBarLayout.visibility = View.VISIBLE
-                }
-            }
-        }
     }
 
 
@@ -220,25 +156,7 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
         }
     }
 
-    fun hideBottomNav() {
-        val params = bottomNavigationView.layoutParams as ViewGroup.LayoutParams
-        val dpToPx = resources.displayMetrics.density // Conversion factor
-        val heightInPixels = (0 * dpToPx).toInt()
-        params.height = heightInPixels
-        bottomNavigationView.layoutParams = params
-        binding.appBarMain.contentInAppBarMain.height = heightInPixels
-        bottomNavigationView.visibility = View.GONE
-    }
 
-    fun showBottomNav() {
-        val params = bottomNavigationView.layoutParams as ViewGroup.LayoutParams
-        val dpToPx = resources.displayMetrics.density // Conversion factor
-        val heightInPixels = (60 * dpToPx).toInt()
-        params.height = heightInPixels
-        bottomNavigationView.layoutParams = params
-        binding.appBarMain.contentInAppBarMain.height = heightInPixels
-        bottomNavigationView.visibility = View.VISIBLE
-    }
 
 
 }

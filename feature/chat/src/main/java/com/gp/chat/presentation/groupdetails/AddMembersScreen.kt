@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -71,12 +72,15 @@ fun AddMembersScreen(
         Button(
             onClick = onAddMembersClicked,
             enabled = selectedUsers.isNotEmpty(),
-            modifier = Modifier.padding(horizontal = 16.dp)
+            modifier = Modifier.padding(horizontal = 16.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            )
         ) {
             Text(
                 text = "Add Selected Members",
                 style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onPrimary
             )
         }
     }
@@ -157,8 +161,8 @@ fun AddMembersScreenPreview() {
     )
     AppTheme {
         AddMembersScreen(
-            selectedUsers = selectedUsers,
-//            selectedUsers = emptyList(),
+//            selectedUsers = selectedUsers,
+            selectedUsers = emptyList(),
             users = users,
             onRemoveMember = {},
             onAddMember = {},

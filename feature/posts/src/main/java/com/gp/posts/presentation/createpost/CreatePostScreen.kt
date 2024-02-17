@@ -3,6 +3,7 @@ package com.gp.posts.presentation.createpost
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -91,6 +92,8 @@ import com.gp.socialapp.database.model.MimeType
 import com.gp.socialapp.database.model.PostFile
 import com.gp.socialapp.model.Tag
 import com.gp.socialapp.theme.AppTheme
+import com.gp.socialapp.theme.DarkColorScheme
+import com.gp.socialapp.theme.LightColorScheme
 import com.gp.socialapp.theme.logoColor
 import kotlinx.coroutines.launch
 
@@ -163,27 +166,39 @@ fun CreatePostTopBar(
     onBackClick: () -> Unit = {},
     createPostEvent: (CreatePostEvents) -> Unit
 ) {
-    TopAppBar(title = { Text(text = "Create Post") }, navigationIcon = {
-        IconButton(
-            onClick = onBackClick,
-        ) {
-            Icon(
-                imageVector = Icons.Filled.ArrowBackIosNew, contentDescription = null
+    TopAppBar(
+        title = {
+            Text(
+                text = "Create Post",
+                color = if (isSystemInDarkTheme()) DarkColorScheme.onPrimary else LightColorScheme.onPrimary,
             )
-        }
-    },
+        },
+        navigationIcon = {
+            IconButton(
+                onClick = onBackClick,
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.ArrowBackIosNew,
+                    contentDescription = null,
+                    tint = if (isSystemInDarkTheme()) DarkColorScheme.onPrimary else LightColorScheme.onPrimary
+                )
+            }
+        },
         actions = {
             IconButton(
                 onClick = {
                     createPostEvent(CreatePostEvents.OnCreatePostClicked)
                 },
             ) {
-                Icon(
-                    imageVector = Icons.Filled.Check, contentDescription = null
+                Text(
+                    text = "Post",
+//                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    color = if (isSystemInDarkTheme()) DarkColorScheme.onPrimary else LightColorScheme.onPrimary
                 )
             }
         },
-        backgroundColor = logoColor,
+        backgroundColor =if (isSystemInDarkTheme()) DarkColorScheme.onPrimaryContainer else LightColorScheme.onPrimaryContainer,
         contentColor = Color.White
     )
 }
