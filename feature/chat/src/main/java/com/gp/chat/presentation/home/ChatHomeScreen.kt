@@ -27,7 +27,6 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -186,7 +185,7 @@ fun ChatHomeScreenContent(
 ) {
     LazyColumn(
         contentPadding = PaddingValues(
-            vertical = 8.dp, horizontal = 16.dp
+            vertical = 8.dp, horizontal = 8.dp
         ), modifier = modifier.fillMaxWidth()
     ) {
         items(chats) { chat ->
@@ -245,7 +244,7 @@ fun ChatItem(
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z", Locale.ENGLISH)
     val timestamp = DateUtils.getTimeStamp(ZonedDateTime.parse(chatItem.timestamp, formatter))
     Column(modifier = modifier
-        .padding(start = 8.dp, end = 8.dp, top = 16.dp)
+        .padding(8.dp)
         .fillMaxWidth()
         .onSizeChanged {
             itemHieght = with(density) { it.height.toDp() }
@@ -291,7 +290,7 @@ fun ChatItem(
                         text = name,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        fontSize = 20.sp
+                        fontSize = 16.sp
                     )
                     Text(
                         text = timestamp,
@@ -312,11 +311,11 @@ fun ChatItem(
 
             }
         }
-        Divider(
-            thickness = 1.dp,
-            modifier = modifier.padding(top = 16.dp),
-            color = MaterialTheme.colorScheme.outlineVariant
-        )
+//        Divider(
+//            thickness = 1.dp,
+//            modifier = modifier.padding(top = 16.dp),
+//            color = MaterialTheme.colorScheme.outlineVariant
+//        )
         DropdownMenu(
             expanded = isDropDownMenuVisible, onDismissRequest = {
                 isDropDownMenuVisible = false
