@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material.Surface
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
@@ -18,6 +19,7 @@ import com.gp.material.utils.FileUtils.getEnumMimeTypeFromUri
 import com.gp.material.utils.FileUtils.getFileName
 import com.gp.socialapp.database.model.MimeType
 import com.gp.socialapp.database.model.PostAttachment
+import com.gp.socialapp.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -67,14 +69,19 @@ class EditPostFragment : Fragment() {
             viewModel.updateBody(args.post.body)
             viewModel.updateTitle(args.post.title)
             viewModel.setPost(args.post)
-            EditPostScreen(
-                viewModel = viewModel,
-                back = { back() },
-                onPreviewFile = {  onFilePreviewClicked(it) },
-                onAddImageClick = { onOpenImageClick() },
-                onAddVideoClick = { onOpenVideoClick() },
-                onAddFileClick = { onOpenFileClick() },
-            )
+            AppTheme {
+                Surface {
+                    EditPostScreen(
+                        viewModel = viewModel,
+                        back = { back() },
+                        onPreviewFile = {  onFilePreviewClicked(it) },
+                        onAddImageClick = { onOpenImageClick() },
+                        onAddVideoClick = { onOpenVideoClick() },
+                        onAddFileClick = { onOpenFileClick() },
+                    )
+                }
+            }
+
         }
 
     }

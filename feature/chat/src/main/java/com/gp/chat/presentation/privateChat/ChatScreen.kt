@@ -39,7 +39,7 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
@@ -229,11 +229,18 @@ fun ChatScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp, vertical = 8.dp)
+
+                    .background(
+                        color = MaterialTheme.colorScheme.secondaryContainer,
+                        shape = RoundedCornerShape(32.dp)
+                    )
+                    .padding(8.dp)
+
             ) {
                 IconButton(onClick = { onBackPressed() }) {
                     Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        tint = MaterialTheme.colorScheme.onSurface,
+                        imageVector = Icons.Filled.ArrowBackIosNew,
+                        tint = MaterialTheme.colorScheme.primary,
                         contentDescription = "Navigate Back"
                     )
                 }
@@ -261,7 +268,8 @@ fun ChatScreen(
                     Spacer(modifier = Modifier.size(8.dp))
                     Text(
                         text = chatTitle,
-                        fontSize = 18.sp
+                        fontSize = 18.sp,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
             }

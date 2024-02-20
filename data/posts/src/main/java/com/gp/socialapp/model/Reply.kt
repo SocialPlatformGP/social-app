@@ -13,5 +13,7 @@ data class Reply(
     val upvoted: List<String> = emptyList(),
     val downvoted: List<String> = emptyList(),
     val collapsed: Boolean = false,
-    val editStatus: Boolean = false
+    val editStatus: Boolean = false,
+    val userPfp: String = "",
+    val authorName: String = ""
 )

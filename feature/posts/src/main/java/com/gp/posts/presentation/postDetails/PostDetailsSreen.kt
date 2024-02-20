@@ -1,8 +1,10 @@
 package com.gp.posts.presentation.postDetails
 
+import android.content.res.Configuration
 import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,6 +17,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.rememberModalBottomSheetState
@@ -42,6 +45,7 @@ import com.gp.posts.presentation.utils.CurrentUser
 import com.gp.socialapp.model.NestedReplyItem
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.model.Reply
+import com.gp.socialapp.theme.AppTheme
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -79,7 +83,9 @@ fun PostDetailsScreen(
     onReplyEvent: (ReplyEvent) -> Unit,
     currentEmail: String
 ) {
-    Scaffold { paddingValues ->
+    Scaffold(
+        containerColor = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary
+    ) { paddingValues ->
         Timber.tag("inTop1").d("PostDetailsScreen: " + repliesState)
         PostDetailsContent(
             modifier = Modifier.padding(paddingValues),
@@ -102,7 +108,9 @@ fun PostDetailsContent(
     onReplyEvent: (ReplyEvent) -> Unit,
     currentEmail: String
 ) {
-    Box(modifier) {
+    Box(
+        modifier = modifier
+    ) {
         val postBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
         val replyBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
         val keyboardController = LocalSoftwareKeyboardController.current
@@ -135,6 +143,7 @@ fun PostDetailsContent(
                     },
                     currentEmail = currentEmail
                 )
+                Spacer(modifier = Modifier.padding(4.dp))
             }
             commentList(
                 comments = listOf(replies),
@@ -277,17 +286,46 @@ fun PostDetailsContent(
 @Preview(apiLevel = 33, showSystemUi = true, showBackground = true)
 @Composable
 fun PreviewPostDetailsScreen() {
-    PostDetailsScreen(
-        postState = Post(
-            id = "1",
-            title = "Title",
-            authorEmail = "Author",
-            publishedAt = "2021-09-01T00:00:00Z",
-            body = "Body",
-        ),
-        repliesState = sampleData,
-        onPostEvent = {},
-        onReplyEvent = {},
-        currentEmail = "Author"
-    )
+    AppTheme {
+        Surface {
+            PostDetailsScreen(
+                postState = Post(
+                    id = "1",
+                    title = "Title",
+                    authorEmail = "Author",
+                    publishedAt = "2021-09-01T00:00:00Z",
+                    body = "Body",
+                ),
+                repliesState = sampleData,
+                onPostEvent = {},
+                onReplyEvent = {},
+                currentEmail = "Author"
+            )
+        }
+    }
+
+}
+@Preview(apiLevel = 33, showSystemUi = true, showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL
+)
+@Composable
+fun PreviewPostDetailsScreenNight() {
+    AppTheme {
+        androidx.compose.material3.Surface {
+            PostDetailsScreen(
+                postState = Post(
+                    id = "1",
+                    title = "Title",
+                    authorEmail = "Author",
+                    publishedAt = "2021-09-01T00:00:00Z",
+                    body = "Body",
+                ),
+                repliesState = sampleData,
+                onPostEvent = {},
+                onReplyEvent = {},
+                currentEmail = "Author"
+            )
+        }
+    }
+
 }

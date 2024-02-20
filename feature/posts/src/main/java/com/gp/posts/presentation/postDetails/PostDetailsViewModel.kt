@@ -17,9 +17,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.util.Date
 import javax.inject.Inject
 
@@ -131,7 +129,9 @@ class PostDetailsViewModel @Inject constructor(
                     depth = 0,
                     content = event.text,
                     createdAt = Date().toString(),
-                    authorEmail = currentUser?.email.toString()
+                    authorEmail = currentUser?.email.toString(),
+                    userPfp = currentUser?.photoUrl.toString(),
+                    authorName = currentUser?.displayName.toString()
                 )
                 insertReply(reply)
             }
@@ -151,7 +151,9 @@ class PostDetailsViewModel @Inject constructor(
                     depth = event.reply.depth + 1,
                     content = event.text,
                     createdAt = Date().toString(),
-                    authorEmail = currentUser?.email.toString()
+                    authorEmail = currentUser?.email.toString(),
+                    userPfp = currentUser?.photoUrl.toString(),
+                    authorName = currentUser?.displayName.toString()
                 )
                 insertReply(reply)
             }

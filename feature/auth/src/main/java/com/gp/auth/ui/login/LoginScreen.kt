@@ -1,8 +1,9 @@
 package com.gp.auth.ui.login
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
+import android.content.res.Configuration
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -13,21 +14,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedButton
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
+import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -38,7 +35,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -49,6 +45,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gp.auth.R
+import com.gp.posts.fontFamily
+import com.gp.socialapp.theme.AppTheme
 
 @Composable
 fun LoginScreen(
@@ -59,7 +57,8 @@ fun LoginScreen(
     onSignInClicked: () -> Unit
 ) {
     val state by viewModel.loginStateFlow.collectAsState()
-    Scaffold {paddingValues ->
+    androidx.compose.material3.Scaffold (
+    ){ paddingValues ->
         LoginContent(
             paddingValues = paddingValues,
             onSignInWithGoogle = {
@@ -68,7 +67,7 @@ fun LoginScreen(
             state = state,
             navigateToSignUp = navigateToSignUp,
             navigateToForgotPassword = navigateToForgotPassword,
-            onEmailChange = {viewModel.updateEmail(it)  },
+            onEmailChange = { viewModel.updateEmail(it) },
             onPasswordChange = { viewModel.updatePassword(it) },
             onSignIn = onSignInClicked
 
@@ -77,11 +76,12 @@ fun LoginScreen(
 
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginContent(
     paddingValues: PaddingValues,
     onSignInWithGoogle: () -> Unit,
-    onSignIn : () -> Unit,
+    onSignIn: () -> Unit,
     state: LoginUiState,
     navigateToSignUp: () -> Unit,
     navigateToForgotPassword: () -> Unit,
@@ -92,38 +92,65 @@ fun LoginContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(paddingValues),
+            .padding(paddingValues)
+        ,
         verticalArrangement = Arrangement.Center,
     ) {
 
         var passwordVisible by remember { mutableStateOf(false) }
 
+//        Icon(
+//            modifier = Modifier
+//                                .fillMaxWidth()
+//                .size(300.dp)
+//
+//                .wrapContentWidth(Alignment.CenterHorizontally),
+//            painter = painterResource(id = R.drawable.logolight),
+//            contentDescription = null,
+//            tint = androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer
+//        )
 
-        Image(painter = painterResource(id = R.drawable.login), contentDescription = null)
-
-        Text(
+        androidx.compose.material3.Text(
             modifier = Modifier
                 .fillMaxWidth()
-                .wrapContentWidth(Alignment.CenterHorizontally),
-            text = stringResource(id = R.string.welcome_back),
+                .wrapContentWidth(Alignment.Start)
+                .padding(16.dp),
+            text = "Login",
             fontSize = 42.sp,
-            color = Color(0xff222f86)
+            fontWeight = FontWeight.Bold,
+            fontFamily = fontFamily,
+            color = androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer
         )
 
 
-        OutlinedTextField(
+            androidx.compose.material3.OutlinedTextField(
+            shape = RoundedCornerShape(32.dp),
             value = state.email,
             onValueChange = { onEmailChange(it) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
-            label = { Text(text = "Email", color = Color(0xff222f86).copy( alpha = 0.7f)) },
-            leadingIcon = { Icon(Icons.Filled.Email, contentDescription = null, tint = Color(0xff222f86)) },
+            label = {
+                androidx.compose.material3.Text(
+                    text = "Email",
+                    color = androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                )
+                    },
+            leadingIcon = {
+                androidx.compose.material3.Icon(
+                    Icons.Filled.Email,
+                    contentDescription = null,
+                    tint = androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            },
+            colors = OutlinedTextFieldDefaults.colors(
+                unfocusedContainerColor = androidx.compose.material3.MaterialTheme.colorScheme.secondaryContainer,
+            ),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             isError = state.emailError.isNotEmpty(),
         )
-        if(state.emailError.isNotEmpty()){
-            Text(
+        if (state.emailError.isNotEmpty()) {
+            androidx.compose.material3.Text(
                 text = state.emailError,
                 color = MaterialTheme.colors.error,
                 fontSize = 12.sp,
@@ -131,32 +158,45 @@ fun LoginContent(
             )
         }
 
-        OutlinedTextField(
+        androidx.compose.material3.OutlinedTextField(
             value = state.password,
             onValueChange = { onPasswordChange(it) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 4.dp),
-            label = { Text(text = "Password",color=Color(0xff222f86).copy( alpha = 0.7f)) },
-            leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = null,tint=Color(0xff222f86)) },
+            label = { androidx.compose.material3.Text(text = "Password", color = androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+            ) },
+                        colors = OutlinedTextFieldDefaults.colors(
+                unfocusedContainerColor = androidx.compose.material3.MaterialTheme.colorScheme.secondaryContainer,
+            ),
+            leadingIcon = {
+                androidx.compose.material3.Icon(
+                    Icons.Filled.Lock, contentDescription = null,
+                    tint = androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            },
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             trailingIcon = {
-                val image = if (passwordVisible)
-                    Icons.Filled.Visibility
+                val image = if (passwordVisible) Icons.Filled.Visibility
                 else Icons.Filled.VisibilityOff
 
                 val description = if (passwordVisible) "Hide password" else "Show password"
 
-                IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                    Icon(imageVector = image, description, tint = Color(0xff222f86))
+                androidx.compose.material3.IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    androidx.compose.material3.Icon(
+                        imageVector = image,
+                        description,
+                        tint = androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer
+                    )
                 }
             },
             isError = state.passwordError.isNotEmpty(),
+            shape = RoundedCornerShape(32.dp)
 
-        )
-        if(state.passwordError.isNotEmpty()){
-            Text(
+            )
+        if (state.passwordError.isNotEmpty()) {
+            androidx.compose.material3.Text(
                 text = state.passwordError,
                 color = MaterialTheme.colors.error,
                 fontSize = 12.sp,
@@ -165,33 +205,33 @@ fun LoginContent(
         }
 
 
-        TextButton(
+        androidx.compose.material3.TextButton(
             onClick = navigateToForgotPassword,
-            modifier = Modifier
-                .padding(start = 16.dp),
+            modifier = Modifier.padding(start = 16.dp),
         ) {
-            Text(
+            androidx.compose.material3.Text(
                 text = "Forgot Password?",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 style = TextStyle(textDecoration = TextDecoration.Underline),
-                color = Color(0xff222f86)
+                color = androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer
             )
         }
 
-        Button(
+        androidx.compose.material3.Button(
             onClick = onSignIn,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 4.dp)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
                 .height(50.dp),
-            shape = RoundedCornerShape(8.dp),
+            shape = RoundedCornerShape(32.dp),
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = Color(0xff222f86),
-                contentColor = Color.White
+                containerColor = androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer,
+                contentColor = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary
             )
+
         ) {
-            Text(
+            androidx.compose.material3.Text(
                 text = "Login",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
@@ -199,50 +239,54 @@ fun LoginContent(
         }
 
 
+Box (
+    contentAlignment = Alignment.Center,
+){
+    androidx.compose.material3.Divider()
+    androidx.compose.material3.Text(
+        text = "   Or, Login with   ",
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .wrapContentWidth(Alignment.CenterHorizontally)
+            .background(androidx.compose.material3.MaterialTheme.colorScheme.surface),
+        color = androidx.compose.material3.MaterialTheme.colorScheme.secondary,
 
-        Text(
-            text = "Or, Login with...",
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 4.dp)
-                .wrapContentWidth(Alignment.CenterHorizontally),
-            fontSize = 16.sp,
-            color = Color(0xff222f86).copy( alpha = 0.7f)
-        )
-        OutlinedButton(
+        fontSize = 16.sp,
+
+    )
+}
+
+        androidx.compose.material3.OutlinedButton(
+            shape = RoundedCornerShape(32.dp),
             onClick = { onSignInWithGoogle() },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 4.dp)
                 .height(50.dp),
-            shape = RoundedCornerShape(8.dp),
-            border = BorderStroke(1.dp, androidx.compose.ui.graphics.Color.Black)
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.google),
                 contentDescription = null,
-                tint = androidx.compose.ui.graphics.Color.Unspecified,
+                tint = Color.Unspecified
             )
-            Text(
-                text = "Sign In with Google",
-                fontSize = 18.sp,
-                color = Color(0xff222f86)
+            androidx.compose.material3.Text(
+                text = "Sign In with Google", fontSize = 18.sp,
+
             )
         }
         Row(
-            modifier = Modifier
-                .padding(start = 16.dp),
+            modifier = Modifier.padding(start = 16.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(text = "Don't have an account yet ? ", fontSize = 16.sp)
-            TextButton(onClick = navigateToSignUp) {
-                Text(
+            androidx.compose.material3.Text(text = "Don't have an account yet ? ", fontSize = 16.sp)
+            androidx.compose.material3.TextButton(onClick = navigateToSignUp) {
+                androidx.compose.material3.Text(
                     text = "Sign Up",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     style = TextStyle(textDecoration = TextDecoration.Underline),
-                    color =Color(0xff222f86).copy( alpha = 0.7f)
                 )
             }
         }
@@ -254,16 +298,40 @@ fun LoginContent(
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
-    LoginContent(
-        paddingValues = PaddingValues(0.dp),
-        onSignInWithGoogle = { },
-        navigateToSignUp = {},
-        navigateToForgotPassword = {},
-        onEmailChange = {},
-        onPasswordChange = {},
-        onSignIn = {},
-        state = LoginUiState(),
+    AppTheme {
+        Surface {
+            LoginContent(
+                paddingValues = PaddingValues(0.dp),
+                onSignInWithGoogle = { },
+                navigateToSignUp = {},
+                navigateToForgotPassword = {},
+                onEmailChange = {},
+                onPasswordChange = {},
+                onSignIn = {},
+                state = LoginUiState()
+            )
+        }
+    }
+}
 
-    )
-
+@Preview(
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL
+)
+@Composable
+fun LoginScreenPreviewNight() {
+    AppTheme {
+        androidx.compose.material3.Surface {
+            LoginContent(
+                paddingValues = PaddingValues(0.dp),
+                onSignInWithGoogle = { },
+                navigateToSignUp = {},
+                navigateToForgotPassword = {},
+                onEmailChange = {},
+                onPasswordChange = {},
+                onSignIn = {},
+                state = LoginUiState()
+            )
+        }
+    }
 }

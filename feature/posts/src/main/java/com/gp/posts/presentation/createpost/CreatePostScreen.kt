@@ -1,9 +1,9 @@
 package com.gp.posts.presentation.createpost
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,6 +33,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.Chip
 import androidx.compose.material.ChipDefaults
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -43,6 +44,7 @@ import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
@@ -85,6 +87,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
@@ -92,9 +95,6 @@ import com.gp.socialapp.database.model.MimeType
 import com.gp.socialapp.database.model.PostFile
 import com.gp.socialapp.model.Tag
 import com.gp.socialapp.theme.AppTheme
-import com.gp.socialapp.theme.DarkColorScheme
-import com.gp.socialapp.theme.LightColorScheme
-import com.gp.socialapp.theme.logoColor
 import kotlinx.coroutines.launch
 
 @Composable
@@ -170,7 +170,7 @@ fun CreatePostTopBar(
         title = {
             Text(
                 text = "Create Post",
-                color = if (isSystemInDarkTheme()) DarkColorScheme.onPrimary else LightColorScheme.onPrimary,
+                color = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary,
             )
         },
         navigationIcon = {
@@ -180,7 +180,7 @@ fun CreatePostTopBar(
                 Icon(
                     imageVector = Icons.Filled.ArrowBackIosNew,
                     contentDescription = null,
-                    tint = if (isSystemInDarkTheme()) DarkColorScheme.onPrimary else LightColorScheme.onPrimary
+                    tint = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary
                 )
             }
         },
@@ -190,16 +190,15 @@ fun CreatePostTopBar(
                     createPostEvent(CreatePostEvents.OnCreatePostClicked)
                 },
             ) {
-                Text(
-                    text = "Post",
-//                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
-                    color = if (isSystemInDarkTheme()) DarkColorScheme.onPrimary else LightColorScheme.onPrimary
+                Icon(
+                    imageVector = Icons.Filled.Check,
+                    tint = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary,
+                    contentDescription = null
                 )
             }
         },
-        backgroundColor =if (isSystemInDarkTheme()) DarkColorScheme.onPrimaryContainer else LightColorScheme.onPrimaryContainer,
-        contentColor = Color.White
+        backgroundColor = androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer,
+        contentColor = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary,
     )
 }
 
@@ -240,6 +239,7 @@ fun CreatePostContent(
             errorState = emptyError
 
         )
+        Divider()
         CreatePostTextField(
             label = "Content",
             value = contentValue,
@@ -248,10 +248,16 @@ fun CreatePostContent(
             modifier = Modifier.weight(1f),
             errorState = emptyError
         )
+        Divider()
         FlowTags(selectedTags, createPostEvent)
+        Divider()
         LazyRow(
             horizontalArrangement = Arrangement.Start,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    androidx.compose.material3.MaterialTheme.colorScheme.primaryContainer
+                )
         ) {
             items(selectedFiles) { file ->
                 PreviewFileItem(
@@ -264,7 +270,9 @@ fun CreatePostContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(height * 0.08f)
-                .background(MaterialTheme.colors.surface),
+                .background(
+                    androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer
+                ),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
@@ -279,7 +287,6 @@ fun CreatePostContent(
             CreatePostAction(
                 icon = Icons.Filled.AttachFile,
                 onClick = { createPostEvent(CreatePostEvents.OnAddFileClicked) })
-//            CreatePostButton(label = "Post", onClick = { createPostEvent(CreatePostEvents.OnCreatePostClicked) })
         }
 
 
@@ -376,12 +383,15 @@ fun CreatePostContent(
                         })
                     Spacer(modifier = Modifier.height(8.dp))
                     ColorPickerDialog(colors = listOf(
-                        Color(android.graphics.Color.parseColor("#FF0000")),
-                        Color(android.graphics.Color.parseColor("#00FF00")),
-                        Color(android.graphics.Color.parseColor("#0000FF")),
-                        Color(android.graphics.Color.parseColor("#FFFF00")),
-                        Color(android.graphics.Color.parseColor("#00FFFF")),
-                        Color(android.graphics.Color.parseColor("#FF00FF"))
+                        Color(android.graphics.Color.parseColor("#B71C1C")),
+                        Color(android.graphics.Color.parseColor("#C51162")),
+                        Color(android.graphics.Color.parseColor("#AA00FF")),
+                        Color(android.graphics.Color.parseColor("#4527A0")),
+                        Color(android.graphics.Color.parseColor("#0D47A1")),
+                        Color(android.graphics.Color.parseColor("#006064")),
+                        Color(android.graphics.Color.parseColor("#1B5E20")),
+                        Color(android.graphics.Color.parseColor("#3E2723")),
+                        Color(android.graphics.Color.parseColor("#424242")),
                     ), onColorSelected = {
                         tempTag = tempTag.copy(hexColor = "#" + Integer.toHexString(it.toArgb()))
                     })
@@ -414,7 +424,12 @@ fun FlowTags(
     createPostEvent: (CreatePostEvents) -> Unit
 ) {
     LazyRow(
-        horizontalArrangement = Arrangement.Start
+        horizontalArrangement = Arrangement.Start,
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                androidx.compose.material3.MaterialTheme.colorScheme.secondaryContainer
+            )
     ) {
         items(selectedTags.toList()) { tag ->
             Chip(onClick = {
@@ -435,21 +450,6 @@ fun FlowTags(
     }
 }
 
-@Composable
-private fun CreatePostButton(
-    onClick: () -> Unit = {},
-    label: String,
-) {
-    Button(
-        onClick = onClick, shape = RoundedCornerShape(16.dp)
-    ) {
-        Text(
-            text = label, modifier = Modifier.padding(
-                top = 3.dp, bottom = 3.dp, start = 4.dp, end = 4.dp
-            )
-        )
-    }
-}
 
 @Composable
 private fun OutlinedCreatePostButton(
@@ -463,7 +463,7 @@ private fun OutlinedCreatePostButton(
             text = label, modifier = Modifier.padding(
                 top = 3.dp, bottom = 3.dp, start = 4.dp, end = 4.dp
             ),
-            color = logoColor
+            color = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary
         )
     }
 }
@@ -476,7 +476,8 @@ private fun CreatePostAction(
         onClick = onClick,
     ) {
         Icon(
-            imageVector = icon, contentDescription = null, tint = logoColor
+            imageVector = icon, contentDescription = null,
+            tint = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary
         )
     }
 }
@@ -493,7 +494,12 @@ fun CreatePostTextField(
     TextField(
         value = value,
         onValueChange = onValueChange,
-        label = { Text(text = label) },
+        label = {
+            Text(
+                text = label,
+                color = androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer
+                )
+        },
         leadingIcon = {
             Icon(
                 imageVector = icon,
@@ -502,13 +508,19 @@ fun CreatePostTextField(
                     .fillMaxHeight()
                     .wrapContentHeight(Alignment.Top)
                     .padding(16.dp),
-                tint = logoColor
+                tint = androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer
             )
         },
         modifier = modifier
             .fillMaxWidth()
             .background(MaterialTheme.colors.surface),
-        isError = errorState
+        isError = errorState,
+        colors = TextFieldDefaults.textFieldColors(
+            backgroundColor = androidx.compose.material3.MaterialTheme.colorScheme.secondaryContainer,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            errorIndicatorColor = Color.Transparent
+        )
     )
 }
 
@@ -556,6 +568,40 @@ fun ButtonSheetOptions(
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
 fun CreatePostPreview() {
+    AppTheme {
+        Surface {
+            CreatePostScreen(
+                state = CreatePostUIState(
+                    files = listOf(
+                        PostFile(
+                            uri = "".toUri(),
+                            type = MimeType.MP3,
+                            name = "file.mp3"
+                        )
+                    )
+
+                ),
+                tags = listOf(
+                    Tag(
+                        label = "Tag 1",
+                        hexColor = "#FF0000"
+                    ),
+                    Tag(
+                        label = "Tag 2",
+                        hexColor = "#00FF00"
+                    )
+                )
+                , {})
+        }
+    }
+}
+
+@Preview(
+    showSystemUi = true, showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL
+)
+@Composable
+fun CreatePostPreviewNight() {
     AppTheme {
         Surface {
             CreatePostScreen(state = CreatePostUIState(), tags = emptyList(), {})
@@ -622,7 +668,7 @@ fun PreviewFileItem(
             .width(70.dp)
             .height(105.dp)
             .clip(MaterialTheme.shapes.medium)
-            .background(MaterialTheme.colors.surface)
+            .background(androidx.compose.material3.MaterialTheme.colorScheme.surface)
             .clickable { createPostEvent(CreatePostEvents.OnPreviewClicked(file)) }
             .border(1.dp, MaterialTheme.colors.onSurface, MaterialTheme.shapes.medium)
 
@@ -728,7 +774,6 @@ fun PreviewFileItem(
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
                 .align(Alignment.BottomStart)
-                .background(MaterialTheme.colors.surface)
                 .padding(3.dp)
         )
     }

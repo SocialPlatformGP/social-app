@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.material3.Surface
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -12,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.gp.auth.R
+import com.gp.socialapp.theme.AppTheme
 import com.gp.socialapp.utils.State
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -34,10 +36,15 @@ class PasswordResetFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         composeView.setContent {
-            ForgetPasswordScreen(
-                viewModel = viewModel,
-                onSendResetEmail = { onSendResetEmailClick() }
-            )
+            AppTheme {
+                Surface {
+                    ForgetPasswordScreen(
+                        viewModel = viewModel,
+                        onSendResetEmail = { onSendResetEmailClick() }
+                    )
+                }
+            }
+
         }
     }
 

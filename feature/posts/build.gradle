@@ -55,6 +55,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-firestore-ktx:24.9.0'
     implementation project(':feature:chat')
     implementation project(':feature:material')
+    //    implementation 'androidx.compose.material3:material3-android:1.2.0'
     def lifecycle_version = "2.6.2"
     def nav_version = "2.6.0"
     implementation 'androidx.core:core-ktx:1.12.0'

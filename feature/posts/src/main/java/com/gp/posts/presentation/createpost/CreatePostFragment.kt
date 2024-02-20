@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material.Surface
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -20,6 +21,7 @@ import com.gp.material.utils.FileUtils.getFileName
 import com.gp.posts.R
 import com.gp.socialapp.database.model.MimeType
 import com.gp.socialapp.database.model.PostFile
+import com.gp.socialapp.theme.AppTheme
 import com.gp.socialapp.utils.State
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -61,15 +63,19 @@ class CreatePostFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         composeView.setContent {
+            AppTheme {
+                Surface {
+                    CreatePostScreen(
+                        viewModel = viewModel,
+                        navigateBack = { viewModel.onCancel() },
+                        onAddFileClick = { onOpenFileClick() },
+                        onAddImageClick = { onOpenImageClick() },
+                        onAddVideoClick = { onOpenVideoClick() },
+                        onPreviewFile = { onFilePreviewClicked(it) },
+                    )
+                }
+            }
 
-            CreatePostScreen(
-                viewModel = viewModel,
-                navigateBack = { viewModel.onCancel() },
-                onAddFileClick = { onOpenFileClick() },
-                onAddImageClick = { onOpenImageClick() },
-                onAddVideoClick = { onOpenVideoClick() },
-                onPreviewFile = { onFilePreviewClicked(it) },
-            )
         }
         viewModel.setType(args.type)
         addCancelPressedCollector()

@@ -46,7 +46,7 @@ fun ImagePagerZ(
 ) {
     val width = LocalConfiguration.current.screenWidthDp.dp
     Box(
-        modifier = Modifier.size(width, 400.dp),
+        modifier = Modifier.size(width, 300.dp),
     ) {
         val pagerState = rememberPagerState(
             pageCount = { pageCount },

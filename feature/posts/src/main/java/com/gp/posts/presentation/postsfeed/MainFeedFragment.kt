@@ -2,14 +2,17 @@ package com.gp.posts.presentation.postsfeed
 
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.example.compose.md_theme_light_onPrimaryContainer
 import com.gp.material.utils.FileManager
 import com.gp.posts.R
 import com.gp.posts.presentation.feedUiEvents.NavigationActions
@@ -41,6 +44,7 @@ class MainFeedFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.d("MainFeedFragment25", Integer.toHexString(md_theme_light_onPrimaryContainer.toArgb()))
         composeView.setContent {
             AppTheme {
                 MainFeedScreen(
@@ -48,14 +52,17 @@ class MainFeedFragment : Fragment() {
                     navigationActions = { action ->
                         when (action) {
                             is NavigationActions.NavigateToSearch -> {
-                                val action = MainFeedFragmentDirections.mainFeedFragment2ToSearchFragment2(
-                                    "",
-                                    false
-                                )
-                                findNavController().navigate(action)
+                                findNavController().navigate(R.id.suggest_post)
                             }
                             is NavigationActions.NavigateToChat -> {
                                 findNavController().navigate(com.gp.chat.R.id.chat_nav_graph)
+                            }
+                            is NavigationActions.NavigateToPostDetails -> {
+                                val action = MainFeedFragmentDirections.mainFeedFragment2ToPostDetialsFragment(action.post)
+                                findNavController().navigate(action)
+                            }
+                            is NavigationActions.NavigateToMaterial -> {
+                                findNavController().navigate(com.gp.material.R.id.materialnavigation)
                             }
                             else -> {}
 

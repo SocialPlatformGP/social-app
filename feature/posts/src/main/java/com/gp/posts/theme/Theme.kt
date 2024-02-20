@@ -163,7 +163,7 @@ private val AppTypography = Typography(
 internal val LocalThemeIsDark = compositionLocalOf { mutableStateOf(true) }
 
 @Composable
-internal fun AppTheme(
+ fun AppTheme(
     content: @Composable() () -> Unit
 ) {
     val systemIsDark = isSystemInDarkTheme()

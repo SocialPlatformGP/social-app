@@ -12,15 +12,17 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -73,15 +75,28 @@ fun NewChatScreen(
                 .fillMaxWidth()
                 .padding(8.dp)
         ) {
-            IconButton(onClick = { onBackPressed() }) {
+            IconButton(
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .padding(
+                        top = 6.dp,
+                    ),
+                onClick = { onBackPressed() },
+                colors = IconButtonDefaults.iconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                ),
+            ) {
                 Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    tint = MaterialTheme.colorScheme.onSurface,
+                    imageVector = Icons.Default.ArrowBackIosNew,
+//                    tint = MaterialTheme.colorScheme.onSurface,
                     contentDescription = "Navigate Back"
                 )
             }
             Spacer(modifier = Modifier.width(4.dp))
             SearchBar(
+                colors = SearchBarDefaults.colors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                ),
                 query = searchText,
                 onQueryChange = onSearchTextChange,
                 onSearch = { /*keyboardController?.hide()*/ },
@@ -92,7 +107,7 @@ fun NewChatScreen(
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,
-                        tint = MaterialTheme.colorScheme.onSurface,
+//                        tint = MaterialTheme.colorScheme.onSurface,
                         contentDescription = null
                     )
                 },

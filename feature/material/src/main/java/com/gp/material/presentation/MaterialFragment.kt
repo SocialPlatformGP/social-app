@@ -11,8 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
@@ -21,6 +20,7 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
+import com.gp.chat.presentation.theme.AppTheme
 import com.gp.material.model.FileType
 import com.gp.material.model.MaterialItem
 import com.gp.socialapp.utils.State
@@ -52,24 +52,27 @@ class MaterialFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         composeView.setContent {
-            MaterialTheme {
-                MaterialScreen(
-                    isAdmin = true,
-                    onOpenFile = { item -> openFile(item) },
-                    onFolderClicked = { path ->
-                        viewModel.openFolder(path) },
-                    onBackPressed = {
-                        if (viewModel.goBack()) {
-                            viewModel.fetchDataFromFirebaseStorage()
-                        } else {
-                            findNavController().navigateUp()
-                        }
-                    },
-                    onDownloadFile = ::downloadFile,
-                    onShareLink = ::shareLink,
-                    viewModel = viewModel,
-                    onNewFileClicked = { actionUpload.launch("*/*") }
-                )
+            AppTheme {
+                Surface {
+                    MaterialScreen(
+                        isAdmin = true,
+                        onOpenFile = { item -> openFile(item) },
+                        onFolderClicked = { path ->
+                            viewModel.openFolder(path) },
+                        onBackPressed = {
+                            if (viewModel.goBack()) {
+                                viewModel.fetchDataFromFirebaseStorage()
+                            } else {
+                                findNavController().navigateUp()
+                            }
+                        },
+                        onDownloadFile = ::downloadFile,
+                        onShareLink = ::shareLink,
+                        viewModel = viewModel,
+                        onNewFileClicked = { actionUpload.launch("*/*") }
+                    )
+                }
+
             }
         }
         lifecycleScope.launch {

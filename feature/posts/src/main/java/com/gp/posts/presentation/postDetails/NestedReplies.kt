@@ -1,31 +1,29 @@
 package com.gp.posts.presentation.postDetails
 
 
+import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Card
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Comment
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ThumbDown
 import androidx.compose.material.icons.filled.ThumbUp
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Text
@@ -37,7 +35,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -47,9 +44,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.gp.posts.fontFamily
+import com.gp.posts.fontFamily2
 import com.gp.posts.presentation.feedUiEvents.ReplyEvent
+import com.gp.posts.presentation.postsfeed.UserImage
 import com.gp.socialapp.model.NestedReplyItem
 import com.gp.socialapp.model.Reply
+import com.gp.socialapp.theme.AppTheme
+import com.gp.socialapp.util.DateUtils
 
 
 fun LazyListScope.commentList(comments: List<NestedReplyItem>, level: Int = 0,onReplyEvent: (ReplyEvent)->Unit) {
@@ -69,9 +72,7 @@ fun LazyListScope.commentItem(comment: NestedReplyItem, level: Int,onReplyEvent:
     commentList(comment.replies, level + 1,onReplyEvent)
 }
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class,
-    ExperimentalFoundationApi::class
-)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun ReplyItem(
     comment: NestedReplyItem, level: Int,
@@ -79,74 +80,97 @@ private fun ReplyItem(
 ) {
     if (comment.reply == null) return
     val padding = with(LocalDensity.current) { 16.dp.toPx() }
-    Card(
-        onClick = { },
-        modifier = Modifier
-            .drawBehind {
-                repeat(level + 1) {
-                    drawLine(
-                        color = Color.Red.copy(alpha = 1f),
-                        start = Offset(it * padding, 0f),
-                        end = Offset(it * padding, size.height),
-                        strokeWidth = 2f
-                    )
+    Column {
+        val color = androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer
+        androidx.compose.material3.Card(
+            modifier = Modifier
+                .drawBehind {
+                    repeat(level + 1) {
+                        drawLine(
+                            color = color.copy(alpha = 1f),
+                            start = Offset(it * padding, 0f),
+                            end = Offset(it * padding, size.height),
+                            strokeWidth = 2f
+                        )
+                    }
                 }
-            }
-            .padding(start = (16.dp * level) + 8.dp, end = 8.dp, bottom = 4.dp),
-        shape = ShapeDefaults.Medium,
-        elevation = 0.dp,
-        border = BorderStroke(1.dp, Color.Gray),
+                .padding(start = (16.dp * level) + 8.dp, end = 8.dp),
+            shape = ShapeDefaults.Medium,
+            border = BorderStroke(1.dp, Color.Gray),
+            colors = CardDefaults.cardColors(
+                containerColor = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary,
 
-    ) {
+            )
+
+            ) {
             Column(
                 modifier = Modifier
-                    .padding(8.dp)
+                    .padding(4.dp)
             ) {
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     //TODO: Add user profile pic here
-                    Image(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = "Random image",
-                        modifier = Modifier
-                            .padding(4.dp)
-                            .clip(CircleShape)
-                            .background(Color.LightGray),//TODO: this color for testing only
+                    UserImage(
+                        imageLink = comment.reply?.userPfp ?: "",
+                        size = 26.dp
                     )
                     Text(
-                        text = if (comment.reply?.authorEmail?.length ?: 0 > 10) comment.reply?.authorEmail?.substring(
+                        text = if ((comment.reply?.authorName?.length
+                                ?: 0) > 10
+                        ) comment.reply?.authorName?.substring(
                             0,
                             10
-                        ) ?: "" else comment.reply?.authorEmail ?: "Unknown",
-                        style = MaterialTheme.typography.body1,
+                        ) ?: "" else comment.reply?.authorName ?: "Unknown",
                         modifier = Modifier
-                            .padding(4.dp),
-                        overflow = if ((comment.reply?.authorEmail?.length ?: 0) > 10) {
+                            .padding(
+                                start = 8.dp,
+                                end = 4.dp
+                            ),
+                        overflow = if ((comment.reply?.authorName?.length ?: 0) > 10) {
                             TextOverflow.Ellipsis
-                        } else TextOverflow.Clip
+                        } else TextOverflow.Clip,
+                        fontFamily = fontFamily,
+                        fontSize = 12.sp,
+                        color = androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer
                     )
                     Text(
-                        text = com.gp.socialapp.util.DateUtils.calculateTimeDifference(comment.reply?.createdAt!!),
-                        modifier = Modifier.padding(4.dp),
+                        text = DateUtils.calculateTimeDifference(comment.reply?.createdAt!!),
+                        modifier = Modifier
+                            .padding(
+                                start = 4.dp,
+                                end = 8.dp
+                            ),
+                        color = Color.Gray,
                         overflow = if ((comment.reply?.createdAt?.length ?: 0) > 10) {
                             TextOverflow.Ellipsis
-                        } else TextOverflow.Clip
+                        } else TextOverflow.Clip,
+                        fontFamily = fontFamily2,
+                        fontSize = 12.sp
                     )
 
                 }
 
                 Text(
                     text = comment.reply?.content ?: "No body",
-                    style = MaterialTheme.typography.body1,
                     modifier = Modifier
-                        .padding(4.dp)
+                        .padding(
+                            start = 8.dp,
+                            end = 4.dp,
+                            top = 4.dp
+                        ),
+                    fontSize = 14.sp,
                 )
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(4.dp),
+                        .padding(
+                            start = 4.dp,
+                            end = 4.dp,
+                        )
+                        .sizeIn(maxHeight = 28.dp),
                     horizontalArrangement = Arrangement.End,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -212,19 +236,41 @@ private fun ReplyItem(
 
             }
 
+        }
+        Spacer(modifier = Modifier.height(4.dp))
     }
-
 }
 
 
 @Preview(showSystemUi = true, showBackground = true, locale = "en-US")
 @Composable
 fun NestedReplyItemPreview() {
-    ReplyItem(
-        comment = sampleData.replies[0] ,
-        level = 0,
-        replyEvent = { ReplyEvent.Initial }
-    )
+    AppTheme {
+        Surface {
+            ReplyItem(
+                comment = sampleData.replies[0] ,
+                level = 0,
+                replyEvent = { ReplyEvent.Initial }
+            )
+        }
+    }
+
+
+}
+@Preview(showSystemUi = true, showBackground = true, locale = "en-US",
+    uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL
+)
+@Composable
+fun NestedReplyItemPreviewNight() {
+    AppTheme {
+        Surface {
+            ReplyItem(
+                comment = sampleData.replies[0] ,
+                level = 0,
+                replyEvent = { ReplyEvent.Initial }
+            )
+        }
+    }
 
 }
 

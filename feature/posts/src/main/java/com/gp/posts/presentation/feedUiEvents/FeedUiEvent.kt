@@ -17,7 +17,7 @@ sealed class PostEvent() {
     data class OnImageClicked(val attachment: PostAttachment) : PostEvent()
     data class OnVideoClicked(val attachment: PostAttachment) : PostEvent()
     data class OnDocumentClicked(val attachment: PostAttachment) : PostEvent()
-    data class OnCommentClicked(val postId: String) : PostEvent()
+    data class OnCommentClicked(val post: Post) : PostEvent()
     data class onCommentAdded(
         val text:String,
         val postId: String,

@@ -6,8 +6,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.material.Surface
 import androidx.compose.ui.platform.ComposeView
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -17,6 +17,7 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseUser
 import com.gp.auth.R
+import com.gp.socialapp.theme.AppTheme
 import com.gp.socialapp.utils.State
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -43,15 +44,20 @@ class RegistrationFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         composeView.setContent {
-            RegistrationScreen(
-                viewModel = viewModel,
-                onNavigateToLoginScreen = {
-                    onSignInClick()
-                },
-                onCreateAccount = {
-                    onSignUpClick()
+            AppTheme {
+                Surface {
+                    RegistrationScreen(
+                        viewModel = viewModel,
+                        onNavigateToLoginScreen = {
+                            onSignInClick()
+                        },
+                        onCreateAccount = {
+                            onSignUpClick()
+                        }
+                    )
                 }
-            )
+            }
+
         }
     }
 

@@ -5,7 +5,7 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,9 +14,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
@@ -27,20 +31,19 @@ import androidx.compose.material.Tab
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AllInclusive
-import androidx.compose.material.icons.filled.ChatBubble
+import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.NotificationImportant
+import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Signpost
 import androidx.compose.material.rememberModalBottomSheetState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -64,8 +67,6 @@ import com.gp.posts.presentation.utils.CurrentUser
 import com.gp.socialapp.database.model.PostAttachment
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.theme.AppTheme
-import com.gp.socialapp.theme.DarkColorScheme
-import com.gp.socialapp.theme.LightColorScheme
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -127,7 +128,9 @@ fun MainFeedScreen(
                 is PostEvent.OnPostDeleted -> {
                     viewModel.deletePost(action.post)
                 }
-
+                is PostEvent.OnCommentClicked -> {
+                    navigationActions(NavigationActions.NavigateToPostDetails(action.post))
+                }
                 is PostEvent.OnViewFilesAttachmentClicked -> {
                     Log.d("zarea159", "FeedPostScreen: " + action.attachments.size)
                     currentAttachments = action.attachments
@@ -135,7 +138,6 @@ fun MainFeedScreen(
                         bottomSheetState.show()
                     }
                 }
-
                 else -> {
                     postEvent(action)
                 }
@@ -172,7 +174,7 @@ fun MainFeedScreen(
         bottomBar = {
             MainFeedBottomBar(navigationAction = navigationActions)
         },
-        backgroundColor = LightColorScheme.surfaceVariant
+        backgroundColor =androidx.compose.material3.MaterialTheme.colorScheme.secondaryContainer
     ) { paddingValues ->
         MainFeedContent(
             paddingValues = paddingValues,
@@ -188,66 +190,122 @@ fun MainFeedScreen(
 @Composable
 fun MainFeedBottomBar(navigationAction: (NavigationActions) -> Unit) {
     BottomNavigation(
-        backgroundColor = if(isSystemInDarkTheme()) DarkColorScheme.onPrimaryContainer else LightColorScheme.onPrimaryContainer,
+        backgroundColor = androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer,
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .clip(
+                RoundedCornerShape(
+                    topStart = 8.dp,
+                    topEnd = 8.dp
+                )
+            )
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = {
-                navigationAction(NavigationActions.NavigateToChat)
-            }) {
-                Icon(
-                    imageVector = Icons.Filled.ChatBubble,
-                    contentDescription = "chat",
-                        tint = if(isSystemInDarkTheme()) DarkColorScheme.onPrimary else LightColorScheme.onPrimary
+            buttonNavigationItems.forEach { item ->
+                ButtonNavItem(
+                    when(item.title){
+                        "Home" -> {
+                            {
+                                navigationAction(NavigationActions.NavigateToPost)
+                            }
+                        }
+                        "Chat" -> {
+                            {
+                                navigationAction(NavigationActions.NavigateToChat)
+                            }
+                        }
+                        "Material" -> {
+                            {
+                                navigationAction(NavigationActions.NavigateToMaterial)
+                            }
+                        }
+                        else -> { {} }
+                    },
+                    item.title,
+                    item.imageVector
                 )
             }
-            IconButton(onClick = { /*TODO*/ }) {
-                Icon(
-                    imageVector = Icons.Filled.Folder,
-                    contentDescription = "my files",
-                        tint = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary
-                )
-            }
-            IconButton(onClick = { /*TODO*/ }) {
-                Icon(
-                    imageVector = Icons.Filled.Signpost,
-                    contentDescription = "post",
-                        tint = if(isSystemInDarkTheme()) DarkColorScheme.onPrimary else LightColorScheme.onPrimary
-                )
-            }
+
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ButtonNavItem(
+    navigationAction: () -> Unit,
+    title: String,
+    imageVector: ImageVector
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        IconButton(
+            onClick = navigationAction,
+            modifier = Modifier.size(34.dp)
+        ) {
+            Icon(
+                imageVector = imageVector,
+                contentDescription = "chat",
+                tint = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary
+            )
+        }
+        Text(
+            text = title,
+            fontSize = 10.sp,
+            color = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary
+        )
+    }
+}
+
+
 @Composable
 fun MainFeedTopBar(navigationAction: (NavigationActions) -> Unit) {
-    TopAppBar(
-        title = {
-            Text(
-                text = "EduLink",
-                color = if(isSystemInDarkTheme()) DarkColorScheme.onPrimary else LightColorScheme.onPrimary,
-                style = MaterialTheme.typography.h6
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(60.dp)
+            .background(
+                androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer
             )
-        },
-        actions = {
-            IconButton(onClick = {
-                navigationAction(NavigationActions.NavigateToSearch)
-            }) {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "search",
-                    tint = if(isSystemInDarkTheme()) DarkColorScheme.onPrimary else LightColorScheme.onPrimary
-                )
-            }
-        },
-        colors = TopAppBarDefaults.mediumTopAppBarColors(
-            containerColor = if(isSystemInDarkTheme()) DarkColorScheme.onPrimaryContainer else LightColorScheme.onPrimaryContainer,
+            .padding(16.dp)
+
+    ) {
+        IconButton(onClick = {
+            navigationAction(NavigationActions.NavigateToSearch)
+        }) {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = "search",
+                tint = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary
+            )
+        }
+
+        Text(
+            text = "EduLink",
+            color = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary,
+            style = MaterialTheme.typography.h6,
+            modifier = Modifier
+                .weight(1f)
+                .wrapContentWidth(align = Alignment.CenterHorizontally)
         )
-    )
+        IconButton(onClick = {
+            navigationAction(NavigationActions.NavigateToNotification)
+        }) {
+            Icon(
+                imageVector = Icons.Default.NotificationsActive,
+                contentDescription = "notification",
+                tint = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary
+            )
+        }
+
+    }
 }
 
 
@@ -266,25 +324,27 @@ fun MainFeedContent(
         modifier = Modifier
             .padding(paddingValues)
             .fillMaxSize()
-//            .background(color = Color.LightGray.copy(alpha = 0.5f))
     ) {
-        androidx.compose.material3.TabRow(
+        TabRow(
             modifier = Modifier
-                .height(48.dp)
-                .fillMaxWidth(),
+                .height(40.dp)
+                .fillMaxWidth().clip(RoundedCornerShape(
+                    bottomStart = 8.dp,
+                    bottomEnd = 8.dp
+                )),
             selectedTabIndex = selectedTabIndex,
             indicator = { tabPositions ->
                 androidx.compose.material3.TabRowDefaults.Indicator(
-                    color = if(isSystemInDarkTheme()) DarkColorScheme.onPrimary else LightColorScheme.onPrimary,
+                    color = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier
                         .tabIndicatorOffset(tabPositions[selectedTabIndex])
                         .padding(horizontal = 50.dp)
                         .clip(CircleShape)
                         .align(Alignment.CenterHorizontally),
-                    height = 4.dp
+                    height = 8.dp
                 )
             },
-            containerColor = if(isSystemInDarkTheme()) DarkColorScheme.onPrimaryContainer else LightColorScheme.onPrimaryContainer,
+            containerColor = androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer,
         ) {
             tabItems.forEachIndexed { index, tabItem ->
                 Tab(
@@ -298,7 +358,7 @@ fun MainFeedContent(
                     text = {
                         Text(
                             text = tabItem.title,
-                            color = if(isSystemInDarkTheme()) DarkColorScheme.onPrimary else LightColorScheme.onPrimary,
+                            color = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary,
                             fontSize = 16.sp
                         )
                     },
@@ -344,8 +404,8 @@ fun Fab(
 ) {
     FloatingActionButton(
         onClick = onClick,
-        containerColor = if(isSystemInDarkTheme()) DarkColorScheme.onPrimaryContainer else LightColorScheme.onPrimaryContainer,
-        contentColor = if(isSystemInDarkTheme()) DarkColorScheme.onPrimary else LightColorScheme.onPrimary
+        containerColor = androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer,
+        contentColor = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary
     ) {
         Icon(
             imageVector = Icons.Filled.Add,
@@ -393,6 +453,7 @@ fun MainFeedPreview_Night() {
     }
 
 }
+
 @Preview(
     showBackground = true, showSystemUi = true,
     uiMode = Configuration.UI_MODE_NIGHT_NO or Configuration.UI_MODE_TYPE_NORMAL
@@ -431,9 +492,17 @@ fun MainFeedPreview_Light() {
     }
 
 }
+
 data class TabItem(val title: String, val imageVector: ImageVector)
 
 val tabItems = listOf(
     TabItem("General", Icons.Filled.AllInclusive),
     TabItem("Spotlight", Icons.Filled.NotificationImportant),
 )
+val buttonNavigationItems = listOf(
+    TabItem("Home", Icons.Filled.Home),
+    TabItem("Chat", Icons.Filled.Chat),
+    TabItem("Material", Icons.Filled.Folder),
+)
+
+

@@ -135,14 +135,14 @@ fun MultiFloatingActionButton(
                 }
                 FloatingActionButton(
                     shape = CircleShape,
-                    containerColor = Color(0xff222f86),
+//                    containerColor = Color(0xff222f86),
                     onClick = {
                         stateChange()
                     }) {
                     Icon(
                         imageVector = fabIcon,
                         contentDescription = null,
-                        tint = Color.White,
+//                        tint = Color.White,
                         modifier = Modifier.rotate(rotation)
                     )
                 }
@@ -199,8 +199,8 @@ fun SmallFloatingActionButtonRow(
                 item.onFabItemClicked()
                 onDismiss()
             },
-            containerColor = Color(0xff222f86),
-            contentColor = Color.White
+//            containerColor = Color(0xff222f86),
+//            contentColor = Color.White
         ) {
             Icon(
                 painter = item.icon,

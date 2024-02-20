@@ -9,32 +9,22 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.Surface
 import androidx.compose.ui.platform.ComposeView
-import androidx.core.content.ContentProviderCompat.requireContext
-import androidx.core.widget.addTextChangedListener
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
-import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.auth.FirebaseUser
-import com.gp.auth.R
-import com.gp.auth.util.Validator
-import com.gp.auth.util.Validator.PhoneNumberValidator
+import com.gp.socialapp.theme.AppTheme
 import com.gp.socialapp.utils.State
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @AndroidEntryPoint
 class UserInformationFragment : Fragment() {
@@ -48,7 +38,7 @@ class UserInformationFragment : Fragment() {
             ActivityResultContracts.GetContent()
         ) {
             Log.d("seerde", "onActivityResult: $it")
-            viewModel.uiState.value = viewModel.uiState.value.copy(pfpLocalURI = it?: Uri.EMPTY)
+            viewModel.uiState.value = viewModel.uiState.value.copy(pfpLocalURI = it ?: Uri.EMPTY)
         }
 
     override fun onCreateView(
@@ -56,19 +46,24 @@ class UserInformationFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         return ComposeView(requireContext()).also {
-            composeView=it
+            composeView = it
         }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         composeView.setContent {
-            UserInfoScreen(
-                viewModel =viewModel,
-                onProfileImageClicked = {onLoadPictureClick()},
-                onContinueClicked = {createAccount()}
+            AppTheme {
+                Surface {
+                    UserInfoScreen(
+                        viewModel = viewModel,
+                        onProfileImageClicked = { onLoadPictureClick() },
+                        onContinueClicked = { createAccount() }
 
-            )
+                    )
+                }
+            }
+
         }
     }
 
@@ -96,7 +91,6 @@ class UserInformationFragment : Fragment() {
     private fun onChoosePhotoSelected() {
         galleryImageResultLauncher.launch("image/*")
     }
-
 
 
     private fun createAccount() {
@@ -130,6 +124,7 @@ class UserInformationFragment : Fragment() {
 
     private fun makeSnackbar(text: String) =
         Snackbar.make(requireContext(), composeView.rootView, text, Snackbar.LENGTH_SHORT).show()
+
     private fun saveBooleanToSharedPreferences(value: Boolean) {
         val sharedPreferences: SharedPreferences =
             requireActivity().getSharedPreferences(PREFS_FILE_NAME, Context.MODE_PRIVATE)

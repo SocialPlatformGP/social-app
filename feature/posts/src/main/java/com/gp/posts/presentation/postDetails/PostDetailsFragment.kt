@@ -6,10 +6,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
+import androidx.compose.material.Surface
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
+import com.gp.socialapp.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -36,7 +38,11 @@ class PostDetailsFragment
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         composeView.setContent {
-            PostDetailsScreen(viewModel = viewModel)
+            AppTheme {
+                Surface {
+                    PostDetailsScreen(viewModel = viewModel)
+                }
+            }
         }
     }
 

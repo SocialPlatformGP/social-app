@@ -1,6 +1,7 @@
 package com.gp.posts.presentation.postsfeed
 
 //import com.gp.posts.fontFamily2
+import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,7 +24,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
 import androidx.compose.material.Chip
 import androidx.compose.material.ChipDefaults
 import androidx.compose.material.DropdownMenuItem
@@ -33,19 +33,18 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Image
-import androidx.compose.material.icons.filled.InsertDriveFile
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.KeyboardDoubleArrowDown
 import androidx.compose.material.icons.filled.MoreHoriz
-import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.VideoLibrary
 import androidx.compose.material.icons.outlined.Chat
 import androidx.compose.material.icons.twotone.KeyboardDoubleArrowUp
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -57,6 +56,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -69,6 +69,7 @@ import androidx.compose.ui.window.PopupProperties
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
+import com.gp.posts.R
 import com.gp.posts.adapter.ImagePagerZ
 import com.gp.posts.fontFamily
 import com.gp.posts.fontFamily2
@@ -80,8 +81,6 @@ import com.gp.socialapp.database.model.PostAttachment
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.model.Tag
 import com.gp.socialapp.theme.AppTheme
-import com.gp.socialapp.theme.LightColorScheme
-import com.gp.socialapp.theme.logoColor
 import com.gp.socialapp.util.DateUtils
 import java.util.Locale
 
@@ -96,7 +95,7 @@ fun FeedPostScreen(
 
     Column(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
-            contentPadding = PaddingValues( vertical = 8.dp),
+            contentPadding = PaddingValues(vertical = 8.dp),
         ) {
             items(posts) { post ->
                 FeedPostItem(
@@ -111,28 +110,27 @@ fun FeedPostScreen(
 }
 
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FeedPostItem(
     post: Post,
     postEvent: (PostEvent) -> Unit,
     currentEmail: String
 ) {
-    Card(
+    androidx.compose.material3.Card(
         onClick = { postEvent(PostEvent.OnPostClicked(post)) },
         shape = RoundedCornerShape(4.dp),
         modifier = Modifier
-            .fillMaxWidth()
-//            .padding(
-//                4.dp
-//            ),,
-        ,backgroundColor = LightColorScheme.background
+            .fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.onSecondary,
+
+            )
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-//                .background(Color.White)
         ) {
             TopRow(
                 imageUrl = post.userPfp,
@@ -169,12 +167,14 @@ fun FeedPostItem(
                 downVotes = post.downvoted,
                 commentCount = post.replyCount,
                 votes = post.votes,
+                filesCount = post.attachments.size,
                 onUpVoteClicked = { postEvent(PostEvent.OnPostUpVoted(post)) },
                 onDownVoteClicked = { postEvent(PostEvent.OnPostDownVoted(post)) },
                 onCommentClicked = {
-                    postEvent(PostEvent.OnCommentClicked(post.id))
+                    postEvent(PostEvent.OnCommentClicked(post))
                 },
-                currentEmail = currentEmail
+                currentEmail = currentEmail,
+                onShowFilesClicked = { postEvent(PostEvent.OnViewFilesAttachmentClicked(post.attachments)) }
             )
         }
     }
@@ -187,10 +187,12 @@ fun BottomRow(
     downVotes: List<String>,
     commentCount: Int,
     votes: Int,
+    filesCount: Int = 0,
     onUpVoteClicked: () -> Unit,
     onDownVoteClicked: () -> Unit,
     onCommentClicked: () -> Unit,
-    currentEmail: String
+    currentEmail: String,
+    onShowFilesClicked: () -> Unit = {}
 ) {
     Row(
         modifier = Modifier
@@ -206,20 +208,18 @@ fun BottomRow(
         OutlinedButton(
             onClick = onUpVoteClicked,
             contentPadding = PaddingValues(6.dp),
-            border = BorderStroke(1.dp, Color.LightGray),
+            border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.outline),
         ) {
             Icon(
                 imageVector = Icons.TwoTone.KeyboardDoubleArrowUp,
                 contentDescription = "UpVote",
-                tint = if (upVotes.contains(currentEmail)) Color.Green else Color.Unspecified,
+                tint = if (upVotes.contains(currentEmail)) Color.Green else MaterialTheme.colorScheme.onPrimaryContainer,
                 modifier = Modifier
                     .clickable {
                         onUpVoteClicked()
                     },
             )
-
-
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(6.dp))
             Text(
                 text = votes.toString(),
                 style = TextStyle(
@@ -230,17 +230,18 @@ fun BottomRow(
                 modifier = Modifier.sizeIn(
                     minWidth = 20.dp
                 ),
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                color = when {
+                    upVotes.contains(currentEmail) -> Color.Green
+                    downVotes.contains(currentEmail) -> Color.Red
+                    else -> MaterialTheme.colorScheme.onPrimaryContainer
+                },
             )
-            Spacer(modifier = Modifier.width(12.dp))
-            VerticalDivider()
             Spacer(modifier = Modifier.width(6.dp))
-
-
             Icon(
                 imageVector = Icons.Filled.KeyboardDoubleArrowDown,
                 contentDescription = "DownVote",
-                tint = if (downVotes.contains(currentEmail)) Color.Red else Color.Unspecified,
+                tint = if (downVotes.contains(currentEmail)) Color.Red else MaterialTheme.colorScheme.onPrimaryContainer,
                 modifier = Modifier
                     .clickable {
                         onDownVoteClicked()
@@ -249,15 +250,13 @@ fun BottomRow(
 
 
         }
-        Spacer(modifier = Modifier.width(1.dp))
-
         Spacer(modifier = Modifier.width(16.dp))
         OutlinedButton(
             onClick = onCommentClicked,
             contentPadding = PaddingValues(
                 horizontal = 12.dp,
             ),
-            border = BorderStroke(1.dp, Color.LightGray),
+            border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.outline),
 
             ) {
             Row(
@@ -266,6 +265,7 @@ fun BottomRow(
                 Icon(
                     imageVector = Icons.Outlined.Chat,
                     contentDescription = "UpVote",
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
@@ -274,28 +274,59 @@ fun BottomRow(
                         fontFamily = montserratFontFamily,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp
-                    )
+                    ),
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
+            }
+        }
+        if(filesCount > 0) {
+            Spacer(modifier = Modifier.width(16.dp))
+            OutlinedButton(
+                onClick = onShowFilesClicked,
+                contentPadding = PaddingValues(
+                    horizontal = 12.dp,
+                ),
+                border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.outline),
+
+                ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.attachment_plus_svgrepo_com),
+                        contentDescription = "UpVote",
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = filesCount.toString(),
+                        style = TextStyle(
+                            fontFamily = montserratFontFamily,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        ),
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
             }
         }
         Spacer(modifier = Modifier.weight(1f))
         OutlinedButton(
             onClick = { /*TODO  handle share button in post item*/ },
             contentPadding = PaddingValues(),
-            border = BorderStroke(1.dp, Color.LightGray)
+            border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.outline),
 
-        ) {
+            ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
                     imageVector = Icons.Default.Share,
                     contentDescription = "UpVote",
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
         }
-
-
     }
 }
 
@@ -323,11 +354,12 @@ private fun TagItem(
     onTagClicked: (Tag) -> Unit,
     tag: Tag
 ) {
+    val backgroundColor = Color(android.graphics.Color.parseColor(tag.hexColor))
     Chip(
         onClick = {
             onTagClicked(tag)
         }, colors = ChipDefaults.chipColors(
-            backgroundColor = Color(android.graphics.Color.parseColor(tag.hexColor)),
+            backgroundColor = backgroundColor,
             contentColor = Color.White,
 
             ),
@@ -342,7 +374,7 @@ private fun TagItem(
         Text(
             text = tag.label,
             fontSize = 12.sp,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
         )
     }
 }
@@ -398,7 +430,7 @@ fun ExpandableText(
             overflow = if (expanded) TextOverflow.Clip else TextOverflow.Ellipsis,
             fontFamily = merriweatherFamilyBody,
             fontSize = 14.sp,
-            color = Color.Gray
+            color = MaterialTheme.colorScheme.outline
         )
         if (expanded) {
             IconButton(
@@ -429,7 +461,8 @@ private fun Title(title: String) {
         ),
         fontWeight = FontWeight.Bold,
         fontSize = 16.sp,
-        fontFamily = montserratFontFamily
+        fontFamily = montserratFontFamily,
+        color = MaterialTheme.colorScheme.onSecondaryContainer
     )
 }
 
@@ -447,21 +480,7 @@ fun Attachments(
             MimeType.WEBP.readableType
         )
     }
-    val others = attachments.filter {
-        it.type !in listOf(
-            MimeType.JPEG.readableType,
-            MimeType.PNG.readableType,
-            MimeType.GIF.readableType,
-            MimeType.BMP.readableType,
-            MimeType.WEBP.readableType
-        )
-    }
-    if (others.isNotEmpty()) {
-        ButtonViewFiles(
-            attachments,
-            postEvent
-        )
-    } else if (images.isNotEmpty()) {
+    if (images.isNotEmpty()) {
         ImagePagerZ(
             pageCount = images.size,
             images = images,
@@ -477,119 +496,6 @@ fun Attachments(
 
 }
 
-@Composable
-private fun ButtonViewFiles(
-    attachments: List<PostAttachment>,
-    postEvent: (PostEvent) -> Unit
-) {
-    OutlinedButton(
-        onClick = {
-            postEvent(
-                PostEvent.OnViewFilesAttachmentClicked(attachments)
-            )
-        },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp),
-//        border = BorderStroke(2.dp, MaterialTheme.colors.primary),
-        shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(2.dp, logoColor),
-    ) {
-        Text(
-            text = "+ ${attachments.size} File Attached",
-//            color = MaterialTheme.colors.primary,
-//            fontWeight = FontWeight.Bold,
-            fontFamily = montserratFontFamily,
-            fontSize = 16.sp,
-            color = logoColor
-        )
-
-
-    }
-}
-
-
-@Composable
-private fun AttachmentItem(
-    attachment: PostAttachment,
-    onVideoClicked: () -> Unit,
-    onAudioClicked: () -> Unit,
-    onImageClicked: () -> Unit,
-    onDocumentClicked: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .size(width = 150.dp, height = 225.dp)
-    ) {
-        var icon by remember { mutableStateOf(Icons.Filled.Image) }
-        when (attachment.type) {
-            in listOf(
-                MimeType.VIDEO.readableType,
-                MimeType.MKV.readableType,
-                MimeType.AVI.readableType,
-                MimeType.MP4.readableType,
-                MimeType.MOV.readableType,
-                MimeType.WMV.readableType
-            ) -> {
-                Icon(
-                    imageVector = Icons.Filled.VideoLibrary,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(width = 200.dp, height = 300.dp)
-                        .clickable {
-                            onVideoClicked()
-                        }
-                        .align(Alignment.Center)
-                )
-            }
-
-            in listOf(
-                MimeType.PDF.readableType,
-                MimeType.DOCX.readableType,
-                MimeType.XLSX.readableType,
-                MimeType.PPTX.readableType,
-            ) -> {
-                Icon(
-                    imageVector = Icons.Filled.InsertDriveFile,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(width = 200.dp, height = 300.dp)
-                        .clickable {
-                            onDocumentClicked()
-                        }
-                        .align(Alignment.Center)
-                )
-            }
-
-            in listOf(
-                MimeType.AUDIO.readableType,
-                MimeType.MP3.readableType,
-                MimeType.AAC.readableType,
-                MimeType.WAV.readableType,
-                MimeType.OGG.readableType,
-                MimeType.FLAC.readableType
-            ) -> {
-                icon = Icons.Filled.MusicNote
-            }
-
-            else -> {
-                Icon(
-                    imageVector = Icons.Filled.InsertDriveFile,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(width = 200.dp, height = 300.dp)
-                        .clickable {
-                            onAudioClicked()
-                        }
-                        .align(Alignment.Center)
-                )
-
-            }
-
-        }
-    }
-}
-
 
 @Composable
 private fun TopRow(
@@ -603,7 +509,6 @@ private fun TopRow(
 ) {
     //TODO: Add edit status
     Row(
-//        modifier = Modifier.background(Color.Transparent),
         verticalAlignment = Alignment.CenterVertically
     ) {
         UserImage(imageUrl)
@@ -619,7 +524,6 @@ private fun TopRow(
                 )
         }
         Spacer(modifier = Modifier.weight(1f))
-
         OptionButton(
             onEditPostClicked = onEditPostClicked,
             onDeletePostClicked = onDeletePostClicked
@@ -646,7 +550,7 @@ fun OptionButton(
             Icon(
                 imageVector = Icons.Default.MoreHoriz,
                 contentDescription = "More Options",
-                tint = logoColor
+                tint = MaterialTheme.colorScheme.onPrimaryContainer
             )
         }
         DropdownMenu(
@@ -715,15 +619,15 @@ fun UserName(
         style = TextStyle(
             fontFamily = fontFamily,
         ),
-        fontSize = 12.sp
-
-
+        fontSize = 12.sp,
+        color = MaterialTheme.colorScheme.onPrimaryContainer
     )
 }
 
 @Composable
 fun UserImage(
-    imageLink: String
+    imageLink: String,
+    size : Dp = 36.dp
 ) {
     SubcomposeAsyncImage(
         model = imageLink,
@@ -733,7 +637,7 @@ fun UserImage(
                 start = 8.dp,
                 end = 8.dp,
             )
-            .size(36.dp)
+            .size(size)
             .clip(CircleShape),
         contentScale = ContentScale.Crop,
 
@@ -783,6 +687,20 @@ fun FeedPostPreview() {
                                 type = MimeType.PDF.readableType,
                                 name = "PDF"
                             )
+                        ),
+                        tags = listOf(
+                            Tag(
+                                "Tag",
+                                "#FF0000"
+                            ),
+                            Tag(
+                                "Tagf",
+                                "#FF0B00"
+                            ),
+                            Tag(
+                                "Tag5",
+                                "#FF0000"
+                            ),
                         )
                     ),
                     Post(
@@ -822,3 +740,77 @@ fun FeedPostPreview() {
 
 }
 
+@Preview(
+    showBackground = true, showSystemUi = true, apiLevel = 33,
+    uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL
+)
+@Composable
+fun FeedPostPreviewNight() {
+    AppTheme {
+        Surface {
+            FeedPostScreen(
+                posts = listOf(
+                    Post(
+                        title = "Title",
+                        body = "Body",
+                        userName = "user Name",
+                        publishedAt = "Sun Feb 04 16:47:40 GMT+02:00 2024",
+                        authorEmail = "authorEmail",
+                        attachments = listOf(
+                            PostAttachment(
+                                url = "https://www.google.com",
+                                type = MimeType.PDF.readableType,
+                                name = "PDF"
+                            )
+                        ),
+                        tags = listOf(
+                            Tag(
+                                "Tag",
+                                "#FF0000"
+                            ),
+                            Tag(
+                                "Tagf",
+                                "#FF0B00"
+                            ),
+                            Tag(
+                                "Tag5",
+                                "#FF0000"
+                            ),
+                        )
+                    ),
+                    Post(
+                        title = "Title",
+                        body = "Body",
+                        userName = "user Name",
+                        publishedAt = "Sun Feb 04 16:47:40 GMT+02:00 2024",
+                        authorEmail = "authorEmail",
+                    ),
+                    Post(
+                        title = "Title",
+                        body = "Body",
+                        userName = "user Name",
+                        publishedAt = "Sun Feb 04 16:47:40 GMT+02:00 2024",
+                        authorEmail = "authorEmail",
+                    ),
+
+                    ),
+                postEvent = { PostEvent.Initial },
+                currentEmail = "currentEmail",
+            )
+        }
+    }
+
+//    FeedPostItem(
+//        post = Post(
+//            title = "Title",
+//            body = "Body",
+//            userName = "user Name",
+//            publishedAt = "Sun Feb 04 16:47:40 GMT+02:00 2024",
+//            authorEmail = "authorEmail",
+//        ),
+//        postEvent = { PostEvent.Initial },
+//        currentEmail = "currentEmail",
+//    )
+
+
+}

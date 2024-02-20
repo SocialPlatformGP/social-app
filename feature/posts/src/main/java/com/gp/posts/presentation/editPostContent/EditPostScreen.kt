@@ -1,3 +1,4 @@
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -36,6 +37,7 @@ import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.TextField
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.AttachFile
@@ -52,6 +54,7 @@ import androidx.compose.material.icons.filled.VideoLibrary
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -90,7 +93,7 @@ import com.gp.socialapp.database.model.MimeType
 import com.gp.socialapp.database.model.PostAttachment
 import com.gp.socialapp.model.Post
 import com.gp.socialapp.model.Tag
-import com.gp.socialapp.theme.logoColor
+import com.gp.socialapp.theme.AppTheme
 import kotlinx.coroutines.launch
 
 
@@ -156,13 +159,21 @@ fun EditPostTopBar(
     editPostEvents: (EditPostEvents) -> Unit
 ) {
     androidx.compose.material.TopAppBar(
-        title = { Text(text = "Edit Post", color = Color.White, fontSize = 20.sp) },
+        title = {
+            Text(
+                text = "Edit Post",
+                color = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary,
+                fontSize = 20.sp
+            )
+        },
         navigationIcon = {
             IconButton(
                 onClick = { editPostEvents(EditPostEvents.NavigateBack) },
             ) {
                 Icon(
-                    imageVector = Icons.Filled.ArrowBackIosNew, contentDescription = null, tint = Color.White
+                    imageVector = Icons.Filled.ArrowBackIosNew,
+                    contentDescription = null,
+                    tint = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary
                 )
             }
         },
@@ -174,11 +185,14 @@ fun EditPostTopBar(
                 },
             ) {
                 Icon(
-                    imageVector = Icons.Filled.Check, contentDescription = null, tint = Color.White
+                    imageVector = Icons.Filled.Check,
+                    contentDescription = null,
+                    tint = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary,
                 )
             }
         },
-        backgroundColor = logoColor,
+        backgroundColor = androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer,
+        contentColor = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary,
     )
 }
 
@@ -206,7 +220,7 @@ fun CreatePostContent(
         modifier = Modifier.run {
             fillMaxSize()
                 .padding(paddingValues)
-                .background(Color.LightGray)
+//                .background(Color.LightGray)
         },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -220,6 +234,7 @@ fun CreatePostContent(
             errorState = emptyError
 
         )
+        Divider()
         EditPostTextField(
             label = "Content",
             value = contentValue,
@@ -228,10 +243,16 @@ fun CreatePostContent(
             modifier = Modifier.weight(1f),
             errorState = emptyError
         )
+        Divider()
         FlowTags(tags.toSet(), editPostEvents)
+        Divider()
         LazyRow(
             horizontalArrangement = Arrangement.Start,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    androidx.compose.material3.MaterialTheme.colorScheme.primaryContainer
+                )
         ) {
             items(selectedFiles) { file ->
                 PreviewFileItem(
@@ -244,7 +265,9 @@ fun CreatePostContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(height * 0.08f)
-                .background(MaterialTheme.colors.surface),
+                .background(
+                    androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer
+                ),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
@@ -394,7 +417,12 @@ fun FlowTags(
     editPostEvents: (EditPostEvents) -> Unit
 ) {
     LazyRow(
-        horizontalArrangement = Arrangement.Start
+        horizontalArrangement = Arrangement.Start,
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                androidx.compose.material3.MaterialTheme.colorScheme.secondaryContainer
+            )
     ) {
         items(selectedTags.toList()) { tag ->
             Chip(onClick = {
@@ -430,7 +458,7 @@ private fun EditPostOutlinedButton(
                 top = 3.dp, bottom = 3.dp, start = 4.dp, end = 4.dp
             ),
             style = MaterialTheme.typography.button,
-            color = logoColor
+            color = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary
         )
     }
 }
@@ -443,7 +471,8 @@ private fun EditPostAction(
         onClick = onClick,
     ) {
         Icon(
-            imageVector = icon, contentDescription = null, tint = logoColor
+            imageVector = icon, contentDescription = null,
+            tint = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary
         )
     }
 }
@@ -460,8 +489,12 @@ fun EditPostTextField(
     TextField(
         value = value,
         onValueChange = onValueChange,
-        label = { Text(text = label) },
-        leadingIcon = {
+        label = {
+            Text(
+                text = label,
+                color = androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer
+            )
+        }, leadingIcon = {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
@@ -469,13 +502,19 @@ fun EditPostTextField(
                     .fillMaxHeight()
                     .wrapContentHeight(Alignment.Top)
                     .padding(16.dp),
-                tint = logoColor
+                tint = androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer
             )
         },
         modifier = modifier
             .fillMaxWidth()
             .background(MaterialTheme.colors.surface),
-        isError = errorState
+        isError = errorState,
+        colors = TextFieldDefaults.textFieldColors(
+            backgroundColor = androidx.compose.material3.MaterialTheme.colorScheme.secondaryContainer,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            errorIndicatorColor = Color.Transparent
+        )
     )
 }
 
@@ -523,11 +562,34 @@ fun ButtonSheetOptions(
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
 fun EditPostPreview() {
-    EditPostScreen(
-        post = Post(),
-        tags = emptySet(),
-        editPostEvents = {}
-    )
+    AppTheme {
+        Surface {
+            EditPostScreen(
+                post = Post(),
+                tags = emptySet(),
+                editPostEvents = {}
+            )
+        }
+    }
+
+}
+
+@Preview(
+    showSystemUi = true, showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL
+)
+@Composable
+fun EditPostPreviewNight() {
+    AppTheme {
+        Surface {
+            EditPostScreen(
+                post = Post(),
+                tags = emptySet(),
+                editPostEvents = {}
+            )
+        }
+    }
+
 }
 
 enum class TagType(val label: String) {
@@ -540,7 +602,6 @@ fun ColorPickerDialog(
     colors: List<Color>,
     onColorSelected: (Color) -> Unit,
 ) {
-
     Surface(
         shape = MaterialTheme.shapes.medium,
 
@@ -589,7 +650,7 @@ fun PreviewFileItem(
             .width(70.dp)
             .height(105.dp)
             .clip(MaterialTheme.shapes.medium)
-            .background(MaterialTheme.colors.surface)
+            .background(androidx.compose.material3.MaterialTheme.colorScheme.surface)
             .clickable { editPostEvents(EditPostEvents.OnPreviewClicked(file)) }
             .border(1.dp, MaterialTheme.colors.onSurface, MaterialTheme.shapes.medium)
 
@@ -694,7 +755,6 @@ fun PreviewFileItem(
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
                 .align(Alignment.BottomStart)
-                .background(MaterialTheme.colors.surface)
                 .padding(3.dp)
         )
     }

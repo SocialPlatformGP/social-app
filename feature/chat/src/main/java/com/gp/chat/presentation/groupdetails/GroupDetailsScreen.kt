@@ -29,6 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -216,7 +217,11 @@ fun GroupNameSection(
     ) {
         if (isModifying) {
             OutlinedTextField(
+                shape = RoundedCornerShape(32.dp),
                 value = newName,
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                ),
                 isError = isError,
                 supportingText = {
                     if (isError) {
@@ -341,16 +346,17 @@ fun AddMembersSection(
         Icon(
             painterResource(id = R.drawable.add_people_circle),
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.outline,
+            tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier
                 .size(55.dp)
         )
         Spacer(modifier = modifier.width(12.dp))
         Text(
+            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
             text = "Add Members",
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            fontSize = 20.sp
+            fontSize = 20.sp,
         )
     }
 }
