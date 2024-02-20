@@ -42,7 +42,6 @@ class CreateGroupChatFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        Log.d("EDREES", "onViewCreated: ")
         super.onViewCreated(view, savedInstanceState)
         composeView.setContent {
             AppTheme {
