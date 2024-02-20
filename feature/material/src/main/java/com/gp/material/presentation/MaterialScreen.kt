@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -161,24 +162,36 @@ fun MaterialScreen(
         containerColor = MaterialTheme.colorScheme.inverseOnSurface,
         modifier = modifier.fillMaxSize(),
         topBar = {
-            Row(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
+            Card(
+
+                shape = RoundedCornerShape(0.dp),
+                elevation = CardDefaults.cardElevation(
+                    defaultElevation = 10.dp
+                ),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.inverseOnSurface,
+                    disabledContainerColor = MaterialTheme.colorScheme.inverseOnSurface,
+                ),
             ) {
-                if ((currentPath != "materials") && (currentPath != "/materials")) {
-                    IconButton(onClick = { onBackPressed() }) {
-                        Icon(
-                            imageVector = Icons.Rounded.ArrowBack,
-                            contentDescription = null,
-                        )
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if ((currentPath != "materials") && (currentPath != "/materials")) {
+                        IconButton(onClick = { onBackPressed() }) {
+                            Icon(
+                                imageVector = Icons.Rounded.ArrowBack,
+                                contentDescription = null,
+                            )
+                        }
+                    } else {
+                        Spacer(modifier = Modifier.size(40.dp))
                     }
-                } else {
-                    Spacer(modifier = Modifier.size(40.dp))
+                    Text(
+                        text = currentFolderName,
+                        style = MaterialTheme.typography.titleMedium
+                    )
                 }
-                Text(
-                    text = currentFolderName,
-                    style = MaterialTheme.typography.titleMedium
-                )
             }
         },
         floatingActionButton = {
@@ -204,9 +217,11 @@ fun MaterialScreen(
             }
         },
     ) {
-        Box(modifier = modifier
-            .padding(it)
-            .fillMaxSize()) {
+        Box(
+            modifier = modifier
+                .padding(it)
+                .fillMaxSize()
+        ) {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(items) { item ->
                     MaterialItem(
