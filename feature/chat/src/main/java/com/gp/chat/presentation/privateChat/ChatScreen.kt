@@ -42,6 +42,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -55,6 +56,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -223,54 +225,70 @@ fun ChatScreen(
     var EditedMessageID by remember { mutableStateOf("") }
     var EditedMessageBody by remember { mutableStateOf("") }
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.inverseOnSurface,
+
         topBar = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp, vertical = 8.dp)
-
-                    .background(
-                        color = MaterialTheme.colorScheme.secondaryContainer,
-                        shape = RoundedCornerShape(32.dp)
-                    )
-                    .padding(8.dp)
-
+            Card(
+                shape = RoundedCornerShape(0.dp),
+                elevation = CardDefaults.cardElevation(
+                    defaultElevation = 10.dp
+                ),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.inverseOnSurface,
+                    disabledContainerColor = MaterialTheme.colorScheme.inverseOnSurface,
+                ),
             ) {
-                IconButton(onClick = { onBackPressed() }) {
-                    Icon(
-                        imageVector = Icons.Filled.ArrowBackIosNew,
-                        tint = MaterialTheme.colorScheme.primary,
-                        contentDescription = "Navigate Back"
-                    )
-                }
+
+
                 Row(
-                    modifier = Modifier
-                        .clickable { onChatHeaderClicked() }
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp, vertical = 8.dp)
+
+//                    .background(
+//                        color = MaterialTheme.colorScheme.secondaryContainer,
+//                        shape = RoundedCornerShape(32.dp)
+//                    )
+                        .padding(8.dp)
+
+
                 ) {
-                    Spacer(modifier = Modifier.size(8.dp))
-                    if (isPrivateChat) {
-                        CircularAvatar(
-                            imageURL = chatImageURL,
-                            size = 45.dp,
-                            placeHolderImageVector = Icons.Filled.AccountCircle
-                        )
-                    } else {
-                        CircularAvatar(
-                            imageURL = chatImageURL,
-                            size = 45.dp,
-                            placeHolderDrawable = R.drawable.ic_group
+                    IconButton(onClick = { onBackPressed() }) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBackIosNew,
+//                        tint = MaterialTheme.colorScheme.primary,
+                            contentDescription = "Navigate Back"
                         )
                     }
-                    Spacer(modifier = Modifier.size(8.dp))
-                    Text(
-                        text = chatTitle,
-                        fontSize = 18.sp,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
+                    Row(
+                        modifier = Modifier
+                            .clickable { onChatHeaderClicked() }
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Spacer(modifier = Modifier.size(8.dp))
+                        if (isPrivateChat) {
+                            CircularAvatar(
+                                imageURL = chatImageURL,
+                                size = 45.dp,
+                                placeHolderImageVector = Icons.Filled.AccountCircle
+                            )
+                        } else {
+                            CircularAvatar(
+                                imageURL = chatImageURL,
+                                size = 45.dp,
+                                placeHolderDrawable = R.drawable.ic_group
+                            )
+                        }
+                        Spacer(modifier = Modifier.size(8.dp))
+                        Text(
+                            text = chatTitle,
+                            fontSize = 18.sp,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
                 }
             }
         },
@@ -278,7 +296,7 @@ fun ChatScreen(
             .contentWindowInsets
             .exclude(WindowInsets.navigationBars)
             .exclude(WindowInsets.ime),
-        modifier = modifier
+        modifier = modifier,
     ) { paddingValues ->
         Box(
             Modifier
@@ -383,7 +401,11 @@ fun MessageInput(
 //            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
 //        )
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .padding(
+                    bottom = 4.dp
+                ),
         ) {
             TextField(
                 value = messageState.message,
@@ -391,7 +413,7 @@ fun MessageInput(
                 placeholder = { Text("Type your message") },
                 modifier = Modifier
                     .weight(1F)
-                    .clip(RoundedCornerShape(35.dp)),
+                    .clip(RoundedCornerShape(32.dp)),
                 leadingIcon = {
                     IconButton(onClick = { isExpanded = !isExpanded }) {
                         Icon(
@@ -401,7 +423,12 @@ fun MessageInput(
                             modifier = Modifier.rotate(rotation)
                         )
                     }
-                }
+                },
+                colors = TextFieldDefaults.colors(
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor = Color.Transparent
+                )
             )
             IconButton(onClick = { onSendMessage() }) {
                 Icon(
@@ -1020,27 +1047,31 @@ val messages = listOf(
 @Composable
 fun ChatScreenPreview() {
     AppTheme {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            ChatScreen(
-                isPrivateChat = false,
-                chatTitle = "John Elton",
-                chatImageURL = "",
-                onChatHeaderClicked = { /*TODO*/ },
-                onBackPressed = { /*TODO*/ },
-                onFileClicked = { _, _, _ -> },
-                onUserClicked = {},
-                onAttachFileClicked = { /*TODO*/ },
-                onAttachImageClicked = { /*TODO*/ },
-                onOpenCameraClicked = { /*TODO*/ },
-                dropDownItems = emptyList(),
-                onSendMessage = { /*TODO*/ },
-                onDeleteMessage = {},
-                onUpdateMessage = {},
-                onEditMessage = { _, _ -> },
-                messages = messages,
-                currentMessage = MessageState(message = "Current Message"),
-                currentUserEmail = "mohamededrees234@hotmail.com"
-            )
+        Surface {
+
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                ChatScreen(
+                    isPrivateChat = false,
+                    chatTitle = "John Elton",
+                    chatImageURL = "",
+                    onChatHeaderClicked = { /*TODO*/ },
+                    onBackPressed = { /*TODO*/ },
+                    onFileClicked = { _, _, _ -> },
+                    onUserClicked = {},
+                    onAttachFileClicked = { /*TODO*/ },
+                    onAttachImageClicked = { /*TODO*/ },
+                    onOpenCameraClicked = { /*TODO*/ },
+                    dropDownItems = emptyList(),
+                    onSendMessage = { /*TODO*/ },
+                    onDeleteMessage = {},
+                    onUpdateMessage = {},
+                    onEditMessage = { _, _ -> },
+                    messages = messages,
+                    currentMessage = MessageState(message = "Current Message"),
+                    currentUserEmail = "mohamededrees234@hotmail.com"
+                )
+            }
         }
     }
 }

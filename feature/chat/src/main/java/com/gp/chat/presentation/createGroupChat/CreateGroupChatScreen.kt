@@ -101,6 +101,9 @@ fun CreateGroupChatScreen(
     onAddMember: (User) -> Unit,
     onCreateGroup: () -> Unit,
 ) {
+    Surface (
+        color =MaterialTheme.colorScheme.inverseOnSurface
+    ){
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween,
@@ -192,6 +195,7 @@ fun CreateGroupChatScreen(
         }
     }
 }
+}
 
 @Composable
 fun GroupAvatarSection(
@@ -214,7 +218,7 @@ fun GroupAvatarSection(
                 modifier = Modifier
                     .size(100.dp)
                     .clip(CircleShape),
-                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                tint = MaterialTheme.colorScheme.outline
             )
         } else {
             Image(

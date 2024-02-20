@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -50,38 +51,42 @@ fun AddMembersScreen(
     onAddMember: (User) -> Unit,
     onAddMembersClicked: () -> Unit,
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.fillMaxSize()
+    Surface(
+        color = MaterialTheme.colorScheme.inverseOnSurface,
     ) {
-        ChooseGroupMembersSection(
-            modifier = Modifier.padding(top = 8.dp),
-            selectedUsers = selectedUsers,
-            users = users,
-            onUnselectUser = {
-                onRemoveMember(it)
-            },
-            onUserClick = { user ->
-                if (user.isSelected) {
-                    onAddMember(user.data)
-                } else {
-                    onRemoveMember(user.data)
-                }
-            })
-        Spacer(modifier = Modifier.size(8.dp))
-        Button(
-            onClick = onAddMembersClicked,
-            enabled = selectedUsers.isNotEmpty(),
-            modifier = Modifier.padding(horizontal = 16.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            )
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier.fillMaxSize()
         ) {
-            Text(
-                text = "Add Selected Members",
-                style = MaterialTheme.typography.labelLarge,
-            )
+            ChooseGroupMembersSection(
+                modifier = Modifier.padding(top = 8.dp),
+                selectedUsers = selectedUsers,
+                users = users,
+                onUnselectUser = {
+                    onRemoveMember(it)
+                },
+                onUserClick = { user ->
+                    if (user.isSelected) {
+                        onAddMember(user.data)
+                    } else {
+                        onRemoveMember(user.data)
+                    }
+                })
+            Spacer(modifier = Modifier.size(8.dp))
+            Button(
+                onClick = onAddMembersClicked,
+                enabled = selectedUsers.isNotEmpty(),
+                modifier = Modifier.padding(horizontal = 16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
+            ) {
+                Text(
+                    text = "Add Selected Members",
+                    style = MaterialTheme.typography.labelLarge,
+                )
+            }
         }
     }
 }

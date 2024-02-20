@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gp.posts.fontFamily
 import com.gp.socialapp.theme.AppTheme
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegistrationScreen(
@@ -56,6 +57,7 @@ fun RegistrationScreen(
     )
 
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegistrationScreen(
@@ -66,7 +68,7 @@ fun RegistrationScreen(
     onPasswordChange: (String) -> Unit,
     onRePasswordChange: (String) -> Unit
 ) {
-    androidx.compose.material3.Scaffold (
+    androidx.compose.material3.Scaffold(
         topBar = {
             androidx.compose.material3.TopAppBar(
                 title = {
@@ -91,7 +93,7 @@ fun RegistrationScreen(
                 }
             )
         }
-    ){ paddingValues ->
+    ) { paddingValues ->
         RegistrationContent(
             paddingValues = paddingValues,
             state = state,
@@ -136,10 +138,12 @@ fun RegistrationContent(
             shape = RoundedCornerShape(32.dp),
             value = state.email,
             onValueChange = { onEmailChange(it) },
-            label = { androidx.compose.material3.Text(
-                text = "Email",
-                color= MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f)
-            ) },
+            label = {
+                androidx.compose.material3.Text(
+                    text = "Email",
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f)
+                )
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp),
@@ -160,10 +164,12 @@ fun RegistrationContent(
             shape = RoundedCornerShape(32.dp),
             value = state.password,
             onValueChange = { onPasswordChange(it) },
-            label = { androidx.compose.material3.Text(
-                text = "Password",
-                color= MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f)
-            ) },
+            label = {
+                androidx.compose.material3.Text(
+                    text = "Password",
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f)
+                )
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp),
@@ -171,10 +177,10 @@ fun RegistrationContent(
                 androidx.compose.material3.Icon(
                     imageVector = Icons.Filled.Lock,
                     contentDescription = null,
-                    tint= MaterialTheme.colorScheme.onPrimaryContainer
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             },
-                        colors = OutlinedTextFieldDefaults.colors(
+            colors = OutlinedTextFieldDefaults.colors(
                 unfocusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
             ),
             singleLine = true,
@@ -186,7 +192,9 @@ fun RegistrationContent(
 
                 val description = if (passwordVisible) "Hide password" else "Show password"
 
-                androidx.compose.material3.IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                androidx.compose.material3.IconButton(onClick = {
+                    passwordVisible = !passwordVisible
+                }) {
                     androidx.compose.material3.Icon(
                         imageVector = image, description,
                         tint = MaterialTheme.colorScheme.onPrimaryContainer
@@ -198,10 +206,12 @@ fun RegistrationContent(
             shape = RoundedCornerShape(32.dp),
             value = state.rePassword,
             onValueChange = { onRePasswordChange(it) },
-            label = { androidx.compose.material3.Text(
-                text = "Re-Password",
-                color= MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f)
-            ) },
+            label = {
+                androidx.compose.material3.Text(
+                    text = "Re-Password",
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f)
+                )
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp),
@@ -209,10 +219,10 @@ fun RegistrationContent(
                 androidx.compose.material3.Icon(
                     imageVector = Icons.Filled.Lock,
                     contentDescription = null,
-                    tint= MaterialTheme.colorScheme.onPrimaryContainer
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             },
-                        colors = OutlinedTextFieldDefaults.colors(
+            colors = OutlinedTextFieldDefaults.colors(
                 unfocusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
             ),
             singleLine = true,
@@ -224,7 +234,9 @@ fun RegistrationContent(
 
                 val description = if (passwordVisible) "Hide password" else "Show password"
 
-                androidx.compose.material3.IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                androidx.compose.material3.IconButton(onClick = {
+                    passwordVisible = !passwordVisible
+                }) {
                     androidx.compose.material3.Icon(
                         imageVector = image, description,
                         tint = MaterialTheme.colorScheme.onPrimaryContainer
@@ -249,22 +261,22 @@ fun RegistrationContent(
                 fontSize = 18.sp
             )
         }
-        Row (
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
-        ){
+        ) {
             androidx.compose.material3.Text(
                 text = "Already have an account?",
                 modifier = Modifier
-                    .padding( end = 8.dp),
+                    .padding(end = 8.dp),
                 fontSize = 18.sp
             )
             androidx.compose.material3.TextButton(
                 onClick = onNavigateToLoginScreen,
-            ){
+            ) {
                 androidx.compose.material3.Text(
                     text = "Sign In",
                     fontSize = 18.sp,
@@ -292,7 +304,9 @@ fun RegistrationScreenPreview() {
         }
     }
 }
-@Preview(showBackground = true, showSystemUi = true,
+
+@Preview(
+    showBackground = true, showSystemUi = true,
     uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL
 )
 @Composable

@@ -22,6 +22,7 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.gp.material.model.FileType
 import com.gp.material.model.MaterialItem
+import com.gp.material.theme.AppTheme
 import com.gp.socialapp.utils.State
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch

@@ -23,7 +23,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
@@ -41,6 +40,7 @@ import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
@@ -174,7 +174,7 @@ fun MainFeedScreen(
         bottomBar = {
             MainFeedBottomBar(navigationAction = navigationActions)
         },
-        backgroundColor =androidx.compose.material3.MaterialTheme.colorScheme.secondaryContainer
+        backgroundColor =MaterialTheme.colorScheme.inverseOnSurface
     ) { paddingValues ->
         MainFeedContent(
             paddingValues = paddingValues,
@@ -290,7 +290,7 @@ fun MainFeedTopBar(navigationAction: (NavigationActions) -> Unit) {
         Text(
             text = "EduLink",
             color = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary,
-            style = MaterialTheme.typography.h6,
+            style = MaterialTheme.typography.headlineSmall,
             modifier = Modifier
                 .weight(1f)
                 .wrapContentWidth(align = Alignment.CenterHorizontally)

@@ -128,7 +128,10 @@ fun NewChatScreen(
                 modifier = Modifier.fillMaxWidth()
             )
         }
-    }, content = { paddingValues ->
+    },
+        containerColor = MaterialTheme.colorScheme.inverseOnSurface
+       ,
+        content = { paddingValues ->
         NewChatContent(users, onUserClick, Modifier.padding(paddingValues))
     })
 }

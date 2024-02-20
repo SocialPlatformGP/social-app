@@ -158,6 +158,7 @@ fun MaterialScreen(
     fileWithOpenDetails: MaterialItem,
 ) {
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.inverseOnSurface,
         modifier = modifier.fillMaxSize(),
         topBar = {
             Row(
@@ -590,7 +591,7 @@ fun MaterialScreenPreview() {
             onDropDownItemClicked = { _, _ -> },
             isLoading = false,
             onUploadFolder = {},
-            isFileDetailsDialogOpen = true,
+            isFileDetailsDialogOpen = false,
             onDismissFileDetailsDialog = { /*TODO*/ },
             fileWithOpenDetails = MaterialItem(name = "Preview File", path = "/materials/ggg/")
         )

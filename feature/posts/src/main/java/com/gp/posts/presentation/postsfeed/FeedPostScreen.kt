@@ -40,6 +40,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.Chat
 import androidx.compose.material.icons.twotone.KeyboardDoubleArrowUp
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
@@ -117,13 +118,13 @@ fun FeedPostItem(
     postEvent: (PostEvent) -> Unit,
     currentEmail: String
 ) {
-    androidx.compose.material3.Card(
+    Card(
         onClick = { postEvent(PostEvent.OnPostClicked(post)) },
         shape = RoundedCornerShape(4.dp),
         modifier = Modifier
             .fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.onSecondary,
+        containerColor = MaterialTheme.colorScheme.onSecondary,
 
             )
     ) {

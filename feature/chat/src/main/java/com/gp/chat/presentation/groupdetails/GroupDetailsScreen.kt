@@ -30,6 +30,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -141,8 +142,9 @@ fun GroupDetailsScreen(
     onDismissUserClickedDialog: () -> Unit,
     onViewProfile: (User) -> Unit,
 ) {
-    Box(
-        modifier = modifier
+    Surface(
+        modifier = modifier,
+        color = MaterialTheme.colorScheme.inverseOnSurface
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -346,13 +348,12 @@ fun AddMembersSection(
         Icon(
             painterResource(id = R.drawable.add_people_circle),
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier
-                .size(55.dp)
+                .size(55.dp),
+            tint = MaterialTheme.colorScheme.outline
         )
         Spacer(modifier = modifier.width(12.dp))
         Text(
-            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
             text = "Add Members",
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,

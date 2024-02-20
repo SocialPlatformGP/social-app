@@ -4,6 +4,7 @@ import android.content.res.Configuration
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -14,16 +15,23 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.NotificationsActive
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -35,6 +43,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -91,7 +100,9 @@ fun ChatHomeScreen(
     fabItems: ArrayList<FabItem>,
     modifier: Modifier = Modifier
 ) {
-    Scaffold(topBar = { }, floatingActionButton = {
+    Scaffold(topBar = {
+        ChatTopBar()
+    }, floatingActionButton = {
         MultiFloatingActionButton(
             fabIcon = Icons.Filled.Add,
             items = fabItems,
@@ -106,7 +117,61 @@ fun ChatHomeScreen(
             onDropPDownItemClicked = onDropPDownItemClicked,
             modifier.padding(it)
         )
-    })
+    },
+        containerColor = MaterialTheme.colorScheme.inverseOnSurface
+    )
+}
+
+@Composable
+fun ChatTopBar() {
+    Row(
+
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(70.dp)
+            .clip(
+                RoundedCornerShape(
+                    bottomEnd = 16.dp,
+                    bottomStart = 16.dp
+                )
+            )
+            .background(
+                androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer
+            )
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+
+
+    ) {
+        IconButton(onClick = {
+            //todo navigate to search
+        }) {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = "search",
+                tint = MaterialTheme.colorScheme.onPrimary
+            )
+        }
+
+        Text(
+            text = "EduLink",
+            color = MaterialTheme.colorScheme.onPrimary,
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier
+                .weight(1f)
+                .wrapContentWidth(align = Alignment.CenterHorizontally)
+        )
+        IconButton(onClick = {
+            //todo navigate to notifications
+        }) {
+            Icon(
+                imageVector = Icons.Default.NotificationsActive,
+                contentDescription = "notification",
+                tint = MaterialTheme.colorScheme.onPrimary
+            )
+        }
+
+    }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -120,7 +185,9 @@ fun ChatHomeScreenContent(
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
-        contentPadding = PaddingValues(8.dp), modifier = modifier.fillMaxWidth()
+        contentPadding = PaddingValues(
+            vertical = 8.dp, horizontal = 16.dp
+        ), modifier = modifier.fillMaxWidth()
     ) {
         items(chats) { chat ->
             ChatItem(
