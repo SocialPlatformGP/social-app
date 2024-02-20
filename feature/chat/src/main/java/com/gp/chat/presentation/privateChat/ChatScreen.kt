@@ -692,7 +692,6 @@ fun MessageItem(
                         text = timestamp,
                         fontWeight = FontWeight.W400,
                         fontSize = 10.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier
                             .align(Alignment.End)
                             .padding(end = 4.dp, bottom = 4.dp)
