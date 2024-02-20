@@ -20,7 +20,6 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
-import com.gp.chat.presentation.theme.AppTheme
 import com.gp.material.model.FileType
 import com.gp.material.model.MaterialItem
 import com.gp.socialapp.utils.State
@@ -121,6 +120,7 @@ class MaterialFragment : Fragment() {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(item.fileUrl))
         requireContext().startActivity(intent)
     }
+
     private fun String.copyToClipboard(text: String) {
         val context = requireContext()
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager

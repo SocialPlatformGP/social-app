@@ -25,15 +25,19 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,11 +60,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.gp.chat.presentation.theme.AppTheme
 import com.gp.material.R
 import com.gp.material.model.FileType
 import com.gp.material.model.MaterialItem
-
+import com.gp.material.theme.AppTheme
 
 @Composable
 fun MaterialScreen(
@@ -76,48 +79,8 @@ fun MaterialScreen(
 ) {
     val items by viewModel.items.collectAsStateWithLifecycle()
     val currentPath by viewModel.currentPath.collectAsStateWithLifecycle()
-    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
-
-
-    MaterialScreen(
-        isAdmin = isAdmin,
-        onOpenFile = onOpenFile,
-        onFolderClicked = onFolderClicked,
-        onDownloadFile = onDownloadFile,
-        onShareLink = onShareLink,
-        onBackPressed = onBackPressed,
-        onNewFileClicked = onNewFileClicked,
-        items = items,
-        currentPath = currentPath,
-        isLoading = isLoading,
-        deleteFolder = { viewModel.deleteFolder(it) },
-        deleteFile = { viewModel.deleteFile(it) },
-        getCurrentFolderName = { viewModel.getCurrentFolderName(it) },
-        uploadFolder = { viewModel.uploadFolder(it) }
-    )
-
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun MaterialScreen(
-    modifier: Modifier = Modifier,
-    isAdmin: Boolean,
-    onOpenFile: (MaterialItem) -> Unit,
-    onFolderClicked: (String) -> Unit,
-    onDownloadFile: (MaterialItem) -> Unit,
-    onShareLink: (MaterialItem) -> Unit,
-    onBackPressed: () -> Unit,
-    onNewFileClicked: () -> Unit,
-    items: List<MaterialItem>,
-    currentPath: String,
-    isLoading: Boolean,
-    deleteFolder: (String) -> Unit,
-    deleteFile: (String) -> Unit,
-    getCurrentFolderName: (String) -> String,
-    uploadFolder: (String) -> Unit,
-) {
     var isCreateDialogOpen by remember { mutableStateOf(false) }
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     var isFileDetailsDialogOpen by remember { mutableStateOf(false) }
     var fileWithOpenDetails by remember { mutableStateOf(MaterialItem()) }
     val folderDropDownItems = listOf("Delete")
@@ -125,12 +88,12 @@ fun MaterialScreen(
     val onDropDownItemClicked: (String, MaterialItem) -> Unit = { dropDownItem, item ->
         if (item.fileType == FileType.FOLDER) {
             if (dropDownItem == "Delete") {
-                deleteFolder(item.path)
+                viewModel.deleteFolder(item.path)
             }
         } else {
             when (dropDownItem) {
                 "Delete" -> {
-                    deleteFile(item.path)
+                    viewModel.deleteFile(item.path)
                 }
 
                 "Download" -> {
@@ -148,38 +111,74 @@ fun MaterialScreen(
             }
         }
     }
-    androidx.compose.material3.Scaffold(
-        topBar = {
-            TopAppBar(title = {
-                androidx.compose.material3.Text(
-                    text = getCurrentFolderName(currentPath),
-                    style = MaterialTheme.typography.titleMedium
-                )
-            },
-                navigationIcon = {
-                    if ((currentPath != "materials") && (currentPath != "/materials")) {
-                    androidx.compose.material3.IconButton(
-                        modifier = Modifier.padding(
-                            start = 8.dp,
-                            top = 16.dp
+    MaterialScreen(
+        currentPath = currentPath,
+        onBackPressed = onBackPressed,
+        currentFolderName = viewModel.getCurrentFolderName(currentPath),
+        isAdmin = isAdmin,
+        isCreateDialogOpen = isCreateDialogOpen,
+        onShowCreateDialog = { isCreateDialogOpen = true },
+        onDismissCreateDialog = { isCreateDialogOpen = false },
+        onNewFileClicked = onNewFileClicked,
+        items = items,
+        onFolderClicked = onFolderClicked,
+        onOpenFile = onOpenFile,
+        folderDropDownItems = folderDropDownItems,
+        fileDropDownItems = fileDropDownItems,
+        onDropDownItemClicked = onDropDownItemClicked,
+        isLoading = isLoading,
+        onUploadFolder = viewModel::uploadFolder,
+        isFileDetailsDialogOpen = isFileDetailsDialogOpen,
+        onDismissFileDetailsDialog = { isFileDetailsDialogOpen = false },
+        fileWithOpenDetails = fileWithOpenDetails
+    )
+}
 
-                        ),
-                        colors = IconButtonDefaults.iconButtonColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer
-                        ),
-                        onClick = onBackPressed
-                    ) {
-                        androidx.compose.material3.Icon(
-                            imageVector = Icons.Filled.ArrowBackIosNew,
-                            contentDescription = "Back"
+@Composable
+fun MaterialScreen(
+    modifier: Modifier = Modifier,
+    currentPath: String,
+    onBackPressed: () -> Unit,
+    currentFolderName: String,
+    isAdmin: Boolean,
+    isCreateDialogOpen: Boolean,
+    onShowCreateDialog: () -> Unit,
+    onDismissCreateDialog: () -> Unit,
+    onNewFileClicked: () -> Unit,
+    items: List<MaterialItem>,
+    onFolderClicked: (String) -> Unit,
+    onOpenFile: (MaterialItem) -> Unit,
+    folderDropDownItems: List<String>,
+    fileDropDownItems: List<String>,
+    onDropDownItemClicked: (String, MaterialItem) -> Unit,
+    isLoading: Boolean,
+    onUploadFolder: (String) -> Unit,
+    isFileDetailsDialogOpen: Boolean,
+    onDismissFileDetailsDialog: () -> Unit,
+    fileWithOpenDetails: MaterialItem,
+) {
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        topBar = {
+            Row(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if ((currentPath != "materials") && (currentPath != "/materials")) {
+                    IconButton(onClick = { onBackPressed() }) {
+                        Icon(
+                            imageVector = Icons.Rounded.ArrowBack,
+                            contentDescription = null,
                         )
                     }
-                    } else {
-                        Spacer(modifier = Modifier.size(40.dp))
-                    }
+                } else {
+                    Spacer(modifier = Modifier.size(40.dp))
                 }
-            )
-
+                Text(
+                    text = currentFolderName,
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
         },
         floatingActionButton = {
             if (isAdmin) {
@@ -190,25 +189,23 @@ fun MaterialScreen(
                             icon = painterResource(id = R.drawable.baseline_create_new_folder_24),
                             label = "Create Folder",
                             backgroundColor = Color(0xff222f86),
-                            onFabItemClicked = {
-                                isCreateDialogOpen = true
-                            }
+                            onFabItemClicked = onShowCreateDialog
                         ),
                         FabItem(
                             icon = painterResource(id = R.drawable.baseline_upload_file_24),
                             label = "Upload File",
                             backgroundColor = Color.DarkGray,
-                            onFabItemClicked = {
-                                onNewFileClicked()
-                            }
+                            onFabItemClicked = onNewFileClicked
                         )
                     ),
-                    backgroundColor = Color.DarkGray
+                    backgroundColor = MaterialTheme.colorScheme.tertiaryContainer
                 )
             }
         },
     ) {
-        Box(modifier = modifier.padding(it)) {
+        Box(modifier = modifier
+            .padding(it)
+            .fillMaxSize()) {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(items) { item ->
                     MaterialItem(
@@ -226,35 +223,35 @@ fun MaterialScreen(
                 }
             }
             if (isLoading) {
-                androidx.compose.material3.CircularProgressIndicator(
+                CircularProgressIndicator(
                     modifier = Modifier
                         .align(Alignment.TopCenter)
                         .offset(y = 48.dp),
-//                    color = MaterialTheme.colorScheme.secondary,
-//                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    color = MaterialTheme.colorScheme.secondary,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
                 )
             }
             if (isCreateDialogOpen) {
                 CreateFolderDialog(
                     onConfirmation = {
-                        uploadFolder(it)
-                        isCreateDialogOpen = false
+                        onUploadFolder(it)
+                        onDismissCreateDialog()
                     },
-                    onDismissRequest = { isCreateDialogOpen = false })
+                    onDismissRequest = onDismissCreateDialog
+                )
             }
             if (isFileDetailsDialogOpen) {
                 FileDetailsDialog(
-                    onDismiss = { isFileDetailsDialogOpen = false },
+                    onDismiss = onDismissFileDetailsDialog,
                     onOpenFile = {
                         onOpenFile(fileWithOpenDetails)
-                        isFileDetailsDialogOpen = false
+                        onDismissFileDetailsDialog()
                     },
                     file = fileWithOpenDetails
                 )
             }
         }
     }
-
 }
 
 @Composable
@@ -281,7 +278,7 @@ fun MaterialItem(
     Column {
         Row(
             modifier = modifier
-                .padding(horizontal = 8.dp, vertical = 8.dp)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
                 .onSizeChanged {
                     itemHeight = with(density) { it.height.toDp() }
                 }
@@ -305,37 +302,36 @@ fun MaterialItem(
                 },
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            androidx.compose.material3.Icon(
+            Icon(
                 painter = getItemPainterResource(item.fileType),
                 contentDescription = null,
                 tint = Color.Unspecified,
                 modifier = Modifier.size(40.dp)
             )
-            Spacer(modifier = Modifier.size(16.dp))
+            Spacer(modifier = Modifier.size(12.dp))
             Column(
                 verticalArrangement = Arrangement.Center,
                 modifier = Modifier.widthIn(max = 260.dp)
             ) {
-                androidx.compose.material3.Text(
+                Text(
                     text = item.name,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-
                 )
-                androidx.compose.material3.Text(
+                Text(
                     text = item.size,
                     style = MaterialTheme.typography.labelMedium
                 )
             }
             Box(modifier = Modifier.fillMaxWidth()) {
-                androidx.compose.material3.IconButton(
+                IconButton(
                     onClick = {
                         isDropDownMenuVisible = true
                     },
                     modifier = Modifier.align(Alignment.CenterEnd)
                 ) {
-                    androidx.compose.material3.Icon(
+                    Icon(
                         imageVector = Icons.Rounded.MoreVert,
                         contentDescription = null
                     )
@@ -352,7 +348,7 @@ fun MaterialItem(
             )
         ) {
             dropDownItems.forEach { dropDownItem ->
-                androidx.compose.material3.DropdownMenuItem(
+                DropdownMenuItem(
                     text = {
                         Text(text = dropDownItem)
                     },
@@ -397,7 +393,7 @@ fun CreateFolderDialog(
             onDismissRequest()
         }
     ) {
-        androidx.compose.material3.Card(
+        Card(
             modifier = modifier
                 .fillMaxWidth()
                 .height(230.dp)
@@ -412,12 +408,9 @@ fun CreateFolderDialog(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.Start,
             ) {
-                androidx.compose.material3.Text(
-                    text = "New Folder",
-                    style = MaterialTheme.typography.headlineSmall
-                )
+                Text(text = "New Folder", style = MaterialTheme.typography.headlineSmall)
                 Spacer(modifier = Modifier.size(8.dp))
-                androidx.compose.material3.OutlinedTextField(
+                OutlinedTextField(
                     value = textValue,
                     onValueChange = { textValue = it },
                     placeholder = { Text(text = "Folder Name") })
@@ -426,18 +419,18 @@ fun CreateFolderDialog(
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceAround,
                 ) {
-                    androidx.compose.material3.TextButton(
+                    TextButton(
                         onClick = { onDismissRequest() },
                         modifier = Modifier.padding(8.dp),
                     ) {
                         Text("Cancel")
                     }
-                    androidx.compose.material3.TextButton(
+                    TextButton(
                         onClick = { onConfirmation(textValue) },
                         enabled = textValue.isNotBlank(),
                         modifier = Modifier.padding(8.dp),
                     ) {
-                        androidx.compose.material3.Text("Confirm")
+                        Text("Confirm")
                     }
                 }
             }
@@ -453,7 +446,7 @@ fun FileDetailsDialog(
     file: MaterialItem,
 ) {
     Dialog(onDismissRequest = { onDismiss() }) {
-        androidx.compose.material3.Card(
+        Card(
             modifier = modifier
                 .fillMaxWidth()
                 .padding(16.dp),
@@ -465,14 +458,14 @@ fun FileDetailsDialog(
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    androidx.compose.material3.Icon(
+                    Icon(
                         painter = getItemPainterResource(file.fileType),
                         contentDescription = null,
                         tint = Color.Unspecified,
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(Modifier.width(8.dp))
-                    androidx.compose.material3.Text(
+                    Text(
                         text = file.name,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Medium
@@ -508,15 +501,15 @@ fun FileDetailsDialog(
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceAround,
                 ) {
-                    androidx.compose.material3.TextButton(
+                    TextButton(
                         onClick = { onDismiss() },
                     ) {
-                        androidx.compose.material3.Text("Cancel")
+                        Text("Cancel")
                     }
-                    androidx.compose.material3.TextButton(
+                    TextButton(
                         onClick = { onOpenFile(file) },
                     ) {
-                        androidx.compose.material3.Text("Open File")
+                        Text("Open File")
                     }
                 }
             }
@@ -533,115 +526,73 @@ fun DetailsDialogField(
     value: String,
 ) {
     Column(modifier = modifier) {
-        androidx.compose.material3.Text(
+        Text(
             text = title,
             color = Color.Gray,
             fontSize = 12.sp
         )
-        androidx.compose.material3.Text(
+        Text(
             text = value,
             fontSize = 18.sp,
         )
     }
 }
 
-
-@Preview
+@Preview(name = "Light", showBackground = true, showSystemUi = true)
+@Preview(
+    name = "Dark",
+    showBackground = true,
+    showSystemUi = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
 @Composable
-fun MatPrevLight() {
+fun MaterialScreenPreview() {
+    val items = listOf<MaterialItem>(
+        MaterialItem(
+            name = "Folder 1",
+            fileType = FileType.FOLDER,
+        ),
+        MaterialItem(
+            name = "Folder 2",
+            fileType = FileType.FOLDER,
+        ),
+        MaterialItem(
+            name = "File PDF",
+            fileType = FileType.PDF,
+            size = "2 MB"
+        ),
+        MaterialItem(
+            name = "File Video",
+            fileType = FileType.VIDEO,
+            size = "6.5 MB",
+        ),
+        MaterialItem(
+            name = "File Image",
+            fileType = FileType.IMAGE,
+            size = "6.5 MB",
+        )
+    )
     AppTheme {
-        Surface {
-            MaterialScreen(
-                isAdmin = true,
-                onOpenFile = { /*TODO*/ },
-                onFolderClicked = { /*TODO*/ },
-                onDownloadFile = { /*TODO*/ },
-                onShareLink = { /*TODO*/ },
-                onBackPressed = { /*TODO*/ },
-                onNewFileClicked = { /*TODO*/ },
-                items = listOf(
-                    MaterialItem(
-                        name = "Home",
-                        fileType = FileType.FOLDER,
-                        path = "/materials",
-                        size = "0",
-                        createdBy = "Admin",
-                        creationTime = "2021-09-01 12:00:00"
-                    ),
-                    MaterialItem(
-                        name = "Home",
-                        fileType = FileType.IMAGE,
-                        path = "/materials",
-                        size = "0",
-                        createdBy = "Admin",
-                        creationTime = "2021-09-01 12:00:00"
-                    ),
-                    MaterialItem(
-                        name = "Home",
-                        fileType = FileType.PDF,
-                        path = "/materials",
-                        size = "0",
-                        createdBy = "Admin",
-                        creationTime = "2021-09-01 12:00:00"
-                    ),
-                ),
-                currentPath = "",
-                isLoading = false,
-                deleteFolder = { /*TODO*/ },
-                deleteFile = { /*TODO*/ },
-                getCurrentFolderName = { it },
-                uploadFolder = { /*TODO*/ },
-            )
-        }
-    }
-}
-
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL)
-@Composable
-fun MatPrevLightNight() {
-    AppTheme {
-        Surface {
-            MaterialScreen(
-                isAdmin = true,
-                onOpenFile = { /*TODO*/ },
-                onFolderClicked = { /*TODO*/ },
-                onDownloadFile = { /*TODO*/ },
-                onShareLink = { /*TODO*/ },
-                onBackPressed = { /*TODO*/ },
-                onNewFileClicked = { /*TODO*/ },
-                items = listOf(
-                    MaterialItem(
-                        name = "Home",
-                        fileType = FileType.FOLDER,
-                        path = "/materials",
-                        size = "0",
-                        createdBy = "Admin",
-                        creationTime = "2021-09-01 12:00:00"
-                    ),
-                    MaterialItem(
-                        name = "Home",
-                        fileType = FileType.IMAGE,
-                        path = "/materials",
-                        size = "0",
-                        createdBy = "Admin",
-                        creationTime = "2021-09-01 12:00:00"
-                    ),
-                    MaterialItem(
-                        name = "Home",
-                        fileType = FileType.PDF,
-                        path = "/materials",
-                        size = "0",
-                        createdBy = "Admin",
-                        creationTime = "2021-09-01 12:00:00"
-                    ),
-                ),
-                currentPath = "",
-                isLoading = false,
-                deleteFolder = { /*TODO*/ },
-                deleteFile = { /*TODO*/ },
-                getCurrentFolderName = { it },
-                uploadFolder = { /*TODO*/ },
-            )
-        }
+        MaterialScreen(
+            currentPath = "materials",
+            onBackPressed = { /*TODO*/ },
+            currentFolderName = "Home",
+            isAdmin = true,
+            isCreateDialogOpen = false,
+            onShowCreateDialog = { /*TODO*/ },
+            onDismissCreateDialog = { /*TODO*/ },
+            onNewFileClicked = { /*TODO*/ },
+            items = items,
+            onFolderClicked = {},
+            onOpenFile = {},
+            folderDropDownItems = emptyList(),
+            fileDropDownItems = emptyList(),
+            onDropDownItemClicked = { _, _ -> },
+            isLoading = false,
+            onUploadFolder = {},
+            isFileDetailsDialogOpen = true,
+            onDismissFileDetailsDialog = { /*TODO*/ },
+            fileWithOpenDetails = MaterialItem(name = "Preview File", path = "/materials/ggg/")
+        )
     }
 }

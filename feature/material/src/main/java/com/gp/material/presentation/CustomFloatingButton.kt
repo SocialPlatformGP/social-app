@@ -25,6 +25,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -129,7 +130,7 @@ fun MultiFloatingActionButton(
                         item = item,
                         stateTransition = stateTransition,
                         showLabel = showLabels,
-                        onDismiss = {currentState = MultiFabState.COLLAPSED}
+                        backgroundColor = backgroundColor
                     )
                     Spacer(modifier = Modifier.height(20.dp))
                 }
@@ -158,8 +159,8 @@ fun MultiFloatingActionButton(
 fun SmallFloatingActionButtonRow(
     item: FabItem,
     showLabel: Boolean,
-    stateTransition: Transition<MultiFabState>,
-    onDismiss: () -> Unit
+    backgroundColor: Color,
+    stateTransition: Transition<MultiFabState>
 ) {
     val alpha: Float by stateTransition.animateFloat(
         transitionSpec = {
@@ -184,10 +185,7 @@ fun SmallFloatingActionButtonRow(
                 text = item.label,
                 modifier = Modifier
                     .padding(start = 6.dp, end = 6.dp, top = 4.dp, bottom = 4.dp)
-                    .clickable(onClick = {
-                        item.onFabItemClicked()
-                        onDismiss()
-                    }),
+                    .clickable(onClick = { item.onFabItemClicked() }),
                 color = Color.White
             )
         }
@@ -197,7 +195,7 @@ fun SmallFloatingActionButtonRow(
                 .padding(4.dp),
             onClick = {
                 item.onFabItemClicked()
-                onDismiss()
+//                onDismiss()
             },
 //            containerColor = Color(0xff222f86),
 //            contentColor = Color.White
