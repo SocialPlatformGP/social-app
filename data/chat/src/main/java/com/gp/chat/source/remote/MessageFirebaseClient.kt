@@ -4,14 +4,11 @@ package com.gp.chat.source.remote
 import android.net.Uri
 import android.util.Log
 import androidx.core.net.toUri
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
@@ -23,23 +20,15 @@ import com.gp.chat.model.NetworkMessage
 import com.gp.chat.model.NetworkRecentChat
 import com.gp.chat.model.RecentChat
 import com.gp.chat.util.ChatMapper.toChatGroup
-import com.gp.chat.util.ChatMapper.toMap
 import com.gp.chat.util.ChatMapper.toModel
 import com.gp.chat.util.ChatMapper.toNetworkMessage
 import com.gp.chat.util.ChatMapper.toRecentChat
-import com.gp.chat.util.RemoveSpecialChar
 import com.gp.chat.util.RemoveSpecialChar.removeSpecialCharacters
 import com.gp.chat.util.RemoveSpecialChar.restoreOriginalEmail
 import com.gp.socialapp.utils.State
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
-import java.util.Date
-import java.util.UUID
-import java.util.concurrent.atomic.AtomicInteger
 
 class MessageFirebaseClient(
     private val database: FirebaseDatabase
@@ -57,8 +46,8 @@ class MessageFirebaseClient(
 
     override fun insertChat(chat: ChatGroup): Flow<State<String>> = callbackFlow {
         val ref = database.reference.child(CHAT).push()
-        val chat = chat.copy(id = ref.key!!, name = "private")
-        ref.setValue(chat)
+        val newChat = chat.copy(id = ref.key!!, name = "private")
+        ref.setValue(newChat)
         val listener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
@@ -94,17 +83,19 @@ class MessageFirebaseClient(
 
 
     override fun sendMessage(message: Message): Flow<State<String>> = callbackFlow {
+        val uri = message.fileURI
+        val messageWithoutURI = message.copy(fileURI = "".toUri())
         database.reference.child(MESSAGES).child(message.groupId).push().setValue(
-            message.toNetworkMessage()
+            messageWithoutURI.toNetworkMessage()
         ) { error, ref ->
             if (error == null) {
-                if (message.fileType != "text") {
+                if (messageWithoutURI.fileType != "") {
                     val key = ref.key
                     val storageRef = Firebase.storage
                         .getReference(currentUser!!.uid)
+                        .child(message.groupId)
                         .child(key!!)
-                        .child(message.fileURI.lastPathSegment!!)
-                    putImageInStorage(storageRef, message, key)
+                    uploadMessageFile(storageRef, message, key, uri)
                     trySend(State.SuccessWithData(ref.key!!))
                 } else {
                     trySend(State.SuccessWithData(ref.key!!))
@@ -122,23 +113,21 @@ class MessageFirebaseClient(
     }
 
 
-    private fun putImageInStorage(storageRef: StorageReference, message: Message, key: String) {
-        storageRef.putFile(message.fileURI)
+    private fun uploadMessageFile(storageRef: StorageReference, message: Message, key: String, uri: Uri) {
+        storageRef.putFile(uri)
             .addOnSuccessListener { taskSnapshot ->
                 taskSnapshot.metadata!!.reference!!.downloadUrl
                     .addOnSuccessListener { uri ->
-                        val message = message.copy(
+                        val newMessage = message.copy(
                             fileURI = uri,
-                            id = key
                         )
-
-                        database.reference.child(MESSAGES).child(message.groupId).child(key)
+                        database.reference.child(MESSAGES).child(newMessage.groupId).child(key)
                             .setValue(
-                                message.toNetworkMessage()
+                                newMessage.toNetworkMessage()
                             ).addOnSuccessListener {
-                                Log.d(TAG, "putImageInStorage: ")
+                                Log.d("seerde", "putImageInStorage: success")
                             }.addOnFailureListener {
-                                Log.d(TAG, "putImageInStorage: ")
+                                Log.d("seerde", "putImageInStorage: failure")
                             }
 
                     }
@@ -182,14 +171,14 @@ class MessageFirebaseClient(
         }
     }
 
-    override fun getRecentChats(chatsId: List<String>): Flow<State<List<RecentChat>>> =
+    override fun getRecentChats(chatId: List<String>): Flow<State<List<RecentChat>>> =
         callbackFlow {
             val ref = database.reference.child(RECENT_CHATS)
             val listener = object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
                         val list = mutableListOf<RecentChat>()
-                        for (chatId in chatsId) {
+                        for (chatId in chatId) {
                             val recentChats =
                                 ((snapshot.child(chatId)).getValue(NetworkRecentChat::class.java)
                                     ?.toRecentChat(chatId))
@@ -285,6 +274,7 @@ class MessageFirebaseClient(
 
     override fun haveChatWithUser(userEmail: String, otherUserEmail: String): Flow<State<String>> =
         callbackFlow {
+            Log.d("SEERDE", "call reached client: 1-$userEmail 2-$otherUserEmail")
             val ref = database.reference.child(PRIVATE_CHAT).child(userEmail).child(RECEIVER_USER)
                 .child(otherUserEmail)
             val listener = object : ValueEventListener {
@@ -292,12 +282,12 @@ class MessageFirebaseClient(
                     Log.d("mohamed21", "onDataChange: ${snapshot.key}55${snapshot.value}")
                     if (snapshot.exists()) {
                         Log.d("mohamed22", "onDataChange: ${snapshot.key}55${snapshot.value}")
-
+                        Log.d("SEERDE", "onDataChange: user exists in client")
                         trySend(State.SuccessWithData(snapshot.value.toString()))
                     } else {
+                        Log.d("SEERDE", "onDataChange: user doesn't exist in client")
                         trySend(State.SuccessWithData("-1"))
                     }
-
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -307,6 +297,7 @@ class MessageFirebaseClient(
 
             }
             ref.addListenerForSingleValueEvent(listener)
+            Log.d("SEERDE", "haveChatWithUser: reached end of client function")
             awaitClose {
                 ref.removeEventListener(listener)
             }
@@ -317,6 +308,7 @@ class MessageFirebaseClient(
             val map = hashMapOf<String, Any>()
             map["lastMessage"] = recentChat.lastMessage
             map["timestamp"] = recentChat.timestamp
+            map["id"] = chatId
 
             database.reference.child(RECENT_CHATS).child(chatId).updateChildren(
                 map
@@ -408,42 +400,6 @@ class MessageFirebaseClient(
         }
     }
 
-    override fun sendGroupMessage(message: Message, recentChat: RecentChat): Flow<State<Nothing>> =
-        callbackFlow {
-            Log.d("edrees", "Before Sending")
-            trySend(State.Loading)
-            database.reference.child(MESSAGES)
-                .child(message.groupId).push().setValue(
-                    message.toNetworkMessage()
-                ) { error, ref ->
-                    if (error == null) {
-                        if (message.fileType != "text") {
-                            val key = ref.key
-                            val storageRef = Firebase.storage
-                                .getReference(currentUser!!.uid)
-                                .child(key!!)
-                                .child(message.fileURI.lastPathSegment!!)
-                            putImageInStorage(storageRef, message, key)
-                        }
-                        val updates = HashMap<String, Any>()
-                        updates["lastMessage"] = recentChat.lastMessage
-                        updates["timestamp"] = recentChat.timestamp
-                        database.reference.child(RECENT_CHATS)
-                            .child(message.groupId)
-                            .updateChildren(updates)
-                            .addOnSuccessListener {
-                                trySend(State.Success)
-                            }.addOnFailureListener {
-                                trySend(State.Error(it.localizedMessage!!))
-                            }
-
-                    } else {
-                        trySend(State.Error(error.message))
-                    }
-                }
-
-            awaitClose()
-        }
 
     override fun createGroupChat(
         group: NetworkChatGroup,
@@ -457,58 +413,90 @@ class MessageFirebaseClient(
                 trySend(State.Error("Failed to generate a chat key"))
                 return@callbackFlow
             }
-            //**********************************
-            Firebase.storage
-                .getReference(currentUser!!.uid)
-                .child(chatKey)
-                .child(recentChat.senderPicUrl.toUri().lastPathSegment!!)
-                .putFile(recentChat.senderPicUrl.toUri())
-                .addOnSuccessListener {
-                    it.metadata?.reference?.downloadUrl
-                        ?.addOnSuccessListener { uri ->
-                            Log.d("zarea3", "Image Uploaded ${uri}")
-                            chatRef.setValue(group)
-                                .addOnSuccessListener {
-                                    database.reference.child(RECENT_CHATS).child(chatKey)
-                                        .setValue(recentChat.copy(senderPicUrl = uri.toString()))
-                                        .addOnSuccessListener {
-                                            val userGroupData = hashMapOf<String, Any>()
-                                            for (user in group.members.entries) {
-                                                userGroupData["$CHAT_USER/${
-                                                    removeSpecialCharacters(
-                                                        user.key
-                                                    )
-                                                }/$GROUP/${chatKey}"] = user.value
-                                            }
-                                            val updateResult =
-                                                database.reference.updateChildren(userGroupData)
-                                                    .addOnSuccessListener {
-                                                        trySend(State.SuccessWithData(chatKey))
-                                                    }.addOnFailureListener {
-                                                        trySend(State.Error("Failed to update user groups"))
-                                                    }
-                                        }
-                                        .addOnFailureListener {
-                                            trySend(
-                                                State.Error(
-                                                    it.localizedMessage
-                                                        ?: "Failed to create recent chat"
-                                                )
-                                            )
-                                        }
-                                }
-                                .addOnFailureListener {
-                                    trySend(
-                                        State.Error(
-                                            it.localizedMessage ?: "Failed to create group chat"
+            if (recentChat.senderPicUrl.isBlank()) {
+                chatRef.setValue(group.copy(picURL = ""))
+                    .addOnSuccessListener {
+                        database.reference.child(RECENT_CHATS).child(chatKey)
+                            .setValue(recentChat.toRecentChat(chatKey))
+                            .addOnSuccessListener {
+                                val userGroupData = hashMapOf<String, Any>()
+                                for (user in group.members.entries) {
+                                    userGroupData["$CHAT_USER/${
+                                        removeSpecialCharacters(
+                                            user.key
                                         )
-                                    )
+                                    }/$GROUP/${chatKey}"] = user.value
                                 }
-                        }
-
-                }
-            //**********************************
-
+                                val updateResult =
+                                    database.reference.updateChildren(userGroupData)
+                                        .addOnSuccessListener {
+                                            trySend(State.SuccessWithData(chatKey))
+                                        }.addOnFailureListener {
+                                            trySend(State.Error("Failed to update user groups"))
+                                        }
+                            }
+                            .addOnFailureListener {
+                                trySend(
+                                    State.Error(
+                                        it.localizedMessage
+                                            ?: "Failed to create recent chat"
+                                    )
+                                )
+                            }
+                    }
+            } else {
+                Firebase.storage
+                    .getReference(currentUser!!.uid)
+                    .child(chatKey)
+                    .child(recentChat.senderPicUrl.toUri().lastPathSegment!!)
+                    .putFile(recentChat.senderPicUrl.toUri())
+                    .addOnSuccessListener {
+                        it.metadata?.reference?.downloadUrl
+                            ?.addOnSuccessListener { uri ->
+                                Log.d("zarea3", "Image Uploaded ${uri}")
+                                chatRef.setValue(group.copy(picURL = uri.toString()))
+                                    .addOnSuccessListener {
+                                        database.reference.child(RECENT_CHATS).child(chatKey)
+                                            .setValue(
+                                                recentChat.copy(senderPicUrl = uri.toString())
+                                                    .toRecentChat(chatKey)
+                                            )
+                                            .addOnSuccessListener {
+                                                val userGroupData = hashMapOf<String, Any>()
+                                                for (user in group.members.entries) {
+                                                    userGroupData["$CHAT_USER/${
+                                                        removeSpecialCharacters(
+                                                            user.key
+                                                        )
+                                                    }/$GROUP/${chatKey}"] = user.value
+                                                }
+                                                val updateResult =
+                                                    database.reference.updateChildren(userGroupData)
+                                                        .addOnSuccessListener {
+                                                            trySend(State.SuccessWithData(chatKey))
+                                                        }.addOnFailureListener {
+                                                            trySend(State.Error("Failed to update user groups"))
+                                                        }
+                                            }
+                                            .addOnFailureListener {
+                                                trySend(
+                                                    State.Error(
+                                                        it.localizedMessage
+                                                            ?: "Failed to create recent chat"
+                                                    )
+                                                )
+                                            }
+                                    }
+                                    .addOnFailureListener {
+                                        trySend(
+                                            State.Error(
+                                                it.localizedMessage ?: "Failed to create group chat"
+                                            )
+                                        )
+                                    }
+                            }
+                    }
+            }
         } catch (e: Exception) {
             trySend(State.Error(e.localizedMessage ?: "An error occurred"))
         }
@@ -558,51 +546,85 @@ class MessageFirebaseClient(
             }
         }
 
+    override fun updateGroupAvatar(uri: Uri, oldURL: String, groupID: String): Flow<State<String>> =
+        callbackFlow {
+            trySend(State.Loading)
+            Firebase.storage
+                .getReference(currentUser!!.uid)
+                .child(groupID)
+                .child(uri.lastPathSegment!!)
+                .putFile(uri)
+                .addOnSuccessListener {
+                    it.metadata?.reference?.downloadUrl?.addOnSuccessListener { uri ->
+                        val path1 = "$RECENT_CHATS/$groupID/senderPicUrl"
+                        val path2 = "$CHAT/$groupID/picURL"
+                        val updateMap = mapOf(
+                            path1 to uri.toString(),
+                            path2 to uri.toString()
+                        )
+                        database.reference.updateChildren(updateMap).addOnSuccessListener {
+                            if (oldURL.isBlank()) {
+                                trySend(State.SuccessWithData(uri.toString()))
+                            } else {
+                                val oldRef = Firebase.storage.getReferenceFromUrl(oldURL)
+                                oldRef.delete().addOnSuccessListener {
+                                    trySend(State.SuccessWithData(uri.toString()))
+                                }.addOnFailureListener {
+                                    trySend(State.Error("Failed to delete old image: ${it.message}"))
+                                }
+                            }
+                        }.addOnFailureListener {
+                            trySend(State.Error("Failed to update realtime references: ${it.message}"))
+                        }
+                    }?.addOnFailureListener {
+                        trySend(State.Error("Failed to retrieve download link: ${it.message}"))
+                    }
+                }.addOnFailureListener {
+                    trySend(State.Error("Failed to upload the nem image: ${it.message}"))
+                }
+
+            awaitClose()
+        }
+
     override fun addGroupMembers(groupId: String, usersEmails: List<String>): Flow<State<Nothing>> =
         callbackFlow {
             trySend(State.Loading)
-            val successCounter = AtomicInteger(0)
-
-            fun checkCompletion(counter: Int, totalUpdates: Int) {
-                if (counter == totalUpdates * 2) {
-                    trySend(State.Success)
-                    close()  // Close the flow when all updates are completed
-                }
-            }
-
-            usersEmails.forEach { userEmail ->
-                database.reference.child(CHAT_USER)
-                    .child(RemoveSpecialChar.removeSpecialCharacters(userEmail)).child(GROUP)
-                    .child(groupId)
-                    .setValue(false)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            successCounter.incrementAndGet()
-                            checkCompletion(successCounter.get(), usersEmails.size)
-                        } else {
-                            trySend(State.Error("$userEmail update failed"))
-                        }
-                    }
-            }
-
+            Log.d("SEERDE", "addGroupMembers: Call reached client")
             val groupUpdate = mutableMapOf<String, Any>()
-
             usersEmails.forEach { userEmail ->
-                val userKey = RemoveSpecialChar.removeSpecialCharacters(userEmail)
+                val userKey = removeSpecialCharacters(userEmail)
                 groupUpdate["$CHAT/$groupId/members/$userKey"] = false
+                groupUpdate["$CHAT_USER/$userKey/$GROUP/$groupId"] = false
             }
-
+            Log.d("SEERDE", "addGroupMembers: updates: $groupUpdate")
             database.reference.updateChildren(groupUpdate)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        successCounter.incrementAndGet()
-                        checkCompletion(successCounter.get(), usersEmails.size)
-                    } else {
-                        trySend(State.Error("Chat group update failed"))
-                    }
+                .addOnSuccessListener {
+                    Log.d("SEERDE", "addGroupMembers: Success in client")
+                    trySend(State.Success)
+                }.addOnFailureListener {
+                    trySend(State.Error("Chat group update failed"))
                 }
+            awaitClose {}
+        }
 
-            // Use awaitClose as a cleanup mechanism, but don't close the flow immediately
+    override fun changeGroupName(groupID: String, newName: String): Flow<State<Nothing>> =
+        callbackFlow {
+            trySend(State.Loading)
+            Log.d("SEERDE", "changeGroupName: Before calling")
+            database.reference.child(RECENT_CHATS)
+                .child(groupID)
+                .child("title")
+                .setValue(newName)
+                .addOnSuccessListener {
+                    database.reference.child(CHAT).child(groupID).child("name").setValue(newName)
+                        .addOnSuccessListener {
+                            trySend(State.Success)
+                        }.addOnFailureListener {
+                        trySend(State.Error(it.message!!))
+                    }
+                }.addOnFailureListener {
+                    trySend(State.Error(it.message!!))
+                }
             awaitClose { /* cleanup resources if needed */ }
         }
 

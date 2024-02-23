@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface MessageRemoteDataSource {
     fun fetchGroupMessages(groupId: String): Flow<List<Message>>
-    fun sendGroupMessage(message: Message,recentChat: RecentChat): Flow<State<Nothing>>
     fun insertChat(chat:ChatGroup): Flow<State<String>>
     fun insertRecentChat(recentChat: RecentChat,chatId: String)
     fun sendMessage(message: Message): Flow<State<String>>
@@ -32,5 +31,7 @@ interface MessageRemoteDataSource {
     fun getGroupDetails(groupId: String): Flow<State<ChatGroup>>
     fun removeMemberFromGroup(groupId: String, memberEmail: String): Flow<State<String>>
     fun addGroupMembers(groupId: String, usersEmails: List<String>): Flow<State<Nothing>>
+    fun updateGroupAvatar(uri: Uri, oldURL: String, groupID: String): Flow<State<String>>
+    fun changeGroupName(groupID: String, newName: String): Flow<State<Nothing>>
 //    fun sendMessageWithFile(message: Message, fileUri: Uri, chatId: String)
 }

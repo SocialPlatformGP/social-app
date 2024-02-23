@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.ui.platform.ComposeView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -14,24 +15,26 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gp.posts.R
 import com.gp.posts.adapter.SearchResultAdapter
-import com.gp.posts.databinding.FragmentSearchBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SearchResultsFragment : Fragment(){
+    private lateinit var composeView: ComposeView
     private val viewModel: SearchResultsViewModel by viewModels()
-    lateinit var binding: FragmentSearchBinding
     private  val args: SearchResultsFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        return ComposeView(requireContext()).also {
+            composeView=it
+        }
         // Inflate the layout for this fragment
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_search, container, false)
+        /*binding = DataBindingUtil.inflate(inflater, R.layout.fragment_search, container, false)
         binding.lifecycleOwner = this
-        return binding.root
+        return binding.root*/
     }
     fun backToSuggest(query: String?) {
         findNavController().popBackStack()
@@ -39,7 +42,11 @@ class SearchResultsFragment : Fragment(){
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val recyclerView = binding.rvSearchPosts
+
+        composeView.setContent {
+           SearchResultScreen(viewModel = viewModel,args.SearchQuery,args.isTag)
+        }
+       /* val recyclerView = binding.rvSearchPosts
         val adapter = SearchResultAdapter()
         recyclerView.adapter = adapter
         recyclerView.layoutManager= LinearLayoutManager(requireContext())
@@ -49,6 +56,7 @@ class SearchResultsFragment : Fragment(){
                 adapter.submitList(it)
             }
         }
+
         if(args.isTag){
             viewModel.searchPostsByTag(args.SearchQuery)
             binding.searchView.text="Search Results for Tag: "+args.SearchQuery
@@ -56,6 +64,8 @@ class SearchResultsFragment : Fragment(){
             viewModel.searchPostsByTitle(args.SearchQuery)
             binding.searchView.text="Search Results for: "+args.SearchQuery
         }
+
+        */
 
     }
 }

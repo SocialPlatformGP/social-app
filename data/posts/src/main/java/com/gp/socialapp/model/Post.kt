@@ -11,10 +11,10 @@ data class Post(
     val userName:String="",
     val userPfp:String="",
     val id: String="",
-    val authorEmail: String,
-    val publishedAt: String,
-    val title: String,
-    val body: String,
+    val authorEmail: String="",
+    val publishedAt: String="",
+    val title: String="",
+    val body: String="",
     val votes: Int=0,
     val downvoted: List<String> = emptyList(),
     val upvoted: List<String> = emptyList(),
@@ -22,7 +22,7 @@ data class Post(
     val editStatus: Boolean = false,
     val tags: List<Tag> = emptyList(),
     val type: String = "all",
-    val attachments: List<PostAttachment>
+    val attachments: List<PostAttachment> = emptyList()
 ):Serializable{
     companion object{
         val sortByVotes = compareByDescending<Post>{ PostPopularityUtils.calculateInteractionValue(it.votes, it.replyCount)}

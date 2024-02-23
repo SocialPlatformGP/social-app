@@ -11,6 +11,7 @@ import com.gp.users.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
@@ -33,5 +34,20 @@ class UserInformationViewModel @Inject constructor(private val userRepo: UserRep
                 }
             }
         }
+    }
+    fun onFirstNameChange(firstName: String) {
+        uiState.update { it.copy(firstName = firstName) }
+    }
+    fun onLastNameChange(lastName: String) {
+        uiState.update { it.copy(lastName = lastName) }
+    }
+    fun onPhoneNumberChange(phoneNumber: String) {
+        uiState.update { it.copy(phoneNumber = phoneNumber) }
+    }
+    fun onBirthDateChange(birthDate: Date) {
+        uiState.update { it.copy(birthDate = birthDate) }
+    }
+    fun onBioChange(bio: String) {
+        uiState.update { it.copy(bio = bio) }
     }
 }

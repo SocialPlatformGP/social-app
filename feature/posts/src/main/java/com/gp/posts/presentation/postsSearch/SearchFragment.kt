@@ -1,42 +1,24 @@
 package com.gp.posts
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
+import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.flowWithLifecycle
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.gp.posts.adapter.SearchAdapter
-import com.gp.posts.databinding.FragmentSuggestPostBinding
-import com.gp.posts.listeners.OnSuggestedPostClickListener
-import com.gp.posts.presentation.postsSearch.SearchResultsViewModel
-import com.gp.socialapp.model.Post
+import com.gp.posts.presentation.postsSearch.SearchViewModel
+import com.gp.posts.presentation.postsSearch.SuggestScreen
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class SearchFragment : Fragment(), OnSuggestedPostClickListener {
-    private val viewModel: SearchResultsViewModel by viewModels()
-    lateinit var binding: FragmentSuggestPostBinding
-    var searchText: String = ""
+class SearchFragment : Fragment(){
+    private lateinit var composeView:ComposeView
+    private val viewModel: SearchViewModel by viewModels()
 
-
-    fun updateSearchQuery(query: String?) {
-        searchText = query!!
-
-        if (query.isNullOrEmpty()) {
-            binding.rvSuggestPosts.visibility = View.GONE
-        } else {
-            binding.rvSuggestPosts.visibility = View.VISIBLE
-            viewModel.searchPostsByTitle(query)
-        }
-    }
 
     fun navigateToFinalResult(query: String?) {
         val action = SearchFragmentDirections.actionSuggestPostToSearchFragment2(query!!)
@@ -46,27 +28,22 @@ class SearchFragment : Fragment(), OnSuggestedPostClickListener {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        binding =
-            DataBindingUtil.inflate(inflater, R.layout.fragment_suggest_post, container, false)
-        return binding.root
+
+        return ComposeView(requireContext()).also {
+            composeView=it
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val recyclerView = binding.rvSuggestPosts
-        val adapter = SearchAdapter(this)
-        recyclerView.adapter = adapter
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        lifecycleScope.launch {
-            viewModel.searchResult.flowWithLifecycle(lifecycle).collect {
-                binding.rvSuggestPosts.visibility = View.VISIBLE
-                adapter.submitList(it)
-            }
+        composeView.setContent {
+            SuggestScreen(viewModel =viewModel,{onClickStar(it)})
         }
     }
 
-    override fun onClick(model: Post) {
-        val action = SearchFragmentDirections.actionSuggestPostToSearchFragment2(model.title, false)
+     fun onClickStar(model: String) {
+        val action = SearchFragmentDirections.actionSuggestPostToSearchFragment2(model, false)
+         Log.d("details", "onClickStar: $model")
         findNavController().navigate(action)
     }
 }

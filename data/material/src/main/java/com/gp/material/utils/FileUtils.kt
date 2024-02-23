@@ -72,5 +72,17 @@ object FileUtils {
 
         return mimeType ?: MimeType.ALL_FILES
     }
+    fun getFileSizeString(sizeBytes: Long): String {
+        val kiloBytes = sizeBytes / 1024.0
+        val megaBytes = kiloBytes / 1024.0
+        val gigaBytes = megaBytes / 1024.0
+
+        return when {
+            gigaBytes >= 1.0 -> String.format("%.2f GB", gigaBytes)
+            megaBytes >= 1.0 -> String.format("%.2f MB", megaBytes)
+            kiloBytes >= 1.0 -> String.format("%.2f KB", kiloBytes)
+            else -> String.format("%d B", sizeBytes)
+        }
+    }
 
 }

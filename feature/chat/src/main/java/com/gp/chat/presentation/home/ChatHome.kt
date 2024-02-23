@@ -2,91 +2,77 @@ package com.gp.chat.presentation.home
 
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.appcompat.widget.PopupMenu
-import androidx.appcompat.widget.Toolbar
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.painterResource
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.flowWithLifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavController
-import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import com.gp.chat.R
-import com.gp.chat.adapter.ChatAdapter
-import com.gp.chat.listener.OnItemClickListener
-import com.gp.chat.listener.OnRecentChatClicked
-import com.gp.chat.model.Message
 import com.gp.chat.model.RecentChat
-import com.gp.socialapp.database.model.UserEntity
+import com.gp.chat.presentation.theme.AppTheme
+import com.gp.chat.utils.FabItem
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 @AndroidEntryPoint
-class ChatHome : Fragment(), OnRecentChatClicked {
-    lateinit var recyclerView: RecyclerView
-    lateinit var chatAdapter: ChatAdapter
-    lateinit var floatingActionButton: FloatingActionButton
+class ChatHome : Fragment() {
     private val viewModel: HomeViewModel by viewModels()
+    private lateinit var composeView: ComposeView
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_chat_home, container, false)
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        return ComposeView(requireContext()).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+        }.also {
+            composeView = it
+        }
     }
 
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val toolbar = requireActivity().findViewById<Toolbar>(R.id.toolbar)
-        toolbar.title = Firebase.auth.currentUser?.displayName
-        recyclerView = view.findViewById(R.id.chatListRecyclerView)
-        floatingActionButton = view.findViewById(R.id.fabNewChat)
-        chatAdapter = ChatAdapter(this)
-        recyclerView.adapter = chatAdapter
-
-        lifecycleScope.launch {
-            val  formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z", Locale.ENGLISH)
-
-            viewModel.recentChats.flowWithLifecycle(lifecycle).collect { it ->
-                chatAdapter.submitList(it.map {
-                    it.copy(
-                        timestamp = DateTimeFormatter
-                            .ofPattern("hh:mm", Locale.ENGLISH)
-                            .format(ZonedDateTime.parse(it.timestamp,formatter))
+        composeView.setContent {
+            AppTheme {
+                ChatHomeScreen(viewModel = viewModel, onRecentChatClicked = { recentChat ->
+                    onClick(recentChat)
+                }, onDropPDownItemClicked = { dropDownItem, recentChat ->
+                    onDropDownItemClicked(dropDownItem, recentChat)
+                }, dropDownItems = listOf(DropDownItem("Leave")),
+                    fabItems = arrayListOf(
+                        FabItem(
+                            icon = painterResource(id = R.drawable.ic_new_group),
+                            label = "New Group",
+                            backgroundColor = Color.DarkGray,
+                            onFabItemClicked = {
+                                val action =
+                                    ChatHomeDirections.actionChatHomeToCreateGroupChatFragment()
+                                findNavController().navigate(action)
+                            }
+                        ),
+                        FabItem(
+                            icon = painterResource(id = R.drawable.ic_new_chat),
+                            label = "New Chat",
+                            backgroundColor = Color.DarkGray,
+                            onFabItemClicked = {
+                                val action =
+                                    ChatHomeDirections.actionChatHomeToNewChat()
+                                findNavController().navigate(action)
+                            }
+                        ),
                     )
-                })
+                )
             }
-
-
         }
-        floatingActionButton.setOnClickListener {
-            val action = ChatHomeDirections.actionChatHomeToNewChat()
-            findNavController().navigate(action)
-        }
-
     }
 
-    override fun onRecentChatClicked(
-        recentChat: RecentChat
-    ) {
+    private fun onClick(recentChat: RecentChat) {
         with(recentChat) {
             val action = if (recentChat.privateChat) {
                 ChatHomeDirections.actionChatHomeToPrivateChatFragment(
@@ -98,23 +84,21 @@ class ChatHome : Fragment(), OnRecentChatClicked {
                 )
             } else {
                 ChatHomeDirections.actionChatHomeToGroupChatFragment(
-                    id,
-                    title,
-                    senderPicUrl
+                    id, title, senderPicUrl
                 )
             }
             findNavController().navigate(action)
         }
-
-
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    override fun leaveGroup(groupId: String) {
-        viewModel.leaveGroup(groupId)
+    private fun onDropDownItemClicked(dropDownItem: DropDownItem, recentChat: RecentChat) {
+        when (dropDownItem.text) {
+            "Leave" -> {
+                viewModel.leaveGroup(recentChat.id)
+            }
+        }
     }
-
-
 }
 
 

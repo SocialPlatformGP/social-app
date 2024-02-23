@@ -6,6 +6,6 @@
 
     <fragment
         android:id="@+id/materialfragment"
-        android:name="com.gp.material.presentation.materialfragment"
+        android:name="com.gp.material.presentation.MaterialFragment"
         android:label="materialfragment" />
 </navigation>

@@ -2,7 +2,6 @@ package com.gp.socialapp
 
 import android.app.SearchManager
 import android.content.Intent
-import android.icu.lang.UCharacter.GraphemeClusterBreak.V
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -134,11 +133,17 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
                 }
 
+                com.gp.chat.R.id.newChat -> {
+                    hideBottomNav()
+                    appBarLayout.visibility = View.GONE
+
+                }
+
                 com.gp.posts.R.id.postDetailsFragment -> {
                     hideBottomNav()
                 }
 
-                com.gp.chat.R.id.fullScreenImageDialogFragment -> {
+                com.gp.chat.R.id.createGroupChatFragment -> {
                     hideBottomNav()
                 }
 
@@ -177,7 +182,7 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
         val currentFragment = navHostFragment.childFragmentManager.fragments[0]
         when (currentFragment) {
             is com.gp.posts.SearchFragment -> {
-                currentFragment.updateSearchQuery(newText)
+                //currentFragment.updateSearchQuery(newText)
             }
 
             is com.gp.posts.presentation.postsSearch.SearchResultsFragment -> {
@@ -228,7 +233,7 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
     fun showBottomNav() {
         val params = bottomNavigationView.layoutParams as ViewGroup.LayoutParams
         val dpToPx = resources.displayMetrics.density // Conversion factor
-        val heightInPixels = (80 * dpToPx).toInt()
+        val heightInPixels = (60 * dpToPx).toInt()
         params.height = heightInPixels
         bottomNavigationView.layoutParams = params
         binding.appBarMain.contentInAppBarMain.height = heightInPixels

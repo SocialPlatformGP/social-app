@@ -11,7 +11,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SearchResultsViewModel @Inject constructor(private val postRepo: PostRepository, private val userRepo: UserRepository) : ViewModel() {
+class SearchResultsViewModel @Inject constructor(
+    private val postRepo: PostRepository,
+    private val userRepo: UserRepository) : ViewModel() {
     var searchResult :MutableStateFlow<List<Post>> = MutableStateFlow(listOf())
     fun searchPostsByTitle(title: String) {
         viewModelScope.launch (Dispatchers.IO){
@@ -28,6 +30,25 @@ class SearchResultsViewModel @Inject constructor(private val postRepo: PostRepos
                 }
                 searchResult.value = filteredPosts
             }
+        }
+    }
+
+    fun upVote(post: Post) {
+        viewModelScope.launch(Dispatchers.IO) {
+            postRepo.upVotePost(post)
+        }
+    }
+
+    fun downVote(post: Post) {
+        viewModelScope.launch(Dispatchers.IO) {
+            postRepo.downVotePost(post)
+        }
+    }
+
+    fun deletePost(post: Post) {
+        viewModelScope.launch(Dispatchers.IO) {
+            postRepo.deletePost(post)
+            postRepo.deleteLocalPost(post)
         }
     }
 }

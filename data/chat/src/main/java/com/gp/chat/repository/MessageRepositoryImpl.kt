@@ -54,9 +54,7 @@ class MessageRepositoryImpl @Inject constructor(
         return messageRemoteDataSource.fetchGroupMessages(groupId)
     }
 
-    override fun sendGroupMessage(message: Message, recentChat: RecentChat): Flow<State<Nothing>> {
-        return messageRemoteDataSource.sendGroupMessage(message, recentChat)
-    }
+
 
     override fun getUserChats(userEmail: String): Flow<State<ChatUser>> =
         messageRemoteDataSource.getUserChats(userEmail)
@@ -94,6 +92,8 @@ class MessageRepositoryImpl @Inject constructor(
         return messageRemoteDataSource.removeMemberFromGroup(groupId, memberEmail)
     }
 
+    override fun updateGroupAvatar(uri: Uri, oldURL: String, groupID: String)
+        = messageRemoteDataSource.updateGroupAvatar(uri, oldURL, groupID)
     override fun addGroupMembers(groupId: String, usersEmails: List<String>): Flow<State<Nothing>> {
         return messageRemoteDataSource.addGroupMembers(groupId, usersEmails)
     }
@@ -128,5 +128,6 @@ class MessageRepositoryImpl @Inject constructor(
         )
         return messageRemoteDataSource.createGroupChat(group, recentChat)
     }
-
+    override fun changeGroupName(groupID: String, newName: String)
+        = messageRemoteDataSource.changeGroupName(groupID, newName)
 }

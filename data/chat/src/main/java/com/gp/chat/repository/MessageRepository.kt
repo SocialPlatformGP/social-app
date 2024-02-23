@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.Flow
 interface MessageRepository {
 
     fun fetchGroupChatMessages(groupId: String): Flow<List<Message>>
-    fun sendGroupMessage(message: Message,recentChat: RecentChat): Flow<State<Nothing>>
     fun createGroupChat(name: String, avatarLink: String, members: List<String>, currentUserEmail: String): Flow<State<String>>
     fun insertChat(chat:ChatGroup): Flow<State<String>>
     fun insertRecentChat(recentChat: RecentChat,chatId: String)
@@ -30,6 +29,7 @@ interface MessageRepository {
     fun leaveGroup(chatId: String)
     fun getGroupDetails(groupId: String): Flow<State<ChatGroup>>
     fun removeMemberFromGroup(groupId: String, memberEmail: String): Flow<State<String>>
+    fun updateGroupAvatar(uri: Uri, oldURL: String, groupID: String): Flow<State<String>>
     fun addGroupMembers(groupId: String, usersEmails: List<String>): Flow<State<Nothing>>
-
+    fun changeGroupName(groupID: String, newName: String): Flow<State<Nothing>>
 }
